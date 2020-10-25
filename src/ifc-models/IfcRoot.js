@@ -3,6 +3,7 @@
  */
 
 import IfcBase from "./IfcBase";
+import { getIfcOwnerHistory } from "./IfcOwnerHistory";
 
 export default class IfcRoot extends IfcBase {
   constructor(ifcItemsFinder, rawIfcItem) {
@@ -13,7 +14,7 @@ export default class IfcRoot extends IfcBase {
   getIfcProperties() {
     super.getIfcProperties();
     this.globalId = this.extractGuid();
-    this.ownerHistory = this.extractId();
+    this.ownerHistory = getIfcOwnerHistory(this.finder, this.extractId());
     this.name = this.extractText();
     this.description = this.extractText();
   }

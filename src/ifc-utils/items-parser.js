@@ -12,9 +12,14 @@ const regexp = {
   guid: /^'\w{22}'/,
   expressId: /^#\d+/,
   expressIdSet: /\((#\d+|,)+?\)/,
-  text: /^'.+?'(?=\s*,)|^'.+?'(?=\s*$)|^\$/,
+  text: /^'.+?'(?=\s*,)|^'.+?'(?=\s*$)/,
+  enum: /\.\w+?\./,
+  integer: /\d+/,
+  defaultValue: /^\$/,
+  emptySet: /^\(\)/,
   //
   boundingApostrophes: /^'|'$/g,
+  boundingPoints: /^\.|\.$/g,
 };
 
 class ParseUtils {
@@ -49,13 +54,26 @@ class ParseUtils {
     return rawIfcLine.match(regexp.rawIfcType).toString();
   }
 
+  getIfcEnum(rawIfcLine) {
+    return rawIfcLine
+      .match(regexp.enum)
+      .toString()
+      .replace(regexp.boundingPoints, "");
+  }
+
+  getIfcInteger(rawIfcLine) {
+    return parseInt(rawIfcLine.match(regexp.integer).toString());
+  }
+
   getIfcText(rawIfcLine) {
-    const text = rawIfcLine
+    return rawIfcLine
       .match(regexp.text)
       .toString()
       .replace(regexp.boundingApostrophes, "");
+  }
 
-    return text;
+  getDefaultValue(rawIfcLine) {
+    return rawIfcLine.match(regexp.defaultValue).toString();
   }
 
   getIfcRawProperties(rawIfcLine) {

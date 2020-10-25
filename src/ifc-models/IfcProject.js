@@ -4,7 +4,7 @@
 
 import IfcObject from "./IfcObject";
 import { ifcTypes, ifcFinder } from "../ifc-utils/items-finder";
-import { readIfcItems } from "../ifc-parser/ifc-items-reader";
+import { readIfcItems } from "../ifc-loader/ifc-items-reader";
 
 class IfcProject extends IfcObject {
   getIfcProperties() {
