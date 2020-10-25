@@ -20,4 +20,4 @@ const ifcTypes = {
   ifcProject: "IFCPROJECT",
 };
 
-module.exports = { ifcTypes, ifcFinder };
+export { ifcTypes, ifcFinder };

@@ -1,19 +1,12 @@
 /**
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/FINAL/HTML/ifckernel/lexical/ifcproject.htm]
- * @param  {IfcGloballyUniqueId} GlobalId [IfcRoot]
- * @param  {IfcOwnerHistory} OwnerHistory [IfcRoot]
- * @param  {IfcLabel} Name [IfcRoot]
- * @param  {IfcText} Description [IfcRoot]
- * @param  {IfcLabel} ObjectType [IfcObject]
- * @param  {IfcLabel} LongName [IfcProject]
- * @param  {IfcLabel} Phase [IfcProject]
- * @param  {[IfcRepresentationContext]} RepresentationContexts [IfcProject]
- * @param  {IfcUnitAssignment} UnitsInContext [IfcProject]
  */
 
 import IfcObject from "./IfcObject";
+import { ifcTypes, ifcFinder } from "../ifc-utils/items-finder";
+import { readIfcItems } from "../ifc-parser/ifc-items-reader";
 
-export default class IfcProject extends IfcObject {
+class IfcProject extends IfcObject {
   getIfcProperties() {
     super.getIfcProperties();
     this.longName = this.extractText();
@@ -22,3 +15,10 @@ export default class IfcProject extends IfcObject {
     this.unitsInContext = this.extractId();
   }
 }
+
+function getIfcProject(loadedIfc) {
+  const finder = new ifcFinder(readIfcItems(loadedIfc));
+  return new IfcProject(finder, finder.findFirstByType(ifcTypes.ifcProject));
+}
+
+export { getIfcProject };

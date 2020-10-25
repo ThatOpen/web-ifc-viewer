@@ -71,4 +71,4 @@ class ParseUtils {
   }
 }
 
-module.exports = { regexp, ParseUtils };
+export { regexp, ParseUtils };

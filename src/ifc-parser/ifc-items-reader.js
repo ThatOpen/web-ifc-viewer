@@ -1,4 +1,4 @@
-import { ParseUtils } from "../ifc-utils/regexp";
+import { ParseUtils } from "../ifc-utils/items-parser";
 
 class IfcItemsReader {
   constructor(ifcFile) {
@@ -31,4 +31,9 @@ class IfcItemsReader {
   }
 }
 
-export default IfcItemsReader;
+function readIfcItems(loadedIfc) {
+  const ifcReader = new IfcItemsReader(loadedIfc);
+  return ifcReader.readItems();
+}
+
+export { IfcItemsReader, readIfcItems };
