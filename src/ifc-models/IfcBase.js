@@ -1,6 +1,6 @@
 import { regexp, ParseUtils } from "../ifc-utils/items-parser";
 
-export default class IfcBase {
+class IfcBase {
   constructor(ifcItemsFinder, rawIfcItem) {
     this.finder = ifcItemsFinder;
     this.ifcLine = rawIfcItem;
@@ -19,7 +19,7 @@ export default class IfcBase {
   }
 
   extractId() {
-    if (this.hasDefaultValue()) return this.extractDefaultValue();
+    if (this.isDefaultValue()) return this.extractDefaultValue();
     const id = this.finder.findById(this.parser.getId(this.buffer));
     this.updateBuffer(regexp.expressId);
     return id;
@@ -42,24 +42,31 @@ export default class IfcBase {
   }
 
   extractText() {
-    if (this.hasDefaultValue()) return this.extractDefaultValue();
+    if (this.isDefaultValue()) return this.extractDefaultValue();
     const text = this.parser.getIfcText(this.buffer);
     this.updateBuffer(regexp.text);
     return text;
   }
 
   extractEnum() {
-    if (this.hasDefaultValue()) return this.extractDefaultValue();
+    if (this.isDefaultValue()) return this.extractDefaultValue();
     const enumerator = this.parser.getIfcEnum(this.buffer);
     this.updateBuffer(regexp.enum);
     return enumerator;
   }
 
-  extractInteger() {
-    if (this.hasDefaultValue()) return this.extractDefaultValue();
-    const integer = this.parser.getIfcInteger(this.buffer);
-    this.updateBuffer(regexp.integer);
-    return integer;
+  extractNumber() {
+    if (this.isDefaultValue()) return this.extractDefaultValue();
+    const realNumber = this.parser.getIfcNumber(this.buffer);
+    this.updateBuffer(regexp.realNumber);
+    return realNumber;
+  }
+
+  extractNumberSet() {
+    if (this.isEmptySet()) return this.extractEmptySet();
+    const numberSet = this.parser.getIfcNumberSet(this.buffer);
+    this.updateBuffer(regexp.realNumberSet);
+    return numberSet;
   }
 
   extractDefaultValue() {
@@ -73,7 +80,7 @@ export default class IfcBase {
     return "";
   }
 
-  hasDefaultValue() {
+  isDefaultValue() {
     return regexp.defaultValue.test(this.buffer);
   }
 
@@ -81,3 +88,19 @@ export default class IfcBase {
     return regexp.emptySet.test(this.buffer);
   }
 }
+
+function baseConstructor(caller, classToConstruct) {
+  return caller.isDefaultValue()
+    ? caller.extractDefaultValue()
+    : new classToConstruct(caller.finder, caller.extractId());
+}
+
+function baseMultiConstructor(caller, classToConstruct) {
+  return caller.isEmptySet()
+    ? caller.extractEmptySet()
+    : caller.extractIdSet().map((e) => {
+        return new classToConstruct(caller.finder, e);
+      });
+}
+
+export { IfcBase, baseConstructor, baseMultiConstructor };

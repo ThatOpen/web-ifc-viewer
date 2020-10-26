@@ -2,7 +2,7 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifcactorresource/lexical/ifcorganization.htm]
  */
 
-import IfcBase from "./IfcBase";
+import { IfcBase, baseConstructor } from "./IfcBase";
 
 class IfcOrganization extends IfcBase {
   getIfcProperties() {
@@ -15,8 +15,8 @@ class IfcOrganization extends IfcBase {
   }
 }
 
-function getIfcOrganization(ifcItemsFinder, rawIfcItem) {
-  return new IfcOrganization(ifcItemsFinder, rawIfcItem);
+function getIfcOrganization(caller) {
+  return baseConstructor(caller, IfcOrganization);
 }
 
 export { getIfcOrganization };
