@@ -2,7 +2,7 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifcutilityresource/lexical/ifcapplication.htm]
  */
 
-import { IfcBase, baseConstructor } from "./IfcBase";
+import { IfcBase, baseConstructor } from "../IfcBase";
 import { getIfcOrganization } from "./IfcOrganization";
 
 class IfcApplication extends IfcBase {

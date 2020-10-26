@@ -2,7 +2,7 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifcutilityresource/lexical/ifcownerhistory.htm]
  */
 
-import { IfcBase, baseConstructor } from "./IfcBase";
+import { IfcBase, baseConstructor } from "../IfcBase";
 import { getIfcApplication } from "./IfcApplication";
 
 class IfcOwnerHistory extends IfcBase {

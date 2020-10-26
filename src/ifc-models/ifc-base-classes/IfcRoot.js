@@ -2,8 +2,8 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/FINAL/HTML/ifckernel/lexical/ifcroot.htm]
  */
 
-import { IfcBase } from "./IfcBase";
-import { getIfcOwnerHistory } from "./IfcOwnerHistory";
+import { IfcBase } from "../IfcBase";
+import { getIfcOwnerHistory } from "../ifc-identities/IfcOwnerHistory";
 
 export default class IfcRoot extends IfcBase {
   constructor(ifcItemsFinder, rawIfcItem) {

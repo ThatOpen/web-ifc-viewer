@@ -2,12 +2,12 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/FINAL/HTML/ifckernel/lexical/ifcproject.htm]
  */
 
-import IfcObject from "./IfcObject";
-import { ifcFinder } from "../ifc-utils/items-finder";
-import { readIfcItems } from "../ifc-loader/ifc-items-reader";
-import { getIfcGeometricRepresentationContexts } from "./IfcGeometricRepresentationContext";
-import { getIfcUnitAssignment } from "./units/IfcUnitAssignment";
-import { ifcTypes } from "../ifc-utils/ifc-types";
+import IfcObject from "../ifc-base-classes/IfcObject";
+import { ifcFinder } from "../../ifc-utils/items-finder";
+import { readIfcItems } from "../../ifc-loader/ifc-items-reader";
+import { getIfcGeometricRepresentationContexts } from "../ifc-contexts/IfcGeometricRepresentationContext";
+import { getIfcUnitAssignment } from "../ifc-units/IfcUnitAssignment";
+import { ifcTypes } from "../../ifc-utils/ifc-types";
 
 class IfcProject extends IfcObject {
   getIfcProperties() {

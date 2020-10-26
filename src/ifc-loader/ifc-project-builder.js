@@ -1,4 +1,4 @@
-import { getIfcProject } from "../ifc-models/IfcProject";
+import { getIfcProject } from "../ifc-models/ifc-spatial-structure/IfcProject";
 
 function buildIfcProject(loadedIfc) {
   getIfcProject(loadedIfc);
