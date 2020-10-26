@@ -16,8 +16,4 @@ class ifcFinder {
   }
 }
 
-const ifcTypes = {
-  ifcProject: "IFCPROJECT",
-};
-
-export { ifcTypes, ifcFinder };
+export { ifcFinder };

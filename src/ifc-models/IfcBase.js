@@ -20,6 +20,7 @@ class IfcBase {
 
   extractId() {
     if (this.isDefaultValue()) return this.extractDefaultValue();
+    if (this.isAsterisk()) return this.extractAsterisk();
     const id = this.finder.findById(this.parser.getId(this.buffer));
     this.updateBuffer(regexp.expressId);
     return id;
@@ -69,6 +70,20 @@ class IfcBase {
     return numberSet;
   }
 
+  extractAsterisk() {
+    if (this.isEmptySet()) return this.extractEmptySet();
+    const asterisk = this.parser.getIfcAsterisk(this.buffer);
+    this.updateBuffer(regexp.asterisk);
+    return asterisk;
+  }
+
+  extractIfcValue() {
+    if (this.isEmptySet()) return this.extractEmptySet();
+    const ifcValue = this.parser.getIfcValue(this.buffer);
+    this.updateBuffer(regexp.ifcValue);
+    return ifcValue;
+  }
+
   extractDefaultValue() {
     const defaultValue = this.parser.getDefaultValue(this.buffer);
     this.updateBuffer(regexp.defaultValue);
@@ -84,15 +99,19 @@ class IfcBase {
     return regexp.defaultValue.test(this.buffer);
   }
 
+  isAsterisk() {
+    return regexp.asterisk.test(this.buffer);
+  }
+
   isEmptySet() {
     return regexp.emptySet.test(this.buffer);
   }
 }
 
-function baseConstructor(caller, classToConstruct) {
-  return caller.isDefaultValue()
-    ? caller.extractDefaultValue()
-    : new classToConstruct(caller.finder, caller.extractId());
+function baseConstructor(caller, ifcLine, classToConstruct) {
+  return regexp.defaultValue.test(ifcLine)
+    ? caller.parser.getDefaultValue(ifcLine)
+    : new classToConstruct(caller.finder, ifcLine);
 }
 
 function baseMultiConstructor(caller, classToConstruct) {

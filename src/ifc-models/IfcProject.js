@@ -3,9 +3,11 @@
  */
 
 import IfcObject from "./IfcObject";
-import { ifcTypes, ifcFinder } from "../ifc-utils/items-finder";
+import { ifcFinder } from "../ifc-utils/items-finder";
 import { readIfcItems } from "../ifc-loader/ifc-items-reader";
 import { getIfcGeometricRepresentationContexts } from "./IfcGeometricRepresentationContext";
+import { getIfcUnitAssignment } from "./units/IfcUnitAssignment";
+import { ifcTypes } from "../ifc-utils/ifc-types";
 
 class IfcProject extends IfcObject {
   getIfcProperties() {
@@ -13,7 +15,7 @@ class IfcProject extends IfcObject {
     this.longName = this.extractText();
     this.phase = this.extractText();
     this.representationContexts = getIfcGeometricRepresentationContexts(this);
-    this.unitsInContext = this.extractId();
+    this.unitsInContext = getIfcUnitAssignment(this);
   }
 }
 

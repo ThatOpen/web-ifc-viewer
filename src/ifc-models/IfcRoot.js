@@ -14,7 +14,7 @@ export default class IfcRoot extends IfcBase {
   getIfcProperties() {
     super.getIfcProperties();
     this.globalId = this.extractGuid();
-    this.ownerHistory = getIfcOwnerHistory(this);
+    this.ownerHistory = getIfcOwnerHistory(this, this.extractId());
     this.name = this.extractText();
     this.description = this.extractText();
   }

@@ -11,17 +11,20 @@ const regexp = {
   separator: /,/,
   guid: /^'\w{22}'/,
   expressId: /^#\d+/,
-  expressIdSet: /\((#\d+|,)+?\)/,
+  expressIdSet: /\((#\d+|,| )+?\)/,
   realNumber: /[0-9.E-]+/,
   realNumberSet: /^\([0-9.,]+\)/,
   text: /^'.+?'(?=\s*,)|^'.+?'(?=\s*$)/,
-  enum: /\.\w+?\./,
+  enum: /\.\w+?\.|/,
   defaultValue: /^\$/,
   emptySet: /^\(\)/,
+  asterisk: /^\*/,
+  ifcValue: /[A-Z]+\((\d|\.)+?\)/,
   //
   boundingApostrophes: /^'|'$/g,
   boundingPoints: /^\.|\.$/g,
   boundingBrackets: /^\(|\)$/g,
+  boundingSpaces: /^[ ]+|[ ]+$/g,
 };
 
 class ParseUtils {
@@ -48,6 +51,7 @@ class ParseUtils {
       .slice(1, -1)
       .split(",")
       .map((e) => {
+        e = e.replace(regexp.boundingSpaces, "");
         return parseInt(e.slice(1));
       });
   }
@@ -65,6 +69,14 @@ class ParseUtils {
 
   getIfcNumber(rawIfcLine) {
     return Number(rawIfcLine.match(regexp.realNumber).toString());
+  }
+
+  getIfcAsterisk(rawIfcLine) {
+    return rawIfcLine.match(regexp.asterisk).toString();
+  }
+
+  getIfcValue(rawIfcLine) {
+    return rawIfcLine.match(regexp.ifcValue)[0].toString();
   }
 
   getIfcNumberSet(rawIfcLine) {
