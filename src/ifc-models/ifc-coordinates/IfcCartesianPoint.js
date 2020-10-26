@@ -3,7 +3,7 @@
  */
 
 import { IfcPoint } from "./IfcPoint";
-import { baseConstructor } from "../IfcBase";
+import { baseConstructor } from "../../ifc-utils/ifc-constructor";
 
 class IfcCartesianPoint extends IfcPoint {
   getIfcProperties() {

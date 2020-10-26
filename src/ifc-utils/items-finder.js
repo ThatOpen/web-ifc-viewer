@@ -12,7 +12,8 @@ class ifcFinder {
   }
 
   findById(idToFind) {
-    return this.ifcData.find((e) => e.id === idToFind);
+    const foundItem = this.ifcData.find((e) => e.id === idToFind);
+    return foundItem ? foundItem : idToFind;
   }
 }
 

@@ -4,7 +4,7 @@
 
 import { getIfcDirection } from "./IfcDirection";
 import { IfcPlacement } from "./IfcPlacement";
-import { baseConstructor } from "../IfcBase";
+import { baseConstructor } from "../../ifc-utils/ifc-constructor";
 
 class IfcAxis2Placement3D extends IfcPlacement {
   getIfcProperties() {

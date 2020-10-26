@@ -4,7 +4,7 @@
 import { IfcRepresentationContext } from "./IfcRepresentationContext";
 import { getIfcAxis2Placement3D } from "../ifc-coordinates/IfcAxis2Placement3D";
 import { getIfcDirection } from "../ifc-coordinates/IfcDirection";
-import { baseMultiConstructor } from "../IfcBase";
+import { baseMultiConstructor } from "../../ifc-utils/ifc-constructor";
 
 class IfcGeometricRepresentationContext extends IfcRepresentationContext {
   getIfcProperties() {

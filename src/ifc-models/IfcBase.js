@@ -18,56 +18,52 @@ class IfcBase {
     this.buffer = this.buffer.replace(regexp.initialComma, "");
   }
 
-  extractId() {
+  extractProperty(action, filter) {
     if (this.isDefaultValue()) return this.extractDefaultValue();
     if (this.isAsterisk()) return this.extractAsterisk();
-    const id = this.finder.findById(this.parser.getId(this.buffer));
-    this.updateBuffer(regexp.expressId);
-    return id;
+    if (this.isEmptySet()) return this.extractEmptySet();
+    const property = action(this.buffer);
+    this.updateBuffer(filter);
+    return property;
+  }
+
+  extractId() {
+    return this.finder.findById(
+      this.extractProperty(this.parser.getId, regexp.expressId)
+    );
+  }
+
+  extractGuid() {
+    return this.extractProperty(this.parser.getGuid, regexp.guid);
+  }
+
+  extractText() {
+    return this.extractProperty(this.parser.getIfcText, regexp.text);
+  }
+
+  extractEnum() {
+    return this.extractProperty(this.parser.getIfcEnum, regexp.enum);
+  }
+
+  extractNumber() {
+    return this.extractProperty(this.parser.getIfcNumber, regexp.realNumber);
+  }
+
+  extractIfcValue() {
+    return this.extractProperty(this.parser.getIfcValue, regexp.ifcValue);
+  }
+
+  extractNumberSet() {
+    return this.extractProperty(this.parser.getNumberSet, regexp.realNumberSet);
   }
 
   extractIdSet() {
     if (this.isEmptySet()) return this.extractEmptySet();
-    let idSet = this.parser.getIdSet(this.buffer);
-    idSet = idSet.map((e) => {
-      return this.finder.findById(e);
-    });
-    this.updateBuffer(regexp.expressIdSet);
-    return idSet;
-  }
-
-  extractGuid() {
-    const guid = this.parser.getGuid(this.buffer);
-    this.updateBuffer(regexp.guid);
-    return guid;
-  }
-
-  extractText() {
-    if (this.isDefaultValue()) return this.extractDefaultValue();
-    const text = this.parser.getIfcText(this.buffer);
-    this.updateBuffer(regexp.text);
-    return text;
-  }
-
-  extractEnum() {
-    if (this.isDefaultValue()) return this.extractDefaultValue();
-    const enumerator = this.parser.getIfcEnum(this.buffer);
-    this.updateBuffer(regexp.enum);
-    return enumerator;
-  }
-
-  extractNumber() {
-    if (this.isDefaultValue()) return this.extractDefaultValue();
-    const realNumber = this.parser.getIfcNumber(this.buffer);
-    this.updateBuffer(regexp.realNumber);
-    return realNumber;
-  }
-
-  extractNumberSet() {
-    if (this.isEmptySet()) return this.extractEmptySet();
-    const numberSet = this.parser.getIfcNumberSet(this.buffer);
-    this.updateBuffer(regexp.realNumberSet);
-    return numberSet;
+    return this.extractProperty(this.parser.getIdSet, regexp.expressIdSet).map(
+      (e) => {
+        return this.finder.findById(e);
+      }
+    );
   }
 
   extractAsterisk() {
@@ -75,13 +71,6 @@ class IfcBase {
     const asterisk = this.parser.getIfcAsterisk(this.buffer);
     this.updateBuffer(regexp.asterisk);
     return asterisk;
-  }
-
-  extractIfcValue() {
-    if (this.isEmptySet()) return this.extractEmptySet();
-    const ifcValue = this.parser.getIfcValue(this.buffer);
-    this.updateBuffer(regexp.ifcValue);
-    return ifcValue;
   }
 
   extractDefaultValue() {
@@ -108,18 +97,4 @@ class IfcBase {
   }
 }
 
-function baseConstructor(caller, ifcLine, classToConstruct) {
-  return regexp.defaultValue.test(ifcLine)
-    ? caller.parser.getDefaultValue(ifcLine)
-    : new classToConstruct(caller.finder, ifcLine);
-}
-
-function baseMultiConstructor(caller, classToConstruct) {
-  return caller.isEmptySet()
-    ? caller.extractEmptySet()
-    : caller.extractIdSet().map((e) => {
-        return new classToConstruct(caller.finder, e);
-      });
-}
-
-export { IfcBase, baseConstructor, baseMultiConstructor };
+export { IfcBase };

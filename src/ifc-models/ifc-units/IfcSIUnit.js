@@ -3,7 +3,7 @@
  */
 
 import { IfcNamedUnit } from "./IfcNamedUnit";
-import { baseConstructor } from "../IfcBase";
+import { baseConstructor } from "../../ifc-utils/ifc-constructor";
 
 class IfcSIUnit extends IfcNamedUnit {
   getIfcProperties() {

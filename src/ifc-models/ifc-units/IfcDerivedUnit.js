@@ -2,7 +2,8 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifcmeasureresource/lexical/ifcderivedunit.htm]
  */
 
-import { baseConstructor, IfcBase } from "../IfcBase";
+import { IfcBase } from "../IfcBase";
+import { baseConstructor } from "../../ifc-utils/ifc-constructor";
 import { getIfcDerivedUnitElement } from "./IfcDerivedUnitElement";
 
 class IfcDerivedUnit extends IfcBase {

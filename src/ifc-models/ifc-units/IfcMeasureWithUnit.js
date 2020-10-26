@@ -2,7 +2,8 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifcmeasureresource/lexical/ifcmeasurewithunit.htm]
  */
 
-import { baseConstructor, IfcBase } from "../IfcBase";
+import { IfcBase } from "../IfcBase";
+import { baseConstructor } from "../../ifc-utils/ifc-constructor";
 import { getIfcSIUnit } from "./IfcSIUnit";
 
 class IfcMeasureWithUnit extends IfcBase {

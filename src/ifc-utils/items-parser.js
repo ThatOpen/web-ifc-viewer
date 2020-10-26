@@ -79,7 +79,7 @@ class ParseUtils {
     return rawIfcLine.match(regexp.ifcValue)[0].toString();
   }
 
-  getIfcNumberSet(rawIfcLine) {
+  getNumberSet(rawIfcLine) {
     return rawIfcLine
       .match(regexp.realNumberSet)
       .toString()
