@@ -1,9 +1,9 @@
-import { regexp } from "./items-parser";
+import { getDefaultValue, isDefaultValue } from "./items-parser";
 
 function baseConstructor(caller, ifcLine, classToConstruct) {
-  return containsDefaultValue(ifcLine)
-    ? getDefaultValue(caller, ifcLine)
-    : new classToConstruct(caller.finder, ifcLine);
+  return isDefaultValue(ifcLine)
+    ? getDefaultValue(ifcLine)
+    : new classToConstruct(caller.getFinder(), ifcLine);
 }
 
 function baseMultiConstructor(caller, classToConstruct) {
@@ -12,17 +12,9 @@ function baseMultiConstructor(caller, classToConstruct) {
     : instantiateClasses(caller, classToConstruct);
 }
 
-function containsDefaultValue(ifcLine) {
-  return regexp.defaultValue.test(ifcLine);
-}
-
-function getDefaultValue(caller, ifcLine) {
-  return caller.parser.getDefaultValue(ifcLine);
-}
-
 function instantiateClasses(caller, classToConstruct) {
   return caller.extractIdSet().map((e) => {
-    return new classToConstruct(caller.finder, e);
+    return new classToConstruct(caller.getFinder(), e);
   });
 }
 

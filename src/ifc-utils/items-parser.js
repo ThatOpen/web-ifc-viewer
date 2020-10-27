@@ -1,31 +1,4 @@
-const regexp = {
-  //
-  allNewLines: /\r?\n|\r/g,
-  headerSection: /HEADER;.+?(?=ENDSEC;)/,
-  dataSection: /DATA;\s+.+(?=ENDSEC;)/,
-  rawIfcType: /IFC\w+/,
-  rawIfcProperties: /\(.+?(?=;)/,
-  singleIfcItems: /#\d+\s*=\s*IFC.+?\);\s*/g,
-  //
-  initialComma: /^,/,
-  separator: /,/,
-  guid: /^'\w{22}'/,
-  expressId: /^#\d+/,
-  expressIdSet: /\((#\d+|,| )+?\)/,
-  Number: /[0-9.E-]+/,
-  numberSet: /^\([0-9.,]+\)/,
-  text: /^'.+?'(?=\s*,)|^'.+?'(?=\s*$)/,
-  enum: /\.\w+?\.|/,
-  defaultValue: /^\$/,
-  emptySet: /^\(\)/,
-  asterisk: /^\*/,
-  ifcValue: /[A-Z]+\((\d|\.)+?\)/,
-  //
-  boundingApostrophes: /^'|'$/g,
-  boundingPoints: /^\.|\.$/g,
-  boundingBrackets: /^\(|\)$/g,
-  boundingSpaces: /^[ ]+|[ ]+$/g,
-};
+import { regexp } from "./ifc-regexp";
 
 class ParseUtils {
   getHeaderSection(rawIfcLine) {
@@ -71,7 +44,7 @@ class ParseUtils {
     return Number(rawIfcLine.match(regexp.Number).toString());
   }
 
-  getIfcAsterisk(rawIfcLine) {
+  getAsterisk(rawIfcLine) {
     return rawIfcLine.match(regexp.asterisk).toString();
   }
 
@@ -97,12 +70,12 @@ class ParseUtils {
       .replace(regexp.boundingApostrophes, "");
   }
 
-  getDefaultValue(rawIfcLine) {
-    return rawIfcLine.match(regexp.defaultValue).toString();
+  default(ifcLine) {
+    return getDefaultValue(ifcLine);
   }
 
-  getIfcRawProperties(rawIfcLine) {
-    return rawIfcLine.match(regexp.rawIfcProperties).toString().slice(1, -1);
+  getIfcRawProperties(ifcLine) {
+    return ifcLine.match(regexp.rawIfcProperties).toString().slice(1, -1);
   }
 
   removeAllNewLines(ifcFile) {
@@ -112,6 +85,26 @@ class ParseUtils {
   separateIfcEntities(dataSection) {
     return dataSection.match(regexp.singleIfcItems);
   }
+
+  isDefaultValue(ifcLine) {
+    return isDefaultValue(ifcLine);
+  }
+
+  isAsterisk(ifcLine) {
+    return regexp.asterisk.test(ifcLine);
+  }
+
+  isEmptySet(ifcLine) {
+    return regexp.emptySet.test(ifcLine);
+  }
 }
 
-export { regexp, ParseUtils };
+function getDefaultValue(rawIfcLine) {
+  return rawIfcLine.match(regexp.default).toString();
+}
+
+function isDefaultValue(rawIfcLine) {
+  return regexp.default.test(rawIfcLine);
+}
+
+export { ParseUtils, getDefaultValue, isDefaultValue };

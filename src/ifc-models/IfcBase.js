@@ -1,54 +1,58 @@
-import { IfcPropertyExtractor } from "../ifc-utils/ifc-property-extractor";
-import { ParseUtils } from "../ifc-utils/items-parser";
+import { ifcProperties as ifcProps } from "../ifc-utils/ifc-properties-to-read";
+import { IfcPropertyExtractor } from "../ifc-utils/ifc-property-reader";
 
+let privateProps = new WeakMap();
 class IfcBase {
-  constructor(ifcItemsFinder, rawIfcItem) {
-    this.finder = ifcItemsFinder;
-    this.ifcLine = rawIfcItem;
-    this.parser = new ParseUtils();
-    this.reader = new IfcPropertyExtractor(this);
+  constructor(ifcItemsFinder, ifcLine) {
+    privateProps.set(this, {
+      reader: new IfcPropertyExtractor(ifcItemsFinder, ifcLine),
+      ifcLine: ifcLine,
+    });
     this.getIfcProperties();
   }
 
   getIfcProperties() {
-    this.id = this.ifcLine.id;
-    this.buffer = this.ifcLine.properties;
+    this.expressId = privateProps.get(this).ifcLine.id;
   }
 
   extractId() {
-    return this.reader.extractId();
+    return privateProps.get(this).reader.extractId();
   }
 
   extractIdSet() {
-    return this.reader.extractIdSet();
+    return privateProps.get(this).reader.extractIdSet();
   }
 
   extractGuid() {
-    return this.reader.extract(this.reader.select.Guid);
+    return privateProps.get(this).reader.extract(ifcProps.Guid);
   }
 
   extractText() {
-    return this.reader.extract(this.reader.select.Text);
+    return privateProps.get(this).reader.extract(ifcProps.Text);
   }
 
   extractEnum() {
-    return this.reader.extract(this.reader.select.Enum);
+    return privateProps.get(this).reader.extract(ifcProps.Enum);
   }
 
   extractNumber() {
-    return this.reader.extract(this.reader.select.Number);
+    return privateProps.get(this).reader.extract(ifcProps.Number);
   }
 
   extractIfcValue() {
-    return this.reader.extract(this.reader.select.IfcValue);
+    return privateProps.get(this).reader.extract(ifcProps.IfcValue);
   }
 
   extractNumberSet() {
-    return this.reader.extract(this.reader.select.NumberSet);
+    return privateProps.get(this).reader.extract(ifcProps.Numbers);
+  }
+
+  getFinder() {
+    return privateProps.get(this).reader.getFinder();
   }
 
   isEmptySet() {
-    return this.reader.isEmptySet();
+    return privateProps.get(this).reader.isEmptySet();
   }
 }
 
