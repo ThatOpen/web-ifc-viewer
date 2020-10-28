@@ -1,5 +1,5 @@
 /**
- * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifcgeometryresource/lexical/ifcaxis2placement3d.htm]
+ * [https://standards.buildingsmart.org/IFC/DEV/IFC4_2/FINAL/HTML/schema/ifcgeometryresource/lexical/ifcplacement.htm]
  */
 
 import { IfcGeometricRepresentationItem } from "../ifc-contexts/IfcGeometricRepresentationItem";

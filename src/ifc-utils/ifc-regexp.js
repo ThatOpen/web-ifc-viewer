@@ -11,7 +11,7 @@ const regexp = {
   expressId: /^#\d+/,
   expressIdSet: /\((#\d+|,| )+?\)/,
   Number: /[0-9.E-]+/,
-  numberSet: /^\([0-9.,]+\)/,
+  numberSet: /^\([0-9.,-]+\)/,
   text: /^'.+?'(?=\s*,)|^'.+?'(?=\s*$)/,
   enum: /\.\w+?\.|/,
   default: /^\$/,
@@ -24,4 +24,11 @@ const regexp = {
   boundingSpaces: /^[ ]+|[ ]+$/g,
 };
 
-export { regexp };
+const regexp_spatial = {
+  getIfcSites: (idIfcProject) => {
+    return new RegExp(`#${idIfcProject},\\((#\\d+|,| )+\\)+`);
+  },
+  isolateIfcSites: /\((#\d+| |,)+\)+$/,
+};
+
+export { regexp, regexp_spatial };

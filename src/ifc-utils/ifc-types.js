@@ -3,6 +3,7 @@ const ifcTypes = {
   ifcSIUnit: "IFCSIUNIT",
   ifcConversionBasedUnit: "IFCCONVERSIONBASEDUNIT",
   ifcDerivedUnit: "IFCDERIVEDUNIT",
+  ifcRelAggregates: "IFCRELAGGREGATES",
 };
 
 export { ifcTypes };

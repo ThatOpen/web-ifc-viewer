@@ -1,6 +1,9 @@
-class ifcFinder {
+import { SpatialStructureFinder } from "./spatial-structure-finder";
+
+class IfcEntityFinder {
   constructor(ifcData) {
     this.ifcData = ifcData;
+    this.spatialFinder = new SpatialStructureFinder(ifcData, this);
   }
 
   findByType(typeToFind) {
@@ -15,6 +18,10 @@ class ifcFinder {
     const foundItem = this.ifcData.find((e) => e.id === idToFind);
     return foundItem ? foundItem : idToFind;
   }
+
+  getSpatial() {
+    return this.spatialFinder;
+  }
 }
 
-export { ifcFinder };
+export { IfcEntityFinder };
