@@ -1,10 +1,10 @@
-import { ifcProperties as ifcProps } from "../ifc-utils/ifc-properties-to-read";
-import { IfcPropertyExtractor } from "../ifc-utils/ifc-property-reader";
+import { IfcPropertyExtractor } from "../ifc-utils/ifc-property-extractor";
+import * as p from "../ifc-utils/ifc-property-readers";
 
-let privateProps = new WeakMap();
+let privateProperties = new WeakMap();
 class IfcBase {
   constructor(ifcItemsFinder, ifcLine) {
-    privateProps.set(this, {
+    privateProperties.set(this, {
       reader: new IfcPropertyExtractor(ifcItemsFinder, ifcLine),
       ifcLine: ifcLine,
     });
@@ -12,47 +12,59 @@ class IfcBase {
   }
 
   getIfcProperties() {
-    this.expressId = privateProps.get(this).ifcLine.id;
+    this.expressId = privateProperties.get(this).ifcLine.id;
   }
 
   extractId() {
-    return privateProps.get(this).reader.extractId();
+    return this.getReader().useIdReader();
   }
 
   extractIdSet() {
-    return privateProps.get(this).reader.extractIdSet();
+    return this.getReader().useIdSetReader();
   }
 
   extractGuid() {
-    return privateProps.get(this).reader.extract(ifcProps.Guid);
+    return this.getReader().use(p.GuidReader);
   }
 
   extractText() {
-    return privateProps.get(this).reader.extract(ifcProps.Text);
+    return this.getReader().use(p.TextReader);
   }
 
   extractEnum() {
-    return privateProps.get(this).reader.extract(ifcProps.Enum);
+    return this.getReader().use(p.EnumReader);
   }
 
   extractNumber() {
-    return privateProps.get(this).reader.extract(ifcProps.Number);
+    return this.getReader().use(p.NumberReader);
   }
 
   extractIfcValue() {
-    return privateProps.get(this).reader.extract(ifcProps.IfcValue);
+    return this.getReader().use(p.IfcValueReader);
   }
 
   extractNumberSet() {
-    return privateProps.get(this).reader.extract(ifcProps.Numbers);
+    return this.getReader().use(p.numberSetReader);
+  }
+
+  extractDefaultValue() {
+    return this.getReader().use(p.defaultValueReader);
   }
 
   getFinder() {
-    return privateProps.get(this).reader.getFinder();
+    return this.getReader().getFinder();
+  }
+
+  getReader() {
+    return privateProperties.get(this).reader;
+  }
+
+  isDefaultValue() {
+    return this.getReader().isDefaultValue();
   }
 
   isEmptySet() {
-    return privateProps.get(this).reader.isEmptySet();
+    return this.getReader().isEmptySet();
   }
 }
 

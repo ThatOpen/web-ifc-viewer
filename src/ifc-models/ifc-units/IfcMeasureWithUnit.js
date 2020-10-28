@@ -10,12 +10,12 @@ class IfcMeasureWithUnit extends IfcBase {
   getIfcProperties() {
     super.getIfcProperties();
     this.valueComponent = this.extractIfcValue();
-    this.unitComponent = getIfcSIUnit(this, this.extractId());
+    this.unitComponent = getIfcSIUnit(this);
   }
 }
 
-function getIfcMeasureWithUnit(caller, ifcLine) {
-  return baseConstructor(caller, ifcLine, IfcMeasureWithUnit);
+function getIfcMeasureWithUnit(caller) {
+  return baseConstructor(caller, IfcMeasureWithUnit);
 }
 
 export { getIfcMeasureWithUnit };

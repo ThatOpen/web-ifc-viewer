@@ -8,7 +8,7 @@ import { getIfcCartesianPoint } from "./IfcCartesianPoint";
 class IfcPlacement extends IfcGeometricRepresentationItem {
   getIfcProperties() {
     super.getIfcProperties();
-    this.location = getIfcCartesianPoint(this, this.extractId());
+    this.location = getIfcCartesianPoint(this);
   }
 }
 

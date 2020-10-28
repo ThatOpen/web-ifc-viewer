@@ -1,9 +1,8 @@
-import { ParseUtils } from "../ifc-utils/items-parser";
+import { regexp } from "../ifc-utils/ifc-regexp";
 
 class IfcItemsReader {
   constructor(ifcFile) {
     this.ifcFile = ifcFile;
-    this.parser = new ParseUtils();
   }
 
   readItems() {
@@ -12,22 +11,50 @@ class IfcItemsReader {
   }
 
   extractSections() {
-    const ifcPlaneText = this.parser.removeAllNewLines(this.ifcFile);
+    const ifcPlaneText = this.removeAllNewLines(this.ifcFile);
     return {
-      headerSection: this.parser.getHeaderSection(ifcPlaneText),
-      dataSection: this.parser.getDataSection(ifcPlaneText),
+      headerSection: this.readHeaderSection(ifcPlaneText),
+      dataSection: this.readDataSection(ifcPlaneText),
     };
   }
 
   constructRawIfcItems(dataSection) {
-    const flatIfcItemList = this.parser.separateIfcEntities(dataSection);
+    const flatIfcItemList = this.separateIfcEntities(dataSection);
     return flatIfcItemList.map((e) => {
       return {
-        id: this.parser.getId(e),
-        type: this.parser.getIfcType(e),
-        properties: this.parser.getIfcRawProperties(e),
+        id: this.getId(e),
+        type: this.getIfcType(e),
+        properties: this.getIfcRawProperties(e),
       };
     });
+  }
+
+  readHeaderSection(ifcLine) {
+    return ifcLine.match(regexp.headerSection)[0];
+  }
+
+  readDataSection(ifcLine) {
+    return ifcLine.match(regexp.dataSection)[0];
+  }
+
+  removeAllNewLines(ifcFile) {
+    return ifcFile.replace(regexp.allNewLines, " ");
+  }
+
+  separateIfcEntities(dataSection) {
+    return dataSection.match(regexp.singleIfcItems);
+  }
+
+  getId(rawIfcLine) {
+    return parseInt(rawIfcLine.match(regexp.expressId).toString().slice(1));
+  }
+
+  getIfcType(rawIfcLine) {
+    return rawIfcLine.match(regexp.rawIfcType).toString();
+  }
+
+  getIfcRawProperties(ifcLine) {
+    return ifcLine.match(regexp.rawIfcProperties).toString().slice(1, -1);
   }
 }
 
@@ -36,4 +63,4 @@ function readIfcItems(loadedIfc) {
   return ifcReader.readItems();
 }
 
-export { IfcItemsReader, readIfcItems };
+export { readIfcItems };

@@ -12,8 +12,8 @@ class IfcDirection extends IfcBase {
   }
 }
 
-function getIfcDirection(caller, ifcLine) {
-  return baseConstructor(caller, ifcLine, IfcDirection);
+function getIfcDirection(caller) {
+  return baseConstructor(caller, IfcDirection);
 }
 
 export { getIfcDirection };

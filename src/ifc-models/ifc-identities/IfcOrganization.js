@@ -16,8 +16,8 @@ class IfcOrganization extends IfcBase {
   }
 }
 
-function getIfcOrganization(caller, ifcLine) {
-  return baseConstructor(caller, ifcLine, IfcOrganization);
+function getIfcOrganization(caller) {
+  return baseConstructor(caller, IfcOrganization);
 }
 
 export { getIfcOrganization };

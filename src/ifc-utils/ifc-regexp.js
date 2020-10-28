@@ -1,5 +1,4 @@
 const regexp = {
-  //
   allNewLines: /\r?\n|\r/g,
   headerSection: /HEADER;.+?(?=ENDSEC;)/,
   dataSection: /DATA;\s+.+(?=ENDSEC;)/,

@@ -1,6 +1,12 @@
-import { getDefaultValue, isDefaultValue } from "./items-parser";
+import { getDefaultValue, isDefaultValue } from "./ifc-property-constants";
 
-function baseConstructor(caller, ifcLine, classToConstruct) {
+function baseConstructor(caller, classToConstruct) {
+  return caller.isDefaultValue()
+    ? caller.extractDefaultValue()
+    : new classToConstruct(caller.getFinder(), caller.extractId());
+}
+
+function baseConstructorNoExtraction(caller, classToConstruct, ifcLine) {
   return isDefaultValue(ifcLine)
     ? getDefaultValue(ifcLine)
     : new classToConstruct(caller.getFinder(), ifcLine);
@@ -9,13 +15,9 @@ function baseConstructor(caller, ifcLine, classToConstruct) {
 function baseMultiConstructor(caller, classToConstruct) {
   return caller.isEmptySet()
     ? caller.extractEmptySet()
-    : instantiateClasses(caller, classToConstruct);
+    : caller.extractIdSet().map((e) => {
+        return new classToConstruct(caller.getFinder(), e);
+      });
 }
 
-function instantiateClasses(caller, classToConstruct) {
-  return caller.extractIdSet().map((e) => {
-    return new classToConstruct(caller.getFinder(), e);
-  });
-}
-
-export { baseConstructor, baseMultiConstructor };
+export { baseConstructor, baseConstructorNoExtraction, baseMultiConstructor };

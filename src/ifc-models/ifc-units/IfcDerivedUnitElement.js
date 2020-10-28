@@ -9,7 +9,7 @@ import { getIfcSIUnit } from "./IfcSIUnit";
 class IfcDerivedUnitElement extends IfcBase {
   getIfcProperties() {
     super.getIfcProperties();
-    this.unit = getIfcSIUnit(this, this.extractId());
+    this.unit = getIfcSIUnit(this);
     this.exponent = this.extractNumber();
   }
 }

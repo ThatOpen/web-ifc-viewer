@@ -4,32 +4,34 @@
 
 import { IfcBase } from "../IfcBase";
 import { baseConstructor } from "../../ifc-utils/ifc-constructor";
-import { getIfcSIUnit } from "./IfcSIUnit";
 import { ifcTypes } from "../../ifc-utils/ifc-types";
-import { getIfcDerivedUnit } from "./IfcDerivedUnit";
-import { getIfcConversionBasedUnit } from "./IfcConversionBasedUnit";
+import { getIfcSIUnitGlobal } from "./IfcSIUnit";
+import { getIfcDerivedUnitGlobal } from "./IfcDerivedUnit";
+import { getIfcConversionBasedUnitGlobal } from "./IfcConversionBasedUnit";
 
 class IfcUnitAssignment extends IfcBase {
   getIfcProperties() {
     super.getIfcProperties();
-    this.units = this.getAllUnits();
+    this.units = this.getGlobalUnits();
   }
 
-  getAllUnits() {
+  getGlobalUnits() {
     return this.isEmptySet()
       ? this.extractEmptySet()
-      : this.extractIdSet().map((e) => {
-          return e.type === ifcTypes.ifcSIUnit
-            ? getIfcSIUnit(this, e)
-            : e.type === ifcTypes.ifcDerivedUnit
-            ? getIfcDerivedUnit(this, e)
-            : getIfcConversionBasedUnit(this, e);
-        });
+      : this.extractIdSet().map((e) => this.getGlobalUnit(e));
+  }
+
+  getGlobalUnit(e) {
+    return e.type === ifcTypes.ifcSIUnit
+      ? getIfcSIUnitGlobal(this, e)
+      : e.type === ifcTypes.ifcDerivedUnit
+      ? getIfcDerivedUnitGlobal(this, e)
+      : getIfcConversionBasedUnitGlobal(this, e);
   }
 }
 
 function getIfcUnitAssignment(caller) {
-  return baseConstructor(caller, caller.extractId(), IfcUnitAssignment);
+  return baseConstructor(caller, IfcUnitAssignment);
 }
 
 export { getIfcUnitAssignment };
