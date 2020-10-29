@@ -51,6 +51,12 @@ class IfcBase {
     return this.getReader().use(p.defaultValueReader);
   }
 
+  extractDate() {
+    const found = this.getReader().use(p.NumberReader);
+    const formatted = new Date(found * 1000);
+    return formatted.getTime() ? formatted : found;
+  }
+
   getFinder() {
     return this.getReader().getFinder();
   }

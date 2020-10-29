@@ -13,10 +13,10 @@ class IfcOwnerHistory extends IfcBase {
     this.owningApplication = getIfcApplication(this);
     this.state = this.extractEnum();
     this.changeAction = this.extractEnum();
-    this.lastModifiedDate = this.extractNumber();
+    this.lastModifiedDate = this.extractDate();
     this.lastModifiyingUser = this.extractId();
     this.lastModifyingApplication = this.extractId();
-    this.creationDate = this.extractNumber();
+    this.creationDate = this.extractDate();
   }
 }
 
