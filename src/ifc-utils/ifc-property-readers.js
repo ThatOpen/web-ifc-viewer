@@ -1,75 +1,69 @@
-import { regexp } from "./ifc-regexp";
+import { regexp as r } from "./ifc-regexp";
 
 const IdReader = {
-  filter: regexp.expressId,
+  filter: r.expressId,
   read: (ifcLine) => {
-    return parseInt(ifcLine.match(regexp.expressId).toString().slice(1));
+    return parseInt(ifcLine.match(r.expressId).toString().slice(1));
   },
 };
 
 const IdSetReader = {
-  filter: regexp.expressIdSet,
+  filter: r.expressIdSet,
   read: (ifcLine) => {
     return ifcLine
-      .match(regexp.expressIdSet)[0]
+      .match(r.expressIdSet)[0]
       .toString()
       .slice(1, -1)
       .split(",")
       .map((e) => {
-        e = e.replace(regexp.boundingSpaces, "");
+        e = e.replace(r.boundingSpaces, "");
         return parseInt(e.slice(1));
       });
   },
 };
 
 const GuidReader = {
-  filter: regexp.guid,
+  filter: r.guid,
   read: (ifcLine) => {
-    return ifcLine.match(regexp.guid).toString().slice(1, -1);
+    return ifcLine.match(r.guid).toString().slice(1, -1);
   },
 };
 
 const TextReader = {
-  filter: regexp.text,
+  filter: r.text,
   read: (ifcLine) => {
-    return ifcLine
-      .match(regexp.text)
-      .toString()
-      .replace(regexp.boundingApostrophes, "");
+    return ifcLine.match(r.text).toString().replace(r.boundingApostrophes, "");
   },
 };
 
 const EnumReader = {
-  filter: regexp.enum,
+  filter: r.enum,
   read: (ifcLine) => {
-    return ifcLine
-      .match(regexp.enum)
-      .toString()
-      .replace(regexp.boundingPoints, "");
+    return ifcLine.match(r.enum).toString().replace(r.boundingPoints, "");
   },
 };
 
 const NumberReader = {
-  filter: regexp.Number,
+  filter: r.Number,
   read: (ifcLine) => {
-    return Number(ifcLine.match(regexp.Number).toString());
+    return Number(ifcLine.match(r.Number).toString());
   },
 };
 
 const IfcValueReader = {
-  filter: regexp.ifcValue,
+  filter: r.ifcValue,
   read: (ifcLine) => {
-    return ifcLine.match(regexp.ifcValue)[0].toString();
+    return ifcLine.match(r.ifcValue)[0].toString();
   },
 };
 
 const numberSetReader = {
-  filter: regexp.numberSet,
+  filter: r.numberSet,
   read: (ifcLine) => {
     return ifcLine
-      .match(regexp.numberSet)
+      .match(r.numberSet)
       .toString()
-      .replace(regexp.boundingBrackets, "")
+      .replace(r.boundingBrackets, "")
       .split(",")
       .map((e) => {
         return Number(e);
@@ -78,23 +72,23 @@ const numberSetReader = {
 };
 
 const defaultValueReader = {
-  filter: regexp.default,
+  filter: r.default,
   read: (ifcLine) => {
-    return ifcLine.match(regexp.default).toString();
+    return ifcLine.match(r.default).toString();
   },
 };
 
 const asteriskReader = {
-  filter: regexp.asterisk,
+  filter: r.asterisk,
   read: (ifcLine) => {
-    return ifcLine.match(regexp.asterisk).toString();
+    return ifcLine.match(r.asterisk).toString();
   },
 };
 
 const emptySetReader = {
-  filter: regexp.emptySet,
+  filter: r.emptySet,
   read: (ifcLine) => {
-    return ifcLine.match(regexp.emptySet).toString();
+    return ifcLine.match(r.emptySet).toString();
   },
 };
 

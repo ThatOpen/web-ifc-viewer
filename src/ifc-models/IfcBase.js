@@ -1,5 +1,6 @@
 import { IfcPropertyExtractor } from "../ifc-utils/ifc-property-extractor";
 import * as p from "../ifc-utils/ifc-property-readers";
+import { solveUnicode } from "../ifc-utils/ifc-unicode";
 
 let privateProperties = new WeakMap();
 class IfcBase {
@@ -28,7 +29,7 @@ class IfcBase {
   }
 
   extractText() {
-    return this.getReader().use(p.TextReader);
+    return solveUnicode(this.getReader().use(p.TextReader));
   }
 
   extractEnum() {

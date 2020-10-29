@@ -22,6 +22,8 @@ const regexp = {
   boundingPoints: /^\.|\.$/g,
   boundingBrackets: /^\(|\)$/g,
   boundingSpaces: /^[ ]+|[ ]+$/g,
+  unicode: /\\X2\\[0-9A-F]+?\\X\d\\/,
+  getUnicode: /[0-9A-F]+(?=\\X\d\\)/,
 };
 
 export { regexp };
