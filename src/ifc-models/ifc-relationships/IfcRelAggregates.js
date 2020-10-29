@@ -7,6 +7,7 @@ import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 import { getIfcBuilding } from "../ifc-spatial-structure/IfcBuilding";
 import { getIfcBuildingStorey } from "../ifc-spatial-structure/IfcBuildingStorey";
 import { getIfcSite } from "../ifc-spatial-structure/IfcSite";
+import { getIfcSpace } from "../ifc-spatial-structure/IfcSpace";
 import { IfcRelDecomposes } from "./IfcRelDecomposes";
 
 class IfcRelAggregates extends IfcRelDecomposes {
@@ -20,6 +21,7 @@ class IfcRelAggregates extends IfcRelDecomposes {
     return this.extractIdSet().map((e) => {
       if (e.type === t.ifcBuilding) return getIfcBuilding(this, e);
       if (e.type === t.ifcSite) return getIfcSite(this, e);
+      if (e.type === t.ifcSpace) return getIfcSpace(this, e);
       return getIfcBuildingStorey(this, e);
     });
   }

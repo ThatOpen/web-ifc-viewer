@@ -3,6 +3,7 @@ const ifcTypes = {
   ifcSite: "IFCSITE",
   ifcBuilding: "IFCBUILDING",
   ifcBuildingStorey: "IFCBUILDINGSTOREY",
+  ifcSpace: "IFCSPACE",
   ifcSIUnit: "IFCSIUNIT",
   ifcConversionBasedUnit: "IFCCONVERSIONBASEDUNIT",
   ifcDerivedUnit: "IFCDERIVEDUNIT",
