@@ -1,9 +1,8 @@
-import { SpatialStructureFinder } from "./spatial-structure-finder";
+import { ifcTypes } from "./ifc-types";
 
 class IfcEntityFinder {
   constructor(ifcData) {
     this.ifcData = ifcData;
-    this.spatialFinder = new SpatialStructureFinder(ifcData, this);
   }
 
   findByType(typeToFind) {
@@ -21,6 +20,10 @@ class IfcEntityFinder {
 
   getSpatial() {
     return this.spatialFinder;
+  }
+
+  findIfcRelAggregates() {
+    return this.findByType(ifcTypes.ifcRelAggregates);
   }
 }
 

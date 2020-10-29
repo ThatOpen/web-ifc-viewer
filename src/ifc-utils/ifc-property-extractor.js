@@ -29,6 +29,7 @@ class IfcPropertyExtractor {
   }
 
   useIdSetReader() {
+    if (this.isDefaultValue()) return this.use(p.defaultValueReader);
     if (this.isEmptySet()) return this.use(p.emptySetReader);
     return this.use(p.IdSetReader).map((e) => {
       return this.finder.findById(e);

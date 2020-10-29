@@ -4,7 +4,7 @@
 
 import { IfcBase } from "../IfcBase";
 import { baseConstructor } from "../../ifc-utils/ifc-constructor";
-import { ifcTypes } from "../../ifc-utils/ifc-types";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 import { getIfcSIUnitGlobal } from "./IfcSIUnit";
 import { getIfcDerivedUnitGlobal } from "./IfcDerivedUnit";
 import { getIfcConversionBasedUnitGlobal } from "./IfcConversionBasedUnit";
@@ -22,11 +22,9 @@ class IfcUnitAssignment extends IfcBase {
   }
 
   getGlobalUnit(e) {
-    return e.type === ifcTypes.ifcSIUnit
-      ? getIfcSIUnitGlobal(this, e)
-      : e.type === ifcTypes.ifcDerivedUnit
-      ? getIfcDerivedUnitGlobal(this, e)
-      : getIfcConversionBasedUnitGlobal(this, e);
+    if (e.type === t.ifcSIUnit) return getIfcSIUnitGlobal(this, e);
+    if (e.type === t.ifcDerivedUnit) return getIfcDerivedUnitGlobal(this, e);
+    return getIfcConversionBasedUnitGlobal(this, e);
   }
 }
 
