@@ -6,7 +6,7 @@ import { IfcNamedUnit } from "./IfcNamedUnit";
 import {
   baseConstructor,
   baseConstructorNoExtraction,
-} from "../../ifc-utils/ifc-constructor";
+} from "../../ifc-utils/ifc-constructors";
 
 class IfcSIUnit extends IfcNamedUnit {
   getIfcProperties() {

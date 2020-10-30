@@ -2,7 +2,7 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC4_1/FINAL/HTML/schema/ifcproductextension/lexical/ifcsite.htm]
  */
 
-import { baseConstructorNoExtraction } from "../../ifc-utils/ifc-constructor";
+import { baseConstructorNoExtraction } from "../../ifc-utils/ifc-constructors";
 import { IfcSpatialStructureElement } from "../ifc-base-classes/IfcSpatialStructureElement";
 
 class IfcSite extends IfcSpatialStructureElement {

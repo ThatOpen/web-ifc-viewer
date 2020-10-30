@@ -3,7 +3,7 @@
  */
 
 import { IfcBase } from "../IfcBase";
-import { baseConstructor } from "../../ifc-utils/ifc-constructor";
+import { baseConstructor } from "../../ifc-utils/ifc-constructors";
 import { getIfcOrganization } from "./IfcOrganization";
 
 class IfcApplication extends IfcBase {

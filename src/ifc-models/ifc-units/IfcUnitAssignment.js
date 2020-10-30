@@ -3,7 +3,7 @@
  */
 
 import { IfcBase } from "../IfcBase";
-import { baseConstructor } from "../../ifc-utils/ifc-constructor";
+import { baseConstructor } from "../../ifc-utils/ifc-constructors";
 import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 import { getIfcSIUnitGlobal } from "./IfcSIUnit";
 import { getIfcDerivedUnitGlobal } from "./IfcDerivedUnit";

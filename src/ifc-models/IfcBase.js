@@ -1,19 +1,34 @@
 import { IfcPropertyExtractor } from "../ifc-utils/ifc-property-extractor";
 import * as p from "../ifc-utils/ifc-property-readers";
-import { solveUnicode } from "../ifc-utils/ifc-unicode";
+import { formatDate, solveUnicode } from "../ifc-utils/ifc-format";
 
 let privateProperties = new WeakMap();
 class IfcBase {
   constructor(ifcItemsFinder, ifcLine) {
-    privateProperties.set(this, {
-      reader: new IfcPropertyExtractor(ifcItemsFinder, ifcLine),
-      ifcLine: ifcLine,
-    });
+    this.getPrivateProperties(ifcItemsFinder, ifcLine);
+    this.registerItem(ifcLine);
     this.getIfcProperties();
   }
 
-  getIfcProperties() {
-    this.expressId = privateProperties.get(this).ifcLine.id;
+  getPrivateProperties(ifcItemsFinder, ifcLine) {
+    privateProperties.set(this, {
+      reader: new IfcPropertyExtractor(ifcItemsFinder, ifcLine),
+    });
+  }
+
+  getIfcProperties() {}
+
+  isLoaded(item) {
+    return this.getFinder().isLoaded(item.id);
+  }
+
+  getLoaded(item) {
+    return this.getFinder().getLoaded(item.id);
+  }
+
+  registerItem(ifcLine) {
+    this.expressId = ifcLine.id;
+    this.getFinder().register(this.expressId, this);
   }
 
   extractId() {
@@ -53,9 +68,7 @@ class IfcBase {
   }
 
   extractDate() {
-    const found = this.getReader().use(p.NumberReader);
-    const formatted = new Date(found * 1000);
-    return formatted.getTime() ? formatted : found;
+    return formatDate(this.getReader().use(p.NumberReader));
   }
 
   getFinder() {

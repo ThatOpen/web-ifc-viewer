@@ -3,7 +3,7 @@
  */
 
 import { IfcBase } from "../IfcBase";
-import { baseMultiConstructor } from "../../ifc-utils/ifc-constructor";
+import { baseMultiConstructor } from "../../ifc-utils/ifc-constructors";
 import { getIfcSIUnit } from "./IfcSIUnit";
 
 class IfcDerivedUnitElement extends IfcBase {

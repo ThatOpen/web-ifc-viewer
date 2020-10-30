@@ -2,7 +2,7 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC4_1/FINAL/HTML/schema/ifcgeometricconstraintresource/lexical/ifclocalplacement.htm]
  */
 
-import { baseConstructor } from "../../ifc-utils/ifc-constructor";
+import { baseConstructor } from "../../ifc-utils/ifc-constructors";
 import { getIfcAxis2Placement3D } from "./IfcAxis2Placement3D";
 import { IfcObjectPlacement } from "./IfcObjectPlacement";
 

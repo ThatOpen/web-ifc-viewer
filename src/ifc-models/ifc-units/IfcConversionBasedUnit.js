@@ -5,7 +5,7 @@
 import {
   baseConstructor,
   baseConstructorNoExtraction,
-} from "../../ifc-utils/ifc-constructor";
+} from "../../ifc-utils/ifc-constructors";
 import { getIfcMeasureWithUnit } from "./IfcMeasureWithUnit";
 import { IfcNamedUnit } from "./IfcNamedUnit";
 

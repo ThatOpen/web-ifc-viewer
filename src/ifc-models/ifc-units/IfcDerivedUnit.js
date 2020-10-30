@@ -6,7 +6,7 @@ import { IfcBase } from "../IfcBase";
 import {
   baseConstructor,
   baseConstructorNoExtraction,
-} from "../../ifc-utils/ifc-constructor";
+} from "../../ifc-utils/ifc-constructors";
 import { getIfcDerivedUnitElement } from "./IfcDerivedUnitElement";
 
 class IfcDerivedUnit extends IfcBase {

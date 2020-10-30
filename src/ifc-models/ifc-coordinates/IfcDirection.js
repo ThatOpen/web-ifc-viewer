@@ -3,7 +3,7 @@
  */
 
 import { IfcBase } from "../IfcBase";
-import { baseConstructor } from "../../ifc-utils/ifc-constructor";
+import { baseConstructor } from "../../ifc-utils/ifc-constructors";
 
 class IfcDirection extends IfcBase {
   getIfcProperties() {

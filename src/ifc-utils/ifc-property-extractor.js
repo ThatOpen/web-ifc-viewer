@@ -12,11 +12,6 @@ class IfcPropertyExtractor {
     this.finder = ifcEntityFinder;
   }
 
-  updateBuffer(filter) {
-    this.buffer = this.buffer.replace(filter, "");
-    this.buffer = this.buffer.replace(regexp.initialComma, "");
-  }
-
   use(reader) {
     reader = this.validate(reader);
     const readedProperty = reader.read(this.buffer);
@@ -36,11 +31,20 @@ class IfcPropertyExtractor {
     });
   }
 
+  updateBuffer(filter) {
+    this.buffer = this.buffer.replace(filter, "");
+    this.buffer = this.buffer.replace(regexp.initialComma, "");
+  }
+
   validate(propertyReader) {
     if (this.isDefaultValue()) return p.defaultValueReader;
     if (this.isAsterisk()) return p.asteriskReader;
     if (this.isEmptySet()) return p.emptySetReader;
     return propertyReader;
+  }
+
+  getBuffer() {
+    return this.buffer;
   }
 
   isDefaultValue() {

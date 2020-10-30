@@ -2,10 +2,11 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2/HTML/schema/ifckernel/lexical/ifcreldecomposes.htm]
  */
 
-import { baseConstructorNoExtraction } from "../../ifc-utils/ifc-constructor";
+import { baseConstructorNoExtraction } from "../../ifc-utils/ifc-constructors";
 import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 import { getIfcBuilding } from "../ifc-spatial-structure/IfcBuilding";
 import { getIfcBuildingStorey } from "../ifc-spatial-structure/IfcBuildingStorey";
+import { getIfcProject } from "../ifc-spatial-structure/IfcProject";
 import { getIfcSite } from "../ifc-spatial-structure/IfcSite";
 import { getIfcSpace } from "../ifc-spatial-structure/IfcSpace";
 import { IfcRelDecomposes } from "./IfcRelDecomposes";
@@ -13,17 +14,19 @@ import { IfcRelDecomposes } from "./IfcRelDecomposes";
 class IfcRelAggregates extends IfcRelDecomposes {
   getIfcProperties() {
     super.getIfcProperties();
-    this.relatingObject = this.extractId();
-    this.relatedObjects = this.getRelatedObjects();
+    this.relatingObject = this.getSpatialStructureItem(this.extractId());
+    this.relatedObjects = this.extractIdSet().map((e) =>
+      this.getSpatialStructureItem(e)
+    );
   }
 
-  getRelatedObjects() {
-    return this.extractIdSet().map((e) => {
-      if (e.type === t.ifcBuilding) return getIfcBuilding(this, e);
-      if (e.type === t.ifcSite) return getIfcSite(this, e);
-      if (e.type === t.ifcSpace) return getIfcSpace(this, e);
-      return getIfcBuildingStorey(this, e);
-    });
+  getSpatialStructureItem(e) {
+    if (e.type === t.ifcProject) return getIfcProject(this, e);
+    if (e.type === t.ifcBuilding) return getIfcBuilding(this, e);
+    if (e.type === t.ifcSite) return getIfcSite(this, e);
+    if (e.type === t.ifcSpace) return getIfcSpace(this, e);
+    if (e.type === t.ifcBuildingStorey) return getIfcBuildingStorey(this, e);
+    return e;
   }
 }
 

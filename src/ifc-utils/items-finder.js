@@ -1,8 +1,22 @@
+import { readIfcItems } from "../ifc-loader/ifc-items-reader";
 import { ifcTypes } from "./ifc-types";
 
 class IfcEntityFinder {
   constructor(ifcData) {
     this.ifcData = ifcData;
+    this.loadedItems = {};
+  }
+
+  register(id, item) {
+    this.loadedItems[id] = item;
+  }
+
+  isLoaded(id) {
+    return this.loadedItems[id] ? true : false;
+  }
+
+  getLoaded(id) {
+    return this.loadedItems[id];
   }
 
   findByType(typeToFind) {
@@ -27,4 +41,8 @@ class IfcEntityFinder {
   }
 }
 
-export { IfcEntityFinder };
+function createIfcItemsFinder(loadedIfc) {
+  return new IfcEntityFinder(readIfcItems(loadedIfc));
+}
+
+export { IfcEntityFinder, createIfcItemsFinder };
