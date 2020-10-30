@@ -4,7 +4,6 @@
 
 import { IfcBase } from "../IfcBase";
 
-//TODO: Implement logic to instantiate one of the subclasses (IfcLocalPlacement, IfcLinearPlacement, IfcGridPlacement)
 class IfcObjectPlacement extends IfcBase {}
 
 export { IfcObjectPlacement };

@@ -8,6 +8,9 @@ const ifcTypes = {
   ifcConversionBasedUnit: "IFCCONVERSIONBASEDUNIT",
   ifcDerivedUnit: "IFCDERIVEDUNIT",
   ifcRelAggregates: "IFCRELAGGREGATES",
+  ifcGridPlacement: "IFCGRIDPLACEMENT",
+  ifcLinearPlacement: "IFCLINEARPLACEMENT",
+  ifcLocalPlacement: "IFCLOCALPLACEMENT",
 };
 
 export { ifcTypes };
