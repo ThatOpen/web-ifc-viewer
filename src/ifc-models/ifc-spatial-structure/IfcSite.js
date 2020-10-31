@@ -3,7 +3,7 @@
  */
 
 import {
-  baseConstructorNoExtraction,
+  baseConstructor,
   registerConstructorByType,
 } from "../../ifc-utils/ifc-constructors";
 import { ifcTypes as t } from "../../ifc-utils/ifc-types";
@@ -21,7 +21,7 @@ class IfcSite extends IfcSpatialStructureElement {
 }
 
 function getIfcSite(caller, ifcLine) {
-  return baseConstructorNoExtraction(caller, IfcSite, ifcLine);
+  return baseConstructor(caller, IfcSite, ifcLine);
 }
 
 registerConstructorByType(t.ifcSite, getIfcSite);

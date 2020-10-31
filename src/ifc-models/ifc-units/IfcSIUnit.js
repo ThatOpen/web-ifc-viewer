@@ -3,10 +3,7 @@
  */
 
 import { IfcNamedUnit } from "./IfcNamedUnit";
-import {
-  baseConstructor,
-  baseConstructorNoExtraction,
-} from "../../ifc-utils/ifc-constructors";
+import { baseConstructor } from "../../ifc-utils/ifc-constructors";
 
 class IfcSIUnit extends IfcNamedUnit {
   getIfcProperties() {
@@ -16,12 +13,8 @@ class IfcSIUnit extends IfcNamedUnit {
   }
 }
 
-function getIfcSIUnit(caller) {
-  return baseConstructor(caller, IfcSIUnit);
+function getIfcSIUnit(caller, ifcLine) {
+  return baseConstructor(caller, IfcSIUnit, ifcLine);
 }
 
-function getIfcSIUnitGlobal(caller, ifcLine) {
-  return baseConstructorNoExtraction(caller, IfcSIUnit, ifcLine);
-}
-
-export { getIfcSIUnit, getIfcSIUnitGlobal };
+export { getIfcSIUnit };

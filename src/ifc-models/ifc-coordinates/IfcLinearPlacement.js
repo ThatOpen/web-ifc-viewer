@@ -3,7 +3,7 @@
  */
 
 import {
-  baseConstructorNoExtraction,
+  baseConstructor,
   registerConstructorByType,
 } from "../../ifc-utils/ifc-constructors";
 import { ifcTypes as t } from "../../ifc-utils/ifc-types";
@@ -20,7 +20,7 @@ class IfcLinearPlacement extends IfcObjectPlacement {
 }
 
 function getIfcLinearPlacement(caller, ifcLine) {
-  return baseConstructorNoExtraction(caller, IfcLinearPlacement, ifcLine);
+  return baseConstructor(caller, IfcLinearPlacement, ifcLine);
 }
 
 registerConstructorByType(t.ifcLinearPlacement, getIfcLinearPlacement);

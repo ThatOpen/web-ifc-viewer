@@ -12,8 +12,8 @@ class IfcCartesianPoint extends IfcPoint {
   }
 }
 
-function getIfcCartesianPoint(caller) {
-  return baseConstructor(caller, IfcCartesianPoint);
+function getIfcCartesianPoint(caller, ifcLine) {
+  return baseConstructor(caller, IfcCartesianPoint, ifcLine);
 }
 
 export { getIfcCartesianPoint };

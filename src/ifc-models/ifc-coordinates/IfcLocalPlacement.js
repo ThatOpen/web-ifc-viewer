@@ -3,7 +3,7 @@
  */
 
 import {
-  baseConstructorNoExtraction,
+  baseConstructor,
   getItemByType,
   registerConstructorByType,
 } from "../../ifc-utils/ifc-constructors";
@@ -15,12 +15,12 @@ class IfcLocalPlacement extends IfcObjectPlacement {
   getIfcProperties() {
     super.getIfcProperties();
     this.placementRelTo = getItemByType(this, this.extractId());
-    this.relativePlacement = getIfcAxis2Placement3D(this);
+    this.relativePlacement = getIfcAxis2Placement3D(this, this.extractId());
   }
 }
 
 function getIfcLocalPlacement(caller, ifcLine) {
-  return baseConstructorNoExtraction(caller, IfcLocalPlacement, ifcLine);
+  return baseConstructor(caller, IfcLocalPlacement, ifcLine);
 }
 
 registerConstructorByType(t.ifcLocalPlacement, getIfcLocalPlacement);

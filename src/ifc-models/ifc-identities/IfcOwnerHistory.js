@@ -10,7 +10,7 @@ class IfcOwnerHistory extends IfcBase {
   getIfcProperties() {
     super.getIfcProperties();
     this.owningUser = this.extractId();
-    this.owningApplication = getIfcApplication(this);
+    this.owningApplication = getIfcApplication(this, this.extractId());
     this.state = this.extractEnum();
     this.changeAction = this.extractEnum();
     this.lastModifiedDate = this.extractDate();
@@ -20,8 +20,8 @@ class IfcOwnerHistory extends IfcBase {
   }
 }
 
-function getIfcOwnerHistory(caller) {
-  return baseConstructor(caller, IfcOwnerHistory);
+function getIfcOwnerHistory(caller, ifcLine) {
+  return baseConstructor(caller, IfcOwnerHistory, ifcLine);
 }
 
 export { getIfcOwnerHistory };

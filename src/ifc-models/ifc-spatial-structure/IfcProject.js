@@ -15,7 +15,7 @@ import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 import { getIfcRelAggregates } from "../ifc-relationships/IfcRelAggregates";
 import { createIfcItemsFinder } from "../../ifc-utils/items-finder";
 import {
-  baseConstructorNoExtraction,
+  baseConstructor,
   registerConstructorByType,
 } from "../../ifc-utils/ifc-constructors";
 
@@ -25,7 +25,7 @@ class IfcProject extends IfcObject {
     this.longName = this.extractText();
     this.phase = this.extractText();
     this.representationContexts = getIfcGeometricRepresentationContexts(this);
-    this.unitsInContext = getIfcUnitAssignment(this);
+    this.unitsInContext = getIfcUnitAssignment(this, this.extractId());
     this.spatialStructure = this.getSpatialStructure();
   }
 
@@ -42,7 +42,7 @@ function constructIfcProject(loadedIfc) {
 }
 
 function getIfcProject(caller, ifcLine) {
-  return baseConstructorNoExtraction(caller, IfcProject, ifcLine);
+  return baseConstructor(caller, IfcProject, ifcLine);
 }
 
 registerConstructorByType(t.ifcProject, getIfcProject);

@@ -3,7 +3,7 @@
  */
 
 import {
-  baseConstructorNoExtraction,
+  baseConstructor,
   getItemByType,
 } from "../../ifc-utils/ifc-constructors";
 import { IfcRelDecomposes } from "./IfcRelDecomposes";
@@ -19,7 +19,7 @@ class IfcRelAggregates extends IfcRelDecomposes {
 }
 
 function getIfcRelAggregates(caller, ifcLine) {
-  return baseConstructorNoExtraction(caller, IfcRelAggregates, ifcLine);
+  return baseConstructor(caller, IfcRelAggregates, ifcLine);
 }
 
 export { getIfcRelAggregates };

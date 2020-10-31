@@ -1,13 +1,6 @@
 import { getDefaultValue, isDefaultValue } from "./ifc-property-constants";
 
-function baseConstructor(caller, classToConstruct) {
-  if (caller.isDefaultValue()) return caller.extractDefaultValue();
-  const ifcLine = caller.extractId();
-  if (caller.isLoaded(ifcLine)) return caller.getLoaded(ifcLine);
-  return new classToConstruct(caller.getFinder(), ifcLine);
-}
-
-function baseConstructorNoExtraction(caller, classToConstruct, ifcLine) {
+function baseConstructor(caller, classToConstruct, ifcLine) {
   if (isDefaultValue(ifcLine)) return getDefaultValue(ifcLine);
   if (caller.isLoaded(ifcLine)) return caller.getLoaded(ifcLine);
   return new classToConstruct(caller.getFinder(), ifcLine);
@@ -34,7 +27,6 @@ function getItemByType(caller, ifcLine) {
 
 export {
   baseConstructor,
-  baseConstructorNoExtraction,
   baseMultiConstructor,
   registerConstructorByType,
   getItemByType,

@@ -5,9 +5,9 @@
 import { IfcBase } from "../IfcBase";
 import { baseConstructor } from "../../ifc-utils/ifc-constructors";
 import { ifcTypes as t } from "../../ifc-utils/ifc-types";
-import { getIfcSIUnitGlobal } from "./IfcSIUnit";
-import { getIfcDerivedUnitGlobal } from "./IfcDerivedUnit";
-import { getIfcConversionBasedUnitGlobal } from "./IfcConversionBasedUnit";
+import { getIfcSIUnit } from "./IfcSIUnit";
+import { getIfcDerivedUnit } from "./IfcDerivedUnit";
+import { getIfcConversionBasedUnit } from "./IfcConversionBasedUnit";
 
 class IfcUnitAssignment extends IfcBase {
   getIfcProperties() {
@@ -22,14 +22,14 @@ class IfcUnitAssignment extends IfcBase {
   }
 
   getGlobalUnit(e) {
-    if (e.type === t.ifcSIUnit) return getIfcSIUnitGlobal(this, e);
-    if (e.type === t.ifcDerivedUnit) return getIfcDerivedUnitGlobal(this, e);
-    return getIfcConversionBasedUnitGlobal(this, e);
+    if (e.type === t.ifcSIUnit) return getIfcSIUnit(this, e);
+    if (e.type === t.ifcDerivedUnit) return getIfcDerivedUnit(this, e);
+    return getIfcConversionBasedUnit(this, e);
   }
 }
 
-function getIfcUnitAssignment(caller) {
-  return baseConstructor(caller, IfcUnitAssignment);
+function getIfcUnitAssignment(caller, ifcLine) {
+  return baseConstructor(caller, IfcUnitAssignment, ifcLine);
 }
 
 export { getIfcUnitAssignment };

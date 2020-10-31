@@ -11,8 +11,8 @@ class IfcGeometricRepresentationContext extends IfcRepresentationContext {
     super.getIfcProperties();
     this.coordinationSpaceDimension = this.extractNumber();
     this.precision = this.extractNumber();
-    this.worldCoordinateSystem = getIfcAxis2Placement3D(this);
-    this.trueNorth = getIfcDirection(this);
+    this.worldCoordinateSystem = getIfcAxis2Placement3D(this, this.extractId());
+    this.trueNorth = getIfcDirection(this, this.extractId());
   }
 }
 

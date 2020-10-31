@@ -9,13 +9,13 @@ import { baseConstructor } from "../../ifc-utils/ifc-constructors";
 class IfcAxis2Placement3D extends IfcPlacement {
   getIfcProperties() {
     super.getIfcProperties();
-    this.axis = getIfcDirection(this);
-    this.refDirection = getIfcDirection(this);
+    this.axis = getIfcDirection(this, this.extractId());
+    this.refDirection = getIfcDirection(this, this.extractId());
   }
 }
 
-function getIfcAxis2Placement3D(caller) {
-  return baseConstructor(caller, IfcAxis2Placement3D);
+function getIfcAxis2Placement3D(caller, ifcLine) {
+  return baseConstructor(caller, IfcAxis2Placement3D, ifcLine);
 }
 
 export { getIfcAxis2Placement3D };
