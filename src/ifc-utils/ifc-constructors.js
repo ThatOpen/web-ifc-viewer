@@ -28,6 +28,7 @@ function registerConstructorByType(type, constructor) {
 }
 
 function getItemByType(caller, ifcLine) {
+  if (isDefaultValue(ifcLine)) return getDefaultValue(ifcLine);
   return constructorsByType[ifcLine.type](caller, ifcLine);
 }
 

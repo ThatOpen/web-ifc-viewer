@@ -2,7 +2,11 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC4_1/FINAL/HTML/schema/ifcgeometricconstraintresource/lexical/ifcgridplacement.htm]
  */
 
-import { baseConstructorNoExtraction } from "../../ifc-utils/ifc-constructors";
+import {
+  baseConstructorNoExtraction,
+  registerConstructorByType,
+} from "../../ifc-utils/ifc-constructors";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 import { IfcObjectPlacement } from "./IfcObjectPlacement";
 
 class IfcGridPlacement extends IfcObjectPlacement {
@@ -16,5 +20,7 @@ class IfcGridPlacement extends IfcObjectPlacement {
 function getIfcGridPlacement(caller, ifcLine) {
   return baseConstructorNoExtraction(caller, IfcGridPlacement, ifcLine);
 }
+
+registerConstructorByType(t.ifcGridPlacement, getIfcGridPlacement);
 
 export { getIfcGridPlacement };

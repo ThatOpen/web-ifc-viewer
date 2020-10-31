@@ -1,7 +1,13 @@
 /**
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/FINAL/HTML/ifckernel/lexical/ifcproject.htm]
  */
-
+import "./IfcBuilding";
+import "./IfcBuildingStorey";
+import "./IfcSite";
+import "./IfcSpace";
+import "../ifc-coordinates/IfcGridPlacement";
+import "../ifc-coordinates/IfcLinearPlacement";
+import "../ifc-coordinates/IfcLocalPlacement";
 import { IfcObject } from "../ifc-base-classes/IfcObject";
 import { getIfcGeometricRepresentationContexts } from "../ifc-contexts/IfcGeometricRepresentationContext";
 import { getIfcUnitAssignment } from "../ifc-units/IfcUnitAssignment";
