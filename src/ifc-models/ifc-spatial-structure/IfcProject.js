@@ -8,7 +8,10 @@ import { getIfcUnitAssignment } from "../ifc-units/IfcUnitAssignment";
 import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 import { getIfcRelAggregates } from "../ifc-relationships/IfcRelAggregates";
 import { createIfcItemsFinder } from "../../ifc-utils/items-finder";
-import { baseConstructorNoExtraction } from "../../ifc-utils/ifc-constructors";
+import {
+  baseConstructorNoExtraction,
+  registerConstructorByType,
+} from "../../ifc-utils/ifc-constructors";
 
 class IfcProject extends IfcObject {
   getIfcProperties() {
@@ -35,5 +38,7 @@ function constructIfcProject(loadedIfc) {
 function getIfcProject(caller, ifcLine) {
   return baseConstructorNoExtraction(caller, IfcProject, ifcLine);
 }
+
+registerConstructorByType(t.ifcProject, getIfcProject);
 
 export { getIfcProject, constructIfcProject };

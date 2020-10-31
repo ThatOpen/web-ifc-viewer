@@ -2,7 +2,11 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/FINAL/HTML/ifcproductextension/lexical/ifcspace.htm]
  */
 
-import { baseConstructorNoExtraction } from "../../ifc-utils/ifc-constructors";
+import {
+  baseConstructorNoExtraction,
+  registerConstructorByType,
+} from "../../ifc-utils/ifc-constructors";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 import { IfcSpatialStructureElement } from "../ifc-base-classes/IfcSpatialStructureElement";
 
 class IfcSpace extends IfcSpatialStructureElement {
@@ -16,5 +20,7 @@ class IfcSpace extends IfcSpatialStructureElement {
 function getIfcSpace(caller, ifcLine) {
   return baseConstructorNoExtraction(caller, IfcSpace, ifcLine);
 }
+
+registerConstructorByType(t.ifcSpace, getIfcSpace);
 
 export { getIfcSpace };

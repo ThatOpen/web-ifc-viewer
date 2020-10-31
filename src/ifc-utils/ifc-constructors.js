@@ -21,4 +21,20 @@ function baseMultiConstructor(caller, classToConstruct) {
   });
 }
 
-export { baseConstructor, baseConstructorNoExtraction, baseMultiConstructor };
+const constructorsByType = {};
+
+function registerConstructorByType(type, constructor) {
+  constructorsByType[type] = constructor;
+}
+
+function getItemByType(caller, ifcLine) {
+  return constructorsByType[ifcLine.type](caller, ifcLine);
+}
+
+export {
+  baseConstructor,
+  baseConstructorNoExtraction,
+  baseMultiConstructor,
+  registerConstructorByType,
+  getItemByType,
+};

@@ -2,7 +2,10 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2/HTML/schema/ifckernel/lexical/ifcreldecomposes.htm]
  */
 
-import { baseConstructorNoExtraction } from "../../ifc-utils/ifc-constructors";
+import {
+  baseConstructorNoExtraction,
+  getItemByType,
+} from "../../ifc-utils/ifc-constructors";
 import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 import { getIfcBuilding } from "../ifc-spatial-structure/IfcBuilding";
 import { getIfcBuildingStorey } from "../ifc-spatial-structure/IfcBuildingStorey";
@@ -14,9 +17,9 @@ import { IfcRelDecomposes } from "./IfcRelDecomposes";
 class IfcRelAggregates extends IfcRelDecomposes {
   getIfcProperties() {
     super.getIfcProperties();
-    this.relatingObject = this.getSpatialStructureItem(this.extractId());
+    this.relatingObject = getItemByType(this, this.extractId());
     this.relatedObjects = this.extractIdSet().map((e) =>
-      this.getSpatialStructureItem(e)
+      getItemByType(this, e)
     );
   }
 
