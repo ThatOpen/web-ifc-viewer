@@ -2,15 +2,19 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifcmeasureresource/lexical/ifcderivedunit.htm]
  */
 
-import { baseConstructor } from "../../ifc-utils/ifc-constructors";
-import { getIfcMeasureWithUnit } from "./IfcMeasureWithUnit";
+import {
+  baseConstructor,
+  getItemByType,
+  registerConstructorByType,
+} from "../../ifc-utils/ifc-constructors";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 import { IfcNamedUnit } from "./IfcNamedUnit";
 
 class IfcConversionBasedUnit extends IfcNamedUnit {
   getIfcProperties() {
     super.getIfcProperties();
     this.name = this.extractText();
-    this.conversionFactor = getIfcMeasureWithUnit(this, this.extractId());
+    this.conversionFactor = getItemByType(this, this.extractId());
   }
 }
 
@@ -18,4 +22,4 @@ function getIfcConversionBasedUnit(caller, ifcLine) {
   return baseConstructor(caller, IfcConversionBasedUnit, ifcLine);
 }
 
-export { getIfcConversionBasedUnit };
+registerConstructorByType(t.ifcConversionBasedUnit, getIfcConversionBasedUnit);

@@ -6,14 +6,6 @@ function baseConstructor(caller, classToConstruct, ifcLine) {
   return new classToConstruct(caller.getFinder(), ifcLine);
 }
 
-function baseMultiConstructor(caller, classToConstruct) {
-  if (caller.isEmptySet()) return caller.extractEmptySet();
-  return caller.extractIdSet().map((e) => {
-    if (caller.isLoaded(e)) return caller.getLoaded(e);
-    return new classToConstruct(caller.getFinder(), e);
-  });
-}
-
 const constructorsByType = {};
 
 function registerConstructorByType(type, constructor) {
@@ -25,9 +17,4 @@ function getItemByType(caller, ifcLine) {
   return constructorsByType[ifcLine.type](caller, ifcLine);
 }
 
-export {
-  baseConstructor,
-  baseMultiConstructor,
-  registerConstructorByType,
-  getItemByType,
-};
+export { baseConstructor, registerConstructorByType, getItemByType };

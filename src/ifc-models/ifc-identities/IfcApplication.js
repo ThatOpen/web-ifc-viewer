@@ -3,13 +3,17 @@
  */
 
 import { IfcBase } from "../IfcBase";
-import { baseConstructor } from "../../ifc-utils/ifc-constructors";
-import { getIfcOrganization } from "./IfcOrganization";
+import {
+  baseConstructor,
+  getItemByType,
+  registerConstructorByType,
+} from "../../ifc-utils/ifc-constructors";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 
 class IfcApplication extends IfcBase {
   getIfcProperties() {
     super.getIfcProperties();
-    this.applicationDeveloper = getIfcOrganization(this, this.extractId());
+    this.applicationDeveloper = getItemByType(this, this.extractId());
     this.version = this.extractText();
     this.applicationFullName = this.extractText();
     this.applicationIdentifier = this.extractText();
@@ -20,4 +24,4 @@ function getIfcApplication(caller, ifcLine) {
   return baseConstructor(caller, IfcApplication, ifcLine);
 }
 
-export { getIfcApplication };
+registerConstructorByType(t.ifcApplication, getIfcApplication);

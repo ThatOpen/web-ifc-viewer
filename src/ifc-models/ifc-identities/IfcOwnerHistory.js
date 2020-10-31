@@ -3,14 +3,18 @@
  */
 
 import { IfcBase } from "../IfcBase";
-import { baseConstructor } from "../../ifc-utils/ifc-constructors";
-import { getIfcApplication } from "./IfcApplication";
+import {
+  baseConstructor,
+  getItemByType,
+  registerConstructorByType,
+} from "../../ifc-utils/ifc-constructors";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 
 class IfcOwnerHistory extends IfcBase {
   getIfcProperties() {
     super.getIfcProperties();
     this.owningUser = this.extractId();
-    this.owningApplication = getIfcApplication(this, this.extractId());
+    this.owningApplication = getItemByType(this, this.extractId());
     this.state = this.extractEnum();
     this.changeAction = this.extractEnum();
     this.lastModifiedDate = this.extractDate();
@@ -24,4 +28,4 @@ function getIfcOwnerHistory(caller, ifcLine) {
   return baseConstructor(caller, IfcOwnerHistory, ifcLine);
 }
 
-export { getIfcOwnerHistory };
+registerConstructorByType(t.ifcOwnerHistory, getIfcOwnerHistory);

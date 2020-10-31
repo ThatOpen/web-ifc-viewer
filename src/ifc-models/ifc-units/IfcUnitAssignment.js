@@ -3,28 +3,17 @@
  */
 
 import { IfcBase } from "../IfcBase";
-import { baseConstructor } from "../../ifc-utils/ifc-constructors";
-import { ifcTypes as t } from "../../ifc-utils/ifc-types";
-import { getIfcSIUnit } from "./IfcSIUnit";
-import { getIfcDerivedUnit } from "./IfcDerivedUnit";
-import { getIfcConversionBasedUnit } from "./IfcConversionBasedUnit";
+import {
+  baseConstructor,
+  getItemByType,
+  registerConstructorByType,
+} from "../../ifc-utils/ifc-constructors";
+import { ifcTypes as T } from "../../ifc-utils/ifc-types";
 
 class IfcUnitAssignment extends IfcBase {
   getIfcProperties() {
     super.getIfcProperties();
-    this.units = this.getGlobalUnits();
-  }
-
-  getGlobalUnits() {
-    return this.isEmptySet()
-      ? this.extractEmptySet()
-      : this.extractIdSet().map((e) => this.getGlobalUnit(e));
-  }
-
-  getGlobalUnit(e) {
-    if (e.type === t.ifcSIUnit) return getIfcSIUnit(this, e);
-    if (e.type === t.ifcDerivedUnit) return getIfcDerivedUnit(this, e);
-    return getIfcConversionBasedUnit(this, e);
+    this.units = this.extractIdSet().map((e) => getItemByType(this, e));
   }
 }
 
@@ -32,4 +21,4 @@ function getIfcUnitAssignment(caller, ifcLine) {
   return baseConstructor(caller, IfcUnitAssignment, ifcLine);
 }
 
-export { getIfcUnitAssignment };
+registerConstructorByType(T.ifcUnitAssignment, getIfcUnitAssignment);

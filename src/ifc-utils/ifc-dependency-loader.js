@@ -1,0 +1,27 @@
+//ifc contexts
+import "../ifc-models/ifc-contexts/IfcGeometricRepresentationContext";
+//ifc coordinates
+import "../ifc-models/ifc-coordinates/IfcAxis2Placement3D";
+import "../ifc-models/ifc-coordinates/IfcCartesianPoint";
+import "../ifc-models/ifc-coordinates/IfcDirection";
+import "../ifc-models/ifc-coordinates/IfcLocalPlacement";
+import "../ifc-models/ifc-coordinates/IfcGridPlacement";
+import "../ifc-models/ifc-coordinates/IfcLinearPlacement";
+//ifc identities
+import "../ifc-models/ifc-identities/IfcApplication";
+import "../ifc-models/ifc-identities/IfcOrganization";
+import "../ifc-models/ifc-identities/IfcOwnerHistory";
+//ifc relationships
+import "../ifc-models/ifc-relationships/IfcRelAggregates";
+//ifc space structure
+import "../ifc-models/ifc-spatial-structure/IfcBuilding";
+import "../ifc-models/ifc-spatial-structure/IfcBuildingStorey";
+import "../ifc-models/ifc-spatial-structure/IfcSite";
+import "../ifc-models/ifc-spatial-structure/IfcSpace";
+//ifc units
+import "../ifc-models/ifc-units/IfcConversionBasedUnit";
+import "../ifc-models/ifc-units/IfcDerivedUnit";
+import "../ifc-models/ifc-units/IfcDerivedUnitElement";
+import "../ifc-models/ifc-units/IfcMeasureWithUnit";
+import "../ifc-models/ifc-units/IfcSIUnit";
+import "../ifc-models/ifc-units/IfcUnitAssignment";

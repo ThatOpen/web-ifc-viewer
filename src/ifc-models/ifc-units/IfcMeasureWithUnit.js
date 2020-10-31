@@ -3,14 +3,18 @@
  */
 
 import { IfcBase } from "../IfcBase";
-import { baseConstructor } from "../../ifc-utils/ifc-constructors";
-import { getIfcSIUnit } from "./IfcSIUnit";
+import {
+  baseConstructor,
+  getItemByType,
+  registerConstructorByType,
+} from "../../ifc-utils/ifc-constructors";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 
 class IfcMeasureWithUnit extends IfcBase {
   getIfcProperties() {
     super.getIfcProperties();
     this.valueComponent = this.extractIfcValue();
-    this.unitComponent = getIfcSIUnit(this, this.extractId());
+    this.unitComponent = getItemByType(this, this.extractId());
   }
 }
 
@@ -18,4 +22,4 @@ function getIfcMeasureWithUnit(caller, ifcLine) {
   return baseConstructor(caller, IfcMeasureWithUnit, ifcLine);
 }
 
-export { getIfcMeasureWithUnit };
+registerConstructorByType(t.ifcMeasureWithUnit, getIfcMeasureWithUnit);

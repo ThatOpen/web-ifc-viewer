@@ -5,7 +5,9 @@
 import {
   baseConstructor,
   getItemByType,
+  registerConstructorByType,
 } from "../../ifc-utils/ifc-constructors";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 import { IfcRelDecomposes } from "./IfcRelDecomposes";
 
 class IfcRelAggregates extends IfcRelDecomposes {
@@ -22,4 +24,4 @@ function getIfcRelAggregates(caller, ifcLine) {
   return baseConstructor(caller, IfcRelAggregates, ifcLine);
 }
 
-export { getIfcRelAggregates };
+registerConstructorByType(t.ifcRelAggregates, getIfcRelAggregates);

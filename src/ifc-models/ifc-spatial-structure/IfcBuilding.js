@@ -23,5 +23,3 @@ function getIfcBuilding(caller, ifcLine) {
 }
 
 registerConstructorByType(t.ifcBuilding, getIfcBuilding);
-
-export { getIfcBuilding };

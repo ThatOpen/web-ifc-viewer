@@ -1,16 +1,19 @@
 /**
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifcgeometryresource/lexical/ifcaxis2placement3d.htm]
  */
-
-import { getIfcDirection } from "./IfcDirection";
+import {
+  baseConstructor,
+  getItemByType,
+  registerConstructorByType,
+} from "../../ifc-utils/ifc-constructors";
 import { IfcPlacement } from "./IfcPlacement";
-import { baseConstructor } from "../../ifc-utils/ifc-constructors";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 
 class IfcAxis2Placement3D extends IfcPlacement {
   getIfcProperties() {
     super.getIfcProperties();
-    this.axis = getIfcDirection(this, this.extractId());
-    this.refDirection = getIfcDirection(this, this.extractId());
+    this.axis = getItemByType(this, this.extractId());
+    this.refDirection = getItemByType(this, this.extractId());
   }
 }
 
@@ -18,4 +21,4 @@ function getIfcAxis2Placement3D(caller, ifcLine) {
   return baseConstructor(caller, IfcAxis2Placement3D, ifcLine);
 }
 
-export { getIfcAxis2Placement3D };
+registerConstructorByType(t.ifcAxis2Placement3D, getIfcAxis2Placement3D);

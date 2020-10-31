@@ -8,14 +8,13 @@ import {
   registerConstructorByType,
 } from "../../ifc-utils/ifc-constructors";
 import { ifcTypes as t } from "../../ifc-utils/ifc-types";
-import { getIfcAxis2Placement3D } from "./IfcAxis2Placement3D";
 import { IfcObjectPlacement } from "./IfcObjectPlacement";
 
 class IfcLocalPlacement extends IfcObjectPlacement {
   getIfcProperties() {
     super.getIfcProperties();
     this.placementRelTo = getItemByType(this, this.extractId());
-    this.relativePlacement = getIfcAxis2Placement3D(this, this.extractId());
+    this.relativePlacement = getItemByType(this, this.extractId());
   }
 }
 
@@ -24,5 +23,3 @@ function getIfcLocalPlacement(caller, ifcLine) {
 }
 
 registerConstructorByType(t.ifcLocalPlacement, getIfcLocalPlacement);
-
-export { getIfcLocalPlacement };

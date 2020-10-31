@@ -24,5 +24,3 @@ function getIfcLinearPlacement(caller, ifcLine) {
 }
 
 registerConstructorByType(t.ifcLinearPlacement, getIfcLinearPlacement);
-
-export { getIfcLinearPlacement };

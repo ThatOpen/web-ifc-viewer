@@ -2,22 +2,28 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/FINAL/HTML/ifcrepresentationresource/lexical/ifcGeometricrepresentationcontext.htm]
  */
 import { IfcRepresentationContext } from "./IfcRepresentationContext";
-import { getIfcAxis2Placement3D } from "../ifc-coordinates/IfcAxis2Placement3D";
-import { getIfcDirection } from "../ifc-coordinates/IfcDirection";
-import { baseMultiConstructor } from "../../ifc-utils/ifc-constructors";
+import {
+  baseConstructor,
+  getItemByType,
+  registerConstructorByType,
+} from "../../ifc-utils/ifc-constructors";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 
 class IfcGeometricRepresentationContext extends IfcRepresentationContext {
   getIfcProperties() {
     super.getIfcProperties();
     this.coordinationSpaceDimension = this.extractNumber();
     this.precision = this.extractNumber();
-    this.worldCoordinateSystem = getIfcAxis2Placement3D(this, this.extractId());
-    this.trueNorth = getIfcDirection(this, this.extractId());
+    this.worldCoordinateSystem = getItemByType(this, this.extractId());
+    this.trueNorth = getItemByType(this, this.extractId());
   }
 }
 
-function getIfcGeometricRepresentationContexts(caller) {
-  return baseMultiConstructor(caller, IfcGeometricRepresentationContext);
+function getIfcGeometricRepresentationContext(caller, ifcLine) {
+  return baseConstructor(caller, IfcGeometricRepresentationContext, ifcLine);
 }
 
-export { getIfcGeometricRepresentationContexts };
+registerConstructorByType(
+  t.ifcGeometricRepresentationContext,
+  getIfcGeometricRepresentationContext
+);

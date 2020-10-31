@@ -3,7 +3,11 @@
  */
 
 import { IfcBase } from "../IfcBase";
-import { baseConstructor } from "../../ifc-utils/ifc-constructors";
+import {
+  baseConstructor,
+  registerConstructorByType,
+} from "../../ifc-utils/ifc-constructors";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 
 class IfcDirection extends IfcBase {
   getIfcProperties() {
@@ -16,4 +20,4 @@ function getIfcDirection(caller, ifcLine) {
   return baseConstructor(caller, IfcDirection, ifcLine);
 }
 
-export { getIfcDirection };
+registerConstructorByType(t.ifcDirection, getIfcDirection);

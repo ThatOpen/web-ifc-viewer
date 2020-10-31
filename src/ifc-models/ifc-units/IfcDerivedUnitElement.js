@@ -3,19 +3,23 @@
  */
 
 import { IfcBase } from "../IfcBase";
-import { baseMultiConstructor } from "../../ifc-utils/ifc-constructors";
-import { getIfcSIUnit } from "./IfcSIUnit";
+import {
+  baseConstructor,
+  getItemByType,
+  registerConstructorByType,
+} from "../../ifc-utils/ifc-constructors";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 
 class IfcDerivedUnitElement extends IfcBase {
   getIfcProperties() {
     super.getIfcProperties();
-    this.unit = getIfcSIUnit(this, this.extractId());
+    this.unit = getItemByType(this, this.extractId());
     this.exponent = this.extractNumber();
   }
 }
 
-function getIfcDerivedUnitElement(caller) {
-  return baseMultiConstructor(caller, IfcDerivedUnitElement);
+function getIfcDerivedUnitElement(caller, ifcLine) {
+  return baseConstructor(caller, IfcDerivedUnitElement, ifcLine);
 }
 
-export { getIfcDerivedUnitElement };
+registerConstructorByType(t.ifcDerivedUnitElement, getIfcDerivedUnitElement);

@@ -3,7 +3,11 @@
  */
 
 import { IfcPoint } from "./IfcPoint";
-import { baseConstructor } from "../../ifc-utils/ifc-constructors";
+import {
+  baseConstructor,
+  registerConstructorByType,
+} from "../../ifc-utils/ifc-constructors";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types";
 
 class IfcCartesianPoint extends IfcPoint {
   getIfcProperties() {
@@ -16,4 +20,4 @@ function getIfcCartesianPoint(caller, ifcLine) {
   return baseConstructor(caller, IfcCartesianPoint, ifcLine);
 }
 
-export { getIfcCartesianPoint };
+registerConstructorByType(t.ifcCartesianPoint, getIfcCartesianPoint);

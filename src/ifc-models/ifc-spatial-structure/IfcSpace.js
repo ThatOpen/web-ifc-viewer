@@ -22,5 +22,3 @@ function getIfcSpace(caller, ifcLine) {
 }
 
 registerConstructorByType(t.ifcSpace, getIfcSpace);
-
-export { getIfcSpace };

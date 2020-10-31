@@ -1,21 +1,13 @@
 /**
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/FINAL/HTML/ifckernel/lexical/ifcproject.htm]
  */
-import "./IfcBuilding";
-import "./IfcBuildingStorey";
-import "./IfcSite";
-import "./IfcSpace";
-import "../ifc-coordinates/IfcGridPlacement";
-import "../ifc-coordinates/IfcLinearPlacement";
-import "../ifc-coordinates/IfcLocalPlacement";
+import "../../ifc-utils/ifc-dependency-loader";
 import { IfcObject } from "../ifc-base-classes/IfcObject";
-import { getIfcGeometricRepresentationContexts } from "../ifc-contexts/IfcGeometricRepresentationContext";
-import { getIfcUnitAssignment } from "../ifc-units/IfcUnitAssignment";
 import { ifcTypes as t } from "../../ifc-utils/ifc-types";
-import { getIfcRelAggregates } from "../ifc-relationships/IfcRelAggregates";
 import { createIfcItemsFinder } from "../../ifc-utils/items-finder";
 import {
   baseConstructor,
+  getItemByType,
   registerConstructorByType,
 } from "../../ifc-utils/ifc-constructors";
 
@@ -24,15 +16,17 @@ class IfcProject extends IfcObject {
     super.getIfcProperties();
     this.longName = this.extractText();
     this.phase = this.extractText();
-    this.representationContexts = getIfcGeometricRepresentationContexts(this);
-    this.unitsInContext = getIfcUnitAssignment(this, this.extractId());
+    this.representationContexts = this.extractIdSet().map((e) =>
+      getItemByType(this, e)
+    );
+    this.unitsInContext = getItemByType(this, this.extractId());
     this.spatialStructure = this.getSpatialStructure();
   }
 
   getSpatialStructure() {
     return this.getFinder()
       .findIfcRelAggregates()
-      .map((e) => getIfcRelAggregates(this, e));
+      .map((e) => getItemByType(this, e));
   }
 }
 
@@ -47,4 +41,4 @@ function getIfcProject(caller, ifcLine) {
 
 registerConstructorByType(t.ifcProject, getIfcProject);
 
-export { getIfcProject, constructIfcProject };
+export { constructIfcProject };

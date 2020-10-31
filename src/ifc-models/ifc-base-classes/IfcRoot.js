@@ -3,13 +3,13 @@
  */
 
 import { IfcBase } from "../IfcBase";
-import { getIfcOwnerHistory } from "../ifc-identities/IfcOwnerHistory";
+import { getItemByType } from "../../ifc-utils/ifc-constructors";
 
 class IfcRoot extends IfcBase {
   getIfcProperties() {
     super.getIfcProperties();
     this.globalId = this.extractGuid();
-    this.ownerHistory = getIfcOwnerHistory(this, this.extractId());
+    this.ownerHistory = getItemByType(this, this.extractId());
     this.name = this.extractText();
     this.description = this.extractText();
   }

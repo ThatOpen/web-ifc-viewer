@@ -22,5 +22,3 @@ function getIfcGridPlacement(caller, ifcLine) {
 }
 
 registerConstructorByType(t.ifcGridPlacement, getIfcGridPlacement);
-
-export { getIfcGridPlacement };

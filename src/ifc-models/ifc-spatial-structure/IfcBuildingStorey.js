@@ -21,5 +21,3 @@ function getIfcBuildingStorey(caller, ifcLine) {
 }
 
 registerConstructorByType(t.ifcBuildingStorey, getIfcBuildingStorey);
-
-export { getIfcBuildingStorey };
