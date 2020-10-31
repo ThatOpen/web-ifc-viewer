@@ -2,8 +2,8 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifckernel/lexical/ifcproduct.htm]
  */
 
-import { getItemByType } from "../../ifc-utils/ifc-constructors";
-import { IfcObject } from "./IfcObject";
+import { getItemByType } from "../../ifc-utils/ifc-constructors.js";
+import { IfcObject } from "./IfcObject.js";
 
 class IfcProduct extends IfcObject {
   getIfcProperties() {

@@ -2,12 +2,12 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifcmeasureresource/lexical/ifcsiunit.htm]
  */
 
-import { IfcNamedUnit } from "./IfcNamedUnit";
+import { IfcNamedUnit } from "./IfcNamedUnit.js";
 import {
   baseConstructor,
   registerConstructorByType,
-} from "../../ifc-utils/ifc-constructors";
-import { ifcTypes as t } from "../../ifc-utils/ifc-types";
+} from "../../ifc-utils/ifc-constructors.js";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types.js";
 
 class IfcSIUnit extends IfcNamedUnit {
   getIfcProperties() {

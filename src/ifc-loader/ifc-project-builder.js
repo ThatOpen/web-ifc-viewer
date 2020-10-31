@@ -1,7 +1,7 @@
-import { constructIfcProject } from "../ifc-models/ifc-spatial-structure/IfcProject";
+import { constructIfcProject } from "../ifc-models/ifc-spatial-structure/IfcProject.js";
 
 function buildIfcProject(loadedIfc) {
   console.log(constructIfcProject(loadedIfc));
 }
 
-export default buildIfcProject;
+export { buildIfcProject };

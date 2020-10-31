@@ -1,4 +1,4 @@
-import { getDefaultValue, isDefaultValue } from "./ifc-property-constants";
+import { getDefaultValue, isDefaultValue } from "./ifc-property-constants.js";
 
 function baseConstructor(caller, classToConstruct, ifcLine) {
   if (isDefaultValue(ifcLine)) return getDefaultValue(ifcLine);

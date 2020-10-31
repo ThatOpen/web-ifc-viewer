@@ -2,13 +2,13 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifcutilityresource/lexical/ifcownerhistory.htm]
  */
 
-import { IfcBase } from "../IfcBase";
+import { IfcBase } from "../IfcBase.js";
 import {
   baseConstructor,
   getItemByType,
   registerConstructorByType,
-} from "../../ifc-utils/ifc-constructors";
-import { ifcTypes as t } from "../../ifc-utils/ifc-types";
+} from "../../ifc-utils/ifc-constructors.js";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types.js";
 
 class IfcOwnerHistory extends IfcBase {
   getIfcProperties() {

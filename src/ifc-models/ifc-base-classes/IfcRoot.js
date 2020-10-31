@@ -2,8 +2,8 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/FINAL/HTML/ifckernel/lexical/ifcroot.htm]
  */
 
-import { IfcBase } from "../IfcBase";
-import { getItemByType } from "../../ifc-utils/ifc-constructors";
+import { IfcBase } from "../IfcBase.js";
+import { getItemByType } from "../../ifc-utils/ifc-constructors.js";
 
 class IfcRoot extends IfcBase {
   getIfcProperties() {

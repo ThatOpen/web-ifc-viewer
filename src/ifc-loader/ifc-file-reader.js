@@ -1,16 +1,7 @@
-import React, { useEffect } from "react";
-import buildIfcProject from "./ifc-project-builder";
+import { buildIfcProject } from "./ifc-project-builder.js";
 
-function IfcReader(props) {
-  useEffect(() => {
-    readInput();
-  });
-
-  return (
-    <div>
-      <input type="file" />
-    </div>
-  );
+export function readIfcFile() {
+  readInput();
 }
 
 function readInput() {
@@ -32,5 +23,3 @@ function readFile(input) {
   };
   reader.readAsText(input.files[0]);
 }
-
-export default IfcReader;

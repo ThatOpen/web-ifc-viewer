@@ -1,4 +1,4 @@
-const { regexp } = require("./ifc-regexp");
+import { regexp } from "./ifc-regexp.js";
 
 function isDefaultValue(ifcLine) {
   return regexp.default.test(ifcLine);

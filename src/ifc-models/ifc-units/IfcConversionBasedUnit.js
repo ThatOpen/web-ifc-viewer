@@ -6,9 +6,9 @@ import {
   baseConstructor,
   getItemByType,
   registerConstructorByType,
-} from "../../ifc-utils/ifc-constructors";
-import { ifcTypes as t } from "../../ifc-utils/ifc-types";
-import { IfcNamedUnit } from "./IfcNamedUnit";
+} from "../../ifc-utils/ifc-constructors.js";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types.js";
+import { IfcNamedUnit } from "./IfcNamedUnit.js";
 
 class IfcConversionBasedUnit extends IfcNamedUnit {
   getIfcProperties() {

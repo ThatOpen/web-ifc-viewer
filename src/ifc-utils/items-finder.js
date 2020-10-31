@@ -1,5 +1,5 @@
-import { readIfcItems } from "../ifc-loader/ifc-items-reader";
-import { ifcTypes } from "./ifc-types";
+import { readIfcItems } from "../ifc-loader/ifc-items-reader.js";
+import { ifcTypes } from "./ifc-types.js";
 
 class IfcEntityFinder {
   constructor(ifcData) {

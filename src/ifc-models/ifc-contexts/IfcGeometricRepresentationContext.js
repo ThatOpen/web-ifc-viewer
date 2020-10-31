@@ -1,13 +1,13 @@
 /**
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/FINAL/HTML/ifcrepresentationresource/lexical/ifcGeometricrepresentationcontext.htm]
  */
-import { IfcRepresentationContext } from "./IfcRepresentationContext";
+import { IfcRepresentationContext } from "./IfcRepresentationContext.js";
 import {
   baseConstructor,
   getItemByType,
   registerConstructorByType,
-} from "../../ifc-utils/ifc-constructors";
-import { ifcTypes as t } from "../../ifc-utils/ifc-types";
+} from "../../ifc-utils/ifc-constructors.js";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types.js";
 
 class IfcGeometricRepresentationContext extends IfcRepresentationContext {
   getIfcProperties() {

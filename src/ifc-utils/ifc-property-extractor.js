@@ -1,10 +1,10 @@
-import { regexp } from "./ifc-regexp";
-import * as p from "./ifc-property-readers";
+import { regexp } from "./ifc-regexp.js";
+import * as p from "./ifc-property-readers.js";
 import {
   isDefaultValue,
   isEmptySet,
   isAsterisk,
-} from "../ifc-utils/ifc-property-constants";
+} from "../ifc-utils/ifc-property-constants.js";
 
 class IfcPropertyExtractor {
   constructor(ifcEntityFinder, ifcLine) {

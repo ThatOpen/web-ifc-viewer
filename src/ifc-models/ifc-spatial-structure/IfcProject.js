@@ -1,15 +1,15 @@
 /**
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/FINAL/HTML/ifckernel/lexical/ifcproject.htm]
  */
-import "../../ifc-utils/ifc-dependency-loader";
-import { IfcObject } from "../ifc-base-classes/IfcObject";
-import { ifcTypes as t } from "../../ifc-utils/ifc-types";
-import { createIfcItemsFinder } from "../../ifc-utils/items-finder";
+import "../../ifc-utils/ifc-dependency-loader.js";
+import { IfcObject } from "../ifc-base-classes/IfcObject.js";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types.js";
+import { createIfcItemsFinder } from "../../ifc-utils/items-finder.js";
 import {
   baseConstructor,
   getItemByType,
   registerConstructorByType,
-} from "../../ifc-utils/ifc-constructors";
+} from "../../ifc-utils/ifc-constructors.js";
 
 class IfcProject extends IfcObject {
   getIfcProperties() {

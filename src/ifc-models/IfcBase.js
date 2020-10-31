@@ -1,6 +1,6 @@
-import { IfcPropertyExtractor } from "../ifc-utils/ifc-property-extractor";
-import * as p from "../ifc-utils/ifc-property-readers";
-import { formatDate, solveUnicode } from "../ifc-utils/ifc-format";
+import { IfcPropertyExtractor } from "../ifc-utils/ifc-property-extractor.js";
+import * as p from "../ifc-utils/ifc-property-readers.js";
+import { formatDate, solveUnicode } from "../ifc-utils/ifc-format.js";
 
 let privateProperties = new WeakMap();
 class IfcBase {

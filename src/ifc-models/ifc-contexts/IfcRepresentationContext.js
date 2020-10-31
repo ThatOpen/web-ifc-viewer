@@ -2,7 +2,7 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifcrepresentationresource/lexical/ifcrepresentationcontext.htm]
  */
 
-import { IfcBase } from "../IfcBase";
+import { IfcBase } from "../IfcBase.js";
 
 class IfcRepresentationContext extends IfcBase {
   getIfcProperties() {

@@ -2,7 +2,7 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifcmeasureresource/lexical/ifcnamedunit.htm]
  */
 
-import { IfcBase } from "../IfcBase";
+import { IfcBase } from "../IfcBase.js";
 
 class IfcNamedUnit extends IfcBase {
   getIfcProperties() {

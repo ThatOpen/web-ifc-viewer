@@ -5,9 +5,9 @@
 import {
   baseConstructor,
   registerConstructorByType,
-} from "../../ifc-utils/ifc-constructors";
-import { ifcTypes as t } from "../../ifc-utils/ifc-types";
-import { IfcSpatialStructureElement } from "../ifc-base-classes/IfcSpatialStructureElement";
+} from "../../ifc-utils/ifc-constructors.js";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types.js";
+import { IfcSpatialStructureElement } from "../ifc-base-classes/IfcSpatialStructureElement.js";
 
 class IfcBuildingStorey extends IfcSpatialStructureElement {
   getIfcProperties() {

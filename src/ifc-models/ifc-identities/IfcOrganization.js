@@ -2,12 +2,12 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifcactorresource/lexical/ifcorganization.htm]
  */
 
-import { IfcBase } from "../IfcBase";
+import { IfcBase } from "../IfcBase.js";
 import {
   baseConstructor,
   registerConstructorByType,
-} from "../../ifc-utils/ifc-constructors";
-import { ifcTypes as t } from "../../ifc-utils/ifc-types";
+} from "../../ifc-utils/ifc-constructors.js";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types.js";
 
 class IfcOrganization extends IfcBase {
   getIfcProperties() {

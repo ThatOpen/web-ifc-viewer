@@ -2,7 +2,7 @@
  * [https://standards.buildingsmart.org/IFC/RELEASE/IFC4_1/FINAL/HTML/schema/ifcproductextension/lexical/ifcspatialstructureelement.htm]
  */
 
-import { IfcSpatialElement } from "./IfcSpatialElement";
+import { IfcSpatialElement } from "./IfcSpatialElement.js";
 
 class IfcSpatialStructureElement extends IfcSpatialElement {
   getIfcProperties() {

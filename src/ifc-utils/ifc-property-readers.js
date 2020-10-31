@@ -1,4 +1,4 @@
-import { regexp as r } from "./ifc-regexp";
+import { regexp as r } from "./ifc-regexp.js";
 
 const IdReader = {
   filter: r.expressId,

@@ -5,9 +5,9 @@ import {
   baseConstructor,
   getItemByType,
   registerConstructorByType,
-} from "../../ifc-utils/ifc-constructors";
-import { IfcPlacement } from "./IfcPlacement";
-import { ifcTypes as t } from "../../ifc-utils/ifc-types";
+} from "../../ifc-utils/ifc-constructors.js";
+import { IfcPlacement } from "./IfcPlacement.js";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types.js";
 
 class IfcAxis2Placement3D extends IfcPlacement {
   getIfcProperties() {

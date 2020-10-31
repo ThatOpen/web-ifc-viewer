@@ -5,9 +5,9 @@
 import {
   baseConstructor,
   registerConstructorByType,
-} from "../../ifc-utils/ifc-constructors";
-import { ifcTypes as t } from "../../ifc-utils/ifc-types";
-import { IfcObjectPlacement } from "./IfcObjectPlacement";
+} from "../../ifc-utils/ifc-constructors.js";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types.js";
+import { IfcObjectPlacement } from "./IfcObjectPlacement.js";
 
 class IfcGridPlacement extends IfcObjectPlacement {
   getIfcProperties() {

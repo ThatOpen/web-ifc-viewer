@@ -6,9 +6,9 @@ import {
   baseConstructor,
   getItemByType,
   registerConstructorByType,
-} from "../../ifc-utils/ifc-constructors";
-import { ifcTypes as t } from "../../ifc-utils/ifc-types";
-import { IfcRelDecomposes } from "./IfcRelDecomposes";
+} from "../../ifc-utils/ifc-constructors.js";
+import { ifcTypes as t } from "../../ifc-utils/ifc-types.js";
+import { IfcRelDecomposes } from "./IfcRelDecomposes.js";
 
 class IfcRelAggregates extends IfcRelDecomposes {
   getIfcProperties() {
