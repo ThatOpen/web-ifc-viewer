@@ -1,3 +1,8 @@
+//ifc building elements
+import "../ifc-models/ifc-building-elements/IfcWall.js";
+import "../ifc-models/ifc-building-elements/IfcWallStandardCase.js";
+import "../ifc-models/ifc-building-elements/IfcDoor.js";
+import "../ifc-models/ifc-building-elements/IfcSlab.js";
 //ifc contexts
 import "../ifc-models/ifc-contexts/IfcGeometricRepresentationContext.js";
 //ifc coordinates
@@ -13,6 +18,7 @@ import "../ifc-models/ifc-identities/IfcOrganization.js";
 import "../ifc-models/ifc-identities/IfcOwnerHistory.js";
 //ifc relationships
 import "../ifc-models/ifc-relationships/IfcRelAggregates.js";
+import "../ifc-models/ifc-relationships/IfcRelContainedInSpatialStructure.js";
 //ifc space structure
 import "../ifc-models/ifc-spatial-structure/IfcBuilding.js";
 import "../ifc-models/ifc-spatial-structure/IfcBuildingStorey.js";

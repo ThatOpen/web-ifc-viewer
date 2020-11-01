@@ -21,11 +21,18 @@ class IfcProject extends IfcObject {
     );
     this.unitsInContext = getItemByType(this, this.extractId());
     this.spatialStructure = this.getSpatialStructure();
+    this.itemsContained = this.getItemsContainedInSpatialStructure();
   }
 
   getSpatialStructure() {
     return this.getFinder()
       .findIfcRelAggregates()
+      .map((e) => getItemByType(this, e));
+  }
+
+  getItemsContainedInSpatialStructure() {
+    return this.getFinder()
+      .findIfcRelContainedInSpatialStructure()
       .map((e) => getItemByType(this, e));
   }
 }

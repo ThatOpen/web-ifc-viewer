@@ -1,4 +1,9 @@
 const ifcTypes = {
+  //ifc building elements
+  ifcWall: "IFCWALL",
+  ifcWallStandardCase: "IFCWALLSTANDARDCASE",
+  ifcDoor: "IFCDOOR",
+  ifcSlab: "IFCSLAB",
   //ifc contexts
   ifcGeometricRepresentationContext: "IFCGEOMETRICREPRESENTATIONCONTEXT",
   //ifc coordinates
@@ -14,6 +19,7 @@ const ifcTypes = {
   ifcOwnerHistory: "IFCOWNERHISTORY",
   //ifc relationships
   ifcRelAggregates: "IFCRELAGGREGATES",
+  ifcRelContainedInSpatialStructure: "IFCRELCONTAINEDINSPATIALSTRUCTURE",
   //ifc space structure
   ifcProject: "IFCPROJECT",
   ifcSite: "IFCSITE",

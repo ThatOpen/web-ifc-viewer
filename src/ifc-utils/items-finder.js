@@ -1,5 +1,5 @@
 import { readIfcItems } from "../ifc-loader/ifc-items-reader.js";
-import { ifcTypes } from "./ifc-types.js";
+import { ifcTypes as t } from "./ifc-types.js";
 
 class IfcEntityFinder {
   constructor(ifcData) {
@@ -32,12 +32,12 @@ class IfcEntityFinder {
     return foundItem ? foundItem : idToFind;
   }
 
-  getSpatial() {
-    return this.spatialFinder;
+  findIfcRelAggregates() {
+    return this.findByType(t.ifcRelAggregates);
   }
 
-  findIfcRelAggregates() {
-    return this.findByType(ifcTypes.ifcRelAggregates);
+  findIfcRelContainedInSpatialStructure() {
+    return this.findByType(t.ifcRelContainedInSpatialStructure);
   }
 }
 
