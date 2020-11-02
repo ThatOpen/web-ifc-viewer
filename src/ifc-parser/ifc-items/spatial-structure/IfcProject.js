@@ -1,5 +1,6 @@
 import { vocabulary as v } from "../../lexer/lexer.js";
 import {
+  resetCounter,
   getGuid,
   getExpressId,
   getIfcText,
@@ -10,40 +11,33 @@ function IfcProject_Parser($) {
   return () => {
     $.AT_LEAST_ONE(() => {
       $.CONSUME(v.OpenPar);
-      $.CONSUME(v.IfcGuid);
-      $.CONSUME(v.Comma);
-      $.SUBRULE($.IfcExpressId);
-      $.CONSUME2(v.Comma);
-      $.SUBRULE($.IfcText);
-      $.CONSUME3(v.Comma);
-      $.SUBRULE2($.IfcText);
-      $.CONSUME4(v.Comma);
-      $.SUBRULE3($.IfcText);
-      $.CONSUME5(v.Comma);
-      $.SUBRULE4($.IfcText);
-      $.CONSUME6(v.Comma);
-      $.SUBRULE5($.IfcText);
-      $.CONSUME7(v.Comma);
-      $.SUBRULE($.IdSet);
-      $.CONSUME8(v.Comma);
-      $.SUBRULE2($.IfcExpressId);
+      $.SUBRULE($.IfcGuid_Primitive); //GlobalId
+      $.SUBRULE($.IfcExpressId_Primitive); //OwnerHistory
+      $.SUBRULE($.IfcText_Primitive); //Name
+      $.SUBRULE2($.IfcText_Primitive); //Description
+      $.SUBRULE3($.IfcText_Primitive); //ObjectType
+      $.SUBRULE4($.IfcText_Primitive); //LongName
+      $.SUBRULE5($.IfcText_Primitive); //Phase
+      $.SUBRULE($.IdSet_Primitive); //RepresentationContexts
+      $.SUBRULE2($.IfcExpressId_Primitive); //UnitsInContext
       $.CONSUME(v.ClosePar);
     });
   };
 }
 
 function IfcProject_Semantic(parsed) {
+  resetCounter();
   return {
     IfcType: "IfcProject",
-    Guid: getGuid(parsed, 0),
-    OwnerHistory: getExpressId(parsed, 0),
-    Name: getIfcText(parsed, 0),
-    Description: getIfcText(parsed, 1),
-    ObjectType: getIfcText(parsed, 2),
-    LongName: getIfcText(parsed, 3),
-    Phase: getIfcText(parsed, 4),
-    RepresentationContexts: getIdSet(parsed, 0),
-    UnitsInContext: getExpressId(parsed, 1),
+    Guid: getGuid(parsed),
+    OwnerHistory: getExpressId(parsed),
+    Name: getIfcText(parsed),
+    Description: getIfcText(parsed),
+    ObjectType: getIfcText(parsed),
+    LongName: getIfcText(parsed),
+    Phase: getIfcText(parsed),
+    RepresentationContexts: getIdSet(parsed),
+    UnitsInContext: getExpressId(parsed),
   };
 }
 

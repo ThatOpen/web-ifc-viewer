@@ -27,6 +27,20 @@ tokens.push(
 
 tokens.push(
   newToken({
+    name: "Enum",
+    pattern: /\.[A-Z]+?\./,
+  })
+);
+
+tokens.push(
+  newToken({
+    name: "Number",
+    pattern: /[0-9.E-]+/,
+  })
+);
+
+tokens.push(
+  newToken({
     name: "DefaultValue",
     pattern: /\$(?=[\)|,])/,
   })
