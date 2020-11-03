@@ -20,6 +20,20 @@ tokens.push(
 
 tokens.push(
   newToken({
+    name: "Asterisk",
+    pattern: /\*/,
+  })
+);
+
+tokens.push(
+  newToken({
+    name: "IfcMeasureValue",
+    pattern: /IFC[A-Z]+?(?=\()/,
+  })
+);
+
+tokens.push(
+  newToken({
     name: "DefaultValue",
     pattern: /\$/,
   })
@@ -28,7 +42,7 @@ tokens.push(
 tokens.push(
   newToken({
     name: "EmptyText",
-    pattern: /''/,
+    pattern: /''(?=[\)|,])/,
   })
 );
 
@@ -42,7 +56,7 @@ tokens.push(
 tokens.push(
   newToken({
     name: "Enum",
-    pattern: /\.[A-Z]+?\./,
+    pattern: /\.[A-Z_]+?\./,
   })
 );
 
@@ -52,8 +66,6 @@ tokens.push(
     pattern: /[0-9.E-]+/,
   })
 );
-
-//Include primitive elements in vocabulary
 
 tokens.push(
   newToken({

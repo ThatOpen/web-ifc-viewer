@@ -3,9 +3,12 @@ const ifcDataTypes = {
   id: "ExpressId",
   idSet: "ExpressIdSet",
   text: "Text",
+  textSet: "TextSet",
   number: "Number",
+  date: "Date",
   numberSet: "NumberSet",
-  enum: "enum",
+  enum: "Enum",
+  ifcValue: "IfcValue",
 };
 
 export { ifcDataTypes };

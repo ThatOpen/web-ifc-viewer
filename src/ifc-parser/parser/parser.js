@@ -1,7 +1,11 @@
 import "../../../node_modules/chevrotain/lib/chevrotain.js";
 import { tokens, vocabulary as v } from "../lexer/lexer.js";
-import { addPrimitiveParsers } from "../ifc-items/Primitives.js";
-import { addSpatialStructureParser } from "../ifc-items/spatial-structure/SpatialStructure.js";
+import { addPrimitiveParsers } from "../ifc-models/primitives.js";
+import { addSpatialStructureParsers } from "../ifc-models/spatial-structure/_spatial-structure.js";
+import { addGeometryParsers } from "../ifc-models/geometry/_geometry.js";
+import { addUnitsParsers } from "../ifc-models/units/_units.js";
+import { addContextParsers } from "../ifc-models/context/_context.js";
+import { addIdentitiesParsers } from "../ifc-models/identities/_identities.js";
 
 const CstParser = chevrotain.CstParser;
 
@@ -12,7 +16,11 @@ class IfcParser extends CstParser {
     const $ = this;
 
     addPrimitiveParsers($);
-    addSpatialStructureParser($);
+    addSpatialStructureParsers($);
+    addGeometryParsers($);
+    addUnitsParsers($);
+    addContextParsers($);
+    addIdentitiesParsers($);
 
     this.performSelfAnalysis();
   }

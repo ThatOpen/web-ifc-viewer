@@ -1,4 +1,4 @@
-import { solveUnicode } from "../utils/unicode.js";
+import { formatDate, solveUnicode } from "../utils/format.js";
 
 let counter = {};
 
@@ -11,6 +11,8 @@ function resetCounter() {
     ifcEnum: 0,
     idSet: 0,
     numberSet: 0,
+    ifcValue: 0,
+    textSet: 0,
   };
 }
 
@@ -22,13 +24,19 @@ function getGuid(parsed) {
 }
 
 function getEnum(parsed) {
-  return parsed._IfcEnum[counter["ifcEnum"]++].children.Enum[0].image;
+  return parsed._IfcEnum[counter["ifcEnum"]].children.DefaultValue
+    ? parsed._IfcEnum[counter["ifcEnum"]++].children.DefaultValue[0].image
+    : parsed._IfcEnum[counter["ifcEnum"]++].children.Enum[0].image.slice(1, -1);
 }
 
 function getNumber(parsed) {
   return parsed._Number[counter["number"]].children.DefaultValue
     ? parsed._Number[counter["number"]++].children.DefaultValue[0].image
     : Number(parsed._Number[counter["number"]++].children.Number[0].image);
+}
+
+function getDate(parsed) {
+  return formatDate(getNumber(parsed));
 }
 
 function getExpressId(parsed) {
@@ -56,7 +64,23 @@ function getIfcText(parsed) {
   );
 }
 
+function getTextSet(parsed) {
+  if (parsed._TextSet[counter["textSet"]].children.DefaultValue)
+    return parsed._TextSet[counter["textSet"]++].children.DefaultValue[0].image;
+
+  if (parsed._TextSet[counter["textSet"]].children.ExpressId)
+    return parsed._TextSet[counter["textSet"]++].children.ExpressId.map((e) =>
+      Number(e.image.slice(1))
+    );
+
+  counter["textSet"]++;
+  return [];
+}
+
 function getIdSet(parsed) {
+  if (parsed._IdSet[counter["idSet"]].children.DefaultValue)
+    return parsed._IdSet[counter["idSet"]++].children.DefaultValue[0].image;
+
   if (parsed._IdSet[counter["idSet"]].children.ExpressId)
     return parsed._IdSet[counter["idSet"]++].children.ExpressId.map((e) =>
       Number(e.image.slice(1))
@@ -76,13 +100,29 @@ function getNumberSet(parsed) {
   return [];
 }
 
+function getIfcValue(parsed) {
+  return parsed._IfcValue[counter["ifcValue"]].children.DefaultValue
+    ? parsed._IfcValue[counter["ifcValue"]++].children.DefaultValue[0].image
+    : {
+        value: Number(
+          parsed._IfcValue[counter["ifcValue"]].children.Number[0].image
+        ),
+        ifcUnit:
+          parsed._IfcValue[counter["ifcValue"]++].children.IfcMeasureValue[0]
+            .image,
+      };
+}
+
 export {
   resetCounter,
   getGuid,
   getNumber,
+  getDate,
   getNumberSet,
   getEnum,
   getExpressId,
   getIfcText,
+  getTextSet,
   getIdSet,
+  getIfcValue,
 };
