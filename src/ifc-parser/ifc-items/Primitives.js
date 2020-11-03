@@ -1,13 +1,13 @@
 import { vocabulary as v } from "../lexer/lexer.js";
 
 function addPrimitiveParsers($) {
-  $.RULE("IfcGuid_Primitive", IfcGuid_Parser($));
-  $.RULE("Number_Primitive", Number_Parser($));
-  $.RULE("IfcText_Primitive", IfcText_Parser($));
-  $.RULE("IfcEnum_Primitive", IfcEnum_Parser($));
-  $.RULE("IfcExpressId_Primitive", IfcExpressId_Parser($));
-  $.RULE("IdSet_Primitive", IdSet_Parser($));
-  $.RULE("NumberSet_Primitive", NumberSet_Parser($));
+  $.RULE("_IfcGuid", IfcGuid_Parser($));
+  $.RULE("_Number", Number_Parser($));
+  $.RULE("_IfcText", IfcText_Parser($));
+  $.RULE("_IfcEnum", IfcEnum_Parser($));
+  $.RULE("_IfcExpressId", IfcExpressId_Parser($));
+  $.RULE("_IdSet", IdSet_Parser($));
+  $.RULE("_NumberSet", NumberSet_Parser($));
 }
 
 function IfcGuid_Parser($) {
@@ -24,10 +24,21 @@ function IfcGuid_Parser($) {
 function Number_Parser($) {
   return () => {
     $.AT_LEAST_ONE(() => {
-      $.CONSUME(v.Number);
-      $.OPTION(() => {
-        $.CONSUME(v.Comma);
-      });
+      $.OR([
+        {
+          ALT: () => {
+            $.CONSUME(v.DefaultValue);
+          },
+        },
+        {
+          ALT: () => {
+            $.CONSUME(v.Number);
+          },
+        },
+      ]);
+    });
+    $.OPTION(() => {
+      $.CONSUME(v.Comma);
     });
   };
 }
@@ -72,6 +83,11 @@ function IfcText_Parser($) {
   return () => {
     $.AT_LEAST_ONE(() => {
       $.OR([
+        {
+          ALT: () => {
+            $.CONSUME(v.EmptyText);
+          },
+        },
         {
           ALT: () => {
             $.CONSUME(v.Text);

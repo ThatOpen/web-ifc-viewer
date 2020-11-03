@@ -20,6 +20,20 @@ tokens.push(
 
 tokens.push(
   newToken({
+    name: "DefaultValue",
+    pattern: /\$/,
+  })
+);
+
+tokens.push(
+  newToken({
+    name: "EmptyText",
+    pattern: /''/,
+  })
+);
+
+tokens.push(
+  newToken({
     name: "Text",
     pattern: /'.+?'(?=[\)|,])/,
   })
@@ -36,13 +50,6 @@ tokens.push(
   newToken({
     name: "Number",
     pattern: /[0-9.E-]+/,
-  })
-);
-
-tokens.push(
-  newToken({
-    name: "DefaultValue",
-    pattern: /\$(?=[\)|,])/,
   })
 );
 

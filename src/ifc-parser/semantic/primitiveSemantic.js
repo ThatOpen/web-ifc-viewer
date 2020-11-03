@@ -13,77 +13,66 @@ function resetCounter() {
 }
 
 function getGuid(parsed) {
-  const result = parsed.IfcGuid_Primitive[
-    counter["guid"]
-  ].children.IfcGuid[0].image.slice(1, -1);
-  counter["guid"]++;
-  return result;
+  return parsed._IfcGuid[counter["guid"]++].children.IfcGuid[0].image.slice(
+    1,
+    -1
+  );
 }
 
 function getEnum(parsed) {
-  const result =
-    parsed.IfcEnum_Primitive[counter["ifcEnum"]].children.Enum[0].image;
-  counter["ifcEnum"]++;
-  return result;
+  return parsed._IfcEnum[counter["ifcEnum"]++].children.Enum[0].image;
 }
 
 function getNumber(parsed) {
-  const result = parsed.Number_Primitive[counter["number"]].children
-    .DefaultValue
-    ? parsed.Number_Primitive[counter["number"]].children.DefaultValue[0].image
-    : Number(
-        parsed.Number_Primitive[counter["number"]].children.Number[0].image
-      );
-  counter["number"]++;
-  return result;
+  return parsed._Number[counter["number"]].children.DefaultValue
+    ? parsed._Number[counter["number"]++].children.DefaultValue[0].image
+    : Number(parsed._Number[counter["number"]++].children.Number[0].image);
 }
 
 function getExpressId(parsed) {
-  const result = parsed.IfcExpressId_Primitive[counter["expressId"]].children
-    .DefaultValue
-    ? parsed.IfcExpressId_Primitive[counter["expressId"]].children
-        .DefaultValue[0].image
+  return parsed._IfcExpressId[counter["expressId"]].children.DefaultValue
+    ? parsed._IfcExpressId[counter["expressId"]++].children.DefaultValue[0]
+        .image
     : Number(
-        parsed.IfcExpressId_Primitive[
-          counter["expressId"]
+        parsed._IfcExpressId[
+          counter["expressId"]++
         ].children.ExpressId[0].image.slice(1)
       );
-  counter["expressId"]++;
-  return result;
 }
 
 function getIfcText(parsed) {
-  const result = parsed.IfcText_Primitive[counter["ifcText"]].children
-    .DefaultValue
-    ? parsed.IfcText_Primitive[counter["ifcText"]].children.DefaultValue[0]
-        .image
-    : parsed.IfcText_Primitive[counter["ifcText"]].children.Text[0].image.slice(
-        1,
-        -1
-      );
-  counter["ifcText"]++;
-  return result;
+  if (parsed._IfcText[counter["ifcText"]].children.DefaultValue)
+    return parsed._IfcText[counter["ifcText"]++].children.DefaultValue[0].image;
+
+  if (parsed._IfcText[counter["ifcText"]].children.EmptyText) {
+    counter["ifcText"]++;
+    return "";
+  }
+
+  return parsed._IfcText[counter["ifcText"]++].children.Text[0].image.slice(
+    1,
+    -1
+  );
 }
 
 function getIdSet(parsed) {
-  const result = parsed.IdSet_Primitive[counter["idSet"]].children.ExpressId
-    ? parsed.IdSet_Primitive[counter["idSet"]].children.ExpressId.map((e) =>
-        Number(e.image.slice(1))
-      )
-    : [];
+  if (parsed._IdSet[counter["idSet"]].children.ExpressId)
+    return parsed._IdSet[counter["idSet"]++].children.ExpressId.map((e) =>
+      Number(e.image.slice(1))
+    );
+
   counter["idSet"]++;
-  return result;
+  return [];
 }
 
 function getNumberSet(parsed) {
-  const result = parsed.NumberSet_Primitive[counter["numberSet"]].children
-    .Number
-    ? parsed.NumberSet_Primitive[
-        counter["numberSet"]
-      ].children.Number.map((e) => Number(e.image))
-    : [];
+  if (parsed._NumberSet[counter["numberSet"]].children.Number)
+    return parsed._NumberSet[counter["numberSet"]].children.Number.map((e) =>
+      Number(e.image)
+    );
+
   counter["numberSet"]++;
-  return result;
+  return [];
 }
 
 export {

@@ -7,13 +7,13 @@ import {
   getIfcText,
   getNumber,
   getEnum,
-  getNumberSet,
 } from "../../semantic/primitiveSemantic.js";
 
-function IfcSite_Parser($) {
+function IfcBuilding_Parser($) {
   return () => {
     $.AT_LEAST_ONE(() => {
       $.CONSUME(v.OpenPar);
+
       $.SUBRULE($._IfcGuid); //GlobalId
       $.SUBRULE($._IfcExpressId); //OwnerHistory
       $.SUBRULE($._IfcText); //Name
@@ -23,20 +23,19 @@ function IfcSite_Parser($) {
       $.SUBRULE3($._IfcExpressId); //Representation
       $.SUBRULE4($._IfcText); //LongName
       $.SUBRULE($._IfcEnum); //CompositionType
-      $.SUBRULE($._NumberSet); //RefLatitude
-      $.SUBRULE2($._NumberSet); //RefLongitude
-      $.SUBRULE($._Number); //RefElevation
-      $.SUBRULE5($._IfcText); //LandTitleNumber
-      $.SUBRULE4($._IfcExpressId); //SiteAddress
+      $.SUBRULE($._Number); //ElevationOfRefHeight
+      $.SUBRULE2($._Number); //ElevationOfTerrain
+      $.SUBRULE4($._IfcExpressId); //BuildingAddress
+
       $.CONSUME(v.ClosePar);
     });
   };
 }
 
-function IfcSite_Semantic(parsed) {
+function IfcBuilding_Semantic(parsed) {
   resetCounter();
   return {
-    IfcType: "IfcSite",
+    IfcType: "IfcBuilding",
     Guid: { value: getGuid(parsed), type: d.guid },
     OwnerHistory: { value: getExpressId(parsed), type: d.id },
     Name: { value: getIfcText(parsed), type: d.text },
@@ -46,12 +45,10 @@ function IfcSite_Semantic(parsed) {
     Representation: { value: getExpressId(parsed), type: d.id },
     LongName: { value: getIfcText(parsed), type: d.text },
     CompositionType: { value: getEnum(parsed), type: d.enum },
-    RefLatitude: { value: getNumberSet(parsed), type: d.numberSet },
-    RefLongitude: { value: getNumberSet(parsed), type: d.numberSet },
-    RefElevation: { value: getNumber(parsed), type: d.number },
-    LandTitleNumber: { value: getIfcText(parsed), type: d.text },
-    SiteAddress: { value: getExpressId(parsed), type: d.id },
+    ElevationOfRefHeight: { value: getNumber(parsed), type: d.number },
+    ElevationOfTerrain: { value: getNumber(parsed), type: d.number },
+    BuildingAddress: { value: getExpressId(parsed), type: d.id },
   };
 }
 
-export { IfcSite_Parser, IfcSite_Semantic };
+export { IfcBuilding_Parser, IfcBuilding_Semantic };

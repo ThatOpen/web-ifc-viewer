@@ -2,7 +2,7 @@ const ifcTypes = {
   IfcProject: "IFCPROJECT",
   IfcSite: "IFCSITE",
   // IfcBuildingStorey: "IFCBUILDINGSTOREY",
-  // IfcBuilding: "IFCBUILDING",
+  IfcBuilding: "IFCBUILDING",
   // IfcSpace: "IFCSPACE",
   // IfcWallStandardCase: "IFCWALLSTANDARDCASE",
   // IfcWall: "IFCWALL",
