@@ -1,3 +1,5 @@
+import { solveUnicode } from "../utils/unicode.js";
+
 let counter = {};
 
 function resetCounter() {
@@ -49,9 +51,8 @@ function getIfcText(parsed) {
     return "";
   }
 
-  return parsed._IfcText[counter["ifcText"]++].children.Text[0].image.slice(
-    1,
-    -1
+  return solveUnicode(
+    parsed._IfcText[counter["ifcText"]++].children.Text[0].image.slice(1, -1)
   );
 }
 

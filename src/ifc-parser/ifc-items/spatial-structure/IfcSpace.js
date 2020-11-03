@@ -9,7 +9,7 @@ import {
   getEnum,
 } from "../../semantic/primitiveSemantic.js";
 
-function IfcBuilding_Parser($) {
+function IfcSpace_Parser($) {
   return () => {
     $.AT_LEAST_ONE(() => {
       $.CONSUME(v.OpenPar);
@@ -22,18 +22,16 @@ function IfcBuilding_Parser($) {
       $.SUBRULE3($._IfcExpressId); //Representation
       $.SUBRULE4($._IfcText); //LongName
       $.SUBRULE($._IfcEnum); //CompositionType
-      $.SUBRULE($._Number); //ElevationOfRefHeight
-      $.SUBRULE2($._Number); //ElevationOfTerrain
-      $.SUBRULE4($._IfcExpressId); //BuildingAddress
-      $.CONSUME(v.ClosePar);
+      $.SUBRULE2($._IfcEnum); //InteriorOrExteriorSpace
+      $.SUBRULE($._Number); //ElevationWithFlooring
     });
   };
 }
 
-function IfcBuilding_Semantic(parsed) {
+function IfcSpace_Semantic(parsed) {
   resetCounter();
   return {
-    IfcType: "IfcBuilding",
+    IfcType: "IfcSpace",
     Guid: { value: getGuid(parsed), type: d.guid },
     OwnerHistory: { value: getExpressId(parsed), type: d.id },
     Name: { value: getIfcText(parsed), type: d.text },
@@ -43,10 +41,9 @@ function IfcBuilding_Semantic(parsed) {
     Representation: { value: getExpressId(parsed), type: d.id },
     LongName: { value: getIfcText(parsed), type: d.text },
     CompositionType: { value: getEnum(parsed), type: d.enum },
-    ElevationOfRefHeight: { value: getNumber(parsed), type: d.number },
-    ElevationOfTerrain: { value: getNumber(parsed), type: d.number },
-    BuildingAddress: { value: getExpressId(parsed), type: d.id },
+    InteriorOrExteriorSpace: { value: getEnum(parsed), type: d.enum },
+    ElevationWithFlooring: { value: getNumber(parsed), type: d.number },
   };
 }
 
-export { IfcBuilding_Parser, IfcBuilding_Semantic };
+export { IfcSpace_Parser, IfcSpace_Semantic };
