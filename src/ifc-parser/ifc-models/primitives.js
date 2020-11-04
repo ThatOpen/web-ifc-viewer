@@ -15,31 +15,34 @@ function addPrimitiveParsers($) {
 
 function IfcGuid_Parser($) {
   return () => {
-    $.AT_LEAST_ONE(() => {
-      $.CONSUME(v.IfcGuid);
-      $.OPTION(() => {
-        $.CONSUME(v.Comma);
-      });
+    $.CONSUME(v.IfcGuid);
+    $.OPTION(() => {
+      $.CONSUME(v.Comma);
     });
   };
 }
 
 function Asterisk_Parser($) {
   return () => {
-    $.OR([
-      {
-        ALT: () => {
-          $.CONSUME(v.Asterisk);
+    $.AT_LEAST_ONE(() => {
+      $.OR([
+        {
+          ALT: () => {
+            $.CONSUME(v.Asterisk);
+          },
         },
-      },
-      {
-        ALT: () => {
-          $.CONSUME(v.DefaultValue);
+        {
+          ALT: () => {
+            $.CONSUME(v.DefaultValue);
+          },
         },
-      },
-    ]);
-    $.OPTION(() => {
-      $.CONSUME(v.Comma);
+      ]);
+      $.OPTION(() => {
+        $.CONSUME(v.Comma);
+      });
+    });
+    $.OPTION2(() => {
+      $.CONSUME2(v.Comma);
     });
   };
 }

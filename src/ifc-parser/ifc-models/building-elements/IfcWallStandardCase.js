@@ -1,18 +1,14 @@
 import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 
-const IfcBuilding = {
-  Guid: d.guid,
+const IfcWallStandardCase = {
+  GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
   ObjectType: d.text,
   ObjectPlacement: d.id,
   Representation: d.id,
-  LongName: d.text,
-  CompositionType: d.enum,
-  ElevationOfRefHeight: d.number,
-  ElevationOfTerrain: d.number,
-  BuildingAddress: d.id,
+  Tag: d.text,
 };
 
-export { IfcBuilding };
+export { IfcWallStandardCase };

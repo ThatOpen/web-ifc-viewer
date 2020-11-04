@@ -6,13 +6,13 @@ import { findRemainingTypes } from "./find-remaining-types.js";
 
 function loadIfcFileItems(ifcItems) {
   const finder = createIfcItemsFinder(ifcItems);
-  findRemainingTypes(finder.ifcData);
-  // const loadedItems = {};
-  // finder.ifcData.map((ifcItem) => {
-  //   if (isTypeSupported(ifcItem))
-  //     loadedItems[ifcItem.expressId] = load(finder, ifcItem);
-  // });
-  // referenceEntities(loadedItems);
+  // findRemainingTypes(finder.ifcData);
+  const loadedItems = {};
+  finder.ifcData.map((ifcItem) => {
+    if (isTypeSupported(ifcItem))
+      loadedItems[ifcItem.expressId] = load(finder, ifcItem);
+  });
+  referenceEntities(loadedItems);
 }
 
 function load(finder, ifcItem) {

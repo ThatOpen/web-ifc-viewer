@@ -1,37 +1,7 @@
 import { parser } from "../parser/parser.js";
-import { IfcProject_Semantic } from "../ifc-models/spatial-structure/IfcProject.js";
-import { IfcSite_Semantic } from "../ifc-models/spatial-structure/IfcSite.js";
-import { IfcBuilding_Semantic } from "../ifc-models/spatial-structure/IfcBuilding.js";
-import { IfcBuildingStorey_Semantic } from "../ifc-models/spatial-structure/IfcBuildingStorey.js";
-import { IfcSpace_Semantic } from "../ifc-models/spatial-structure/IfcSpace.js";
-import { IfcDirection_Semantic } from "../ifc-models/geometry/IfcDirection.js";
-import { IfcCartesianPoint_Semantic } from "../ifc-models/geometry/IfcCartesianPoint.js";
-import { IfcAxis2Placement3D_Semantic } from "../ifc-models/geometry/IfcAxis2Placement3D.js";
-import { IfcUnitAssignment_Semantic } from "../ifc-models/units/IfcUnitAssignment.js";
-import { IfcSIUnit_Semantic } from "../ifc-models/units/IfcSIUnit.js";
-import { IfcDerivedUnit_Semantic } from "../ifc-models/units/IfcDerivedUnit.js";
-import { IfcDerivedUnitElement_Semantic } from "../ifc-models/units/IfcDerivedUnitElement.js";
-import { IfcMeasureWithUnit_Semantic } from "../ifc-models/units/IfcMeasureWithUnit.js";
-import { IfcDimensionalExponents_Semantic } from "../ifc-models/units/IfcDimensionalExponents.js";
-import { IfcConversionBasedUnit_Semantic } from "../ifc-models/units/IfcConversionBasedUnit.js";
-import { IfcGeometricRepresentationContext_Semantic } from "../ifc-models/context/IfcGeometricRepresentationContext.js";
-import { IfcLinearPlacement_Semantic } from "../ifc-models/context/IfcLinearPlacement.js";
-import { IfcGridPlacement_Semantic } from "../ifc-models/context/IfcGridPlacement.js";
-import { IfcLocalPlacement_Semantic } from "../ifc-models/context/IfcLocalPlacement.js";
-import { IfcAxis2Placement2D_Semantic } from "../ifc-models/geometry/IfcAxis2Placement2D.js";
-import { IfcPolyline_Semantic } from "../ifc-models/geometry/IfcPolyline.js";
-import { IfcOrganization_Semantic } from "../ifc-models/identities/IfcOrganization.js";
-import { IfcApplication_Semantic } from "../ifc-models/identities/IfcApplication.js";
-import { IfcOwnerHistory_Semantic } from "../ifc-models/identities/IfcOwnerHistory.js";
-import {
-  IfcPerson_Parser,
-  IfcPerson_Semantic,
-} from "../ifc-models/identities/IfcPerson.js";
-import { IfcPersonAndOrganization_Semantic } from "../ifc-models/identities/IfcPersonAndOrganization.js";
-import { IfcPostalAddress_Semantic } from "../ifc-models/identities/IfcPostalAddress.js";
-import { IfcGeometricRepresentationSubContext_Semantic } from "../ifc-models/context/IfcGeometricRepresentationSubcontext.js";
-import { IfcRelAggregates_Semantic } from "../ifc-models/relationship/IfcRelAggregates.js";
-import { IfcRelContainedInSpatialStructure_Semantic } from "../ifc-models/relationship/IfcRelContainedInSpatialStructure.js";
+import { typesParserMap } from "../parser/parser-map.js";
+import { newSemantic } from "./semantic-factory.js";
+import { ifcTypes as t } from "../utils/ifc-types.js";
 
 const BaseVisitor = parser.getBaseCstVisitorConstructor();
 
@@ -43,134 +13,140 @@ class IfcVisitor extends BaseVisitor {
 
   //Spatial structure elements
 
-  IfcProject_Parser(parsed) {
-    return IfcProject_Semantic(parsed);
+  IfcProject(parsed) {
+    return getSemantic(t.IfcProject, parsed);
   }
 
-  IfcSite_Parser(parsed) {
-    return IfcSite_Semantic(parsed);
+  IfcSite(parsed) {
+    return getSemantic(t.IfcSite, parsed);
   }
 
-  IfcBuilding_Parser(parsed) {
-    return IfcBuilding_Semantic(parsed);
+  IfcBuilding(parsed) {
+    return getSemantic(t.IfcBuilding, parsed);
   }
 
-  IfcBuildingStorey_Parser(parsed) {
-    return IfcBuildingStorey_Semantic(parsed);
+  IfcBuildingStorey(parsed) {
+    return getSemantic(t.IfcBuildingStorey, parsed);
   }
 
-  IfcSpace_Parser(parsed) {
-    return IfcSpace_Semantic(parsed);
+  IfcSpace(parsed) {
+    return getSemantic(t.IfcSpace, parsed);
   }
 
   //Geometry
 
-  IfcDirection_Parser(parsed) {
-    return IfcDirection_Semantic(parsed);
+  IfcDirection(parsed) {
+    return getSemantic(t.IfcDirection, parsed);
   }
 
-  IfcCartesianPoint_Parser(parsed) {
-    return IfcCartesianPoint_Semantic(parsed);
+  IfcCartesianPoint(parsed) {
+    return getSemantic(t.IfcCartesianPoint, parsed);
   }
 
-  IfcAxis2Placement3D_Parser(parsed) {
-    return IfcAxis2Placement3D_Semantic(parsed);
+  IfcAxis2Placement3D(parsed) {
+    return getSemantic(t.IfcAxis2Placement3D, parsed);
   }
 
-  IfcAxis2Placement2D_Parser(parsed) {
-    return IfcAxis2Placement2D_Semantic(parsed);
+  IfcAxis2Placement2D(parsed) {
+    return getSemantic(t.IfcAxis2Placement2D, parsed);
   }
 
-  IfcPolyline_Parser(parsed) {
-    return IfcPolyline_Semantic(parsed);
+  IfcPolyline(parsed) {
+    return getSemantic(t.IfcPolyline, parsed);
   }
 
   //Units
 
-  IfcUnitAssignment_Parser(parsed) {
-    return IfcUnitAssignment_Semantic(parsed);
+  IfcUnitAssignment(parsed) {
+    return getSemantic(t.IfcUnitAssignment, parsed);
   }
 
-  IfcSIUnit_Parser(parsed) {
-    return IfcSIUnit_Semantic(parsed);
+  IfcSIUnit(parsed) {
+    return getSemantic(t.IfcSIUnit, parsed);
   }
 
-  IfcDerivedUnit_Parser(parsed) {
-    return IfcDerivedUnit_Semantic(parsed);
+  IfcDerivedUnit(parsed) {
+    return getSemantic(t.IfcDerivedUnit, parsed);
   }
 
-  IfcDerivedUnitElement_Parser(parsed) {
-    return IfcDerivedUnitElement_Semantic(parsed);
+  IfcDerivedUnitElement(parsed) {
+    return getSemantic(t.IfcDerivedUnitElement, parsed);
   }
 
-  IfcMeasureWithUnit_Parser(parsed) {
-    return IfcMeasureWithUnit_Semantic(parsed);
+  IfcMeasureWithUnit(parsed) {
+    return getSemantic(t.IfcMeasureWithUnit, parsed);
   }
 
-  IfcDimensionalExponents_Parser(parsed) {
-    return IfcDimensionalExponents_Semantic(parsed);
+  IfcDimensionalExponents(parsed) {
+    return getSemantic(t.IfcDimensionalExponents, parsed);
   }
 
-  IfcConversionBasedUnit_Parser(parsed) {
-    return IfcConversionBasedUnit_Semantic(parsed);
+  IfcConversionBasedUnit(parsed) {
+    return getSemantic(t.IfcConversionBasedUnit, parsed);
   }
 
   //Contexts
 
-  IfcGeometricRepresentationContext_Parser(parsed) {
-    return IfcGeometricRepresentationContext_Semantic(parsed);
+  IfcGeometricRepresentationContext(parsed) {
+    return getSemantic(t.IfcGeometricRepresentationContext, parsed);
   }
 
-  IfcLinearPlacement_Parser(parsed) {
-    return IfcLinearPlacement_Semantic(parsed);
+  IfcGeometricRepresentationSubContext(parsed) {
+    return getSemantic(t.IfcGeometricRepresentationSubContext, parsed);
   }
 
-  IfcGridPlacement_Parser(parsed) {
-    return IfcGridPlacement_Semantic(parsed);
+  IfcLinearPlacement(parsed) {
+    return getSemantic(t.IfcLinearPlacement, parsed);
   }
 
-  IfcLocalPlacement_Parser(parsed) {
-    return IfcLocalPlacement_Semantic(parsed);
+  IfcGridPlacement(parsed) {
+    return getSemantic(t.IfcGridPlacement, parsed);
   }
 
-  IfcGeometricRepresentationSubContext_Parser(parsed) {
-    return IfcGeometricRepresentationSubContext_Semantic(parsed);
+  IfcLocalPlacement(parsed) {
+    return getSemantic(t.IfcLocalPlacement, parsed);
   }
 
   //Identities
 
-  IfcOrganization_Parser(parsed) {
-    return IfcOrganization_Semantic(parsed);
+  IfcOrganization(parsed) {
+    return getSemantic(t.IfcOrganization, parsed);
   }
 
-  IfcApplication_Parser(parsed) {
-    return IfcApplication_Semantic(parsed);
+  IfcApplication(parsed) {
+    return getSemantic(t.IfcApplication, parsed);
   }
 
-  IfcOwnerHistory_Parser(parsed) {
-    return IfcOwnerHistory_Semantic(parsed);
+  IfcOwnerHistory(parsed) {
+    return getSemantic(t.IfcOwnerHistory, parsed);
   }
 
-  IfcPerson_Parser(parsed) {
-    return IfcPerson_Semantic(parsed);
+  IfcPerson(parsed) {
+    return getSemantic(t.IfcPerson, parsed);
   }
 
-  IfcPersonAndOrganization_Parser(parsed) {
-    return IfcPersonAndOrganization_Semantic(parsed);
+  IfcPersonAndOrganization(parsed) {
+    return getSemantic(t.IfcPersonAndOrganization, parsed);
   }
 
-  IfcPostalAddress_Parser(parsed) {
-    return IfcPostalAddress_Semantic(parsed);
+  IfcPostalAddress(parsed) {
+    return getSemantic(t.IfcPostalAddress, parsed);
   }
 
   //Relationships
 
-  IfcRelAggregates_Parser(parsed) {
-    return IfcRelAggregates_Semantic(parsed);
+  IfcRelAggregates(parsed) {
+    return getSemantic(t.IfcRelAggregates, parsed);
   }
 
-  IfcRelContainedInSpatialStructure_Parser(parsed) {
-    return IfcRelContainedInSpatialStructure_Semantic(parsed);
+  IfcRelContainedInSpatialStructure(parsed) {
+    return getSemantic(t.IfcRelContainedInSpatialStructure, parsed);
+  }
+
+  //Building elements
+
+  IfcWallStandardCase(parsed) {
+    return getSemantic(t.IfcWallStandardCase, parsed);
   }
 
   _IfcGuid(parsed) {}
@@ -183,6 +159,11 @@ class IfcVisitor extends BaseVisitor {
   _Asterisk(parsed) {}
   _IfcValue(parsed) {}
   _TextSet(parsed) {}
+}
+
+function getSemantic(ifcType, parsed) {
+  const ifcItem = typesParserMap[ifcType];
+  return newSemantic(parsed, ifcItem.item, ifcItem.name);
 }
 
 const ifcVisitor = new IfcVisitor();

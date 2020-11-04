@@ -2,7 +2,7 @@ import { formatDate, solveUnicode } from "../utils/format.js";
 
 let counter = {};
 
-function resetCounter() {
+function resetSemanticFactory() {
   counter = {
     guid: 0,
     expressId: 0,
@@ -21,6 +21,10 @@ function getGuid(parsed) {
     1,
     -1
   );
+}
+
+function getAsterisk() {
+  return "*";
 }
 
 function getEnum(parsed) {
@@ -92,7 +96,7 @@ function getIdSet(parsed) {
 
 function getNumberSet(parsed) {
   if (parsed._NumberSet[counter["numberSet"]].children.Number)
-    return parsed._NumberSet[counter["numberSet"]].children.Number.map((e) =>
+    return parsed._NumberSet[counter["numberSet"]++].children.Number.map((e) =>
       Number(e.image)
     );
 
@@ -114,7 +118,8 @@ function getIfcValue(parsed) {
 }
 
 export {
-  resetCounter,
+  resetSemanticFactory,
+  getAsterisk,
   getGuid,
   getNumber,
   getDate,

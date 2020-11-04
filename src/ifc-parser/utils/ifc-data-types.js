@@ -9,6 +9,7 @@ const ifcDataTypes = {
   numberSet: "NumberSet",
   enum: "Enum",
   ifcValue: "IfcValue",
+  asterisk: "Asterisk",
 };
 
 export { ifcDataTypes };
