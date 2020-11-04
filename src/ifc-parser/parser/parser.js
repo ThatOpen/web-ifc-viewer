@@ -6,6 +6,7 @@ import { addGeometryParsers } from "../ifc-models/geometry/_geometry.js";
 import { addUnitsParsers } from "../ifc-models/units/_units.js";
 import { addContextParsers } from "../ifc-models/context/_context.js";
 import { addIdentitiesParsers } from "../ifc-models/identities/_identities.js";
+import { addRelationshipParsers } from "../ifc-models/relationship/_relationship.js";
 
 const CstParser = chevrotain.CstParser;
 
@@ -21,6 +22,7 @@ class IfcParser extends CstParser {
     addUnitsParsers($);
     addContextParsers($);
     addIdentitiesParsers($);
+    addRelationshipParsers($);
 
     this.performSelfAnalysis();
   }

@@ -28,12 +28,19 @@ function parserByType(ifcType) {
     [t.IfcLocalPlacement]: "IfcLocalPlacement_Parser",
     [t.IfcGeometricRepresentationContext]:
       "IfcGeometricRepresentationContext_Parser",
+    [t.IfcGeometricRepresentationSubContext]:
+      "IfcGeometricRepresentationSubContext_Parser",
     //Identities
     [t.IfcOrganization]: "IfcOrganization_Parser",
     [t.IfcApplication]: "IfcApplication_Parser",
     [t.IfcOwnerHistory]: "IfcOwnerHistory_Parser",
     [t.IfcPerson]: "IfcPerson_Parser",
     [t.IfcPersonAndOrganization]: "IfcPersonAndOrganization_Parser",
+    [t.IfcPostalAddress]: "IfcPostalAddress_Parser",
+    //Relationships
+    [t.IfcRelAggregates]: "IfcRelAggregates_Parser",
+    [t.IfcRelContainedInSpatialStructure]:
+      "IfcRelContainedInSpatialStructure_Parser",
   };
   return typesParserMap[ifcType];
 }

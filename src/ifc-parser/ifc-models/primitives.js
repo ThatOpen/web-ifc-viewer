@@ -26,11 +26,20 @@ function IfcGuid_Parser($) {
 
 function Asterisk_Parser($) {
   return () => {
-    $.AT_LEAST_ONE(() => {
-      $.CONSUME(v.Asterisk);
-      $.OPTION(() => {
-        $.CONSUME(v.Comma);
-      });
+    $.OR([
+      {
+        ALT: () => {
+          $.CONSUME(v.Asterisk);
+        },
+      },
+      {
+        ALT: () => {
+          $.CONSUME(v.DefaultValue);
+        },
+      },
+    ]);
+    $.OPTION(() => {
+      $.CONSUME(v.Comma);
     });
   };
 }

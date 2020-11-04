@@ -21,6 +21,7 @@ const ifcTypes = {
   IfcConversionBasedUnit: "IFCCONVERSIONBASEDUNIT",
   //Contexts
   IfcGeometricRepresentationContext: "IFCGEOMETRICREPRESENTATIONCONTEXT",
+  IfcGeometricRepresentationSubContext: "IFCGEOMETRICREPRESENTATIONSUBCONTEXT",
   IfcLocalPlacement: "IFCLOCALPLACEMENT",
   IfcGridPlacement: "IFCGRIDPLACEMENT",
   IfcLinearPlacement: "IFCLINEARPLACEMENT",
@@ -30,8 +31,10 @@ const ifcTypes = {
   IfcOwnerHistory: "IFCOWNERHISTORY",
   IfcPerson: "IFCPERSON",
   IfcPersonAndOrganization: "IFCPERSONANDORGANIZATION",
-  //Relationships
-  // IfcRelAggregates: "IFCRELAGGREGATES",
+  IfcPostalAddress: "IFCPOSTALADDRESS",
+  // Relationships
+  IfcRelAggregates: "IFCRELAGGREGATES",
+  IfcRelContainedInSpatialStructure: "IFCRELCONTAINEDINSPATIALSTRUCTURE",
   //Building elements
   // IfcWallStandardCase: "IFCWALLSTANDARDCASE",
   // IfcWall: "IFCWALL",

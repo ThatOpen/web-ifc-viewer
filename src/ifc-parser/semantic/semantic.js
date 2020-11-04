@@ -28,6 +28,10 @@ import {
   IfcPerson_Semantic,
 } from "../ifc-models/identities/IfcPerson.js";
 import { IfcPersonAndOrganization_Semantic } from "../ifc-models/identities/IfcPersonAndOrganization.js";
+import { IfcPostalAddress_Semantic } from "../ifc-models/identities/IfcPostalAddress.js";
+import { IfcGeometricRepresentationSubContext_Semantic } from "../ifc-models/context/IfcGeometricRepresentationSubcontext.js";
+import { IfcRelAggregates_Semantic } from "../ifc-models/relationship/IfcRelAggregates.js";
+import { IfcRelContainedInSpatialStructure_Semantic } from "../ifc-models/relationship/IfcRelContainedInSpatialStructure.js";
 
 const BaseVisitor = parser.getBaseCstVisitorConstructor();
 
@@ -129,6 +133,10 @@ class IfcVisitor extends BaseVisitor {
     return IfcLocalPlacement_Semantic(parsed);
   }
 
+  IfcGeometricRepresentationSubContext_Parser(parsed) {
+    return IfcGeometricRepresentationSubContext_Semantic(parsed);
+  }
+
   //Identities
 
   IfcOrganization_Parser(parsed) {
@@ -149,6 +157,20 @@ class IfcVisitor extends BaseVisitor {
 
   IfcPersonAndOrganization_Parser(parsed) {
     return IfcPersonAndOrganization_Semantic(parsed);
+  }
+
+  IfcPostalAddress_Parser(parsed) {
+    return IfcPostalAddress_Semantic(parsed);
+  }
+
+  //Relationships
+
+  IfcRelAggregates_Parser(parsed) {
+    return IfcRelAggregates_Semantic(parsed);
+  }
+
+  IfcRelContainedInSpatialStructure_Parser(parsed) {
+    return IfcRelContainedInSpatialStructure_Semantic(parsed);
   }
 
   _IfcGuid(parsed) {}

@@ -68,9 +68,9 @@ function getTextSet(parsed) {
   if (parsed._TextSet[counter["textSet"]].children.DefaultValue)
     return parsed._TextSet[counter["textSet"]++].children.DefaultValue[0].image;
 
-  if (parsed._TextSet[counter["textSet"]].children.ExpressId)
-    return parsed._TextSet[counter["textSet"]++].children.ExpressId.map((e) =>
-      Number(e.image.slice(1))
+  if (parsed._TextSet[counter["textSet"]].children.Text)
+    return parsed._TextSet[counter["textSet"]++].children.Text.map((e) =>
+      solveUnicode(e.image.slice(1, -1))
     );
 
   counter["textSet"]++;
