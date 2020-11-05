@@ -6,7 +6,7 @@ import { findRemainingTypes } from "./find-remaining-types.js";
 
 function loadIfcFileItems(ifcItems) {
   const finder = createIfcItemsFinder(ifcItems);
-  // findRemainingTypes(finder.ifcData);
+  findRemainingTypes(finder.ifcData);
   const loadedItems = {};
   finder.ifcData.map((ifcItem) => {
     if (isTypeSupported(ifcItem))

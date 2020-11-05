@@ -12,4 +12,9 @@ const ifcDataTypes = {
   asterisk: "Asterisk",
 };
 
-export { ifcDataTypes };
+function isDataTypeValid(dataType) {
+  if (Object.values(ifcDataTypes).indexOf(dataType) > -1) return true;
+  return false;
+}
+
+export { ifcDataTypes, isDataTypeValid };

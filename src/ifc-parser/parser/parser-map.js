@@ -30,94 +30,70 @@ import { IfcLocalPlacement } from "../ifc-models/context/IfcLocalPlacement.js";
 import { IfcGridPlacement } from "../ifc-models/context/IfcGridPlacement.js";
 import { IfcLinearPlacement } from "../ifc-models/context/IfcLinearPlacement.js";
 import { IfcWallStandardCase } from "../ifc-models/building-elements/IfcWallStandardCase.js";
+import { IfcRectangleProfileDef } from "../ifc-models/geometry/IfcRectangleProfileDef.js";
+import { IfcExtrudedAreaSolid } from "../ifc-models/geometry/IfcExtrudedAreaSolid.js";
+import { IfcShapeRepresentation } from "../ifc-models/geometry/IfcShapeRepresentation.js";
+import { IfcProductDefinitionShape } from "../ifc-models/geometry/IfcProductDefinitionShape.js";
+import { IfcSpaceType } from "../ifc-models/properties/IfcSpaceType.js";
+import { IfcPlane } from "../ifc-models/geometry/IfcPlane.js";
+import { IfcCurveBoundedPlane } from "../ifc-models/geometry/IfcCurveBoundedPlane.js";
+import { IfcConnectionSurfaceGeometry } from "../ifc-models/geometry/IfcConnectionSurfaceGeometry.js";
 
 const typesParserMap = {
   //Spatial structure elements
+  [t.IfcProject]: IfcProject,
+  [t.IfcSite]: IfcSite,
+  [t.IfcBuilding]: IfcBuilding,
+  [t.IfcBuildingStorey]: IfcBuildingStorey,
+  [t.IfcSpace]: IfcSpace,
 
-  [t.IfcProject]: { name: "IfcProject", item: IfcProject },
-  [t.IfcSite]: { name: "IfcSite", item: IfcSite },
-  [t.IfcBuilding]: { name: "IfcBuilding", item: IfcBuilding },
-  [t.IfcBuildingStorey]: { name: "IfcBuildingStorey", item: IfcBuildingStorey },
-  [t.IfcSpace]: { name: "IfcSpace", item: IfcSpace },
+  //Properties
+  [t.IfcSpaceType]: IfcSpaceType,
 
   //Geometry
-
-  [t.IfcDirection]: { name: "IfcDirection", item: IfcDirection },
-  [t.IfcCartesianPoint]: { name: "IfcCartesianPoint", item: IfcCartesianPoint },
-  [t.IfcAxis2Placement3D]: {
-    name: "IfcAxis2Placement3D",
-    item: IfcAxis2Placement3D,
-  },
-  [t.IfcAxis2Placement2D]: {
-    name: "IfcAxis2Placement2D",
-    item: IfcAxis2Placement2D,
-  },
-  [t.IfcPolyline]: { name: "IfcPolyline", item: IfcPolyline },
+  [t.IfcDirection]: IfcDirection,
+  [t.IfcCartesianPoint]: IfcCartesianPoint,
+  [t.IfcAxis2Placement3D]: IfcAxis2Placement3D,
+  [t.IfcAxis2Placement2D]: IfcAxis2Placement2D,
+  [t.IfcPolyline]: IfcPolyline,
+  [t.IfcRectangleProfileDef]: IfcRectangleProfileDef,
+  [t.IfcExtrudedAreaSolid]: IfcExtrudedAreaSolid,
+  [t.IfcShapeRepresentation]: IfcShapeRepresentation,
+  [t.IfcProductDefinitionShape]: IfcProductDefinitionShape,
+  [t.IfcPlane]: IfcPlane,
+  [t.IfcConnectionSurfaceGeometry]: IfcConnectionSurfaceGeometry,
+  [t.IfcCurveBoundedPlane]: IfcCurveBoundedPlane,
 
   //Units
-
-  [t.IfcUnitAssignment]: { name: "IfcUnitAssignment", item: IfcUnitAssignment },
-  [t.IfcSIUnit]: { name: "IfcSIUnit", item: IfcSIUnit },
-  [t.IfcDerivedUnit]: { name: "IfcDerivedUnit", item: IfcDerivedUnit },
-  [t.IfcDerivedUnitElement]: {
-    name: "IfcDerivedUnitElement",
-    item: IfcDerivedUnitElement,
-  },
-  [t.IfcMeasureWithUnit]: {
-    name: "IfcMeasureWithUnit",
-    item: IfcMeasureWithUnit,
-  },
-  [t.IfcDimensionalExponents]: {
-    name: "IfcDimensionalExponents",
-    item: IfcDimensionalExponents,
-  },
-  [t.IfcConversionBasedUnit]: {
-    name: "IfcConversionBasedUnit",
-    item: IfcConversionBasedUnit,
-  },
+  [t.IfcUnitAssignment]: IfcUnitAssignment,
+  [t.IfcSIUnit]: IfcSIUnit,
+  [t.IfcDerivedUnit]: IfcDerivedUnit,
+  [t.IfcDerivedUnitElement]: IfcDerivedUnitElement,
+  [t.IfcMeasureWithUnit]: IfcMeasureWithUnit,
+  [t.IfcDimensionalExponents]: IfcDimensionalExponents,
+  [t.IfcConversionBasedUnit]: IfcConversionBasedUnit,
 
   //Contexts
-
-  [t.IfcLinearPlacement]: {
-    name: "IfcLinearPlacement",
-    item: IfcLinearPlacement,
-  },
-  [t.IfcGridPlacement]: { name: "IfcGridPlacement", item: IfcGridPlacement },
-  [t.IfcLocalPlacement]: { name: "IfcLocalPlacement", item: IfcLocalPlacement },
-  [t.IfcGeometricRepresentationContext]: {
-    name: "IfcGeometricRepresentationContext",
-    item: IfcGeometricRepresentationContext,
-  },
-  [t.IfcGeometricRepresentationSubContext]: {
-    name: "IfcGeometricRepresentationSubContext",
-    item: IfcGeometricRepresentationSubContext,
-  },
+  [t.IfcLinearPlacement]: IfcLinearPlacement,
+  [t.IfcGridPlacement]: IfcGridPlacement,
+  [t.IfcLocalPlacement]: IfcLocalPlacement,
+  [t.IfcGeometricRepresentationContext]: IfcGeometricRepresentationContext,
+  [t.IfcGeometricRepresentationSubContext]: IfcGeometricRepresentationSubContext,
 
   //Identities
-
-  [t.IfcApplication]: { name: "IfcApplication", item: IfcApplication },
-  [t.IfcOrganization]: { name: "IfcOrganization", item: IfcOrganization },
-  [t.IfcOwnerHistory]: { name: "IfcOwnerHistory", item: IfcOwnerHistory },
-  [t.IfcPerson]: { name: "IfcPerson", item: IfcPerson },
-  [t.IfcPersonAndOrganization]: {
-    name: "IfcPersonAndOrganization",
-    item: IfcPersonAndOrganization,
-  },
-  [t.IfcPostalAddress]: { name: "IfcPostalAddress", item: IfcPostalAddress },
+  [t.IfcApplication]: IfcApplication,
+  [t.IfcOrganization]: IfcOrganization,
+  [t.IfcOwnerHistory]: IfcOwnerHistory,
+  [t.IfcPerson]: IfcPerson,
+  [t.IfcPersonAndOrganization]: IfcPersonAndOrganization,
+  [t.IfcPostalAddress]: IfcPostalAddress,
 
   //Relationships
-
-  [t.IfcRelAggregates]: { name: "IfcRelAggregates", item: IfcRelAggregates },
-  [t.IfcRelContainedInSpatialStructure]: {
-    name: "IfcRelContainedInSpatialStructure",
-    item: IfcRelContainedInSpatialStructure,
-  },
+  [t.IfcRelAggregates]: IfcRelAggregates,
+  [t.IfcRelContainedInSpatialStructure]: IfcRelContainedInSpatialStructure,
 
   //Building elements
-  [t.IfcWallStandardCase]: {
-    name: "IfcWallStandardCase",
-    item: IfcWallStandardCase,
-  },
+  [t.IfcWallStandardCase]: IfcWallStandardCase,
 };
 
 function parserByType(ifcType) {

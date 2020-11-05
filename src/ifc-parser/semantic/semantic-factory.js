@@ -1,5 +1,5 @@
-import { ifcDataTypes as d } from "../utils/ifc-data-types.js";
-import { undefined } from "../utils/undefined.js";
+import { ifcDataTypes as d, isDataTypeValid } from "../utils/ifc-data-types.js";
+import { ifcClass, undefined } from "../utils/globalProperties.js";
 import {
   getGuid,
   getAsterisk,
@@ -15,17 +15,19 @@ import {
   resetSemanticFactory,
 } from "./semantic-primitives.js";
 
-function newSemantic(parsed, ifcItem, name) {
+function newSemantic(parsed, ifcItem) {
   resetSemanticFactory();
   const result = {};
   Object.keys(ifcItem).forEach((e) => {
-    result[e] = get(parsed, ifcItem[e]);
+    if (isDataTypeValid(ifcItem[e]))
+      result[e] = newSemanticUnit(parsed, ifcItem[e]);
   });
+  result[ifcClass] = ifcItem[ifcClass];
   clean(result);
-  return { IfcType: name, ...result };
+  return result;
 }
 
-function get(parsed, dataType) {
+function newSemanticUnit(parsed, dataType) {
   const semanticUnits = {
     [d.guid]: getGuid,
     [d.id]: getExpressId,
@@ -43,7 +45,7 @@ function get(parsed, dataType) {
 }
 
 function clean(ifcItem) {
-  if (ifcItem.hasOwnProperty([undefined])) return delete ifcItem[undefined];
+  if (ifcItem.hasOwnProperty([undefined])) delete ifcItem[undefined];
 }
 
-export { get, newSemantic };
+export { newSemanticUnit as get, newSemantic };

@@ -33,6 +33,12 @@ class IfcVisitor extends BaseVisitor {
     return getSemantic(t.IfcSpace, parsed);
   }
 
+  //Properties
+
+  IfcSpaceType(parsed) {
+    return getSemantic(t.IfcSpaceType, parsed);
+  }
+
   //Geometry
 
   IfcDirection(parsed) {
@@ -53,6 +59,34 @@ class IfcVisitor extends BaseVisitor {
 
   IfcPolyline(parsed) {
     return getSemantic(t.IfcPolyline, parsed);
+  }
+
+  IfcRectangleProfileDef(parsed) {
+    return getSemantic(t.IfcRectangleProfileDef, parsed);
+  }
+
+  IfcExtrudedAreaSolid(parsed) {
+    return getSemantic(t.IfcExtrudedAreaSolid, parsed);
+  }
+
+  IfcShapeRepresentation(parsed) {
+    return getSemantic(t.IfcShapeRepresentation, parsed);
+  }
+
+  IfcProductDefinitionShape(parsed) {
+    return getSemantic(t.IfcProductDefinitionShape, parsed);
+  }
+
+  IfcPlane(parsed) {
+    return getSemantic(t.IfcPlane, parsed);
+  }
+
+  IfcCurveBoundedPlane(parsed) {
+    return getSemantic(t.IfcCurveBoundedPlane, parsed);
+  }
+
+  IfcConnectionSurfaceGeometry(parsed) {
+    return getSemantic(t.IfcConnectionSurfaceGeometry, parsed);
   }
 
   //Units
@@ -163,7 +197,7 @@ class IfcVisitor extends BaseVisitor {
 
 function getSemantic(ifcType, parsed) {
   const ifcItem = typesParserMap[ifcType];
-  return newSemantic(parsed, ifcItem.item, ifcItem.name);
+  return newSemantic(parsed, ifcItem);
 }
 
 const ifcVisitor = new IfcVisitor();

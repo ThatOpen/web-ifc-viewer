@@ -1,11 +1,11 @@
 import { vocabulary as v } from "../lexer/lexer.js";
-import { ifcDataTypes as d } from "../utils/ifc-data-types.js";
+import { ifcDataTypes as d, isDataTypeValid } from "../utils/ifc-data-types.js";
 
 function newParser($, ifcItem) {
   resetParserFactory();
   $.CONSUME(v.OpenPar);
   Object.values(ifcItem).forEach((dataType) => {
-    newRule($, dataType);
+    if (isDataTypeValid(dataType)) newRule($, dataType);
   });
   $.CONSUME(v.ClosePar);
 }
