@@ -13,7 +13,10 @@ import {
   getDate,
   getTextSet,
   resetSemanticFactory,
+  getBool,
 } from "./semantic-primitives.js";
+
+//Chooses the semantic primitive correspondant to the given data type
 
 function newSemantic(parsed, ifcItem) {
   resetSemanticFactory();
@@ -38,6 +41,7 @@ function newSemanticUnit(parsed, dataType) {
     [d.numberSet]: getNumberSet,
     [d.date]: getDate,
     [d.ifcValue]: getIfcValue,
+    [d.bool]: getBool,
     [d.enum]: getEnum,
     [d.asterisk]: getAsterisk,
   };

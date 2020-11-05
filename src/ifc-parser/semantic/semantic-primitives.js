@@ -1,20 +1,7 @@
 import { formatDate, solveUnicode } from "../utils/format.js";
+import { ifcBoolValues, ifcValueType } from "../utils/globalProperties.js";
 
-let counter = {};
-
-function resetSemanticFactory() {
-  counter = {
-    guid: 0,
-    expressId: 0,
-    ifcText: 0,
-    number: 0,
-    ifcEnum: 0,
-    idSet: 0,
-    numberSet: 0,
-    ifcValue: 0,
-    textSet: 0,
-  };
-}
+//Each method retrieves information from a given parsed data type
 
 function getGuid(parsed) {
   return parsed._IfcGuid[counter["guid"]++].children.IfcGuid[0].image.slice(
@@ -25,6 +12,15 @@ function getGuid(parsed) {
 
 function getAsterisk() {
   return "*";
+}
+
+function getBool(parsed) {
+  if (parsed._IfcBool[counter["bool"]].children.DefaultValue)
+    parsed._IfcBool[counter["bool"]++].children.DefaultValue[0].image;
+
+  const ifcBool = parsed._IfcBool[counter["bool"]++].children.Boolean[0].image;
+
+  return ifcBool === ifcBoolValues.trueValue ? true : false;
 }
 
 function getEnum(parsed) {
@@ -105,16 +101,57 @@ function getNumberSet(parsed) {
 }
 
 function getIfcValue(parsed) {
-  return parsed._IfcValue[counter["ifcValue"]].children.DefaultValue
-    ? parsed._IfcValue[counter["ifcValue"]++].children.DefaultValue[0].image
-    : {
-        value: Number(
-          parsed._IfcValue[counter["ifcValue"]].children.Number[0].image
-        ),
-        ifcUnit:
-          parsed._IfcValue[counter["ifcValue"]++].children.IfcMeasureValue[0]
-            .image,
-      };
+  if (parsed._IfcValue[counter["ifcValue"]].children.DefaultValue)
+    return parsed._IfcValue[counter["ifcValue"]++].children.DefaultValue[0]
+      .image;
+
+  let type = getIfcValueType(parsed);
+  let value = parsed._IfcValue[counter["ifcValue"]].children[type][0].image;
+  value = formatIfcValue(value, type);
+
+  return {
+    Value: value,
+    IfcUnit: parsed._IfcValue[counter["ifcValue"]++].children.IfcValue[0].image,
+  };
+}
+
+function formatIfcValue(value, type) {
+  if (type === ifcValueType.number) return Number(value);
+  if (type === ifcValueType.text) return solveUnicode(value.slice(1, -1));
+  if (type === ifcValueType.bool)
+    return value === ifcBoolValues.trueValue ? true : false;
+  return value;
+}
+
+function getIfcValueType(parsed) {
+  return parsed._IfcValue[counter["ifcValue"]].children.Number
+    ? ifcValueType.number
+    : parsed._IfcValue[counter["ifcValue"]].children.Text
+    ? ifcValueType.text
+    : parsed._IfcValue[counter["ifcValue"]].children.Boolean
+    ? ifcValueType.bool
+    : ifcValueType.enum;
+}
+
+//The counter is necessary because chevrotain generates indexed
+//parsed structures. F.e. if there are two enums in a IFC Class,
+//the first one has index=1, the second one index=2, etc
+
+let counter = {};
+
+function resetSemanticFactory() {
+  counter = {
+    guid: 0,
+    expressId: 0,
+    ifcText: 0,
+    number: 0,
+    ifcEnum: 0,
+    idSet: 0,
+    numberSet: 0,
+    ifcValue: 0,
+    textSet: 0,
+    bool: 0,
+  };
 }
 
 export {
@@ -124,6 +161,7 @@ export {
   getNumber,
   getDate,
   getNumberSet,
+  getBool,
   getEnum,
   getExpressId,
   getIfcText,

@@ -3,6 +3,10 @@ import { typesParserMap } from "../parser/parser-map.js";
 import { newSemantic } from "./semantic-factory.js";
 import { ifcTypes as t } from "../utils/ifc-types.js";
 
+//Chevrotain requires a method per syntactical structure of the parser
+//When the parser outputs a syntactical structure, the visitor
+//handles it with the correspondant method using visit()
+
 const BaseVisitor = parser.getBaseCstVisitorConstructor();
 
 class IfcVisitor extends BaseVisitor {
@@ -37,6 +41,14 @@ class IfcVisitor extends BaseVisitor {
 
   IfcSpaceType(parsed) {
     return getSemantic(t.IfcSpaceType, parsed);
+  }
+
+  IfcPropertySingleValue(parsed) {
+    return getSemantic(t.IfcPropertySingleValue, parsed);
+  }
+
+  IfcPropertySet(parsed) {
+    return getSemantic(t.IfcPropertySet, parsed);
   }
 
   //Geometry
@@ -87,6 +99,14 @@ class IfcVisitor extends BaseVisitor {
 
   IfcConnectionSurfaceGeometry(parsed) {
     return getSemantic(t.IfcConnectionSurfaceGeometry, parsed);
+  }
+
+  IfcPolygonalBoundedHalfSpace(parsed) {
+    return getSemantic(t.IfcPolygonalBoundedHalfSpace, parsed);
+  }
+
+  IfcBooleanClippingResult(parsed) {
+    return getSemantic(t.IfcBooleanClippingResult, parsed);
   }
 
   //Units
@@ -177,6 +197,10 @@ class IfcVisitor extends BaseVisitor {
     return getSemantic(t.IfcRelContainedInSpatialStructure, parsed);
   }
 
+  IfcRelDefinesByProperties(parsed) {
+    return getSemantic(t.IfcRelDefinesByProperties, parsed);
+  }
+
   //Building elements
 
   IfcWallStandardCase(parsed) {
@@ -193,6 +217,7 @@ class IfcVisitor extends BaseVisitor {
   _Asterisk(parsed) {}
   _IfcValue(parsed) {}
   _TextSet(parsed) {}
+  _IfcBool(parsed) {}
 }
 
 function getSemantic(ifcType, parsed) {

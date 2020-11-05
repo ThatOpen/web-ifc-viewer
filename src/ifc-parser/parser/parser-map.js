@@ -38,6 +38,11 @@ import { IfcSpaceType } from "../ifc-models/properties/IfcSpaceType.js";
 import { IfcPlane } from "../ifc-models/geometry/IfcPlane.js";
 import { IfcCurveBoundedPlane } from "../ifc-models/geometry/IfcCurveBoundedPlane.js";
 import { IfcConnectionSurfaceGeometry } from "../ifc-models/geometry/IfcConnectionSurfaceGeometry.js";
+import { IfcPropertySingleValue } from "../ifc-models/properties/IfcPropertySingleValue.js";
+import { IfcPropertySet } from "../ifc-models/properties/IfcPropertySet.js";
+import { IfcRelDefinesByProperties } from "../ifc-models/relationship/IfcRelDefinesByProperties.js";
+import { IfcPolygonalBoundedHalfSpace } from "../ifc-models/geometry/IfcPolygonalBoundedHalfSpace.js";
+import { IfcBooleanClippingResult } from "../ifc-models/geometry/IfcBooleanClippingResult.js";
 
 const typesParserMap = {
   //Spatial structure elements
@@ -49,6 +54,8 @@ const typesParserMap = {
 
   //Properties
   [t.IfcSpaceType]: IfcSpaceType,
+  [t.IfcPropertySingleValue]: IfcPropertySingleValue,
+  [t.IfcPropertySet]: IfcPropertySet,
 
   //Geometry
   [t.IfcDirection]: IfcDirection,
@@ -63,6 +70,8 @@ const typesParserMap = {
   [t.IfcPlane]: IfcPlane,
   [t.IfcConnectionSurfaceGeometry]: IfcConnectionSurfaceGeometry,
   [t.IfcCurveBoundedPlane]: IfcCurveBoundedPlane,
+  [t.IfcPolygonalBoundedHalfSpace]: IfcPolygonalBoundedHalfSpace,
+  [t.IfcBooleanClippingResult]: IfcBooleanClippingResult,
 
   //Units
   [t.IfcUnitAssignment]: IfcUnitAssignment,
@@ -91,6 +100,7 @@ const typesParserMap = {
   //Relationships
   [t.IfcRelAggregates]: IfcRelAggregates,
   [t.IfcRelContainedInSpatialStructure]: IfcRelContainedInSpatialStructure,
+  [t.IfcRelDefinesByProperties]: IfcRelDefinesByProperties,
 
   //Building elements
   [t.IfcWallStandardCase]: IfcWallStandardCase,

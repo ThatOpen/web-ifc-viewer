@@ -1,7 +1,9 @@
 import { vocabulary as v } from "../lexer/lexer.js";
 import { ifcDataTypes as d, isDataTypeValid } from "../utils/ifc-data-types.js";
 
-function newParser($, ifcItem) {
+//Creates a syntactical structure (RULEs) given a IFC Class
+
+function createNewParser($, ifcItem) {
   resetParserFactory();
   $.CONSUME(v.OpenPar);
   Object.values(ifcItem).forEach((dataType) => {
@@ -23,6 +25,7 @@ function newRule($, dataType) {
     [d.enum]: $._IfcEnum,
     [d.ifcValue]: $._IfcValue,
     [d.asterisk]: $._Asterisk,
+    [d.bool]: $._IfcBool,
   };
   const rule = `SUBRULE${getIndex(dataType)}`;
   counter[dataType]++;
@@ -32,6 +35,10 @@ function newRule($, dataType) {
 function getIndex(dataType) {
   return counter[dataType] === 0 ? "" : counter[dataType];
 }
+
+//The counter is necessary because chevrotain cannot have
+//multiple identical SUBRULES. The repeated methods need to be
+//followed by a suffix (f.e. SUBRULE(X), SUBRULE2(X), ...)
 
 let counter = {};
 
@@ -48,7 +55,8 @@ function resetParserFactory() {
     [d.enum]: 0,
     [d.ifcValue]: 0,
     [d.asterisk]: 0,
+    [d.bool]: 0,
   };
 }
 
-export { newParser, resetParserFactory };
+export { createNewParser as newParser, resetParserFactory };

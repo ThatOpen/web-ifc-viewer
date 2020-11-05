@@ -2,6 +2,8 @@ import "../../../node_modules/chevrotain/lib/chevrotain.js";
 const newToken = chevrotain.createToken;
 const Lexer = chevrotain.Lexer;
 
+//Tokens / vocabulary for constructing the parser primitives
+
 const tokens = [];
 
 tokens.push(
@@ -27,7 +29,7 @@ tokens.push(
 
 tokens.push(
   newToken({
-    name: "IfcMeasureValue",
+    name: "IfcValue",
     pattern: /IFC[A-Z]+?(?=\()/,
   })
 );
@@ -50,6 +52,13 @@ tokens.push(
   newToken({
     name: "Text",
     pattern: /'.+?'(?=[\)|,])/,
+  })
+);
+
+tokens.push(
+  newToken({
+    name: "Boolean",
+    pattern: /\.T\.|\.F\./,
   })
 );
 
@@ -123,7 +132,5 @@ const vocabulary = {};
 tokens.forEach((tokenType) => {
   vocabulary[tokenType.name] = tokenType;
 });
-
-// console.log(lexer);
 
 export { tokens, lexer, vocabulary };

@@ -1,3 +1,17 @@
 const undefined = "Undefined";
+
 const ifcClass = "_IfcClass";
-export { undefined, ifcClass };
+
+const ifcValueType = {
+  number: "Number",
+  text: "Text",
+  enum: "Enum",
+  bool: "Boolean",
+};
+
+const ifcBoolValues = {
+  trueValue: ".T.",
+  falseValue: ".F.",
+};
+
+export { undefined, ifcClass, ifcValueType, ifcBoolValues };

@@ -7,6 +7,8 @@ const ifcTypes = {
   IfcSpace: "IFCSPACE",
   //Properties
   IfcSpaceType: "IFCSPACETYPE",
+  IfcPropertySingleValue: "IFCPROPERTYSINGLEVALUE",
+  IfcPropertySet: "IFCPROPERTYSET",
   //Geometry
   IfcDirection: "IFCDIRECTION",
   IfcCartesianPoint: "IFCCARTESIANPOINT",
@@ -19,7 +21,9 @@ const ifcTypes = {
   IfcProductDefinitionShape: "IFCPRODUCTDEFINITIONSHAPE",
   IfcCurveBoundedPlane: "IFCCURVEBOUNDEDPLANE",
   IfcConnectionSurfaceGeometry: "IFCCONNECTIONSURFACEGEOMETRY",
+  IfcPolygonalBoundedHalfSpace: "IFCPOLYGONALBOUNDEDHALFSPACE",
   IfcPlane: "IFCPLANE",
+  IfcBooleanClippingResult: "IFCBOOLEANCLIPPINGRESULT",
   //Units
   IfcUnitAssignment: "IFCUNITASSIGNMENT",
   IfcSIUnit: "IFCSIUNIT",
@@ -44,6 +48,8 @@ const ifcTypes = {
   // Relationships
   IfcRelAggregates: "IFCRELAGGREGATES",
   IfcRelContainedInSpatialStructure: "IFCRELCONTAINEDINSPATIALSTRUCTURE",
+  IfcRelDefinesByProperties: "IFCRELDEFINESBYPROPERTIES",
+
   //Building elements
   IfcWallStandardCase: "IFCWALLSTANDARDCASE",
   // IfcWall: "IFCWALL",

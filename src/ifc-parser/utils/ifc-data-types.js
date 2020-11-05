@@ -8,6 +8,7 @@ const ifcDataTypes = {
   date: "Date",
   numberSet: "NumberSet",
   enum: "Enum",
+  bool: "Boolean",
   ifcValue: "IfcValue",
   asterisk: "Asterisk",
 };
