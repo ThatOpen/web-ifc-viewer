@@ -1,8 +1,9 @@
-import { ifcTypes } from "./ifc-parser/utils/ifc-types.js";
+import { getName, ifcTypes as t } from "./ifc-parser/utils/ifc-types.js";
 import { createIfcItemsFinder } from "./ifc-parser/utils/items-finder.js";
 import { parse } from "./ifc-parser/parser/parse-process.js";
 import { ifcDataTypes } from "./ifc-parser/utils/ifc-data-types.js";
 import { findRemainingTypes } from "./find-remaining-types.js";
+import { ifcClass } from "./ifc-parser/utils/globalProperties.js";
 
 function loadIfcFileItems(ifcItems) {
   const finder = createIfcItemsFinder(ifcItems);
@@ -29,16 +30,34 @@ function referenceEntities(items) {
       referenceMultipleItems(key, ifcLine, items);
     }
   }
-  console.log(items);
+
+  // filterItems(items, t.IfcSurfaceStyleRendering); //For development
+  console.log(items, key);
+}
+
+function filterItems(items, filter) {
+  let key;
+  for (key in items) {
+    const ifcLine = items[key];
+    if (ifcLine && ifcLine[ifcClass] != getName(t.IfcSurfaceStyleRendering)) {
+      delete items[key];
+    }
+  }
 }
 
 function referenceSingleItem(key, ifcLine, items) {
   if (
-    ifcLine[key].type === ifcDataTypes.id &&
+    isItemWithReference(ifcLine[key]) &&
     items.hasOwnProperty(ifcLine[key].value)
   ) {
     ifcLine[key].value = items[ifcLine[key].value];
   }
+}
+
+function isItemWithReference(item) {
+  if (item.type === ifcDataTypes.ifcValue && !isNaN(item.value)) return true;
+  if (item.type === ifcDataTypes.id) return true;
+  return false;
 }
 
 function referenceMultipleItems(key, ifcLine, items) {
@@ -52,7 +71,7 @@ function referenceMultipleItems(key, ifcLine, items) {
 }
 
 function isTypeSupported(ifcItem) {
-  return Object.values(ifcTypes).indexOf(ifcItem.type) > -1;
+  return Object.values(t).indexOf(ifcItem.type) > -1;
 }
 
 export { loadIfcFileItems };

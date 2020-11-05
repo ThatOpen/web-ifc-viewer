@@ -105,13 +105,20 @@ function getIfcValue(parsed) {
     return parsed._IfcValue[counter[t.ifcValue]++].children.DefaultValue[0]
       .image;
 
+  if (parsed._IfcValue[counter[t.ifcValue]].children.ExpressId)
+    return Number(
+      parsed._IfcValue[counter[t.ifcValue]++].children.ExpressId[0].image.slice(
+        1
+      )
+    );
+
   let type = getIfcValueType(parsed);
   let value = parsed._IfcValue[counter[t.ifcValue]].children[type][0].image;
   value = formatIfcValue(value, type);
 
   return {
     Value: value,
-    IfcUnit: parsed._IfcValue[counter[t.ifcValue]++].children.IfcValue[0].image,
+    IfcUnit: getIfcUnit(parsed),
   };
 }
 
@@ -131,6 +138,14 @@ function getIfcValueType(parsed) {
     : parsed._IfcValue[counter[t.ifcValue]].children.Boolean
     ? ifcValueType.bool
     : ifcValueType.enum;
+}
+
+function getIfcUnit(parsed) {
+  const ifcUnit = parsed._IfcValue[counter[t.ifcValue]].children.IfcValue
+    ? parsed._IfcValue[counter[t.ifcValue]].children.IfcValue[0].image
+    : "";
+  counter[t.ifcValue]++;
+  return ifcUnit;
 }
 
 //The counter is necessary because chevrotain generates indexed

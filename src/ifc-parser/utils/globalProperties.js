@@ -7,6 +7,7 @@ const ifcValueType = {
   text: "Text",
   enum: "Enum",
   bool: "Boolean",
+  singleNumber: "SingleNumber",
 };
 
 const ifcBoolValues = {

@@ -55,11 +55,6 @@ function IfcValue_Parser($) {
     $.OR([
       {
         ALT: () => {
-          $.CONSUME(v.DefaultValue);
-        },
-      },
-      {
-        ALT: () => {
           $.CONSUME(v.IfcValue);
           $.CONSUME(v.OpenPar);
           $.OR2([
@@ -85,6 +80,21 @@ function IfcValue_Parser($) {
             },
           ]);
           $.CONSUME(v.ClosePar);
+        },
+      },
+      {
+        ALT: () => {
+          $.CONSUME(v.ExpressId);
+        },
+      },
+      {
+        ALT: () => {
+          $.CONSUME2(v.Number);
+        },
+      },
+      {
+        ALT: () => {
+          $.CONSUME(v.DefaultValue);
         },
       },
     ]);

@@ -43,6 +43,8 @@ import { IfcPropertySet } from "../ifc-models/properties/IfcPropertySet.js";
 import { IfcRelDefinesByProperties } from "../ifc-models/relationship/IfcRelDefinesByProperties.js";
 import { IfcPolygonalBoundedHalfSpace } from "../ifc-models/geometry/IfcPolygonalBoundedHalfSpace.js";
 import { IfcBooleanClippingResult } from "../ifc-models/geometry/IfcBooleanClippingResult.js";
+import { IfcColourRgb } from "../ifc-models/presentation/IfcColourRGB.js";
+import { IfcSurfaceStyleRendering } from "../ifc-models/presentation/IfcSurfaceStyleRendering.js";
 
 const typesParserMap = {
   //Spatial structure elements
@@ -101,6 +103,10 @@ const typesParserMap = {
   [t.IfcRelAggregates]: IfcRelAggregates,
   [t.IfcRelContainedInSpatialStructure]: IfcRelContainedInSpatialStructure,
   [t.IfcRelDefinesByProperties]: IfcRelDefinesByProperties,
+
+  //Presentation
+  [t.IfcColourRgb]: IfcColourRgb,
+  [t.IfcSurfaceStyleRendering]: IfcSurfaceStyleRendering,
 
   //Building elements
   [t.IfcWallStandardCase]: IfcWallStandardCase,

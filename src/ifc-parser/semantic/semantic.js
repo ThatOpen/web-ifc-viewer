@@ -201,6 +201,16 @@ class IfcVisitor extends BaseVisitor {
     return getSemantic(t.IfcRelDefinesByProperties, parsed);
   }
 
+  //Presentation
+
+  IfcColourRgb(parsed) {
+    return getSemantic(t.IfcColourRgb, parsed);
+  }
+
+  IfcSurfaceStyleRendering(parsed) {
+    return getSemantic(t.IfcSurfaceStyleRendering, parsed);
+  }
+
   //Building elements
 
   IfcWallStandardCase(parsed) {
@@ -218,6 +228,7 @@ class IfcVisitor extends BaseVisitor {
   _IfcValue(parsed) {}
   _TextSet(parsed) {}
   _IfcBool(parsed) {}
+  _IdOrFactor(parsed) {}
 }
 
 function getSemantic(ifcType, parsed) {

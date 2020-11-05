@@ -49,13 +49,14 @@ const ifcTypes = {
   IfcRelAggregates: "IFCRELAGGREGATES",
   IfcRelContainedInSpatialStructure: "IFCRELCONTAINEDINSPATIALSTRUCTURE",
   IfcRelDefinesByProperties: "IFCRELDEFINESBYPROPERTIES",
-
+  //Presentation
+  IfcColourRgb: "IFCCOLOURRGB",
+  IfcSurfaceStyleRendering: "IFCSURFACESTYLERENDERING",
   //Building elements
   IfcWallStandardCase: "IFCWALLSTANDARDCASE",
   // IfcWall: "IFCWALL",
   // IfcDoor: "IFCDOOR",
   // IfcSlab: "IFCSLAB",
-  // IfcRelContainedInSpatialStructure: "IFCRELCONTAINEDINSPATIALSTRUCTURE",
 };
 
 function getName(ifcType) {
