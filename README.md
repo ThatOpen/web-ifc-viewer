@@ -1,5 +1,7 @@
 # IFC.js
 
+<a href="url"><img src="https://github.com/agviegas/IFC.js/blob/master/resources/logo.jpg"  height="256" width="256" ></a>
+
 This is a frontend parser between .ifc files and Three.js geometry.
 
 ## Introduction
