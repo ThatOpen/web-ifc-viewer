@@ -9,13 +9,13 @@ import {
 
 function newSemantic(parsed, ifcItem) {
   resetSemanticFactory();
-  const result = getObjectProperties(parsed, ifcItem);
+  const result = retrieveIfcObjectProperties(parsed, ifcItem);
   addClassName(result, ifcItem);
   cleanUndefinedProperties(result);
   return result;
 }
 
-function getObjectProperties(parsed, ifcItem) {
+function retrieveIfcObjectProperties(parsed, ifcItem) {
   const result = {};
   Object.keys(ifcItem).forEach((e) => {
     if (isDataTypeValid(ifcItem[e]))

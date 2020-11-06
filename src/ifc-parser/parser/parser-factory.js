@@ -24,7 +24,7 @@ function newRule($, dataType) {
 }
 
 //The counter is necessary because chevrotain cannot have
-//multiple identical SUBRULES. The repeated methods need to be
+//multiple identical SUBRULEs. The repeated methods need to be
 //followed by a suffix (f.e. SUBRULE(X), SUBRULE2(X), ...)
 
 let counter = {};
@@ -36,12 +36,14 @@ function resetParserFactory() {
   });
 }
 
-function getIndex(dataType) {
-  return counter[dataType] === 0 ? "" : counter[dataType];
-}
-
 function updateCounter(dataType) {
   counter[dataType]++;
+}
+
+//Chevrotain syntax: SUBRULE0(X) is expressed as SUBRULE(X)
+
+function getIndex(dataType) {
+  return counter[dataType] === 0 ? "" : counter[dataType];
 }
 
 export { createNewParser as newParser, resetParserFactory };
