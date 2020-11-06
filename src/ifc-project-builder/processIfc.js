@@ -1,9 +1,9 @@
-import { getName, ifcTypes as t } from "./ifc-parser/utils/ifc-types.js";
-import { createIfcItemsFinder } from "./ifc-parser/utils/items-finder.js";
-import { parse } from "./ifc-parser/parser/parse-process.js";
-import { ifcDataTypes } from "./ifc-parser/utils/ifc-data-types.js";
-import { findRemainingTypes } from "./find-remaining-types.js";
-import { ifcClass } from "./ifc-parser/utils/globalProperties.js";
+import { getName, ifcTypes as t } from "../ifc-parser/utils/ifc-types.js";
+import { createIfcItemsFinder } from "../ifc-parser/utils/items-finder.js";
+import { parse } from "../ifc-parser/parser/parse-process.js";
+import { ifcDataTypes } from "../ifc-parser/utils/ifc-data-types.js";
+import { findRemainingTypes } from "../dev/find-remaining-types.js";
+import { ifcClass } from "../ifc-parser/utils/globalProperties.js";
 
 function loadIfcFileItems(ifcItems) {
   const finder = createIfcItemsFinder(ifcItems);
@@ -31,7 +31,7 @@ function referenceEntities(items) {
     }
   }
 
-  // filterItems(items, t.IfcProject); //For development
+  // filterItems(items, t.IfcUnitAssignment); //For development
   console.log(items, key);
 }
 

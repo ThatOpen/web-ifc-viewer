@@ -1,4 +1,4 @@
-import { ifcTypes } from "./ifc-parser/utils/ifc-types.js";
+import { ifcTypes } from "../ifc-parser/utils/ifc-types.js";
 
 function findRemainingTypes(items) {
   const remainingTypes = [];

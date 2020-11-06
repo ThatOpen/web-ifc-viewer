@@ -95,3 +95,38 @@ newObject({
   RepresentationType: d.text,
   Items: d.idSet,
 });
+
+newObject({
+  [ifcClass]: getName(t.IfcFaceOuterBound),
+  Bound: d.id,
+  Orientation: d.bool,
+});
+
+newObject({
+  [ifcClass]: getName(t.IfcFace),
+  Bounds: d.idSet,
+});
+
+newObject({
+  [ifcClass]: getName(t.IfcPolyLoop),
+  Polygon: d.idSet,
+});
+
+newObject({
+  [ifcClass]: getName(t.IfcClosedShell),
+  CfsFaces: d.idSet,
+});
+
+newObject({
+  [ifcClass]: getName(t.IfcFacetedBrep),
+  Outer: d.id,
+});
+
+newObject({
+  [ifcClass]: getName(t.IfcCartesianTransformationOperator3D),
+  Axis1: d.id,
+  Axis2: d.id,
+  LocalOrigin: d.id,
+  Scale: d.number,
+  Axis3: d.id,
+});

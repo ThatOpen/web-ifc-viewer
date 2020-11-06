@@ -1,4 +1,4 @@
-const undefined = "Undefined";
+const undefined = "undefined";
 
 const ifcClass = "_IfcClass";
 

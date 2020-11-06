@@ -3,6 +3,7 @@ import { parser } from "./parser.js";
 import { ifcVisitor } from "../semantic/semantic.js";
 import { parserByType } from "./parser-map.js";
 import { ifcClass } from "../utils/globalProperties.js";
+import { ifcTypes } from "../utils/ifc-types.js";
 
 //The parsing process consists of 4 steps:
 //1. The lexer tokenizes the input

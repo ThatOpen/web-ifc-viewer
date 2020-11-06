@@ -13,20 +13,23 @@ const patterns = {
   DefaultValue: /\$/,
   EmptyText: /''(?=[\)|,])/,
   IfcValue: /IFC[A-Z]+?(?=\()/,
-  Text: /'.+?'(?=[\)|,])/,
   Boolean: /\.T\.|\.F\./,
   Enum: /\.[A-Z0-9_]+?\./,
   Number: /[0-9.E-]+/,
+  Text: /'.+?'(?=[\)|,])/,
   EqualSign: /=/,
   OpenPar: /\(/,
   ClosePar: /\)/,
   Semicolon: /;/,
   Comma: /,/,
+};
+
+const ingoredPatterns = {
   NewLine: /[\n\r]+/,
   WhiteSpace: /\s+/,
 };
 
-function creaTokens() {
+function createTokens() {
   Object.keys(patterns).forEach((e) => {
     tokens.push(
       newToken({
@@ -37,7 +40,20 @@ function creaTokens() {
   });
 }
 
-creaTokens();
+function createIgnoredTokens() {
+  Object.keys(ingoredPatterns).forEach((e) => {
+    tokens.push(
+      newToken({
+        name: e,
+        pattern: ingoredPatterns[e],
+        group: chevrotain.Lexer.SKIPPED,
+      })
+    );
+  });
+}
+
+createTokens();
+createIgnoredTokens();
 
 const lexer = new Lexer(tokens);
 const vocabulary = {};

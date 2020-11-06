@@ -58,3 +58,17 @@ newObject({
   SpecularHighlight: d.ifcValue,
   ReflectanceMethod: d.enum,
 });
+
+newObject({
+  [ifcClass]: getName(t.IfcRepresentationMap),
+  MappingOrigin: d.id,
+  MappedRepresentation: d.id,
+});
+
+newObject({
+  [ifcClass]: getName(t.IfcPresentationLayerAssignment),
+  Name: d.text,
+  Description: d.text,
+  AssignedItems: d.idSet,
+  Identifier: d.text,
+});
