@@ -1,8 +1,9 @@
 import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 import { ifcClass } from "../../utils/globalProperties.js";
 import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
+import { newObject } from "../../parser/parser-map.js";
 
-const IfcGeometricRepresentationContext = {
+newObject({
   [ifcClass]: getName(t.IfcGeometricRepresentationContext),
   ContextIdentifier: d.text,
   ContextType: d.text,
@@ -10,6 +11,4 @@ const IfcGeometricRepresentationContext = {
   Precision: d.number,
   WorldCoordinateSystem: d.id,
   TrueNorth: d.id,
-};
-
-export { IfcGeometricRepresentationContext };
+});

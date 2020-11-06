@@ -1,8 +1,9 @@
 import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
 import { ifcClass } from "../../utils/globalProperties.js";
+import { newObject } from "../../parser/parser-map.js";
 
-const IfcSpace = {
+newObject({
   [ifcClass]: getName(t.IfcSpace),
   Guid: d.guid,
   OwnerHistory: d.id,
@@ -15,6 +16,4 @@ const IfcSpace = {
   CompositionType: d.enum,
   InteriorOrExteriorSpace: d.enum,
   ElevationWithFlooring: d.number,
-};
-
-export { IfcSpace };
+});

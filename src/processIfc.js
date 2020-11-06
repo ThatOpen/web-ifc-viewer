@@ -31,7 +31,7 @@ function referenceEntities(items) {
     }
   }
 
-  filterItems(items, t.IfcMaterialLayerSetUsage); //For development
+  // filterItems(items, t.IfcProject); //For development
   console.log(items, key);
 }
 

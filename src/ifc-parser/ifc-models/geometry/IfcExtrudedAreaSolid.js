@@ -1,13 +1,12 @@
 import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 import { ifcClass } from "../../utils/globalProperties.js";
 import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
+import { newObject } from "../../parser/parser-map.js";
 
-const IfcExtrudedAreaSolid = {
+newObject({
   [ifcClass]: getName(t.IfcExtrudedAreaSolid),
   SweptArea: d.id,
   Position: d.id,
   ExtrudedDirection: d.id,
   Depth: d.number,
-};
-
-export { IfcExtrudedAreaSolid };
+});

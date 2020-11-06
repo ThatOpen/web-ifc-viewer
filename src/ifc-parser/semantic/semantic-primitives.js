@@ -1,14 +1,33 @@
+import { getParser } from "../parser/parser-primitives.js";
 import { formatDate, solveUnicode } from "../utils/format.js";
 import { ifcBoolValues, ifcValueType } from "../utils/globalProperties.js";
-import { ifcDataTypes as t } from "../utils/ifc-data-types.js";
+import { ifcDataTypes as d } from "../utils/ifc-data-types.js";
 
 //Each method retrieves information from a given parsed data type
 
+const semanticUnits = {
+  [d.guid]: getGuid,
+  [d.id]: getExpressId,
+  [d.idSet]: getIdSet,
+  [d.text]: getIfcText,
+  [d.textSet]: getTextSet,
+  [d.number]: getNumber,
+  [d.numberSet]: getNumberSet,
+  [d.date]: getDate,
+  [d.ifcValue]: getIfcValue,
+  [d.bool]: getBool,
+  [d.enum]: getEnum,
+  [d.asterisk]: getAsterisk,
+};
+
+function getSemanticUnit(parsed, dataType) {
+  return semanticUnits[dataType](parsed);
+}
+
 function getGuid(parsed) {
-  return parsed._IfcGuid[counter[t.guid]++].children.IfcGuid[0].image.slice(
-    1,
-    -1
-  );
+  return parsed[getParser(d.guid).name][
+    counter[d.guid]++
+  ].children.IfcGuid[0].image.slice(1, -1);
 }
 
 function getAsterisk() {
@@ -16,24 +35,34 @@ function getAsterisk() {
 }
 
 function getBool(parsed) {
-  if (parsed._IfcBool[counter[t.bool]].children.DefaultValue)
-    parsed._IfcBool[counter[t.bool]++].children.DefaultValue[0].image;
+  if (parsed[getParser(d.bool).name][counter[d.bool]].children.DefaultValue)
+    parsed[getParser(d.bool).name][counter[d.bool]++].children.DefaultValue[0]
+      .image;
 
-  const ifcBool = parsed._IfcBool[counter[t.bool]++].children.Boolean[0].image;
+  const ifcBool =
+    parsed[getParser(d.bool).name][counter[d.bool]++].children.Boolean[0].image;
 
   return ifcBool === ifcBoolValues.trueValue ? true : false;
 }
 
 function getEnum(parsed) {
-  return parsed._IfcEnum[counter[t.enum]].children.DefaultValue
-    ? parsed._IfcEnum[counter[t.enum]++].children.DefaultValue[0].image
-    : parsed._IfcEnum[counter[t.enum]++].children.Enum[0].image.slice(1, -1);
+  return parsed[getParser(d.enum).name][counter[d.enum]].children.DefaultValue
+    ? parsed[getParser(d.enum).name][counter[d.enum]++].children.DefaultValue[0]
+        .image
+    : parsed[getParser(d.enum).name][
+        counter[d.enum]++
+      ].children.Enum[0].image.slice(1, -1);
 }
 
 function getNumber(parsed) {
-  return parsed._Number[counter[t.number]].children.DefaultValue
-    ? parsed._Number[counter[t.number]++].children.DefaultValue[0].image
-    : Number(parsed._Number[counter[t.number]++].children.Number[0].image);
+  return parsed[getParser(d.number).name][counter[d.number]].children
+    .DefaultValue
+    ? parsed[getParser(d.number).name][counter[d.number]++].children
+        .DefaultValue[0].image
+    : Number(
+        parsed[getParser(d.number).name][counter[d.number]++].children.Number[0]
+          .image
+      );
 }
 
 function getDate(parsed) {
@@ -41,79 +70,94 @@ function getDate(parsed) {
 }
 
 function getExpressId(parsed) {
-  return parsed._IfcExpressId[counter[t.id]].children.DefaultValue
-    ? parsed._IfcExpressId[counter[t.id]++].children.DefaultValue[0].image
+  return parsed[getParser(d.id).name][counter[d.id]].children.DefaultValue
+    ? parsed[getParser(d.id).name][counter[d.id]++].children.DefaultValue[0]
+        .image
     : Number(
-        parsed._IfcExpressId[counter[t.id]++].children.ExpressId[0].image.slice(
-          1
-        )
+        parsed[getParser(d.id).name][
+          counter[d.id]++
+        ].children.ExpressId[0].image.slice(1)
       );
 }
 
 function getIfcText(parsed) {
-  if (parsed._IfcText[counter[t.text]].children.DefaultValue)
-    return parsed._IfcText[counter[t.text]++].children.DefaultValue[0].image;
+  if (parsed[getParser(d.text).name][counter[d.text]].children.DefaultValue)
+    return parsed[getParser(d.text).name][counter[d.text]++].children
+      .DefaultValue[0].image;
 
-  if (parsed._IfcText[counter[t.text]].children.EmptyText) {
-    counter[t.text]++;
+  if (parsed[getParser(d.text).name][counter[d.text]].children.EmptyText) {
+    counter[d.text]++;
     return "";
   }
 
   return solveUnicode(
-    parsed._IfcText[counter[t.text]++].children.Text[0].image.slice(1, -1)
+    parsed[getParser(d.text).name][
+      counter[d.text]++
+    ].children.Text[0].image.slice(1, -1)
   );
 }
 
 function getTextSet(parsed) {
-  if (parsed._TextSet[counter[t.textSet]].children.DefaultValue)
-    return parsed._TextSet[counter[t.textSet]++].children.DefaultValue[0].image;
+  if (
+    parsed[getParser(d.textSet).name][counter[d.textSet]].children.DefaultValue
+  )
+    return parsed[getParser(d.textSet).name][counter[d.textSet]++].children
+      .DefaultValue[0].image;
 
-  if (parsed._TextSet[counter[t.textSet]].children.Text)
-    return parsed._TextSet[counter[t.textSet]++].children.Text.map((e) =>
-      solveUnicode(e.image.slice(1, -1))
-    );
+  if (parsed[getParser(d.textSet).name][counter[d.textSet]].children.Text)
+    return parsed[getParser(d.textSet).name][
+      counter[d.textSet]++
+    ].children.Text.map((e) => solveUnicode(e.image.slice(1, -1)));
 
-  counter[t.textSet]++;
+  counter[d.textSet]++;
   return [];
 }
 
 function getIdSet(parsed) {
-  if (parsed._IdSet[counter[t.idSet]].children.DefaultValue)
-    return parsed._IdSet[counter[t.idSet]++].children.DefaultValue[0].image;
+  if (parsed[getParser(d.idSet).name][counter[d.idSet]].children.DefaultValue)
+    return parsed[getParser(d.idSet).name][counter[d.idSet]++].children
+      .DefaultValue[0].image;
 
-  if (parsed._IdSet[counter[t.idSet]].children.ExpressId)
-    return parsed._IdSet[counter[t.idSet]++].children.ExpressId.map((e) =>
-      Number(e.image.slice(1))
-    );
+  if (parsed[getParser(d.idSet).name][counter[d.idSet]].children.ExpressId)
+    return parsed[getParser(d.idSet).name][
+      counter[d.idSet]++
+    ].children.ExpressId.map((e) => Number(e.image.slice(1)));
 
-  counter[t.idSet]++;
+  counter[d.idSet]++;
   return [];
 }
 
 function getNumberSet(parsed) {
-  if (parsed._NumberSet[counter[t.numberSet]].children.Number)
-    return parsed._NumberSet[counter[t.numberSet]++].children.Number.map((e) =>
-      Number(e.image)
-    );
+  if (parsed[getParser(d.numberSet).name][counter[d.numberSet]].children.Number)
+    return parsed[getParser(d.numberSet).name][
+      counter[d.numberSet]++
+    ].children.Number.map((e) => Number(e.image));
 
-  counter[t.numberSet]++;
+  counter[d.numberSet]++;
   return [];
 }
 
 function getIfcValue(parsed) {
-  if (parsed._IfcValue[counter[t.ifcValue]].children.DefaultValue)
-    return parsed._IfcValue[counter[t.ifcValue]++].children.DefaultValue[0]
-      .image;
+  if (
+    parsed[getParser(d.ifcValue).name][counter[d.ifcValue]].children
+      .DefaultValue
+  )
+    return parsed[getParser(d.ifcValue).name][counter[d.ifcValue]++].children
+      .DefaultValue[0].image;
 
-  if (parsed._IfcValue[counter[t.ifcValue]].children.ExpressId)
+  if (
+    parsed[getParser(d.ifcValue).name][counter[d.ifcValue]].children.ExpressId
+  )
     return Number(
-      parsed._IfcValue[counter[t.ifcValue]++].children.ExpressId[0].image.slice(
-        1
-      )
+      parsed[getParser(d.ifcValue).name][
+        counter[d.ifcValue]++
+      ].children.ExpressId[0].image.slice(1)
     );
 
   let type = getIfcValueType(parsed);
-  let value = parsed._IfcValue[counter[t.ifcValue]].children[type][0].image;
+  let value =
+    parsed[getParser(d.ifcValue).name][counter[d.ifcValue]].children[type][0]
+      .image;
   value = formatIfcValue(value, type);
 
   return {
@@ -131,20 +175,22 @@ function formatIfcValue(value, type) {
 }
 
 function getIfcValueType(parsed) {
-  return parsed._IfcValue[counter[t.ifcValue]].children.Number
+  return parsed[getParser(d.ifcValue).name][counter[d.ifcValue]].children.Number
     ? ifcValueType.number
-    : parsed._IfcValue[counter[t.ifcValue]].children.Text
+    : parsed[getParser(d.ifcValue).name][counter[d.ifcValue]].children.Text
     ? ifcValueType.text
-    : parsed._IfcValue[counter[t.ifcValue]].children.Boolean
+    : parsed[getParser(d.ifcValue).name][counter[d.ifcValue]].children.Boolean
     ? ifcValueType.bool
     : ifcValueType.enum;
 }
 
 function getIfcUnit(parsed) {
-  const ifcUnit = parsed._IfcValue[counter[t.ifcValue]].children.IfcValue
-    ? parsed._IfcValue[counter[t.ifcValue]].children.IfcValue[0].image
+  const ifcUnit = parsed[getParser(d.ifcValue).name][counter[d.ifcValue]]
+    .children.IfcValue
+    ? parsed[getParser(d.ifcValue).name][counter[d.ifcValue]].children
+        .IfcValue[0].image
     : "";
-  counter[t.ifcValue]++;
+  counter[d.ifcValue]++;
   return ifcUnit;
 }
 
@@ -156,31 +202,17 @@ let counter = {};
 
 function resetSemanticFactory() {
   counter = {
-    [t.guid]: 0,
-    [t.id]: 0,
-    [t.text]: 0,
-    [t.number]: 0,
-    [t.enum]: 0,
-    [t.idSet]: 0,
-    [t.numberSet]: 0,
-    [t.ifcValue]: 0,
-    [t.textSet]: 0,
-    [t.bool]: 0,
+    [d.guid]: 0,
+    [d.id]: 0,
+    [d.text]: 0,
+    [d.number]: 0,
+    [d.enum]: 0,
+    [d.idSet]: 0,
+    [d.numberSet]: 0,
+    [d.ifcValue]: 0,
+    [d.textSet]: 0,
+    [d.bool]: 0,
   };
 }
 
-export {
-  resetSemanticFactory,
-  getAsterisk,
-  getGuid,
-  getNumber,
-  getDate,
-  getNumberSet,
-  getBool,
-  getEnum,
-  getExpressId,
-  getIfcText,
-  getTextSet,
-  getIdSet,
-  getIfcValue,
-};
+export { resetSemanticFactory, getSemanticUnit };

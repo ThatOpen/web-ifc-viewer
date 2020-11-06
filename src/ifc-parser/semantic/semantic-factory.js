@@ -1,55 +1,39 @@
 import { ifcDataTypes as d, isDataTypeValid } from "../utils/ifc-data-types.js";
 import { ifcClass, undefined } from "../utils/globalProperties.js";
 import {
-  getGuid,
-  getAsterisk,
-  getExpressId,
-  getIfcText,
-  getIdSet,
-  getNumber,
-  getIfcValue,
-  getEnum,
-  getNumberSet,
-  getDate,
-  getTextSet,
+  getSemanticUnit,
   resetSemanticFactory,
-  getBool,
 } from "./semantic-primitives.js";
 
-//Chooses the semantic primitive correspondant to the given data type
+//Uses semantic primitives according to the data type of each property
 
 function newSemantic(parsed, ifcItem) {
   resetSemanticFactory();
+  const result = getObjectProperties(parsed, ifcItem);
+  addClassName(result, ifcItem);
+  cleanUndefinedProperties(result);
+  return result;
+}
+
+function getObjectProperties(parsed, ifcItem) {
   const result = {};
   Object.keys(ifcItem).forEach((e) => {
     if (isDataTypeValid(ifcItem[e]))
       result[e] = newSemanticUnit(parsed, ifcItem[e]);
   });
-  result[ifcClass] = ifcItem[ifcClass];
-  clean(result);
   return result;
 }
 
 function newSemanticUnit(parsed, dataType) {
-  const semanticUnits = {
-    [d.guid]: getGuid,
-    [d.id]: getExpressId,
-    [d.idSet]: getIdSet,
-    [d.text]: getIfcText,
-    [d.textSet]: getTextSet,
-    [d.number]: getNumber,
-    [d.numberSet]: getNumberSet,
-    [d.date]: getDate,
-    [d.ifcValue]: getIfcValue,
-    [d.bool]: getBool,
-    [d.enum]: getEnum,
-    [d.asterisk]: getAsterisk,
-  };
-  return { value: semanticUnits[dataType](parsed), type: dataType };
+  return { value: getSemanticUnit(parsed, dataType), type: dataType };
 }
 
-function clean(ifcItem) {
+function addClassName(result, ifcItem) {
+  result[ifcClass] = ifcItem[ifcClass];
+}
+
+function cleanUndefinedProperties(ifcItem) {
   if (ifcItem.hasOwnProperty([undefined])) delete ifcItem[undefined];
 }
 
-export { newSemanticUnit as get, newSemantic };
+export { newSemantic };

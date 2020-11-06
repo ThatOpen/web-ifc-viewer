@@ -18,4 +18,8 @@ function isDataTypeValid(dataType) {
   return false;
 }
 
-export { ifcDataTypes, isDataTypeValid };
+function getAllDataTypes() {
+  return Object.values(ifcDataTypes);
+}
+
+export { ifcDataTypes, isDataTypeValid, getAllDataTypes };

@@ -1,8 +1,9 @@
 import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 import { ifcClass } from "../../utils/globalProperties.js";
 import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
+import { newObject } from "../../parser/parser-map.js";
 
-const IfcSpaceType = {
+newObject({
   [ifcClass]: getName(t.IfcSpaceType),
   GlobalId: d.guid,
   OwnerHistory: d.id,
@@ -14,6 +15,4 @@ const IfcSpaceType = {
   Tag: d.text,
   ElementType: d.text,
   PredefinedType: d.enum,
-};
-
-export { IfcSpaceType };
+});

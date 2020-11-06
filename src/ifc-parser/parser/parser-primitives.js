@@ -1,19 +1,36 @@
 import { vocabulary as v } from "../lexer/lexer.js";
+import { ifcDataTypes as d } from "../utils/ifc-data-types.js";
+import { parser } from "./parser.js";
 
 //Basic syntactical structures (one structure per data type)
 
 function addPrimitiveParsers($) {
-  $.RULE("_IfcGuid", IfcGuid_Parser($));
-  $.RULE("_Asterisk", Asterisk_Parser($));
-  $.RULE("_Number", Number_Parser($));
-  $.RULE("_IfcText", IfcText_Parser($));
-  $.RULE("_IfcBool", IfcBool_Parser($));
-  $.RULE("_IfcEnum", IfcEnum_Parser($));
-  $.RULE("_IfcExpressId", IfcExpressId_Parser($));
-  $.RULE("_IdSet", IdSet_Parser($));
-  $.RULE("_NumberSet", NumberSet_Parser($));
-  $.RULE("_IfcValue", IfcValue_Parser($));
-  $.RULE("_TextSet", TextSet_Parser($));
+  const parsers = [];
+  Object.values(primitiveParsers).forEach((e) => {
+    if (!parsers.includes(e)) {
+      parsers.push(e);
+      $.RULE(e.name, e($));
+    }
+  });
+}
+
+const primitiveParsers = {
+  [d.guid]: IfcGuid_Parser,
+  [d.asterisk]: Asterisk_Parser,
+  [d.number]: Number_Parser,
+  [d.date]: Number_Parser,
+  [d.text]: IfcText_Parser,
+  [d.bool]: IfcBool_Parser,
+  [d.enum]: IfcEnum_Parser,
+  [d.id]: IfcExpressId_Parser,
+  [d.idSet]: IdSet_Parser,
+  [d.numberSet]: NumberSet_Parser,
+  [d.ifcValue]: IfcValue_Parser,
+  [d.textSet]: TextSet_Parser,
+};
+
+function getParser(dataType) {
+  return primitiveParsers[dataType];
 }
 
 function IfcGuid_Parser($) {
@@ -290,4 +307,4 @@ function IfcExpressId_Parser($) {
   };
 }
 
-export { addPrimitiveParsers };
+export { addPrimitiveParsers, primitiveParsers, getParser };
