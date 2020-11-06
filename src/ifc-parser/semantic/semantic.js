@@ -51,6 +51,22 @@ class IfcVisitor extends BaseVisitor {
     return getSemantic(t.IfcPropertySet, parsed);
   }
 
+  IfcMaterial(parsed) {
+    return getSemantic(t.IfcMaterial, parsed);
+  }
+
+  IfcMaterialLayer(parsed) {
+    return getSemantic(t.IfcMaterialLayer, parsed);
+  }
+
+  IfcMaterialLayerSet(parsed) {
+    return getSemantic(t.IfcMaterialLayerSet, parsed);
+  }
+
+  IfcMaterialLayerSetUsage(parsed) {
+    return getSemantic(t.IfcMaterialLayerSetUsage, parsed);
+  }
+
   //Geometry
 
   IfcDirection(parsed) {
@@ -209,6 +225,26 @@ class IfcVisitor extends BaseVisitor {
 
   IfcSurfaceStyleRendering(parsed) {
     return getSemantic(t.IfcSurfaceStyleRendering, parsed);
+  }
+
+  IfcSurfaceStyle(parsed) {
+    return getSemantic(t.IfcSurfaceStyle, parsed);
+  }
+
+  IfcPresentationStyleAssignment(parsed) {
+    return getSemantic(t.IfcPresentationStyleAssignment, parsed);
+  }
+
+  IfcStyledItem(parsed) {
+    return getSemantic(t.IfcStyledItem, parsed);
+  }
+
+  IfcStyledRepresentation(parsed) {
+    return getSemantic(t.IfcStyledRepresentation, parsed);
+  }
+
+  IfcMaterialDefinitionRepresentation(parsed) {
+    return getSemantic(t.IfcMaterialDefinitionRepresentation, parsed);
   }
 
   //Building elements

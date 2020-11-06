@@ -9,6 +9,10 @@ const ifcTypes = {
   IfcSpaceType: "IFCSPACETYPE",
   IfcPropertySingleValue: "IFCPROPERTYSINGLEVALUE",
   IfcPropertySet: "IFCPROPERTYSET",
+  IfcMaterial: "IFCMATERIAL",
+  IfcMaterialLayer: "IFCMATERIALLAYER",
+  IfcMaterialLayerSet: "IFCMATERIALLAYERSET",
+  IfcMaterialLayerSetUsage: "IFCMATERIALLAYERSETUSAGE",
   //Geometry
   IfcDirection: "IFCDIRECTION",
   IfcCartesianPoint: "IFCCARTESIANPOINT",
@@ -52,6 +56,11 @@ const ifcTypes = {
   //Presentation
   IfcColourRgb: "IFCCOLOURRGB",
   IfcSurfaceStyleRendering: "IFCSURFACESTYLERENDERING",
+  IfcSurfaceStyle: "IFCSURFACESTYLE",
+  IfcPresentationStyleAssignment: "IFCPRESENTATIONSTYLEASSIGNMENT",
+  IfcStyledItem: "IFCSTYLEDITEM",
+  IfcStyledRepresentation: "IFCSTYLEDREPRESENTATION",
+  IfcMaterialDefinitionRepresentation: "IFCMATERIALDEFINITIONREPRESENTATION",
   //Building elements
   IfcWallStandardCase: "IFCWALLSTANDARDCASE",
   // IfcWall: "IFCWALL",

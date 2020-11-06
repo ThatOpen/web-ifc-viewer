@@ -31,7 +31,7 @@ function referenceEntities(items) {
     }
   }
 
-  // filterItems(items, t.IfcSurfaceStyleRendering); //For development
+  filterItems(items, t.IfcMaterialLayerSetUsage); //For development
   console.log(items, key);
 }
 
@@ -39,7 +39,7 @@ function filterItems(items, filter) {
   let key;
   for (key in items) {
     const ifcLine = items[key];
-    if (ifcLine && ifcLine[ifcClass] != getName(t.IfcSurfaceStyleRendering)) {
+    if (ifcLine && ifcLine[ifcClass] != getName(filter)) {
       delete items[key];
     }
   }

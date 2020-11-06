@@ -65,7 +65,7 @@ tokens.push(
 tokens.push(
   newToken({
     name: "Enum",
-    pattern: /\.[A-Z_]+?\./,
+    pattern: /\.[A-Z0-9_]+?\./,
   })
 );
 

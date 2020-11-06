@@ -45,6 +45,15 @@ import { IfcPolygonalBoundedHalfSpace } from "../ifc-models/geometry/IfcPolygona
 import { IfcBooleanClippingResult } from "../ifc-models/geometry/IfcBooleanClippingResult.js";
 import { IfcColourRgb } from "../ifc-models/presentation/IfcColourRGB.js";
 import { IfcSurfaceStyleRendering } from "../ifc-models/presentation/IfcSurfaceStyleRendering.js";
+import { IfcSurfaceStyle } from "../ifc-models/presentation/IfcSurfaceStyle.js";
+import { IfcPresentationStyleAssignment } from "../ifc-models/presentation/IfcPresentationStyleAssignment.js";
+import { IfcStyledItem } from "../ifc-models/presentation/IfcStyledItem.js";
+import { IfcMaterial } from "../ifc-models/properties/IfcMaterial.js";
+import { IfcStyledRepresentation } from "../ifc-models/presentation/IfcStyledRepresentation.js";
+import { IfcMaterialDefinitionRepresentation } from "../ifc-models/presentation/IfcMaterialDefinitionRepresentation.js";
+import { IfcMaterialLayer } from "../ifc-models/properties/IfcMaterialLayer.js";
+import { IfcMaterialLayerSet } from "../ifc-models/properties/IfcMaterialLayerSet.js";
+import { IfcMaterialLayerSetUsage } from "../ifc-models/properties/IfcMaterialLayerSetUsage.js";
 
 const typesParserMap = {
   //Spatial structure elements
@@ -58,6 +67,9 @@ const typesParserMap = {
   [t.IfcSpaceType]: IfcSpaceType,
   [t.IfcPropertySingleValue]: IfcPropertySingleValue,
   [t.IfcPropertySet]: IfcPropertySet,
+  [t.IfcMaterialLayer]: IfcMaterialLayer,
+  [t.IfcMaterialLayerSet]: IfcMaterialLayerSet,
+  [t.IfcMaterialLayerSetUsage]: IfcMaterialLayerSetUsage,
 
   //Geometry
   [t.IfcDirection]: IfcDirection,
@@ -107,6 +119,12 @@ const typesParserMap = {
   //Presentation
   [t.IfcColourRgb]: IfcColourRgb,
   [t.IfcSurfaceStyleRendering]: IfcSurfaceStyleRendering,
+  [t.IfcSurfaceStyle]: IfcSurfaceStyle,
+  [t.IfcPresentationStyleAssignment]: IfcPresentationStyleAssignment,
+  [t.IfcStyledItem]: IfcStyledItem,
+  [t.IfcMaterial]: IfcMaterial,
+  [t.IfcStyledRepresentation]: IfcStyledRepresentation,
+  [t.IfcMaterialDefinitionRepresentation]: IfcMaterialDefinitionRepresentation,
 
   //Building elements
   [t.IfcWallStandardCase]: IfcWallStandardCase,
