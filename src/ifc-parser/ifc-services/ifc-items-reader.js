@@ -1,4 +1,4 @@
-import { regexp } from "./regexp.js";
+import { regexp } from "../../utils/regexp.js";
 
 class IfcItemsReader {
   constructor(ifcFile) {

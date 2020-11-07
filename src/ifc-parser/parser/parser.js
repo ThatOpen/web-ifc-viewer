@@ -3,7 +3,7 @@ import { tokens, vocabulary as v } from "../lexer/lexer.js";
 import { addPrimitiveParsers } from "./parser-primitives.js";
 import { typesParserMap } from "./parser-map.js";
 import { newParser } from "./parser-factory.js";
-import { ifcClass } from "../utils/globalProperties.js";
+import { ifcClass } from "../../utils/globalProperties.js";
 
 const CstParser = chevrotain.CstParser;
 

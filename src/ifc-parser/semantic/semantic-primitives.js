@@ -1,7 +1,7 @@
 import { getParser } from "../parser/parser-primitives.js";
-import { formatDate, solveUnicode } from "../utils/format.js";
-import { ifcBoolValues, ifcValueType } from "../utils/globalProperties.js";
-import { ifcDataTypes as d } from "../utils/ifc-data-types.js";
+import { formatDate, solveUnicode } from "../../utils/format.js";
+import { ifcBoolValues, ifcValueType } from "../../utils/globalProperties.js";
+import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 
 //Each method retrieves information from a given parsed data type
 

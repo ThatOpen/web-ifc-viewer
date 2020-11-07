@@ -1,5 +1,5 @@
 import { vocabulary as v } from "../lexer/lexer.js";
-import { ifcDataTypes as d } from "../utils/ifc-data-types.js";
+import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 import { parser } from "./parser.js";
 
 //Basic syntactical structures (one structure per data type)

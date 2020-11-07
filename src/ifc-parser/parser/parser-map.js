@@ -1,5 +1,5 @@
-import { ifcClass } from "../utils/globalProperties.js";
-import { ifcTypes } from "../utils/ifc-types.js";
+import { ifcClass } from "../../utils/globalProperties.js";
+import { ifcTypes } from "../../utils/ifc-types.js";
 
 const typesParserMap = {};
 

@@ -1,4 +1,4 @@
-import { loadIfcFileItems } from "./ifc-project-builder/processIfc.js";
+import { main } from "../index.js";
 
 export function readIfcFile() {
   const input = document.querySelector('input[type="file"]');
@@ -15,7 +15,7 @@ export function readIfcFile() {
 function readFile(input) {
   const reader = new FileReader();
   reader.onload = () => {
-    loadIfcFileItems(reader.result);
+    main(reader.result);
   };
   reader.readAsText(input.files[0]);
 }

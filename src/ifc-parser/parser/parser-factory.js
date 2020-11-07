@@ -1,6 +1,9 @@
 import { vocabulary as v } from "../lexer/lexer.js";
 import { primitiveParsers } from "./parser-primitives.js";
-import { isDataTypeValid, getAllDataTypes } from "../utils/ifc-data-types.js";
+import {
+  isDataTypeValid,
+  getAllDataTypes,
+} from "../../utils/ifc-data-types.js";
 
 //Creates a syntactical structure (RULEs) given an IFC Class
 

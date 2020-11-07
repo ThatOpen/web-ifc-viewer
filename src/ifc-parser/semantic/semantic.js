@@ -1,7 +1,7 @@
 import { parser } from "../parser/parser.js";
 import { typesParserMap } from "../parser/parser-map.js";
 import { newSemantic } from "./semantic-factory.js";
-import { ifcTypes as t } from "../utils/ifc-types.js";
+import { ifcTypes as t } from "../../utils/ifc-types.js";
 import { primitiveParsers } from "../parser/parser-primitives.js";
 
 //Chevrotain requires a method per syntactical structure of the parser

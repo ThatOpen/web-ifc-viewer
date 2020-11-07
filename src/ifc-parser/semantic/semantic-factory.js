@@ -1,5 +1,13 @@
-import { ifcDataTypes as d, isDataTypeValid } from "../utils/ifc-data-types.js";
-import { ifcClass, undefined } from "../utils/globalProperties.js";
+import {
+  ifcDataTypes as d,
+  isDataTypeValid,
+} from "../../utils/ifc-data-types.js";
+import {
+  ifcClass,
+  type,
+  value,
+  undefined,
+} from "../../utils/globalProperties.js";
 import {
   getSemanticUnit,
   resetSemanticFactory,
@@ -25,7 +33,7 @@ function retrieveIfcObjectProperties(parsed, ifcItem) {
 }
 
 function newSemanticUnit(parsed, dataType) {
-  return { value: getSemanticUnit(parsed, dataType), type: dataType };
+  return { [value]: getSemanticUnit(parsed, dataType), [type]: dataType };
 }
 
 function addClassName(result, ifcItem) {
