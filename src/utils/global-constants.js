@@ -1,19 +1,32 @@
 const namedProps = {
-  undefined: "undefined",
-  ifcClass: "_IfcClass",
-  containsSpatial: "_ContainsSpatialStructures",
+  axis: "Axis",
   containsElements: "_ContainsElements",
-  relatingObject: "RelatingObject",
-  relatedObjects: "RelatedObjects",
+  containsSpatial: "_ContainsSpatialStructures",
+  coordinates: "Coordinates",
+  dirRatios: "DirectionRatios",
+  ifcClass: "_IfcClass",
+  items: "Items",
+  location: "Location",
+  objectPlacement: "ObjectPlacement",
+  placementRelTo: "PlacementRelTo",
+  points: "Points",
+  refDirection: "RefDirection",
   relatedElements: "RelatedElements",
+  relatedObjects: "RelatedObjects",
+  relatingObject: "RelatingObject",
   relatingStructure: "RelatingStructure",
+  relativePlacement: "RelativePlacement",
   representation: "Representation",
   representations: "Representations",
   representationType: "RepresentationType",
-  items: "Items",
-  points: "Points",
-  coordinates: "Coordinates",
-  objectPlacement: "ObjectPlacement",
+  transform: "_Transformation",
+  undefined: "undefined",
+  depth: "Depth",
+  extDirection: "ExtrudedDirection",
+  position: "Position",
+  sweptArea: "SweptArea",
+  xDim: "XDim",
+  YDim: "YDim",
 };
 
 const typeValue = {
@@ -44,6 +57,8 @@ const structuredData = {
   products: "Products",
 };
 
+const defaultValue = "$";
+
 export {
   geometryTypes,
   namedProps,
@@ -51,4 +66,5 @@ export {
   ifcValueType,
   ifcBoolValues,
   structuredData,
+  defaultValue,
 };

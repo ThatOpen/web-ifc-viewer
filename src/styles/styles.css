@@ -38,5 +38,6 @@ body {
   width: 100%;
   pointer-events: all;
   background-color: rgb(61, 61, 61);
+  color: rgb(163, 163, 163);
   border: 2px solid #333333;
 }

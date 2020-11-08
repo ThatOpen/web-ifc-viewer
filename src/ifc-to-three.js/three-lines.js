@@ -1,4 +1,4 @@
-import { scene } from "./scene.js";
+import { scene } from "./three-scene.js";
 
 function createLine(coordinates) {
   const material = new THREE.LineBasicMaterial({

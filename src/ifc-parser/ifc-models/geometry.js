@@ -5,15 +5,15 @@ import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
 
 newObject({
   [n.ifcClass]: getName(t.IfcAxis2Placement2D),
-  Location: d.id,
-  RefDirection: d.id,
+  [n.location]: d.id,
+  [n.refDirection]: d.id,
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcAxis2Placement3D),
-  Location: d.id,
-  Axis: d.id,
-  RefDirection: d.id,
+  [n.location]: d.id,
+  [n.axis]: d.id,
+  [n.refDirection]: d.id,
 });
 
 newObject({
@@ -43,15 +43,15 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcDirection),
-  DirectionRatios: d.numberSet,
+  [n.dirRatios]: d.numberSet,
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcExtrudedAreaSolid),
-  SweptArea: d.id,
-  Position: d.id,
-  ExtrudedDirection: d.id,
-  Depth: d.number,
+  [n.sweptArea]: d.id,
+  [n.position]: d.id,
+  [n.extDirection]: d.id,
+  [n.depth]: d.number,
 });
 
 newObject({
@@ -83,9 +83,9 @@ newObject({
   [n.ifcClass]: getName(t.IfcRectangleProfileDef),
   ProfileType: d.enum,
   ProfileName: d.text,
-  Position: d.id,
-  XDim: d.number,
-  YDim: d.number,
+  [n.position]: d.id,
+  [n.xDim]: d.number,
+  [n.YDim]: d.number,
 });
 
 newObject({

@@ -1,4 +1,4 @@
-import { scene } from "./scene.js";
+import { scene } from "./three-scene.js";
 
 const sprite = new THREE.TextureLoader().load(
   "../../resources/images/point.png"
