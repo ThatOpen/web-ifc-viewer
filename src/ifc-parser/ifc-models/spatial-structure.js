@@ -1,10 +1,10 @@
 import { newObject } from "../parser/parser-map.js";
-import { ifcClass } from "../../utils/globalProperties.js";
+import { namedProps as n } from "../../utils/global-constants.js";
 import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
 
 newObject({
-  [ifcClass]: getName(t.IfcProject),
+  [n.ifcClass]: getName(t.IfcProject),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
@@ -17,14 +17,14 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcSite),
+  [n.ifcClass]: getName(t.IfcSite),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
   ObjectType: d.text,
-  ObjectPlacement: d.id,
-  Representation: d.id,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
   LongName: d.text,
   CompositionType: d.enum,
   RefLatitude: d.numberSet,
@@ -35,14 +35,14 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcBuilding),
+  [n.ifcClass]: getName(t.IfcBuilding),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
   ObjectType: d.text,
-  ObjectPlacement: d.id,
-  Representation: d.id,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
   LongName: d.text,
   CompositionType: d.enum,
   ElevationOfRefHeight: d.number,
@@ -51,28 +51,28 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcBuildingStorey),
+  [n.ifcClass]: getName(t.IfcBuildingStorey),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
   ObjectType: d.text,
-  ObjectPlacement: d.id,
-  Representation: d.id,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
   LongName: d.text,
   CompositionType: d.enum,
   Elevation: d.number,
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcSpace),
+  [n.ifcClass]: getName(t.IfcSpace),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
   ObjectType: d.text,
-  ObjectPlacement: d.id,
-  Representation: d.id,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
   LongName: d.text,
   CompositionType: d.enum,
   InteriorOrExteriorSpace: d.enum,

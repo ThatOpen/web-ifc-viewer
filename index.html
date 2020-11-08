@@ -3,12 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="/src/styles/styles.css" />
+    <script src="./resources/three.js/three.js"></script>
     <title>Document</title>
   </head>
   <body>
-    <div>
-      <input type="file" />
+    <div id="generalContainer">
+      <div id="GUI">
+        <input readonly type="file" id="openFileDialog" />
+        <button
+          class="normalButton"
+          onclick="document.getElementById('openFileDialog').click();"
+        />
+      </div>
+      <canvas id="c"></canvas>
     </div>
     <script type="module" src="index.js"></script>
+    <script src="resources/three.js/smooth-zoom.js"></script>
+    <script type="module" src="/src/ifc-to-three.js/scene.js"></script>
+    <script type="module" src="/src/ifc-to-three.js/ifc-geometry.js"></script>
   </body>
 </html>

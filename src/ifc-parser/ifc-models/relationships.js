@@ -1,24 +1,30 @@
 import { newObject } from "../parser/parser-map.js";
 import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
-import {
-  ifcClass,
-  relatedObjects,
-  relatingObject,
-} from "../../utils/globalProperties.js";
+import { namedProps as n } from "../../utils/global-constants.js";
 
 newObject({
-  [ifcClass]: getName(t.IfcRelAggregates),
+  [n.ifcClass]: getName(t.IfcRelAggregates),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
-  [relatingObject]: d.id,
-  [relatedObjects]: d.idSet,
+  [n.relatingObject]: d.id,
+  [n.relatedObjects]: d.idSet,
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcRelDefinesByProperties),
+  [n.ifcClass]: getName(t.IfcRelContainedInSpatialStructure),
+  GlobalId: d.guid,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  [n.relatedElements]: d.idSet,
+  [n.relatingStructure]: d.id,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcRelDefinesByProperties),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
@@ -28,17 +34,7 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcRelContainedInSpatialStructure),
-  GlobalId: d.guid,
-  OwnerHistory: d.id,
-  Name: d.text,
-  Description: d.text,
-  RelatedElements: d.idSet,
-  RelatingStructure: d.id,
-});
-
-newObject({
-  [ifcClass]: getName(t.IfcRelAssociatesMaterial),
+  [n.ifcClass]: getName(t.IfcRelAssociatesMaterial),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
@@ -48,7 +44,7 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcRelDefinesByType),
+  [n.ifcClass]: getName(t.IfcRelDefinesByType),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
@@ -58,7 +54,7 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcRelSpaceBoundary),
+  [n.ifcClass]: getName(t.IfcRelSpaceBoundary),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
@@ -71,7 +67,7 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcRelConnectsPathElements),
+  [n.ifcClass]: getName(t.IfcRelConnectsPathElements),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
@@ -86,7 +82,7 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcRelVoidsElement),
+  [n.ifcClass]: getName(t.IfcRelVoidsElement),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
@@ -96,7 +92,7 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcRelFillsElement),
+  [n.ifcClass]: getName(t.IfcRelFillsElement),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,

@@ -3,6 +3,7 @@ import { typesParserMap } from "../parser/parser-map.js";
 import { newSemantic } from "./semantic-factory.js";
 import { ifcTypes as t } from "../../utils/ifc-types.js";
 import { primitiveParsers } from "../parser/parser-primitives.js";
+import { namedProps as n } from "../../utils/global-constants.js";
 
 //Chevrotain requires a method per syntactical structure of the parser
 //When the parser outputs a syntactical structure, the visitor
@@ -25,8 +26,8 @@ function createPrimitiveSemantic() {
 
 function createSemantic() {
   Object.values(typesParserMap).forEach((e) => {
-    IfcVisitor.prototype[e["_IfcClass"]] = (parsed) =>
-      getSemantic(t[e["_IfcClass"]], parsed);
+    IfcVisitor.prototype[e[n.ifcClass]] = (parsed) =>
+      getSemantic(t[e[n.ifcClass]], parsed);
   });
 }
 

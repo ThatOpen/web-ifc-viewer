@@ -1,5 +1,5 @@
 import { getName, ifcTypes } from "../ifc-parser/utils/ifc-types.js";
-import { ifcClass } from "../ifc-parser/utils/globalProperties.js";
+import { namedProps as n } from "../utils/global-constants.js";
 
 function findRemainingTypes(items) {
   const remainingTypes = [];
@@ -17,7 +17,7 @@ function filterItems(items, filter) {
   let key;
   for (key in items) {
     const ifcLine = items[key];
-    if (ifcLine && ifcLine[ifcClass] != getName(filter)) {
+    if (ifcLine && ifcLine[n.ifcClass] != getName(filter)) {
       delete items[key];
     }
   }

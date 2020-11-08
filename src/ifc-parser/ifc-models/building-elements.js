@@ -1,61 +1,61 @@
 import { newObject } from "../parser/parser-map.js";
-import { ifcClass } from "../../utils/globalProperties.js";
+import { namedProps as n } from "../../utils/global-constants.js";
 import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
 
 newObject({
-  [ifcClass]: getName(t.IfcMappedItem),
+  [n.ifcClass]: getName(t.IfcMappedItem),
   MappingSource: d.id,
   MappingTarget: d.id,
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcWallStandardCase),
+  [n.ifcClass]: getName(t.IfcWallStandardCase),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
   ObjectType: d.text,
-  ObjectPlacement: d.id,
-  Representation: d.id,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
   Tag: d.text,
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcDoor),
+  [n.ifcClass]: getName(t.IfcDoor),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
   ObjectType: d.text,
-  ObjectPlacement: d.id,
-  Representation: d.id,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
   Tag: d.text,
   OverallHeight: d.number,
   OverallWidth: d.number,
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcSlab),
+  [n.ifcClass]: getName(t.IfcSlab),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
   ObjectType: d.text,
-  ObjectPlacement: d.id,
-  Representation: d.id,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
   Tag: d.text,
   PredefinedType: d.enum,
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcOpeningElement),
+  [n.ifcClass]: getName(t.IfcOpeningElement),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
   ObjectType: d.text,
-  ObjectPlacement: d.id,
-  Representation: d.id,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
   Tag: d.text,
 });

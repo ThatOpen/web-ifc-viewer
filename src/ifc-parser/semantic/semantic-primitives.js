@@ -1,6 +1,6 @@
 import { getParser } from "../parser/parser-primitives.js";
 import { formatDate, solveUnicode } from "../../utils/format.js";
-import { ifcBoolValues, ifcValueType } from "../../utils/globalProperties.js";
+import { ifcBoolValues, ifcValueType } from "../../utils/global-constants.js";
 import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 
 //Each method retrieves information from a given parsed data type
@@ -20,7 +20,7 @@ const semanticUnits = {
   [d.asterisk]: getAsterisk,
 };
 
-function getSemanticUnit(parsed, dataType) {
+function getProperty(parsed, dataType) {
   return semanticUnits[dataType](parsed);
 }
 
@@ -215,4 +215,4 @@ function resetSemanticFactory() {
   };
 }
 
-export { resetSemanticFactory, getSemanticUnit };
+export { resetSemanticFactory, getProperty };

@@ -1,10 +1,10 @@
 import { newObject } from "../parser/parser-map.js";
-import { ifcClass } from "../../utils/globalProperties.js";
+import { namedProps as n } from "../../utils/global-constants.js";
 import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
 
 newObject({
-  [ifcClass]: getName(t.IfcPropertySet),
+  [n.ifcClass]: getName(t.IfcPropertySet),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
@@ -13,7 +13,7 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcPropertySingleValue),
+  [n.ifcClass]: getName(t.IfcPropertySingleValue),
   Name: d.text,
   Description: d.text,
   NominalValue: d.ifcValue,
@@ -21,7 +21,7 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcSpaceType),
+  [n.ifcClass]: getName(t.IfcSpaceType),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
@@ -35,7 +35,7 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcWallType),
+  [n.ifcClass]: getName(t.IfcWallType),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
@@ -49,7 +49,7 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcSlabType),
+  [n.ifcClass]: getName(t.IfcSlabType),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
@@ -63,7 +63,7 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcDoorLiningProperties),
+  [n.ifcClass]: getName(t.IfcDoorLiningProperties),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
@@ -82,7 +82,7 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcDoorPanelProperties),
+  [n.ifcClass]: getName(t.IfcDoorPanelProperties),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,
@@ -95,7 +95,7 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcDoorStyle),
+  [n.ifcClass]: getName(t.IfcDoorStyle),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,

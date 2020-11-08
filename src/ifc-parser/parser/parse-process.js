@@ -2,7 +2,7 @@ import { lexer } from "../lexer/lexer.js";
 import { parser } from "./parser.js";
 import { ifcVisitor } from "../semantic/semantic.js";
 import { parserByType } from "./parser-map.js";
-import { ifcClass } from "../../utils/globalProperties.js";
+import { namedProps as n } from "../../utils/global-constants.js";
 import { ifcTypes } from "../../utils/ifc-types.js";
 
 //The parsing process consists of 4 steps:
@@ -14,7 +14,7 @@ import { ifcTypes } from "../../utils/ifc-types.js";
 function parse(text, ifcType) {
   const lexingResult = lexer.tokenize(text);
   parser.input = lexingResult.tokens;
-  const cstOutput = parser[parserByType(ifcType)[ifcClass]]();
+  const cstOutput = parser[parserByType(ifcType)[n.ifcClass]]();
   return ifcVisitor.visit(cstOutput);
 }
 

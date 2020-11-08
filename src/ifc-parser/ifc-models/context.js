@@ -1,10 +1,10 @@
 import { newObject } from "../parser/parser-map.js";
-import { ifcClass } from "../../utils/globalProperties.js";
+import { namedProps as n } from "../../utils/global-constants.js";
 import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
 
 newObject({
-  [ifcClass]: getName(t.IfcGeometricRepresentationContext),
+  [n.ifcClass]: getName(t.IfcGeometricRepresentationContext),
   ContextIdentifier: d.text,
   ContextType: d.text,
   CoordinateSpaceDimension: d.number,
@@ -14,10 +14,10 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcGeometricRepresentationSubContext),
+  [n.ifcClass]: getName(t.IfcGeometricRepresentationSubContext),
   ContextIdentifier: d.text,
   ContextType: d.text,
-  [undefined]: d.asterisk,
+  [n.undefined]: d.asterisk,
   ParentContext: d.id,
   TargetScale: d.ifcValue,
   TargetView: d.enum,
@@ -25,13 +25,13 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcGridPlacement),
+  [n.ifcClass]: getName(t.IfcGridPlacement),
   PlacementLocation: d.id,
   PlacementRefDirection: d.id,
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcLinearPlacement),
+  [n.ifcClass]: getName(t.IfcLinearPlacement),
   PlacementRelTo: d.id,
   PlacementMeasuredAlong: d.id,
   Distance: d.id,
@@ -40,7 +40,7 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcLocalPlacement),
+  [n.ifcClass]: getName(t.IfcLocalPlacement),
   PlacementRelTo: d.id,
   RelativePlacement: d.id,
 });

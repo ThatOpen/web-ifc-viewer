@@ -1,4 +1,4 @@
-import { ifcClass } from "../utils/globalProperties.js";
+import { namedProps as n } from "../utils/global-constants.js";
 import { getName } from "../utils/ifc-types.js";
 
 class IfcEntityFinder {
@@ -16,7 +16,7 @@ class IfcEntityFinder {
     return matches;
   }
   getType(id) {
-    return this.ifcData[id][ifcClass];
+    return this.ifcData[id][n.ifcClass];
   }
 
   // findByTypes(ifcTypes) {

@@ -1,10 +1,10 @@
 import { newObject } from "../parser/parser-map.js";
-import { ifcClass } from "../../utils/globalProperties.js";
+import { namedProps as n } from "../../utils/global-constants.js";
 import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
 
 newObject({
-  [ifcClass]: getName(t.IfcConversionBasedUnit),
+  [n.ifcClass]: getName(t.IfcConversionBasedUnit),
   Dimensions: d.id,
   UnitType: d.enum,
   Name: d.text,
@@ -12,20 +12,20 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcDerivedUnit),
+  [n.ifcClass]: getName(t.IfcDerivedUnit),
   Elements: d.idSet,
   UnitType: d.enum,
   UserDefinedType: d.text,
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcDerivedUnitElement),
+  [n.ifcClass]: getName(t.IfcDerivedUnitElement),
   Unit: d.id,
   Exponent: d.number,
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcDimensionalExponents),
+  [n.ifcClass]: getName(t.IfcDimensionalExponents),
   LengthExponent: d.number,
   MassExponent: d.number,
   TimeExponent: d.number,
@@ -36,20 +36,20 @@ newObject({
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcMeasureWithUnit),
+  [n.ifcClass]: getName(t.IfcMeasureWithUnit),
   ValueComponent: d.ifcValue,
   UnitComponent: d.id,
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcSIUnit),
-  [undefined]: d.asterisk,
+  [n.ifcClass]: getName(t.IfcSIUnit),
+  [n.undefined]: d.asterisk,
   UnitType: d.enum,
   Prefix: d.enum,
   Name: d.enum,
 });
 
 newObject({
-  [ifcClass]: getName(t.IfcUnitAssignment),
+  [n.ifcClass]: getName(t.IfcUnitAssignment),
   Units: d.idSet,
 });
