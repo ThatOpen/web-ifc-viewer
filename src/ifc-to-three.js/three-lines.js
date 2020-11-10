@@ -12,9 +12,9 @@ function createLine(coordinates) {
   });
 
   const geometry = new THREE.BufferGeometry().setFromPoints(points);
-
   const line = new THREE.Line(geometry, material);
-  scene.add(line);
+
+  return line;
 }
 
 export { createLine };

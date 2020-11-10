@@ -10,6 +10,8 @@ const namedProps = {
   objectPlacement: "ObjectPlacement",
   placementRelTo: "PlacementRelTo",
   points: "Points",
+  rawRepresentation: "_RawRepresentation",
+  rawGeometry: "_RawGeometry",
   refDirection: "RefDirection",
   relatedElements: "RelatedElements",
   relatedObjects: "RelatedObjects",
@@ -20,13 +22,15 @@ const namedProps = {
   representations: "Representations",
   representationType: "RepresentationType",
   transform: "_Transformation",
+  transformedGeometry: "_TransformedGeometry",
+  trueGeometry: "_trueGeometry",
   undefined: "undefined",
   depth: "Depth",
   extDirection: "ExtrudedDirection",
   position: "Position",
   sweptArea: "SweptArea",
   xDim: "XDim",
-  YDim: "YDim",
+  yDim: "YDim",
 };
 
 const typeValue = {
@@ -57,9 +61,17 @@ const structuredData = {
   products: "Products",
 };
 
+const pivots = {
+  pivots: "Pivots",
+  locations: "Locations",
+  xRotation: "xRotation",
+  zRotation: "zRotation",
+};
+
 const defaultValue = "$";
 
 export {
+  pivots,
   geometryTypes,
   namedProps,
   typeValue,

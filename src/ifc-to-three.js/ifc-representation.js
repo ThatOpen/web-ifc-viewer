@@ -1,31 +1,30 @@
 import {
+  defaultValue,
   geometryTypes as g,
   namedProps as n,
+  pivots as p,
   structuredData as s,
   typeValue as t,
 } from "../utils/global-constants.js";
 import { getName, ifcTypes } from "../utils/ifc-types.js";
-import { createExtruded } from "./three-extrudes.js";
+import { getPivots } from "./ifc-pivots.js";
+import { createExtrusion } from "./three-extrudes.js";
 import { createLine } from "./three-lines.js";
 
 function getRepresentations(structured) {
-  const reps = [];
-  structured[s.products].forEach((e) => {
-    reps.push(e[n.representation][t.value][n.representations][t.value]);
+  structured[s.products].forEach((product) => {
+    product[n.rawRepresentation] =
+      product[n.representation][t.value][n.representations][t.value];
+    mapRepresentation(product);
   });
-  mapRepresentations(reps);
-  return reps;
 }
 
-function mapRepresentations(reps) {
-  reps.forEach((e) => mapRepresentation(e));
-}
-
-function mapRepresentation(rep) {
+function mapRepresentation(product) {
   const geometries = [];
-  rep.forEach((e) => {
+  product[n.rawRepresentation].forEach((e) => {
     geometries.push(geometryMap[e[n.representationType][t.value]](e));
   });
+  product[n.rawGeometry] = geometries;
 }
 
 const geometryMap = {
@@ -38,7 +37,7 @@ function mapCurve2D(shape) {
   shape[n.items][t.value][0][n.points][t.value].forEach((e) => {
     points.push(mapPoint(e));
   });
-  createLine(points);
+  return createLine(points);
 }
 
 function mapPoint(point) {
@@ -46,35 +45,69 @@ function mapPoint(point) {
 }
 
 function mapSweptSolid(shape) {
-  const extruded = shape[n.items][t.value][0];
-  const depth = extruded[n.depth][t.value];
-  const direction = extruded[n.extDirection][t.value][n.dirRatios][t.value];
-  const position = extruded[n.position][t.value];
-  // console.log(depth);
-  // console.log(direction);
-  // console.log(position);
-  const profile = extruded[n.sweptArea][t.value];
-  if (profile[n.ifcClass] === getName(ifcTypes.IfcRectangleProfileDef)) {
-    mapRectangularProfileExtrusion(profile);
-  }
-  const points = [
-    [0, 0],
-    [0, 0.1],
-    [7, 0.1],
-    [7, 0],
-  ];
-  createExtruded(points, 3);
+  // const extruded = getExtrusionProps(shape);
+  // if (extruded.ifcClass === getName(ifcTypes.IfcRectangleProfileDef))
+  //   return mapRectangleProfileExtrusion(extruded);
 }
 
-function mapRectangularProfileExtrusion(profile) {
-  const profilePos = profile[n.position][t.value];
-  const profileLoc = profilePos[n.location][t.value][n.coordinates][t.value];
-  const profileDirection =
-    profilePos[n.refDirection][t.value][n.dirRatios][t.value];
-  const profileDims = [profile[n.xDim][t.value], profile[n.YDim][t.value]];
-  // console.log(profileLoc);
-  // console.log(profileDirection);
-  // console.log(profileDims);
+function mapRectangleProfileExtrusion(extruded) {
+  getRectProfileProps(extruded);
+  const points = getRectangleProfilePoints(extruded);
+  const pivots = getPivots(extruded.pivots);
+  return createExtrusion(points, extruded.depth, pivots);
+}
+
+function getRectangleProfilePoints(extruded) {
+  const xDim = extruded[n.xDim] / 2;
+  const yDim = extruded[n.yDim] / 2;
+  return [
+    [-xDim, yDim],
+    [xDim, yDim],
+    [xDim, -yDim],
+    [-xDim, -yDim],
+  ];
+}
+
+function getExtrusionProps(shape) {
+  const extruded = shape[n.items][t.value][0];
+  const position = extruded[n.position][t.value];
+  return {
+    profile: extruded[n.sweptArea][t.value],
+    ifcClass: extruded[n.sweptArea][t.value][n.ifcClass],
+    depth: extruded[n.depth][t.value],
+    direction: extruded[n.extDirection][t.value][n.dirRatios][t.value],
+    pivots: {
+      [p.locations]: [position[n.location][t.value][n.coordinates][t.value]],
+      [p.xRotation]: [getExtrusionXAxis(position)],
+      [p.zRotation]: [getExtrusionZAxis(position)],
+    },
+  };
+}
+
+function getExtrusionZAxis(position) {
+  return position[n.axis][t.value] === defaultValue
+    ? [0, 0, 1]
+    : position[n.axis][t.value][n.dirRatios][t.value];
+}
+
+function getExtrusionXAxis(position) {
+  return position[n.refDirection][t.value] === defaultValue
+    ? [1, 0, 0]
+    : position[n.refDirection][t.value][n.dirRatios][t.value];
+}
+
+function getRectProfileProps(extruded) {
+  const profile = extruded.profile;
+  extruded[n.xDim] = profile[n.xDim][t.value];
+  extruded[n.yDim] = profile[n.yDim][t.value];
+
+  const position = profile[n.position][t.value];
+  const location = position[n.location][t.value][n.coordinates][t.value];
+  extruded.pivots[p.locations].push([location[0], location[1], 0]);
+  extruded.pivots[p.xRotation].push(
+    position[n.refDirection][t.value][n.dirRatios][t.value]
+  );
+  extruded.pivots[p.zRotation].push([0, 0, 1]);
 }
 
 export { getRepresentations };

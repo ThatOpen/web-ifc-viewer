@@ -85,7 +85,7 @@ newObject({
   ProfileName: d.text,
   [n.position]: d.id,
   [n.xDim]: d.number,
-  [n.YDim]: d.number,
+  [n.yDim]: d.number,
 });
 
 newObject({
