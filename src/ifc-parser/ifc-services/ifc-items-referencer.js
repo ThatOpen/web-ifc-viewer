@@ -31,7 +31,7 @@ function referenceMultipleItems(key, ifcLine, items) {
 }
 
 function isItemWithReference(item) {
-  if (item.type === d.ifcValue && !isNaN(item.value)) return true;
+  if (item.type === d.value && !isNaN(item.value)) return true;
   if (item.type === d.id) return true;
   return false;
 }

@@ -7,7 +7,7 @@ import {
 
 //Creates a syntactical structure (RULEs) given an IFC Class
 
-function createNewParser($, ifcItem) {
+function newParser($, ifcItem) {
   resetParserFactory();
   $.CONSUME(v.OpenPar);
   createRulesForAllProperties($, ifcItem);
@@ -49,4 +49,4 @@ function getIndex(dataType) {
   return counter[dataType] === 0 ? "" : counter[dataType];
 }
 
-export { createNewParser as newParser, resetParserFactory };
+export { newParser, resetParserFactory };

@@ -49,13 +49,13 @@ newObject({
 newObject({
   [n.ifcClass]: getName(t.IfcSurfaceStyleRendering),
   SurfaceColour: d.id,
-  Transparency: d.ifcValue,
-  DiffuseColour: d.ifcValue,
-  TransmissionColour: d.ifcValue,
-  DiffuseTransmissionColour: d.ifcValue,
-  ReflectionColour: d.ifcValue,
-  SpecularColour: d.ifcValue,
-  SpecularHighlight: d.ifcValue,
+  Transparency: d.value,
+  DiffuseColour: d.value,
+  TransmissionColour: d.value,
+  DiffuseTransmissionColour: d.value,
+  ReflectionColour: d.value,
+  SpecularColour: d.value,
+  SpecularHighlight: d.value,
   ReflectanceMethod: d.enum,
 });
 

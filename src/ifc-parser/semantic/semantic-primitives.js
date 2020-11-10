@@ -1,6 +1,9 @@
 import { getParser } from "../parser/parser-primitives.js";
-import { formatDate, solveUnicode } from "../../utils/format.js";
-import { ifcBoolValues, ifcValueType } from "../../utils/global-constants.js";
+import { formatDate, unicode } from "../../utils/format.js";
+import {
+  ifcBoolValues,
+  ifcValueType as v,
+} from "../../utils/global-constants.js";
 import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 
 //Each method retrieves information from a given parsed data type
@@ -12,186 +15,16 @@ const semanticUnits = {
   [d.text]: getIfcText,
   [d.textSet]: getTextSet,
   [d.number]: getNumber,
-  [d.numberSet]: getNumberSet,
+  [d.numSet]: getNumberSet,
   [d.date]: getDate,
-  [d.ifcValue]: getIfcValue,
+  [d.value]: getIfcValue,
   [d.bool]: getBool,
   [d.enum]: getEnum,
   [d.asterisk]: getAsterisk,
 };
 
-function getProperty(parsed, dataType) {
-  return semanticUnits[dataType](parsed);
-}
-
-function getGuid(parsed) {
-  return parsed[getParser(d.guid).name][
-    counter[d.guid]++
-  ].children.IfcGuid[0].image.slice(1, -1);
-}
-
-function getAsterisk() {
-  return "*";
-}
-
-function getBool(parsed) {
-  if (parsed[getParser(d.bool).name][counter[d.bool]].children.DefaultValue)
-    parsed[getParser(d.bool).name][counter[d.bool]++].children.DefaultValue[0]
-      .image;
-
-  const ifcBool =
-    parsed[getParser(d.bool).name][counter[d.bool]++].children.Boolean[0].image;
-
-  return ifcBool === ifcBoolValues.trueValue ? true : false;
-}
-
-function getEnum(parsed) {
-  return parsed[getParser(d.enum).name][counter[d.enum]].children.DefaultValue
-    ? parsed[getParser(d.enum).name][counter[d.enum]++].children.DefaultValue[0]
-        .image
-    : parsed[getParser(d.enum).name][
-        counter[d.enum]++
-      ].children.Enum[0].image.slice(1, -1);
-}
-
-function getNumber(parsed) {
-  return parsed[getParser(d.number).name][counter[d.number]].children
-    .DefaultValue
-    ? parsed[getParser(d.number).name][counter[d.number]++].children
-        .DefaultValue[0].image
-    : Number(
-        parsed[getParser(d.number).name][counter[d.number]++].children.Number[0]
-          .image
-      );
-}
-
-function getDate(parsed) {
-  return formatDate(getNumber(parsed));
-}
-
-function getExpressId(parsed) {
-  return parsed[getParser(d.id).name][counter[d.id]].children.DefaultValue
-    ? parsed[getParser(d.id).name][counter[d.id]++].children.DefaultValue[0]
-        .image
-    : Number(
-        parsed[getParser(d.id).name][
-          counter[d.id]++
-        ].children.ExpressId[0].image.slice(1)
-      );
-}
-
-function getIfcText(parsed) {
-  if (parsed[getParser(d.text).name][counter[d.text]].children.DefaultValue)
-    return parsed[getParser(d.text).name][counter[d.text]++].children
-      .DefaultValue[0].image;
-
-  if (parsed[getParser(d.text).name][counter[d.text]].children.EmptyText) {
-    counter[d.text]++;
-    return "";
-  }
-
-  return solveUnicode(
-    parsed[getParser(d.text).name][
-      counter[d.text]++
-    ].children.Text[0].image.slice(1, -1)
-  );
-}
-
-function getTextSet(parsed) {
-  if (
-    parsed[getParser(d.textSet).name][counter[d.textSet]].children.DefaultValue
-  )
-    return parsed[getParser(d.textSet).name][counter[d.textSet]++].children
-      .DefaultValue[0].image;
-
-  if (parsed[getParser(d.textSet).name][counter[d.textSet]].children.Text)
-    return parsed[getParser(d.textSet).name][
-      counter[d.textSet]++
-    ].children.Text.map((e) => solveUnicode(e.image.slice(1, -1)));
-
-  counter[d.textSet]++;
-  return [];
-}
-
-function getIdSet(parsed) {
-  if (parsed[getParser(d.idSet).name][counter[d.idSet]].children.DefaultValue)
-    return parsed[getParser(d.idSet).name][counter[d.idSet]++].children
-      .DefaultValue[0].image;
-
-  if (parsed[getParser(d.idSet).name][counter[d.idSet]].children.ExpressId)
-    return parsed[getParser(d.idSet).name][
-      counter[d.idSet]++
-    ].children.ExpressId.map((e) => Number(e.image.slice(1)));
-
-  counter[d.idSet]++;
-  return [];
-}
-
-function getNumberSet(parsed) {
-  if (parsed[getParser(d.numberSet).name][counter[d.numberSet]].children.Number)
-    return parsed[getParser(d.numberSet).name][
-      counter[d.numberSet]++
-    ].children.Number.map((e) => Number(e.image));
-
-  counter[d.numberSet]++;
-  return [];
-}
-
-function getIfcValue(parsed) {
-  if (
-    parsed[getParser(d.ifcValue).name][counter[d.ifcValue]].children
-      .DefaultValue
-  )
-    return parsed[getParser(d.ifcValue).name][counter[d.ifcValue]++].children
-      .DefaultValue[0].image;
-
-  if (
-    parsed[getParser(d.ifcValue).name][counter[d.ifcValue]].children.ExpressId
-  )
-    return Number(
-      parsed[getParser(d.ifcValue).name][
-        counter[d.ifcValue]++
-      ].children.ExpressId[0].image.slice(1)
-    );
-
-  let type = getIfcValueType(parsed);
-  let value =
-    parsed[getParser(d.ifcValue).name][counter[d.ifcValue]].children[type][0]
-      .image;
-  value = formatIfcValue(value, type);
-
-  return {
-    Value: value,
-    IfcUnit: getIfcUnit(parsed),
-  };
-}
-
-function formatIfcValue(value, type) {
-  if (type === ifcValueType.number) return Number(value);
-  if (type === ifcValueType.text) return solveUnicode(value.slice(1, -1));
-  if (type === ifcValueType.bool)
-    return value === ifcBoolValues.trueValue ? true : false;
-  return value;
-}
-
-function getIfcValueType(parsed) {
-  return parsed[getParser(d.ifcValue).name][counter[d.ifcValue]].children.Number
-    ? ifcValueType.number
-    : parsed[getParser(d.ifcValue).name][counter[d.ifcValue]].children.Text
-    ? ifcValueType.text
-    : parsed[getParser(d.ifcValue).name][counter[d.ifcValue]].children.Boolean
-    ? ifcValueType.bool
-    : ifcValueType.enum;
-}
-
-function getIfcUnit(parsed) {
-  const ifcUnit = parsed[getParser(d.ifcValue).name][counter[d.ifcValue]]
-    .children.IfcValue
-    ? parsed[getParser(d.ifcValue).name][counter[d.ifcValue]].children
-        .IfcValue[0].image
-    : "";
-  counter[d.ifcValue]++;
-  return ifcUnit;
+function getProperty(parsed, type) {
+  return semanticUnits[type](parsed);
 }
 
 //The counter is necessary because chevrotain generates indexed
@@ -208,11 +41,177 @@ function resetSemanticFactory() {
     [d.number]: 0,
     [d.enum]: 0,
     [d.idSet]: 0,
-    [d.numberSet]: 0,
-    [d.ifcValue]: 0,
+    [d.numSet]: 0,
+    [d.value]: 0,
     [d.textSet]: 0,
     [d.bool]: 0,
   };
+}
+
+function getGuid(parsed) {
+  return extract(parsed, d.guid).slice(1, -1);
+}
+
+function getBool(parsed) {
+  return getValue(parsed, d.bool, formatBool);
+}
+
+function getEnum(parsed) {
+  return getValue(parsed, d.enum, formatEnum);
+}
+
+function getNumber(parsed) {
+  return getValue(parsed, d.number, formatNumber);
+}
+
+function getDate(parsed) {
+  return formatDate(getNumber(parsed));
+}
+
+function getExpressId(parsed) {
+  return getValue(parsed, d.id, formatId);
+}
+
+function getIfcText(parsed) {
+  return getValue(parsed, d.text, formatText);
+}
+
+function getTextSet(parsed) {
+  return getSet(parsed, d.textSet, d.text, (e) =>
+    unicode(e.image.slice(1, -1))
+  );
+}
+
+function getIdSet(parsed) {
+  return getSet(parsed, d.idSet, d.id, (e) => Number(e.image.slice(1)));
+}
+
+function getNumberSet(parsed) {
+  return getSet(parsed, d.numSet, d.number, (e) => Number(e.image));
+}
+
+function getIfcValue(parsed) {
+  if (isDefaultValue(parsed, d.value)) return getDefault(parsed, d.value);
+  if (isExpressId(parsed, d.value)) return getIfcValueId(parsed, d.value);
+  let type = getIfcValueType(parsed);
+  const value = formatIfcValue(type, getIfcValueValue(parsed, type));
+  return { Value: value, IfcUnit: getIfcUnit(parsed) };
+}
+
+function getEmptySet(type) {
+  counter[type]++;
+  return [];
+}
+
+function getAsterisk() {
+  return "*";
+}
+
+function getValue(parsed, type, formatFunction) {
+  if (isDefaultValue(parsed, type)) return getDefault(parsed, type);
+  if (isEmptyText(parsed, type)) return getEmptyText(type);
+  return formatFunction(extract(parsed, type));
+}
+
+function getSet(parsed, type, subtype, mapFunction) {
+  if (isDefaultValue(parsed, type)) return getDefault(parsed, type);
+  if (isEmptySet(parsed, type, subtype)) return getEmptySet(type);
+  return parsed[getParser(type)][counter[type]++].children[subtype].map(
+    mapFunction
+  );
+}
+
+function extract(parsed, type) {
+  return getContent(parsed[getParser(type)], type);
+}
+
+function getContent(subParsed, type) {
+  return subParsed[counter[type]++].children[type][0].image;
+}
+
+function formatId(id) {
+  return Number(id.slice(1));
+}
+
+function formatText(text) {
+  return unicode(text.slice(1, -1));
+}
+
+function formatNumber(number) {
+  return Number(number);
+}
+
+function formatBool(bool) {
+  return bool === ifcBoolValues.trueValue ? true : false;
+}
+
+function formatEnum(enumValue) {
+  return enumValue.slice(1, -1);
+}
+
+function isDefaultValue(parsed, type) {
+  return parsed[getParser(type)][counter[type]].children[d.default]
+    ? true
+    : false;
+}
+
+function isEmptyText(parsed, type) {
+  return parsed[getParser(type)][counter[type]].children[d.emptyText]
+    ? true
+    : false;
+}
+
+function isEmptySet(parsed, type, subtype) {
+  return parsed[getParser(type)][counter[type]].children[subtype]
+    ? false
+    : true;
+}
+
+function getDefault(parsed, type) {
+  return parsed[getParser(type)][counter[type]++].children[d.default][0].image;
+}
+
+function getEmptyText(type) {
+  counter[type]++;
+  return "";
+}
+
+function isExpressId(parsed, type) {
+  return parsed[getParser(type)][counter[type]].children[d.id] ? true : false;
+}
+
+function getIfcValueId(parsed, type) {
+  const rawId =
+    parsed[getParser(type)][counter[type]++].children[d.id][0].image;
+  return Number(rawId.slice(1));
+}
+
+function getIfcValueValue(parsed, type) {
+  return parsed[getParser(d.value)][counter[d.value]].children[type][0].image;
+}
+
+function formatIfcValue(type, value) {
+  if (type === v.number) return formatNumber(value);
+  if (type === v.text) return formatText(value);
+  if (type === v.bool) return formatBool(value);
+  if (type === v.enum) return formatEnum(value);
+  return value;
+}
+
+function getIfcValueType(parsed) {
+  const data = parsed[getParser(d.value)][counter[d.value]].children;
+  if (data[d.number]) return v.number;
+  if (data[d.text]) return v.text;
+  if (data[d.bool]) return v.bool;
+  return v.enum;
+}
+
+function getIfcUnit(parsed) {
+  const ifcUnit = parsed[getParser(d.value)][counter[d.value]].children[d.value]
+    ? parsed[getParser(d.value)][counter[d.value]].children[d.value][0].image
+    : "";
+  counter[d.value]++;
+  return ifcUnit;
 }
 
 export { resetSemanticFactory, getProperty };

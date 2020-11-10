@@ -16,7 +16,7 @@ newObject({
   [n.ifcClass]: getName(t.IfcPropertySingleValue),
   Name: d.text,
   Description: d.text,
-  NominalValue: d.ifcValue,
+  NominalValue: d.value,
   Unit: d.id,
 });
 
@@ -89,7 +89,7 @@ newObject({
   Description: d.text,
   PanelDepth: d.number,
   PanelOperation: d.enum,
-  PanelWidth: d.ifcValue,
+  PanelWidth: d.value,
   PanelPosition: d.enum,
   ShapeAspectStyle: d.id,
 });

@@ -1,4 +1,5 @@
 import "../../../node_modules/chevrotain/lib/chevrotain.js";
+import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 const newToken = chevrotain.createToken;
 const Lexer = chevrotain.Lexer;
 
@@ -7,16 +8,16 @@ const Lexer = chevrotain.Lexer;
 const tokens = [];
 
 const patterns = {
-  ExpressId: /#\d+/,
-  IfcGuid: /'[a-zA-Z0-9_$]{22}'(?=[\)|,])/,
-  Asterisk: /\*/,
-  DefaultValue: /\$/,
-  EmptyText: /''(?=[\)|,])/,
-  IfcValue: /IFC[A-Z]+?(?=\()/,
-  Boolean: /\.T\.|\.F\./,
-  Enum: /\.[A-Z0-9_]+?\./,
-  Number: /[0-9.E-]+/,
-  Text: /'.+?'(?=[\)|,])/,
+  [d.id]: /#\d+/,
+  [d.guid]: /'[a-zA-Z0-9_$]{22}'(?=[\)|,])/,
+  [d.asterisk]: /\*/,
+  [d.default]: /\$/,
+  [d.emptyText]: /''(?=[\)|,])/,
+  [d.value]: /IFC[A-Z]+?(?=\()/,
+  [d.bool]: /\.T\.|\.F\./,
+  [d.enum]: /\.[A-Z0-9_]+?\./,
+  [d.number]: /[0-9.E-]+/,
+  [d.text]: /'.+?'(?=[\)|,])/,
   EqualSign: /=/,
   OpenPar: /\(/,
   ClosePar: /\)/,

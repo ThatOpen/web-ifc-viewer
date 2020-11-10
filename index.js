@@ -7,6 +7,7 @@ readIfcFile();
 
 function main(ifcData) {
   const loaded = loadIfcFileItems(ifcData);
+  console.log(loaded);
   const structured = constructProject(loaded);
   buildGeometry(structured);
 }

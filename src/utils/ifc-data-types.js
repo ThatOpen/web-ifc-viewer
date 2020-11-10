@@ -1,16 +1,18 @@
 const ifcDataTypes = {
+  asterisk: "Asterisk",
+  bool: "Boolean",
+  date: "Date",
+  default: "DefaultValue",
+  emptyText: "EmptyText",
+  enum: "Enum",
   guid: "Guid",
   id: "ExpressId",
   idSet: "ExpressIdSet",
+  value: "IfcValue",
+  number: "Number",
+  numSet: "NumberSet",
   text: "Text",
   textSet: "TextSet",
-  number: "Number",
-  date: "Date",
-  numberSet: "NumberSet",
-  enum: "Enum",
-  bool: "Boolean",
-  ifcValue: "IfcValue",
-  asterisk: "Asterisk",
 };
 
 function isDataTypeValid(dataType) {

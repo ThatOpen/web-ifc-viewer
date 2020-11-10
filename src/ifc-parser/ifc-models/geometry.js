@@ -25,7 +25,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcCartesianPoint),
-  [n.coordinates]: d.numberSet,
+  [n.coordinates]: d.numSet,
 });
 
 newObject({
@@ -43,7 +43,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcDirection),
-  [n.dirRatios]: d.numberSet,
+  [n.dirRatios]: d.numSet,
 });
 
 newObject({

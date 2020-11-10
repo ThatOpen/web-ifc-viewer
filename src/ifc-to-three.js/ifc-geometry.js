@@ -7,7 +7,6 @@ import { getRepresentations } from "./ifc-representation.js";
 import { scene } from "./three-scene.js";
 
 function buildGeometry(structured) {
-  console.log(structured);
   getRepresentations(structured);
   applyTransformations(structured);
   structured[s.products].forEach((e) => {

@@ -75,8 +75,8 @@ newObject({
   ConnectionGeometry: d.id,
   RelatingElement: d.id,
   RelatedElement: d.id,
-  RelatingPriorities: d.numberSet,
-  RelatedPriorities: d.numberSet,
+  RelatingPriorities: d.numSet,
+  RelatedPriorities: d.numSet,
   RelatedConnectionType: d.enum,
   RelatingConnectionType: d.enum,
 });

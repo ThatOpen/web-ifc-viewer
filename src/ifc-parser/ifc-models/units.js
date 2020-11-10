@@ -37,7 +37,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcMeasureWithUnit),
-  ValueComponent: d.ifcValue,
+  ValueComponent: d.value,
   UnitComponent: d.id,
 });
 

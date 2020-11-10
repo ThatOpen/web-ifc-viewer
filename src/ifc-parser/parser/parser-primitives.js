@@ -24,18 +24,18 @@ const primitiveParsers = {
   [d.enum]: IfcEnum_Parser,
   [d.id]: IfcExpressId_Parser,
   [d.idSet]: IdSet_Parser,
-  [d.numberSet]: NumberSet_Parser,
-  [d.ifcValue]: IfcValue_Parser,
+  [d.numSet]: NumberSet_Parser,
+  [d.value]: IfcValue_Parser,
   [d.textSet]: TextSet_Parser,
 };
 
 function getParser(dataType) {
-  return primitiveParsers[dataType];
+  return primitiveParsers[dataType].name;
 }
 
 function IfcGuid_Parser($) {
   return () => {
-    $.CONSUME(v.IfcGuid);
+    $.CONSUME(v[d.guid]);
     $.OPTION(() => {
       $.CONSUME(v.Comma);
     });
@@ -48,21 +48,13 @@ function Asterisk_Parser($) {
       $.OR([
         {
           ALT: () => {
-            $.CONSUME(v.Asterisk);
-          },
-        },
-        {
-          ALT: () => {
-            $.CONSUME(v.DefaultValue);
+            $.CONSUME(v[d.asterisk]);
           },
         },
       ]);
       $.OPTION(() => {
         $.CONSUME(v.Comma);
       });
-    });
-    $.OPTION2(() => {
-      $.CONSUME2(v.Comma);
     });
   };
 }
@@ -77,22 +69,22 @@ function IfcValue_Parser($) {
           $.OR2([
             {
               ALT: () => {
-                $.CONSUME(v.Number);
+                $.CONSUME(v[d.number]);
               },
             },
             {
               ALT: () => {
-                $.CONSUME(v.Text);
+                $.CONSUME(v[d.text]);
               },
             },
             {
               ALT: () => {
-                $.CONSUME(v.Boolean);
+                $.CONSUME(v[d.bool]);
               },
             },
             {
               ALT: () => {
-                $.CONSUME(v.Enum);
+                $.CONSUME(v[d.enum]);
               },
             },
           ]);
@@ -101,17 +93,17 @@ function IfcValue_Parser($) {
       },
       {
         ALT: () => {
-          $.CONSUME(v.ExpressId);
+          $.CONSUME(v[d.id]);
         },
       },
       {
         ALT: () => {
-          $.CONSUME2(v.Number);
+          $.CONSUME2(v[d.number]);
         },
       },
       {
         ALT: () => {
-          $.CONSUME(v.DefaultValue);
+          $.CONSUME(v[d.default]);
         },
       },
     ]);
@@ -126,12 +118,12 @@ function Number_Parser($) {
     $.OR([
       {
         ALT: () => {
-          $.CONSUME(v.DefaultValue);
+          $.CONSUME(v[d.default]);
         },
       },
       {
         ALT: () => {
-          $.CONSUME(v.Number);
+          $.CONSUME(v[d.number]);
         },
       },
     ]);
@@ -148,7 +140,7 @@ function NumberSet_Parser($) {
         ALT: () => {
           $.CONSUME(v.OpenPar);
           $.MANY(() => {
-            $.CONSUME(v.Number);
+            $.CONSUME(v[d.number]);
             $.OPTION(() => {
               $.CONSUME(v.Comma);
             });
@@ -158,7 +150,7 @@ function NumberSet_Parser($) {
       },
       {
         ALT: () => {
-          $.CONSUME(v.DefaultValue);
+          $.CONSUME(v[d.default]);
         },
       },
     ]);
@@ -175,7 +167,7 @@ function TextSet_Parser($) {
         ALT: () => {
           $.CONSUME(v.OpenPar);
           $.MANY(() => {
-            $.CONSUME(v.Text);
+            $.CONSUME(v[d.text]);
             $.OPTION(() => {
               $.CONSUME(v.Comma);
             });
@@ -185,7 +177,7 @@ function TextSet_Parser($) {
       },
       {
         ALT: () => {
-          $.CONSUME(v.DefaultValue);
+          $.CONSUME(v[d.default]);
         },
       },
     ]);
@@ -202,7 +194,7 @@ function IdSet_Parser($) {
         ALT: () => {
           $.CONSUME(v.OpenPar);
           $.MANY(() => {
-            $.CONSUME(v.ExpressId);
+            $.CONSUME(v[d.id]);
             $.OPTION(() => {
               $.CONSUME(v.Comma);
             });
@@ -212,7 +204,7 @@ function IdSet_Parser($) {
       },
       {
         ALT: () => {
-          $.CONSUME(v.DefaultValue);
+          $.CONSUME(v[d.default]);
         },
       },
     ]);
@@ -227,17 +219,17 @@ function IfcText_Parser($) {
     $.OR([
       {
         ALT: () => {
-          $.CONSUME(v.EmptyText);
+          $.CONSUME(v[d.emptyText]);
         },
       },
       {
         ALT: () => {
-          $.CONSUME(v.DefaultValue);
+          $.CONSUME(v[d.default]);
         },
       },
       {
         ALT: () => {
-          $.CONSUME(v.Text);
+          $.CONSUME(v[d.text]);
         },
       },
     ]);
@@ -252,12 +244,12 @@ function IfcBool_Parser($) {
     $.OR([
       {
         ALT: () => {
-          $.CONSUME(v.Boolean);
+          $.CONSUME(v[d.bool]);
         },
       },
       {
         ALT: () => {
-          $.CONSUME(v.DefaultValue);
+          $.CONSUME(v[d.default]);
         },
       },
     ]);
@@ -272,12 +264,12 @@ function IfcEnum_Parser($) {
     $.OR([
       {
         ALT: () => {
-          $.CONSUME(v.Enum);
+          $.CONSUME(v[d.enum]);
         },
       },
       {
         ALT: () => {
-          $.CONSUME(v.DefaultValue);
+          $.CONSUME(v[d.default]);
         },
       },
     ]);
@@ -292,12 +284,12 @@ function IfcExpressId_Parser($) {
     $.OR([
       {
         ALT: () => {
-          $.CONSUME(v.ExpressId);
+          $.CONSUME(v[d.id]);
         },
       },
       {
         ALT: () => {
-          $.CONSUME(v.DefaultValue);
+          $.CONSUME(v[d.default]);
         },
       },
     ]);

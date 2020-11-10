@@ -19,7 +19,7 @@ newObject({
   ContextType: d.text,
   [n.undefined]: d.asterisk,
   ParentContext: d.id,
-  TargetScale: d.ifcValue,
+  TargetScale: d.value,
   TargetView: d.enum,
   UserDefinedTargetView: d.text,
 });
