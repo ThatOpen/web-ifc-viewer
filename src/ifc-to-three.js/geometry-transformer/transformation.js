@@ -4,8 +4,8 @@ import {
   pivots as p,
   structuredData as s,
   typeValue as t,
-} from "../utils/global-constants.js";
-import { getPivots } from "./ifc-pivots.js";
+} from "../../utils/global-constants.js";
+import { getPivots } from "./pivots.js";
 
 function applyTransformations(structured) {
   structured[s.products].forEach((e) => {
@@ -19,7 +19,6 @@ function applyTransforms(product) {
   product[n.rawGeometry].forEach((e) => {
     if (e) pivots[pivots.length - 1].add(e);
   });
-  // console.log(pivots);
   product[n.trueGeometry] = pivots[0];
 }
 

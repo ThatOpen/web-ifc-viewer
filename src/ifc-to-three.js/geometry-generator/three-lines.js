@@ -1,4 +1,4 @@
-import { scene } from "./three-scene.js";
+import { scene } from "../scene/three-scene.js";
 
 function createLine(coordinates) {
   const material = new THREE.LineBasicMaterial({
@@ -8,7 +8,7 @@ function createLine(coordinates) {
 
   const points = [];
   coordinates.forEach((e) => {
-    points.push(new THREE.Vector3(e[0], e[1], e[2] ? e[2] : 0));
+    points.push(new THREE.Vector3(e[1], 0, e[0]));
   });
 
   const geometry = new THREE.BufferGeometry().setFromPoints(points);

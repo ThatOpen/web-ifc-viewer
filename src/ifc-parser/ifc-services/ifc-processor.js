@@ -13,9 +13,11 @@ import { ifcTypes as t } from "../../utils/ifc-types.js";
 import { parse } from "../parser/parse-process.js";
 import { readIfcItems } from "./ifc-items-reader.js";
 import { referenceEntities } from "./ifc-items-referencer.js";
+import { findRemainingTypes } from "../../dev/functions-for-development.js";
 
 function loadIfcFileItems(ifcData) {
   const ifcItems = readIfcItems(ifcData);
+  findRemainingTypes(ifcItems);
   return loadItems(ifcItems);
 }
 

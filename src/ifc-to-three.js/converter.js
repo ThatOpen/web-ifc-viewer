@@ -2,9 +2,9 @@ import {
   namedProps as n,
   structuredData as s,
 } from "../utils/global-constants.js";
-import { applyTransformations } from "./ifc-reference.js";
-import { getRepresentations } from "./ifc-representation.js";
-import { scene } from "./three-scene.js";
+import { applyTransformations } from "./geometry-transformer/transformation.js";
+import { getRepresentations } from "./geometry-generator/geometry-mapper.js";
+import { scene } from "./scene/three-scene.js";
 
 function buildGeometry(structured) {
   getRepresentations(structured);

@@ -89,6 +89,13 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcArbitraryClosedProfileDef),
+  ProfileType: d.enum,
+  ProfileName: d.text,
+  [n.outerCurve]: d.id,
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcShapeRepresentation),
   ContextOfItems: d.id,
   RepresentationIdentifier: d.text,

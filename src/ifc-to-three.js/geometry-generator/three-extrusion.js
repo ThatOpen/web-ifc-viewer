@@ -1,4 +1,4 @@
-import { scene } from "./three-scene.js";
+import { scene } from "../scene/three-scene.js";
 
 function createExtrusion(points, depth, pivots) {
   // Material for mesh
@@ -26,8 +26,7 @@ function createExtrusion(points, depth, pivots) {
   //Mesh
   var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings2);
   var mesh = new THREE.Mesh(geometry, material);
-  //For some reason, extrusions are rotated 90º locally
-  mesh.rotation.y = mesh.rotation.y + Math.PI / 2;
+  mesh.rotation.y += Math.PI;
   if (pivots.length === 0) return mesh;
 
   //Transform

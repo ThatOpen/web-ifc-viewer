@@ -1,4 +1,4 @@
-import { getName, ifcTypes } from "../ifc-parser/utils/ifc-types.js";
+import { getName, ifcTypes } from "../utils/ifc-types.js";
 import { namedProps as n } from "../utils/global-constants.js";
 
 function findRemainingTypes(items) {
@@ -10,7 +10,7 @@ function findRemainingTypes(items) {
       }
     }
   });
-  console.log(remainingTypes);
+  if (remainingTypes.length > 0) console.log(remainingTypes);
 }
 
 function filterItems(items, filter) {

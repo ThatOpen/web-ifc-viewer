@@ -16,6 +16,7 @@ const ifcTypes = {
   IfcLinearPlacement: "IFCLINEARPLACEMENT",
   IfcLocalPlacement: "IFCLOCALPLACEMENT",
   //Geometry
+  IfcArbitraryClosedProfileDef: "IFCARBITRARYCLOSEDPROFILEDEF",
   IfcAxis2Placement2D: "IFCAXIS2PLACEMENT2D",
   IfcAxis2Placement3D: "IFCAXIS2PLACEMENT3D",
   IfcBooleanClippingResult: "IFCBOOLEANCLIPPINGRESULT",
