@@ -1,0 +1,32 @@
+{
+  "name": "ifc.js",
+  "version": "1.0.0",
+  "description": "IFC viewer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agviegas/IFC.js.git"
+  },
+  "keywords": [
+    "ifc",
+    "geometry",
+    "threejs",
+    "bim",
+    "3d"
+  ],
+  "author": "agviegas",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/agviegas/IFC.js/issues"
+  },
+  "homepage": "https://github.com/agviegas/IFC.js#readme",
+  "dependencies": {
+    "chevrotain": "^7.0.3"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.1"
+  }
+}
