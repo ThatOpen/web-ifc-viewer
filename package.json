@@ -4,6 +4,7 @@
   "description": "IFC viewer",
   "main": "index.js",
   "scripts": {
+    "dev": "live-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -24,7 +25,8 @@
   },
   "homepage": "https://github.com/agviegas/IFC.js#readme",
   "dependencies": {
-    "chevrotain": "^7.0.3"
+    "chevrotain": "^7.0.3",
+    "three": "^0.122.0"
   },
   "devDependencies": {
     "live-server": "^1.2.1"
