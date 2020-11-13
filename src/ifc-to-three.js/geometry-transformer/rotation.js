@@ -11,10 +11,12 @@ function isStraightAngle(axis) {
 function getStraightAngle(axis) {
   if (axis[1] === 0 && axis[0] < 0) return Math.PI;
   if (axis[0] === 0 && axis[1] < 0) return (3 * Math.PI) / 2;
+  if (axis[0] === 0 && axis[1] > 0) return -(3 * Math.PI) / 2;
   return 0;
 }
 
 function correctAngle(axis) {
+  if (axis[0] < 0) return Math.PI;
   return 0;
 }
 
