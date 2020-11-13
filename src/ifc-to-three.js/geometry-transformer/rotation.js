@@ -9,14 +9,13 @@ function isStraightAngle(axis) {
 }
 
 function getStraightAngle(axis) {
-  if (axis[0] === 0 && axis[1] > 0) return Math.PI / 2;
   if (axis[1] === 0 && axis[0] < 0) return Math.PI;
   if (axis[0] === 0 && axis[1] < 0) return (3 * Math.PI) / 2;
   return 0;
 }
 
 function correctAngle(axis) {
-  return axis[0] < 0 ? Math.PI : 0;
+  return 0;
 }
 
 function getVerticalRotation(axis) {

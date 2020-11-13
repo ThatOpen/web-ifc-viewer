@@ -1,17 +1,16 @@
-import { getPivots } from "../geometry-transformer/pivots.js";
+import { trackProfileTransform } from "../geometry-transformer/local-transform-tracker.js";
 import { createExtrusion } from "./three-extrusion.js";
 import {
   namedProps as n,
-  pivots as p,
   typeValue as t,
 } from "../../utils/global-constants.js";
+import { applyTransformsTo } from "../geometry-transformer/local-transform-applier.js";
 
-function mapRectangleProfileExtrusion(extruded) {
+function mapRectangleProfileExtrusion(extruded, product) {
   getgetRectProfileDimensions(extruded);
-  getRectProfilePivots(extruded);
+  trackProfileTransform(product, extruded.profile);
   const points = getRectProfilePoints(extruded);
-  const pivots = getPivots(extruded.pivots);
-  return createExtrusion(points, extruded.depth, pivots);
+  return createExtrusion(points, extruded.depth);
 }
 
 function getRectProfilePoints(extruded) {
@@ -23,18 +22,6 @@ function getRectProfilePoints(extruded) {
     [xDim, -yDim],
     [-xDim, -yDim],
   ];
-}
-
-function getRectProfilePivots(extruded) {
-  console.log(extruded);
-  const profile = extruded.profile;
-  const position = profile[n.position][t.value];
-  const location = position[n.location][t.value][n.coordinates][t.value];
-  extruded.pivots[p.locations].push([location[0], location[1], 0]);
-  extruded.pivots[p.xRotation].push(
-    position[n.refDirection][t.value][n.dirRatios][t.value]
-  );
-  extruded.pivots[p.zRotation].push([0, 0, 1]);
 }
 
 function getgetRectProfileDimensions(extruded) {

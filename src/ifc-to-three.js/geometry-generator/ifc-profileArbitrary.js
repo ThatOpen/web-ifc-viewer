@@ -1,5 +1,4 @@
 import { createExtrusion } from "./three-extrusion.js";
-import { getPivots } from "../geometry-transformer/pivots.js";
 import {
   namedProps as n,
   typeValue as v,
@@ -7,8 +6,7 @@ import {
 
 function mapArbitraryProfileExtrusion(extruded) {
   const points = getArbitraryProfilePoints(extruded);
-  const pivots = getPivots(extruded.pivots);
-  return createExtrusion(points, extruded.depth, pivots);
+  return createExtrusion(points, extruded.depth);
 }
 
 function getArbitraryProfilePoints(extruded) {

@@ -1,17 +1,11 @@
-import {
-  namedProps as n,
-  structuredData as s,
-} from "../utils/global-constants.js";
 import { applyTransformations } from "./geometry-transformer/transformation.js";
-import { getRepresentations } from "./geometry-generator/geometry-mapper.js";
-import { scene } from "./scene/three-scene.js";
+import { constructGeometry } from "./geometry-generator/geometry-mapper.js";
+import { applyBooleanOperations } from "./geometry-operator/boolean-operator.js";
 
 function buildGeometry(structured) {
-  getRepresentations(structured);
+  constructGeometry(structured);
   applyTransformations(structured);
-  structured[s.products].forEach((e) => {
-    scene.add(e[n.trueGeometry]);
-  });
+  applyBooleanOperations(structured);
 }
 
 export { buildGeometry };
