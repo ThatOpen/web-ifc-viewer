@@ -28,12 +28,13 @@ function bindGeometryToPivots(geometry, pivots) {
 
 function getPivots(product, property) {
   const transform = product[property];
+  const locations = transform[pivots.locations] || [];
   const p = [];
-  for (let i = transform[pivots.locations].length - 1; i >= 0; i--) {
+  for (let i = locations.length - 1; i >= 0; i--) {
     const pivot = new THREE.Object3D();
     // pivot.rotation.z = getVerticalRotation(transform[pivots.zRotation][i]);
     pivot.rotation.y = getHorizontalRotation(transform[pivots.xRotation][i]);
-    pivot.position.set(...transform[pivots.locations][i]);
+    pivot.position.set(...locations[i]);
     p.push(pivot);
   }
   bindPivots(p);

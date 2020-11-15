@@ -18,7 +18,7 @@ function constructGeometry(structured) {
       getRepresentations(product);
       mapARepresentations(product);
     } catch (e) {
-      console.error(e);
+      console.warn(e);
     }
   });
 }
@@ -32,8 +32,12 @@ function getRepresentations(product) {
 }
 
 function getRepresentationValue(product) {
-  product[n.geomRepresentations] =
-    product[n.representation][t.value][n.representations][t.value];
+  try {
+    product[n.geomRepresentations] =
+      product[n.representation][t.value][n.representations][t.value];
+  } catch (e) {
+    console.warn(e);
+  }
 }
 
 function mapARepresentations(product) {
@@ -55,7 +59,7 @@ function getMappedGeometry(representation, product) {
   try {
     return geometryMap[getType(representation)](representation, product);
   } catch (e) {
-    console.error(e);
+    console.warn(e);
   }
 }
 

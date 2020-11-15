@@ -34,14 +34,23 @@ function rectifyOpeningRotation(opening) {
 //Gets all the transforms (local origins) recursively
 
 function getTransform(product, objPlacement) {
-  const placement = objPlacement[n.relativePlacement][t.value];
-  trackLocalTransform(product, placement, n.transform);
-  if (objPlacement[n.placementRelTo][t.value] != def)
-    getTransform(product, objPlacement[n.placementRelTo][t.value]);
+  try {
+    const placement = objPlacement[n.relativePlacement][t.value];
+    trackLocalTransform(product, placement, n.transform);
+    if (objPlacement[n.placementRelTo][t.value] != def) {
+      getTransform(product, objPlacement[n.placementRelTo][t.value]);
+    }
+  } catch (e) {
+    console.warn(e);
+  }
 }
 
 function getPlacement(product) {
-  return product[n.objectPlacement][t.value];
+  try {
+    return product[n.objectPlacement][t.value];
+  } catch (e) {
+    console.warn(e);
+  }
 }
 
 export { applyTransformations };
