@@ -40,7 +40,6 @@ function getExtrusionProps(extruded) {
 function trackLocalTransformation(product, extruded) {
   const position = extruded[n.position][v.value];
   trackLocalTransform(product, position, n.transformOfExtrusion);
-  console.log(product[n.transformOfExtrusion]);
 }
 
 export { mapSweptSolid };

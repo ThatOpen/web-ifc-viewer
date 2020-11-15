@@ -24,10 +24,13 @@ renderer.setSize(widthHD, heightHD, false);
 renderer.setClearColor(0xa9a9a9, 1);
 
 //Axes and grids
-const axes = new THREE.AxesHelper();
-axes.material.depthTest = false;
-axes.renderOrder = 2; // after the grid
-scene.add(axes);
+function createAxes() {
+  const axes = new THREE.AxesHelper();
+  axes.material.depthTest = false;
+  axes.renderOrder = 2; // after the grid
+  return axes;
+}
+scene.add(createAxes());
 const grid = new THREE.GridHelper(100, 100);
 grid.material.depthTest = true;
 grid.renderOrder = 1;
@@ -80,4 +83,4 @@ var animate = function () {
 
 animate();
 
-export { scene };
+export { scene, createAxes };

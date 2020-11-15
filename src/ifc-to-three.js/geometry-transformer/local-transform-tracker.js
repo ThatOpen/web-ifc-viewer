@@ -15,11 +15,9 @@ function trackLocalTransform(product, placement, property) {
 function trackProfileTransform(product, profile) {
   const transform = initializeTransform(product, n.transformOfExtrusion);
   const position = profile[n.position][t.value];
-  const location = position[n.location][t.value][n.coordinates][t.value];
-  const xRot = getAxisX(position);
-  transform[p.locations].push([location[0], location[1], 0]);
-  transform[p.xRotation].push([xRot[0], xRot[1], 0]);
-  transform[p.zRotation].push([0, 0, 1]);
+  transform[p.locations].push(getLocation(position));
+  transform[p.xRotation].push(getAxisX(position));
+  transform[p.zRotation].push([0, 1, 0]);
 }
 
 function initializeTransform(product, property) {
@@ -33,18 +31,24 @@ function initializeTransform(product, property) {
 }
 
 function getLocation(placement) {
-  return placement[n.location][t.value][n.coordinates][t.value];
+  const loc = placement[n.location][t.value][n.coordinates][t.value];
+  const translatedLoc = [loc[1], loc[2], loc[0]];
+  return translatedLoc.map((e) => (e === undefined ? 0 : e));
 }
 
 function getAxisX(placement) {
-  if (placement[n.refDirection][t.value] === def) return [1, 0, 0];
-  return placement[n.refDirection][t.value][n.dirRatios][t.value];
+  if (placement[n.refDirection][t.value] === def) return [0, 0, 1];
+  const xRot = placement[n.refDirection][t.value][n.dirRatios][t.value];
+  const translatedXRot = [xRot[1], xRot[2], xRot[0]];
+  return translatedXRot.map((e) => (e === undefined ? 0 : e));
 }
 
 function getAxisZ(placement) {
   if (!placement[n.axis] || placement[n.axis][t.value] === def)
-    return [0, 0, 1];
-  return placement[n.axis][t.value][n.dirRatios][t.value];
+    return [0, 1, 0];
+  const zRot = placement[n.axis][t.value][n.dirRatios][t.value];
+  const translatedZRot = [zRot[1], zRot[2], zRot[0]];
+  return translatedZRot.map((e) => (e === undefined ? 0 : e));
 }
 
 export { trackLocalTransform, trackProfileTransform };

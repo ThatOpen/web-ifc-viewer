@@ -7,7 +7,6 @@ import {
 function applyBooleanOperations(structured) {
   structured[s.products].forEach((product) => {
     if (product[n.openings]) {
-      console.log(product);
       var openings = product[n.openings];
 
       var wall = product[n.geometry][1];

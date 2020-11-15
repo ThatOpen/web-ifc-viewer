@@ -1,6 +1,6 @@
 import { namedProps as n, pivots } from "../../utils/global-constants.js";
-import { getHorizontalRotation } from "./rotation.js";
-import { scene } from "../scene/three-scene.js";
+import { getHorizontalRotation, getVerticalRotation } from "./rotation.js";
+import { createAxes, scene } from "../scene/three-scene.js";
 
 function applyTransforms(product, property) {
   const pivots = getPivots(product, property);
@@ -13,11 +13,12 @@ function applyTransformsTo(product, geometry, property) {
 }
 
 function applyTransform(geometry, pivots) {
+  showLocalOrigins(pivots);
   if (geometry) {
     bindGeometryToPivots(geometry, pivots);
     scene.add(pivots[0]);
     scene.attach(geometry);
-    scene.remove(pivots[0]);
+    // scene.remove(pivots[0]);
   }
 }
 
@@ -30,11 +31,9 @@ function getPivots(product, property) {
   const p = [];
   for (let i = transform[pivots.locations].length - 1; i >= 0; i--) {
     const pivot = new THREE.Object3D();
-    // pivot.rotation.z = -getHorizontalRotation(transform[pivots.zRotation][i]);
-    // pivot.rotation.x = getHorizontalRotation(transform[pivots.zRotation][i]);
+    // pivot.rotation.z = getVerticalRotation(transform[pivots.zRotation][i]);
     pivot.rotation.y = getHorizontalRotation(transform[pivots.xRotation][i]);
-    const loc = transform[pivots.locations][i];
-    pivot.position.set(loc[1], loc[2], loc[0]);
+    pivot.position.set(...transform[pivots.locations][i]);
     p.push(pivot);
   }
   bindPivots(p);
@@ -45,6 +44,10 @@ function bindPivots(pivots) {
   for (let i = 0; i < pivots.length; i++) {
     if (pivots[i + 1]) pivots[i].add(pivots[i + 1]);
   }
+}
+
+function showLocalOrigins(pivots) {
+  pivots.forEach((pivot) => pivot.add(createAxes()));
 }
 
 export { applyTransforms, applyTransformsTo };

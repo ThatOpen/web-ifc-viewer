@@ -26,7 +26,6 @@ function createExtrusion(points, depth) {
   //Mesh
   var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings2);
   var mesh = new THREE.Mesh(geometry, material);
-  mesh.rotation.y += Math.PI;
   return mesh;
 }
 export { createExtrusion };

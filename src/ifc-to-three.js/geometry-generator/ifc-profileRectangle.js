@@ -4,9 +4,9 @@ import {
   namedProps as n,
   typeValue as t,
 } from "../../utils/global-constants.js";
-import { applyTransformsTo } from "../geometry-transformer/local-transform-applier.js";
 
 function mapRectangleProfileExtrusion(extruded, product) {
+  console.log(product);
   getgetRectProfileDimensions(extruded);
   trackProfileTransform(product, extruded.profile);
   const points = getRectProfilePoints(extruded);
@@ -14,13 +14,13 @@ function mapRectangleProfileExtrusion(extruded, product) {
 }
 
 function getRectProfilePoints(extruded) {
-  const xDim = extruded[n.xDim] / 2;
-  const yDim = extruded[n.yDim] / 2;
+  const halfWidth = extruded[n.xDim] / 2;
+  const halfHeight = extruded[n.yDim] / 2;
   return [
-    [-xDim, yDim],
-    [xDim, yDim],
-    [xDim, -yDim],
-    [-xDim, -yDim],
+    [-halfWidth, halfHeight],
+    [halfWidth, halfHeight],
+    [halfWidth, -halfHeight],
+    [-halfWidth, -halfHeight],
   ];
 }
 
