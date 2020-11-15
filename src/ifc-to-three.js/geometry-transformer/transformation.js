@@ -1,58 +1,47 @@
+import { trackLocalTransform } from "./local-transform-tracker.js";
+import { applyTransforms } from "./local-transform-applier.js";
 import {
   defaultValue as def,
   namedProps as n,
-  pivots as p,
   structuredData as s,
   typeValue as t,
 } from "../../utils/global-constants.js";
-import { getPivots } from "./pivots.js";
 
 function applyTransformations(structured) {
-  structured[s.products].forEach((e) => {
-    getTransforms(e);
-    applyTransforms(e);
+  structured[s.products].forEach((product) => {
+    applyTransform(product);
   });
 }
 
-function applyTransforms(product) {
-  const pivots = getPivots(product[n.transform]);
-  product[n.rawGeometry].forEach((e) => {
-    if (e) pivots[pivots.length - 1].add(e);
+function applyTransform(product) {
+  getTransform(product, getPlacement(product));
+  applyTransforms(product, n.transform);
+
+  if (product[n.openings])
+    product[n.openings].forEach((opening) => {
+      getTransform(opening, getPlacement(opening));
+      applyTransforms(opening, n.transform);
+      rectifyOpeningRotation(opening);
+    });
+}
+
+function rectifyOpeningRotation(opening) {
+  opening[n.geometry].forEach((geometry) => {
+    // geometry.rotation.x -= Math.PI / 2;
   });
-  product[n.trueGeometry] = pivots[0];
 }
 
-function getTransforms(product) {
-  const transform = { [p.locations]: [], [p.xRotation]: [], [p.zRotation]: [] };
-  getTransform(product[n.objectPlacement][t.value], transform);
-  product[n.transform] = transform;
-}
+//Gets all the transforms (local origins) recursively
 
-function getTransform(objPlacement, transform) {
+function getTransform(product, objPlacement) {
   const placement = objPlacement[n.relativePlacement][t.value];
-
-  transform[p.locations].push(getLocation(placement));
-  transform[p.xRotation].push(getAxisX(placement));
-  transform[p.zRotation].push(getAxisZ(placement));
-
-  if (objPlacement[n.placementRelTo][t.value] != def) {
-    getTransform(objPlacement[n.placementRelTo][t.value], transform);
-  }
+  trackLocalTransform(product, placement, n.transform);
+  if (objPlacement[n.placementRelTo][t.value] != def)
+    getTransform(product, objPlacement[n.placementRelTo][t.value]);
 }
 
-function getLocation(placement) {
-  return placement[n.location][t.value][n.coordinates][t.value];
-}
-
-function getAxisX(placement) {
-  if (placement[n.refDirection][t.value] === def) return [1, 0, 0];
-  return placement[n.refDirection][t.value][n.dirRatios][t.value];
-}
-
-function getAxisZ(placement) {
-  if (!placement[n.axis] || placement[n.axis][t.value] === def)
-    return [0, 0, 1];
-  return placement[n.axis][t.value][n.dirRatios][t.value];
+function getPlacement(product) {
+  return product[n.objectPlacement][t.value];
 }
 
 export { applyTransformations };

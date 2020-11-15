@@ -12,46 +12,55 @@ const geometryMap = {
   [g.sweptSolid]: mapSweptSolid,
 };
 
-function getRepresentations(structured) {
+function constructGeometry(structured) {
   structured[s.products].forEach((product) => {
     try {
-      getGeomRepresentation(product);
-      mapRepresentation(product);
+      getRepresentations(product);
+      mapARepresentations(product);
     } catch (e) {
       console.error(e);
     }
   });
 }
 
-function getGeomRepresentation(product) {
+function getRepresentations(product) {
+  getRepresentationValue(product);
+  if (product[n.openings])
+    product[n.openings].forEach((opening) => {
+      getRepresentationValue(opening);
+    });
+}
+
+function getRepresentationValue(product) {
+  product[n.geomRepresentations] =
+    product[n.representation][t.value][n.representations][t.value];
+}
+
+function mapARepresentations(product) {
+  mapProductRepresentations(product);
+  if (product[n.openings])
+    product[n.openings].forEach((opening) => {
+      mapProductRepresentations(opening);
+    });
+}
+
+function mapProductRepresentations(product) {
+  product[n.geometry] = [];
+  product[n.geomRepresentations].forEach((representation) => {
+    product[n.geometry].push(getMappedGeometry(representation, product));
+  });
+}
+
+function getMappedGeometry(representation, product) {
   try {
-    product[n.rawRepresentation] =
-      product[n.representation][t.value][n.representations][t.value];
+    return geometryMap[getType(representation)](representation, product);
   } catch (e) {
     console.error(e);
   }
-}
-
-function mapRepresentation(product) {
-  product[n.rawGeometry] = [];
-  product[n.rawRepresentation].forEach((representation) => {
-    const mapped = getMappedGeometry(representation);
-    if (mapped) {
-      product[n.rawGeometry].push(mapped);
-    }
-  });
 }
 
 function getType(representation) {
   return representation[n.representationType][t.value];
 }
 
-function getMappedGeometry(representation) {
-  try {
-    return geometryMap[getType(representation)](representation);
-  } catch (e) {
-    return null;
-  }
-}
-
-export { getRepresentations };
+export { constructGeometry };

@@ -10,6 +10,7 @@ function constructProject(ifcData) {
   const finder = createIfcItemsFinder(ifcData);
   bindSpatialToSpatial(finder);
   const elements = bindElementsToSpatial(finder);
+  bindVoidsToElements(finder);
   return {
     [s.ifcProject]: finder.findByType(t.IfcProject),
     [s.products]: elements,
@@ -31,6 +32,22 @@ function bindElementsToSpatial(finder) {
     e[n.relatedElements][v.value].forEach((e) => elements.push(e));
   });
   return elements;
+}
+
+function bindVoidsToElements(finder) {
+  const voidRelations = finder.findByType(t.IfcRelVoidsElement);
+  Object.values(voidRelations).forEach((e) => {
+    initializeVoids(e);
+    e[n.relatingBuildingElement][v.value][n.openings].push(
+      e[n.relatedOpeningElement][v.value]
+    );
+  });
+}
+
+function initializeVoids(voidRelation) {
+  if (!voidRelation[n.relatingBuildingElement][v.value][n.openings]) {
+    voidRelation[n.relatingBuildingElement][v.value][n.openings] = [];
+  }
 }
 
 export { constructProject };

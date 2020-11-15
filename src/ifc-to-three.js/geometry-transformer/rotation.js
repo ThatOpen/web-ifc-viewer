@@ -1,25 +1,42 @@
+//In the 3d scene, the axis are swapped: X is Z, Y is X and Z is Y
+// E. g. axis[2] is the Z axis and is equivalent to the X dimension of the IFC
+
 function getHorizontalRotation(axis) {
-  if (isStraightAngle(axis)) return getStraightAngle(axis);
-  return Math.atan(axis[1] / axis[0]) + correctAngle(axis);
+  if (isStraightHorizontalAngle(axis)) return getStraightHorizontalAngle(axis);
+  return Math.atan(axis[0] / axis[2]) + correctAngle(axis);
 }
 
-function isStraightAngle(axis) {
-  if (axis[0] === 0 || axis[1] === 0) return true;
+function getVerticalRotation(axis) {
+  if (isStraightVerticalAngle(axis)) return getStraightVerticalAngle(axis);
+  return Math.atan(axis[1] / axis[0]);
+}
+
+function isStraightHorizontalAngle(axis) {
+  if (axis[0] === 0 || axis[2] === 0) return true;
   return false;
 }
 
-function getStraightAngle(axis) {
-  if (axis[0] === 0 && axis[1] > 0) return Math.PI / 2;
-  if (axis[1] === 0 && axis[0] < 0) return Math.PI;
-  if (axis[0] === 0 && axis[1] < 0) return (3 * Math.PI) / 2;
+function isStraightVerticalAngle(axis) {
+  if (axis[1] === 0 || axis[0] === 0) return true;
+  return false;
+}
+
+function getStraightHorizontalAngle(axis) {
+  if (axis[2] === 0 && axis[0] > 0) return Math.PI / 2;
+  if (axis[0] === 0 && axis[2] < 0) return Math.PI;
+  if (axis[2] === 0 && axis[0] < 0) return (3 * Math.PI) / 2;
+  return 0;
+}
+
+function getStraightVerticalAngle(axis) {
+  if (axis[1] === 0 && axis[0] > 0) return Math.PI / 2;
+  if (axis[0] === 0 && axis[1] < 0) return Math.PI;
+  if (axis[1] === 0 && axis[0] < 0) return (3 * Math.PI) / 2;
   return 0;
 }
 
 function correctAngle(axis) {
-  return axis[0] < 0 ? Math.PI : 0;
-}
-
-function getVerticalRotation(axis) {
+  if (axis[2] < 0) return Math.PI;
   return 0;
 }
 

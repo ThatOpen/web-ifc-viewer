@@ -1,6 +1,6 @@
 import { scene } from "../scene/three-scene.js";
 
-function createExtrusion(points, depth, pivots) {
+function createExtrusion(points, depth) {
   // Material for mesh
   var material = new THREE.MeshPhongMaterial({ color: 0xffffff });
 
@@ -26,11 +26,6 @@ function createExtrusion(points, depth, pivots) {
   //Mesh
   var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings2);
   var mesh = new THREE.Mesh(geometry, material);
-  mesh.rotation.y += Math.PI;
-  if (pivots.length === 0) return mesh;
-
-  //Transform
-  pivots[pivots.length - 1].add(mesh);
-  return pivots[0];
+  return mesh;
 }
 export { createExtrusion };

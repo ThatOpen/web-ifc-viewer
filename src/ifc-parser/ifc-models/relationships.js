@@ -87,8 +87,8 @@ newObject({
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
-  RelatingBuildingElement: d.id,
-  RelatedOpeningElement: d.id,
+  [n.relatingBuildingElement]: d.id,
+  [n.relatedOpeningElement]: d.id,
 });
 
 newObject({
