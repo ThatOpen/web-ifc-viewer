@@ -14,21 +14,31 @@ const geometryMap = {
 
 function getRepresentations(structured) {
   structured[s.products].forEach((product) => {
-    getGeomRepresentation(product);
-    mapRepresentation(product);
+    try {
+      getGeomRepresentation(product);
+      mapRepresentation(product);
+    } catch (e) {
+      console.error(e);
+    }
   });
 }
 
 function getGeomRepresentation(product) {
-  product[n.rawRepresentation] =
-    product[n.representation][t.value][n.representations][t.value];
+  try {
+    product[n.rawRepresentation] =
+      product[n.representation][t.value][n.representations][t.value];
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 function mapRepresentation(product) {
   product[n.rawGeometry] = [];
   product[n.rawRepresentation].forEach((representation) => {
     const mapped = getMappedGeometry(representation);
-    product[n.rawGeometry].push(mapped);
+    if (mapped) {
+      product[n.rawGeometry].push(mapped);
+    }
   });
 }
 
@@ -37,7 +47,11 @@ function getType(representation) {
 }
 
 function getMappedGeometry(representation) {
-  return geometryMap[getType(representation)](representation);
+  try {
+    return geometryMap[getType(representation)](representation);
+  } catch (e) {
+    return null;
+  }
 }
 
 export { getRepresentations };
