@@ -7,48 +7,63 @@ import {
 
 function trackLocalTransform(product, placement, property) {
   const transform = initializeTransform(product, property);
-  transform[p.locations].push(getLocation(placement));
-  transform[p.xRotation].push(getAxisX(placement));
-  transform[p.zRotation].push(getAxisZ(placement));
-}
-
-function trackProfileTransform(product, profile) {
-  const transform = initializeTransform(product, n.transformOfExtrusion);
-  const position = profile[n.position][t.value];
-  transform[p.locations].push(getLocation(position));
-  transform[p.xRotation].push(getAxisX(position));
-  transform[p.zRotation].push([0, 1, 0]);
+  const { locat, xAxis, yAxis, zAxis } = getTransform(placement);
+  transform[p.locat].push(locat);
+  transform[p.xAxis].push(xAxis);
+  transform[p.yAxis].push(yAxis);
+  transform[p.zAxis].push(zAxis);
 }
 
 function initializeTransform(product, property) {
   if (!product[property])
-    product[property] = {
-      [p.locations]: [],
-      [p.xRotation]: [],
-      [p.zRotation]: [],
+  product[property] = {
+      [p.locat] : [],
+      [p.xAxis] : [],
+      [p.yAxis] : [],
+      [p.zAxis] : [],
     };
   return product[property];
 }
 
-function getLocation(placement) {
-  const loc = placement[n.location][t.value][n.coordinates][t.value];
-  const translatedLoc = [loc[1], loc[2], loc[0]];
-  return translatedLoc.map((e) => (e === undefined ? 0 : e));
+function getTransform(placement) {
+  const locat = getLocat(placement);
+  const xAxis = getAxisX(placement);
+  const zAxis = getAxisZ(placement);
+  const yAxis = getAxisY(zAxis, xAxis);
+  return {locat, xAxis, yAxis, zAxis  };
+}
+
+function getLocat(placement) {
+  const location = placement[n.location][t.value][n.coordinates][t.value];
+  return location.map((e) => (e === undefined ? 0 : e));
 }
 
 function getAxisX(placement) {
-  if (placement[n.refDirection][t.value] === def) return [0, 0, 1];
-  const xRot = placement[n.refDirection][t.value][n.dirRatios][t.value];
-  const translatedXRot = [xRot[1], xRot[2], xRot[0]];
-  return translatedXRot.map((e) => (e === undefined ? 0 : e));
+  if (isInvalid(placement[n.refDirection])) return [1, 0, 0];
+  const x = placement[n.refDirection][t.value][n.dirRatios][t.value];
+  const xAxis = [x[0], -x[1], x[2]]
+  return xAxis.map((e) => (e === undefined ? 0 : e));
 }
 
 function getAxisZ(placement) {
-  if (!placement[n.axis] || placement[n.axis][t.value] === def)
-    return [0, 1, 0];
-  const zRot = placement[n.axis][t.value][n.dirRatios][t.value];
-  const translatedZRot = [zRot[1], zRot[2], zRot[0]];
-  return translatedZRot.map((e) => (e === undefined ? 0 : e));
+  if (isInvalid(placement[n.axis])) return [0, 0, 1];
+  const IfcAxisZ = placement[n.axis][t.value][n.dirRatios][t.value];
+  return IfcAxisZ.map((e) => (e === undefined ? 0 : e));
 }
 
-export { trackLocalTransform, trackProfileTransform };
+//In IFC the axis Y is implicit (computed from X and Z)
+
+function getAxisY(X, Z) {
+  return [
+    X[1] * Z[2] - X[2] * Z[1],
+    X[2] * Z[0] - X[0] * Z[2],
+    X[0] * Z[1] - X[1] * Z[0],
+  ];
+}
+
+function isInvalid(prop) {
+  if (!prop || prop[t.value] === def) return true;
+  return false;
+}
+
+export { trackLocalTransform };

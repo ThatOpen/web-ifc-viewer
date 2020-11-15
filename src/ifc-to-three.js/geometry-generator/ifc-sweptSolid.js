@@ -9,9 +9,9 @@ import {
 } from "../../utils/global-constants.js";
 
 function mapSweptSolid(shape, product) {
-  const extruded = shape[n.items][v.value][0];
-  trackLocalTransformation(product, extruded);
-  return constructSweptSolid(product, extruded);
+  // const extruded = shape[n.items][v.value][0];
+  // trackLocalTransformation(product, extruded);
+  // return constructSweptSolid(product, extruded);
 }
 
 function constructSweptSolid(product, extruded) {
