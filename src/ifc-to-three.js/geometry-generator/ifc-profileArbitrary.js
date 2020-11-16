@@ -3,8 +3,9 @@ import {
   namedProps as n,
   typeValue as v,
 } from "../../utils/global-constants.js";
+import { getName, ifcTypes } from "../../utils/ifc-types.js";
 
-function mapArbitraryProfileExtrusion(extruded) {
+function mapArbitraryProfileExtrusion(extruded, product) {
   const points = getArbitraryProfilePoints(extruded);
   return createExtrusion(points, extruded.depth);
 }

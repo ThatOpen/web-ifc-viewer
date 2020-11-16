@@ -10,13 +10,17 @@ import {
 
 function mapSweptSolid(shape, product) {
   const extruded = shape[n.items][v.value][0];
-  trackLocalTransformation(product, extruded);
   return constructSweptSolid(product, extruded);
 }
+
+//Beware: the creation of the solid must occur BEFORE trackLocalTransformation()
+//Because the local transformations are tracked from inside to outside 
+//Same logic as IfcLocalPlacement used to locate the products
 
 function constructSweptSolid(product, extruded) {
   const extrudedProps = getExtrusionProps(extruded);
   const solid = selectSpecificProfileMapper(extrudedProps, product);
+  trackLocalTransformation(product, extruded); 
   applyTransformsTo(product, solid, n.transformOfExtrusion);
   return solid;
 }
@@ -30,10 +34,10 @@ function selectSpecificProfileMapper(extruded, product) {
 
 function getExtrusionProps(extruded) {
   return {
-    profile: extruded[n.sweptArea][v.value],
-    ifcClass: extruded[n.sweptArea][v.value][n.ifcClass],
-    depth: extruded[n.depth][v.value],
-    direction: extruded[n.extDirection][v.value][n.dirRatios][v.value],
+    profile:    extruded[n.sweptArea][v.value],
+    ifcClass:   extruded[n.sweptArea][v.value][n.ifcClass],
+    depth:      extruded[n.depth][v.value],
+    direction:  extruded[n.extDirection][v.value][n.dirRatios][v.value],
   };
 }
 

@@ -21,14 +21,7 @@ function applyTransform(product) {
     product[n.openings].forEach((opening) => {
       getTransform(opening, getPlacement(opening));
       applyTransforms(opening, n.transform);
-      rectifyOpeningRotation(opening);
     });
-}
-
-function rectifyOpeningRotation(opening) {
-  opening[n.geometry].forEach((geometry) => {
-    // geometry.rotation.x -= Math.PI / 2;
-  });
 }
 
 //Gets all the transforms (local origins) recursively

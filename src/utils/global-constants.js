@@ -70,9 +70,10 @@ const structuredData = {
 
 const pivots = {
   pivots: "Pivots",
-  locations: "Locations",
-  xRotation: "xRotation",
-  zRotation: "zRotation",
+  locat: "Locations",
+  xAxis: "xRotation",
+  yAxis: "yRotation",
+  zAxis: "zRotation",
 };
 
 const defaultValue = "$";

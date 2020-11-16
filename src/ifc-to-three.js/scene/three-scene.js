@@ -7,9 +7,10 @@ var camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.z = 4;
-camera.position.y = 3;
-camera.position.x = 4;
+camera.position.z = 5;
+camera.position.y = 5;
+camera.position.x = 5;
+camera.up = new THREE.Vector3(0, 0, 1);
 camera.lookAt(new THREE.Vector3(0, 0, 0));
 
 //Renderer
@@ -34,6 +35,7 @@ scene.add(createAxes());
 const grid = new THREE.GridHelper(100, 100);
 grid.material.depthTest = true;
 grid.renderOrder = 1;
+grid.rotation.x = Math.PI / 2;
 scene.add(grid);
 
 //Light
