@@ -1,23 +1,15 @@
 import { trackLocalTransform } from "../geometry-transformer/local-transform-tracker.js";
-import { createExtrusion, createHorizontalExtrusion } from "./three-extrusion.js";
+import { createExtrusion } from "./three-extrusion.js";
 import {
   namedProps as n,
   typeValue as t,
 } from "../../utils/global-constants.js";
-import { getName, ifcTypes } from "../../utils/ifc-types.js";
 
 function mapRectangleProfileExtrusion(extruded, product) {
-  console.log(product);
   getRectProfileDimensions(extruded);
   const position = extruded.profile[n.position][t.value];
   trackLocalTransform(product, position, n.transformOfExtrusion);
-  return constructRectExtrusion(extruded, product);
-}
-
-function constructRectExtrusion(extruded, product){
   const points = getRectProfilePoints(extruded);
-  if(product[n.ifcClass]===getName(ifcTypes.IfcOpeningElement))
-    return createHorizontalExtrusion(points, extruded.depth);
   return createExtrusion(points, extruded.depth);
 }
 

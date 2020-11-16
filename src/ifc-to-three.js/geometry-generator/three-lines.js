@@ -6,7 +6,7 @@ function createLine(coordinates) {
 
   const points = [];
   coordinates.forEach((e) => {
-    points.push(new THREE.Vector3(e[0], 0, e[1]));
+    points.push(new THREE.Vector3(e[0], e[1]));
   });
 
   const geometry = new THREE.BufferGeometry().setFromPoints(points);

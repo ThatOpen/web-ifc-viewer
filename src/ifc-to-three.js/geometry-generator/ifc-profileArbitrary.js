@@ -1,4 +1,4 @@
-import { createExtrusion, createHorizontalExtrusion } from "./three-extrusion.js";
+import { createExtrusion } from "./three-extrusion.js";
 import {
   namedProps as n,
   typeValue as v,
@@ -6,10 +6,7 @@ import {
 import { getName, ifcTypes } from "../../utils/ifc-types.js";
 
 function mapArbitraryProfileExtrusion(extruded, product) {
-  console.log(product);
   const points = getArbitraryProfilePoints(extruded);
-  if(product[n.ifcClass]===getName(ifcTypes.IfcOpeningElement))
-    return createHorizontalExtrusion(points, extruded.depth);
   return createExtrusion(points, extruded.depth);
 }
 

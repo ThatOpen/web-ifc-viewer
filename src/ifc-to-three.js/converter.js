@@ -5,7 +5,7 @@ import { applyBooleanOperations } from "./geometry-operator/boolean-operator.js"
 function buildGeometry(structured) {
   constructGeometry(structured);
   applyTransformations(structured);
-  // applyBooleanOperations(structured);
+  applyBooleanOperations(structured);
 }
 
 export { buildGeometry };

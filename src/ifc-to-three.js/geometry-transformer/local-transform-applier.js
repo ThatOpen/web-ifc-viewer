@@ -25,12 +25,10 @@ function bindGeometryToPivots(geometry, pivots) {
 }
 
 function getPivots(transform) {
-  console.log(transform);
   const pivots = [];
   for (let i = transform[p.locat].length - 1; i >= 0; i--) {
     const pivot = new THREE.Object3D();
-    const rotationMatrix = getRotMat(transform, i);
-    pivot.rotation.setFromRotationMatrix(rotationMatrix);
+    pivot.rotation.setFromRotationMatrix(getRotMat(transform, i));
     pivot.position.set(...transform[p.locat][i])
     pivots.push(pivot);
   }
@@ -45,17 +43,24 @@ function bindPivots(pivots) {
 }
 
 function getRotMat(transform, index) {
+  const { x, y, z} = getTransforms(transform, index);
+  const directionMatrix = new THREE.Matrix4();
   const rotationMatrix = new THREE.Matrix4();
-  const x = transform[p.xAxis][index];
-  const y = transform[p.yAxis][index];
-  const z = transform[p.zAxis][index];
-  rotationMatrix.set( 
+  directionMatrix.set( 
      x[0] ,x[1] ,x[2] ,0
     ,y[0] ,y[1] ,y[2] ,0
     ,z[0] ,z[1] ,z[2] ,0
     ,0    ,0    ,0    ,1
   );
+  rotationMatrix.getInverse(directionMatrix);
   return rotationMatrix;
+}
+
+function getTransforms(transform, index){
+  const x = transform[p.xAxis][index];
+  const y = transform[p.yAxis][index];
+  const z = transform[p.zAxis][index];
+  return {x, y, z};
 }
 
 function showLocalOrigins(pivots) {

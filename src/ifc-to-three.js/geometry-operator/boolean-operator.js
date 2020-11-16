@@ -17,14 +17,13 @@ function applyBooleanOperations(structured) {
         var opening = openings[i][n.geometry][0];
         var bsp_Y = new ThreeBSP(opening);
         var bsp_Subtraction = bsp_Subtraction.subtract(bsp_Y);
-        // scene.remove(opening);
+        scene.remove(opening);
       }
       var bsp_mesh = bsp_Subtraction.toMesh();
       bsp_mesh.material = new THREE.MeshPhongMaterial();
 
       scene.add(bsp_mesh);
       scene.remove(wall);
-      // scene.remove(opening);
     }
   });
 }

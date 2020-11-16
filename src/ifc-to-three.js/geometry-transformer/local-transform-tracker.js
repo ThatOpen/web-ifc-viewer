@@ -30,25 +30,28 @@ function getTransform(placement) {
   const xAxis = getAxisX(placement);
   const zAxis = getAxisZ(placement);
   const yAxis = getAxisY(zAxis, xAxis);
-  return {locat, xAxis, yAxis, zAxis  };
+  return {locat, xAxis, yAxis, zAxis};
 }
 
 function getLocat(placement) {
+  if (isInvalid(placement[n.location])) return [0, 0, 0];
   const location = placement[n.location][t.value][n.coordinates][t.value];
-  return location.map((e) => (e === undefined ? 0 : e));
+  if(location.length === 2) location.push(0);
+  return location;
 }
 
 function getAxisX(placement) {
   if (isInvalid(placement[n.refDirection])) return [1, 0, 0];
-  const x = placement[n.refDirection][t.value][n.dirRatios][t.value];
-  const xAxis = [x[0], -x[1], x[2]]
-  return xAxis.map((e) => (e === undefined ? 0 : e));
+  let x = placement[n.refDirection][t.value][n.dirRatios][t.value];
+  if(x.length === 2) x.push(0);
+  return x;
 }
 
 function getAxisZ(placement) {
   if (isInvalid(placement[n.axis])) return [0, 0, 1];
-  const IfcAxisZ = placement[n.axis][t.value][n.dirRatios][t.value];
-  return IfcAxisZ.map((e) => (e === undefined ? 0 : e));
+  const z = placement[n.axis][t.value][n.dirRatios][t.value];
+  if(z.length === 2) z.push(0);
+  return z;
 }
 
 //In IFC the axis Y is implicit (computed from X and Z)
