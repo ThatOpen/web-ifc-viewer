@@ -27,7 +27,7 @@ function bindGeometryToPivots(geometry, pivots) {
 function getPivots(transform) {
   const pivots = [];
   const locations = transform[p.locat] || [];
-  for (let i = transform[p.locat].length - 1; i >= 0; i--) {
+  for (let i = locations.length - 1; i >= 0; i--) {
     const pivot = new THREE.Object3D();
     pivot.rotation.setFromRotationMatrix(getRotMat(transform, i));
     pivot.position.set(...locations[i]);
