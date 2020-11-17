@@ -18,8 +18,14 @@ const geometryMap = {
 
 function constructGeometry(structured) {
   structured[s.products].forEach((product) => {
+
+    try {
     getRepresentations(product);
     mapRepresentations(product);
+    } catch (e) {
+      console.warn(e);
+    }
+
   });
 }
 
@@ -32,8 +38,12 @@ function getRepresentations(product) {
 }
 
 function getRepresentationValue(product) {
-  product[n.geomRepresentations] =
-    product[n.representation][t.value][n.representations][t.value];
+  try {
+    product[n.geomRepresentations] =
+      product[n.representation][t.value][n.representations][t.value];
+  } catch (e) {
+    console.warn(e);
+  }
 }
 
 function mapRepresentations(product) {
@@ -52,8 +62,12 @@ function mapProductRepresentations(product) {
 }
 
 function getMappedGeometry(representation, product) {
-  const representationType = getType(representation);
-  return geometryMap[representationType](representation, product);
+  try {
+    const representationType = getType(representation);
+    return geometryMap[representationType](representation, product);
+  } catch (e) {
+    console.warn(e);
+  }
 }
 
 function getType(representation) {
