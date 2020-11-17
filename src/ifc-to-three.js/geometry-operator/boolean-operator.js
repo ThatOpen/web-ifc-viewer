@@ -6,8 +6,8 @@ import {
 
 function applyBooleanOperations(structured) {
   structured[s.products].forEach((product) => {
-    if (product[n.openings]) {
-      var openings = product[n.openings];
+    if (product[n.hasOpenings]) {
+      var openings = product[n.hasOpenings];
 
       var wall = product[n.geometry][1];
       var bsp_A = new ThreeBSP(wall);
