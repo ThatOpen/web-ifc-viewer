@@ -19,7 +19,7 @@ The `IFC PARSER` is the part of the code that reads IFC files, converts them int
 
 The `IFC PROJECT BUILDER` is responsible for receiving the parser output and structuring the IFC project data. For example, it builds the spatial structure (associating the entities IfcProject - IfcSite - IfcBuilding - IfcBuildingStorey - IfcSpace) and converts the indirect IfcRel relations into references to the entities loaded in memory.
 
-The `IFC TO THREEJS` In IFC there are different types of geometrical representation (extrusion, limit definition, etc) that correspond to geometry defined in Three.js. This part of the code maps both geometric definitions using the output of the project builder as input. For example, this creates a _ExtrudeGeometry_ (Three.js) for each _IfcSweptAreaSolid_ of the given IFC file.
+The `IFC TO THREEJS` generates the Three.js geometry that is displayed in the browser. In IFC there are different types of geometrical representation (extrusion, limit definition, etc) that correspond to geometry defined in Three.js. This part of the code maps both geometric definitions using the output of the project builder as input. For example, this creates a _ExtrudeGeometry_ (Three.js) for each _IfcSweptAreaSolid_ of the given IFC file.
 
 ````                                                                                                                 
                  +------------+       +------------------------+       +-----------------+                            
