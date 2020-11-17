@@ -14,9 +14,10 @@ This project reads IFC files, structures their data in memory and converts them 
 
 ## Contribution
 
-`npm install`
-`npm run dev`
+Check the [CONTRIBUTING](https://github.com/agviegas/IFC.js/blob/master/CONTRIBUTING.md) documentation to find out how to take part in this project.
+
+tldr:  `npm install` `npm run dev` 
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
