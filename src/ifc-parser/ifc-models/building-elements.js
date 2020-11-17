@@ -5,8 +5,8 @@ import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
 
 newObject({
   [n.ifcClass]: getName(t.IfcMappedItem),
-  MappingSource: d.id,
-  MappingTarget: d.id,
+  [n.mappingSource]: d.id,
+  [n.mappingTarget]: d.id,
 });
 
 newObject({

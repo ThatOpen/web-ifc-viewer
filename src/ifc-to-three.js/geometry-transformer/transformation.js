@@ -17,8 +17,8 @@ function applyTransform(product) {
   getTransform(product, getPlacement(product));
   applyTransforms(product, n.transform);
 
-  if (product[n.openings])
-    product[n.openings].forEach((opening) => {
+  if (product[n.hasOpenings])
+    product[n.hasOpenings].forEach((opening) => {
       getTransform(opening, getPlacement(opening));
       applyTransforms(opening, n.transform);
     });

@@ -1,5 +1,6 @@
 import { ifcTypes as t } from "../utils/ifc-types.js";
 import { createIfcItemsFinder } from "./items-finder.js";
+import { bindElements } from "./ifc-elements-binder.js";
 import {
   typeValue as v,
   namedProps as n,
@@ -8,46 +9,71 @@ import {
 
 function constructProject(ifcData) {
   const finder = createIfcItemsFinder(ifcData);
-  bindSpatialToSpatial(finder);
-  const elements = bindElementsToSpatial(finder);
-  bindVoidsToElements(finder);
+  bindAllElements(finder);
+  const ifcProjects = Object.values(finder.findByType(t.IfcProject));
+  const elements = finder.findAllProducts(ifcProjects);
   return {
-    [s.ifcProject]: finder.findByType(t.IfcProject),
+    [s.ifcProject]: ifcProjects,
     [s.products]: elements,
   };
 }
 
+function bindAllElements(finder) {
+  bindSpatialToSpatial(finder);
+  bindElementsToSpatial(finder);
+  bindVoidsToElements(finder);
+  bindFillingsToElements(finder);
+  bindTypesToElements(finder);
+}
+
 function bindSpatialToSpatial(finder) {
-  const spatialRelations = finder.findByType(t.IfcRelAggregates);
-  Object.values(spatialRelations).forEach((e) => {
-    e[n.relatingObject][v.value][n.containsSpatial] = e[n.relatedObjects];
-  });
+  bindElements(
+    finder,
+    t.IfcRelAggregates,
+    n.relatingObject,
+    n.relatedObjects,
+    n.hasSpatial
+  );
 }
 
 function bindElementsToSpatial(finder) {
-  const elements = [];
-  const contained = finder.findByType(t.IfcRelContainedInSpatialStructure);
-  Object.values(contained).forEach((e) => {
-    e[n.relatingStructure][v.value][n.containsElements] = e[n.relatedElements];
-    e[n.relatedElements][v.value].forEach((e) => elements.push(e));
-  });
-  return elements;
+  bindElements(
+    finder,
+    t.IfcRelContainedInSpatialStructure,
+    n.relatingStructure,
+    n.relatedElements,
+    n.hasBuildingElements
+  );
 }
 
 function bindVoidsToElements(finder) {
-  const voidRelations = finder.findByType(t.IfcRelVoidsElement);
-  Object.values(voidRelations).forEach((e) => {
-    initializeVoids(e);
-    e[n.relatingBuildingElement][v.value][n.openings].push(
-      e[n.relatedOpeningElement][v.value]
-    );
-  });
+  bindElements(
+    finder,
+    t.IfcRelVoidsElement,
+    n.relatingBuildingElement,
+    n.relatedOpeningElement,
+    n.hasOpenings
+  );
 }
 
-function initializeVoids(voidRelation) {
-  if (!voidRelation[n.relatingBuildingElement][v.value][n.openings]) {
-    voidRelation[n.relatingBuildingElement][v.value][n.openings] = [];
-  }
+function bindFillingsToElements(finder) {
+  bindElements(
+    finder,
+    t.IfcRelFillsElement,
+    n.relatingOpeningElement,
+    n.relatedBuildingElement,
+    n.hasFillings
+  );
+}
+
+function bindTypesToElements(finder) {
+  bindElements(
+    finder,
+    t.IfcRelDefinesByType,
+    n.relatedObjects,
+    n.relatingType,
+    n.hasType
+  );
 }
 
 export { constructProject };

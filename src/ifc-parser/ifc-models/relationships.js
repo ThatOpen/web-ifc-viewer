@@ -49,8 +49,8 @@ newObject({
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
-  RelatedObjects: d.idSet,
-  RelatingType: d.id,
+  [n.relatedObjects]: d.idSet,
+  [n.relatingType]: d.id,
 });
 
 newObject({
@@ -97,6 +97,6 @@ newObject({
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
-  RelatingOpeningElement: d.id,
-  RelatedBuildingElement: d.id,
+  [n.relatingOpeningElement]: d.id,
+  [n.relatedBuildingElement]: d.id,
 });

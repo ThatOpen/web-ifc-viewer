@@ -131,9 +131,9 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcCartesianTransformationOperator3D),
-  Axis1: d.id,
-  Axis2: d.id,
-  LocalOrigin: d.id,
-  Scale: d.number,
-  Axis3: d.id,
+  [n.axis1]: d.id,
+  [n.axis2]: d.id,
+  [n.localOrigin]: d.id,
+  [n.scale]: d.number,
+  [n.axis3]: d.id,
 });

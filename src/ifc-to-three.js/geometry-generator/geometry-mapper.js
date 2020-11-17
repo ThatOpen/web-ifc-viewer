@@ -1,5 +1,7 @@
 import { mapCurve2D } from "./ifc-curve2d.js";
 import { mapSweptSolid } from "./ifc-sweptSolid.js";
+import { mapMappedRepresentation } from "./ifc-mappedRepresentation.js";
+import { mapBrep } from "./ifc-brep.js";
 import {
   geometryTypes as g,
   namedProps as n,
@@ -10,23 +12,27 @@ import {
 const geometryMap = {
   [g.curve2D]: mapCurve2D,
   [g.sweptSolid]: mapSweptSolid,
+  [g.mappedRepresentation]: mapMappedRepresentation,
+  [g.brep]: mapBrep,
 };
 
 function constructGeometry(structured) {
   structured[s.products].forEach((product) => {
+
     try {
-      getRepresentations(product);
-      mapARepresentations(product);
+    getRepresentations(product);
+    mapRepresentations(product);
     } catch (e) {
       console.warn(e);
     }
+
   });
 }
 
 function getRepresentations(product) {
   getRepresentationValue(product);
-  if (product[n.openings])
-    product[n.openings].forEach((opening) => {
+  if (product[n.hasOpenings])
+    product[n.hasOpenings].forEach((opening) => {
       getRepresentationValue(opening);
     });
 }
@@ -40,10 +46,10 @@ function getRepresentationValue(product) {
   }
 }
 
-function mapARepresentations(product) {
+function mapRepresentations(product) {
   mapProductRepresentations(product);
-  if (product[n.openings])
-    product[n.openings].forEach((opening) => {
+  if (product[n.hasOpenings])
+    product[n.hasOpenings].forEach((opening) => {
       mapProductRepresentations(opening);
     });
 }
@@ -57,7 +63,8 @@ function mapProductRepresentations(product) {
 
 function getMappedGeometry(representation, product) {
   try {
-    return geometryMap[getType(representation)](representation, product);
+    const representationType = getType(representation);
+    return geometryMap[representationType](representation, product);
   } catch (e) {
     console.warn(e);
   }
@@ -67,4 +74,4 @@ function getType(representation) {
   return representation[n.representationType][t.value];
 }
 
-export { constructGeometry };
+export { constructGeometry, getMappedGeometry };

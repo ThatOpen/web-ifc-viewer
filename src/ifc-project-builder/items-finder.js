@@ -15,21 +15,20 @@ class IfcEntityFinder {
     });
     return matches;
   }
+
   getType(id) {
     return this.ifcData[id][n.ifcClass];
   }
 
-  // findByTypes(ifcTypes) {
-  //   const matches = {};
-  //   Object.keys(this.ifcData).forEach((e) => {
-  //     ifcTypes.forEach((j) => {
-  //       if (this.getType(e) === getName(j)) {
-  //         matches[e] = this.ifcData[e];
-  //       }
-  //     });
-  //   });
-  //   return matches;
-  // }
+  findAllProducts(spatialStructureElements, elements = []) {
+    spatialStructureElements.forEach((spatial) => {
+      const buildingElementsHere = spatial[n.hasBuildingElements];
+      const spatialElementsHere = spatial[n.hasSpatial];
+      if (buildingElementsHere) elements.push(...buildingElementsHere);
+      if (spatialElementsHere) this.findAllProducts(spatialElementsHere, elements);
+    });
+    return elements;
+  }
 }
 
 function createIfcItemsFinder(loadedIfc) {

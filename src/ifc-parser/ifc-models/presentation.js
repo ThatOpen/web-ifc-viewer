@@ -61,8 +61,8 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcRepresentationMap),
-  MappingOrigin: d.id,
-  MappedRepresentation: d.id,
+  [n.mappingOrigin]: d.id,
+  [n.mappedRepresentation]: d.id,
 });
 
 newObject({
