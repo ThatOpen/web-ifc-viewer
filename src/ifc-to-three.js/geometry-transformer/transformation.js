@@ -4,7 +4,6 @@ import {
   defaultValue as def,
   namedProps as n,
   structuredData as s,
-  typeValue as t,
 } from "../../utils/global-constants.js";
 
 function applyTransformations(structured) {
@@ -28,10 +27,10 @@ function applyTransform(product) {
 
 function getTransform(product, objPlacement) {
   try {
-    const placement = objPlacement[n.relativePlacement][t.value];
+    const placement = objPlacement[n.relativePlacement];
     trackLocalTransform(product, placement, n.transform);
-    if (objPlacement[n.placementRelTo][t.value] != def) {
-      getTransform(product, objPlacement[n.placementRelTo][t.value]);
+    if (objPlacement[n.placementRelTo] != def) {
+      getTransform(product, objPlacement[n.placementRelTo]);
     }
   } catch (e) {
     console.warn(e);
@@ -40,7 +39,7 @@ function getTransform(product, objPlacement) {
 
 function getPlacement(product) {
   try {
-    return product[n.objectPlacement][t.value];
+    return product[n.objectPlacement];
   } catch (e) {
     console.warn(e);
   }

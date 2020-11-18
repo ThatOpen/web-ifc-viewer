@@ -1,3 +1,4 @@
+import { typeValue as v } from "../../utils/global-constants.js";
 import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 
 function referenceEntities(items) {
@@ -5,35 +6,45 @@ function referenceEntities(items) {
   for (key in items) {
     const ifcLine = items[key];
     for (key in ifcLine) {
-      referenceSingleItem(key, ifcLine, items);
-      referenceMultipleItems(key, ifcLine, items);
+      const ifcProperty = ifcLine[key];
+      referenceSingleItem(ifcProperty, items);
+      referenceMultipleItems(ifcProperty, items);
+      trimExplicitTypes(ifcLine, key);
     }
   }
 }
 
-function referenceSingleItem(key, ifcLine, items) {
-  if (
-    isItemWithReference(ifcLine[key]) &&
-    items.hasOwnProperty(ifcLine[key].value)
-  ) {
-    ifcLine[key].value = items[ifcLine[key].value];
-  }
+function referenceSingleItem(ifcProperty, items) {
+  if (isSingleItemValid(ifcProperty, items))
+    ifcProperty[v.value] = items[ifcProperty[v.value]];
 }
 
-function referenceMultipleItems(key, ifcLine, items) {
-  if (ifcLine[key].type === d.idSet) {
-    const property = ifcLine[key];
-    const values = [...property.value];
-    property.value = values.map((e) => {
+function isSingleItemValid(ifcProperty, items) {
+  return (
+    isItemWithReference(ifcProperty) &&
+    items.hasOwnProperty(ifcProperty[v.value])
+  );
+}
+
+function referenceMultipleItems(ifcProperty, items) {
+  if (ifcProperty[v.type] === d.idSet) {
+    const property = ifcProperty;
+    const values = [...property[v.value]];
+    property[v.value] = values.map((e) => {
       return items.hasOwnProperty(e) ? items[e] : e;
     });
   }
 }
 
 function isItemWithReference(item) {
-  if (item.type === d.value && !isNaN(item.value)) return true;
-  if (item.type === d.id) return true;
+  if (item[v.value] === d[v.value] && !isNaN(item[v.value])) return true;
+  if (item[v.type] === d.id) return true;
   return false;
+}
+
+function trimExplicitTypes(ifcLine, key) {
+  const value = ifcLine[key][v.value];
+  if (value) ifcLine[key] = value;
 }
 
 export { referenceEntities };

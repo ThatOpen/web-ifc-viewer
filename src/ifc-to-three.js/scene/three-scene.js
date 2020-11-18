@@ -38,18 +38,22 @@ grid.renderOrder = 1;
 grid.rotation.x = Math.PI / 2;
 scene.add(grid);
 
+//TODO: Adjust light to avoid planes too bright / dark on any angle
 //Light
 const color = 0xffffff;
 const highIntensity = 1;
 const lowIntensity = 0.5;
 const light = new THREE.DirectionalLight(color, highIntensity);
 const light2 = new THREE.DirectionalLight(color, lowIntensity);
-const light3 = new THREE.AmbientLight(0x303030);
+const light3 = new THREE.DirectionalLight(color, highIntensity);
+const light4 = new THREE.AmbientLight(0x303030);
 light.position.set(-2, 2, 4);
 light2.position.set(4, 3, -2);
+light3.position.set(4, -3, -2);
 scene.add(light);
 scene.add(light2);
 scene.add(light3);
+scene.add(light4);
 
 // smooth Zoom
 const controls = new THREE.OOrbitControls(camera, renderer.domElement);

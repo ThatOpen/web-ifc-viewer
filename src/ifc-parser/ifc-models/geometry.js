@@ -105,28 +105,28 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcFaceOuterBound),
-  Bound: d.id,
-  Orientation: d.bool,
+  [n.bound]: d.id,
+  [n.orientation]: d.bool,
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcFace),
-  Bounds: d.idSet,
+  [n.bounds]: d.idSet,
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcPolyLoop),
-  Polygon: d.idSet,
+  [n.polygon]: d.idSet,
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcClosedShell),
-  CfsFaces: d.idSet,
+  [n.cfsFaces]: d.idSet,
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcFacetedBrep),
-  Outer: d.id,
+  [n.outer]: d.id,
 });
 
 newObject({

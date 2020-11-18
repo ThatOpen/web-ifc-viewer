@@ -6,7 +6,6 @@ import {
   geometryTypes as g,
   namedProps as n,
   structuredData as s,
-  typeValue as t,
 } from "../../utils/global-constants.js";
 
 const geometryMap = {
@@ -18,14 +17,12 @@ const geometryMap = {
 
 function constructGeometry(structured) {
   structured[s.products].forEach((product) => {
-
     try {
-    getRepresentations(product);
-    mapRepresentations(product);
+      getRepresentations(product);
+      mapRepresentations(product);
     } catch (e) {
       console.warn(e);
     }
-
   });
 }
 
@@ -40,7 +37,7 @@ function getRepresentations(product) {
 function getRepresentationValue(product) {
   try {
     product[n.geomRepresentations] =
-      product[n.representation][t.value][n.representations][t.value];
+      product[n.representation][n.representations];
   } catch (e) {
     console.warn(e);
   }
@@ -71,7 +68,7 @@ function getMappedGeometry(representation, product) {
 }
 
 function getType(representation) {
-  return representation[n.representationType][t.value];
+  return representation[n.representationType];
 }
 
 export { constructGeometry, getMappedGeometry };

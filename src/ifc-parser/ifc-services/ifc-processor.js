@@ -14,6 +14,7 @@ import { parse } from "../parser/parse-process.js";
 import { readIfcItems } from "./ifc-items-reader.js";
 import { referenceEntities } from "./ifc-items-referencer.js";
 import { findRemainingTypes } from "../../dev/functions-for-development.js";
+import { itemsReaderValues as i, namedProps as n } from "../../utils/global-constants.js";
 
 function loadIfcFileItems(ifcData) {
   const ifcItems = readIfcItems(ifcData);
@@ -21,28 +22,24 @@ function loadIfcFileItems(ifcData) {
   return loadItems(ifcItems);
 }
 
-function loadItems(ifcItems) {
+function loadItems(ifcData) {
   const loadedItems = {};
-  ifcItems.map((ifcItem) => {
+  ifcData.map((ifcItem) => {
     if (isTypeSupported(ifcItem))
-      loadedItems[ifcItem.expressId] = parseAndLoadItem(ifcItems, ifcItem);
+      loadedItems[ifcItem[i.expressId]] = parseAndLoadItem(ifcItem);
   });
   referenceEntities(loadedItems);
   return loadedItems;
 }
 
-function parseAndLoadItem(ifcData, ifcItem) {
-  const foundItem = findById(ifcItem.expressId, ifcData);
-  return parse(foundItem.properties, ifcItem.type);
-}
-
-function findById(idToFind, ifcItems) {
-  const foundItem = ifcItems.find((e) => e.expressId === idToFind);
-  return foundItem ? foundItem : idToFind;
+function parseAndLoadItem(ifcItem) {
+  const parsed = parse(ifcItem[i.properties], ifcItem[i.type]);
+  parsed[n.expressId] = ifcItem[i.expressId];
+  return parsed;
 }
 
 function isTypeSupported(ifcItem) {
-  return Object.values(t).indexOf(ifcItem.type) > -1;
+  return Object.values(t).indexOf(ifcItem[i.type]) > -1;
 }
 
 export { loadIfcFileItems };

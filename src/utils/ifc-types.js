@@ -5,7 +5,7 @@ const ifcTypes = {
   IfcSlab: "IFCSLAB",
   IfcOpeningElement: "IFCOPENINGELEMENT",
   IfcWallStandardCase: "IFCWALLSTANDARDCASE",
-  // IfcWall: "IFCWALL",
+  IfcWall: "IFCWALL",
   // IfcDoor: "IFCDOOR",
   //Classification
   IfcClassification: "IFCCLASSIFICATION",

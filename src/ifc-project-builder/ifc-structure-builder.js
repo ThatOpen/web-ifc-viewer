@@ -2,7 +2,6 @@ import { ifcTypes as t } from "../utils/ifc-types.js";
 import { createIfcItemsFinder } from "./items-finder.js";
 import { bindElements } from "./ifc-elements-binder.js";
 import {
-  typeValue as v,
   namedProps as n,
   structuredData as s,
 } from "../utils/global-constants.js";

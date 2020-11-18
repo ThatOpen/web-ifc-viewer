@@ -6,7 +6,7 @@ function buildGeometry(structured) {
   console.log(structured);
   constructGeometry(structured);
   applyTransformations(structured);
-  applyBooleanOperations(structured);
+  // applyBooleanOperations(structured);
 }
 
 export { buildGeometry };

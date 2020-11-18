@@ -3,10 +3,14 @@ const namedProps = {
   axis1: "Axis1",
   axis2: "Axis2",
   axis3: "Axis3",
+  bound: "Bound",
+  bounds: "Bounds",
+  cfsFaces: "CfsFaces",
   coordinates: "Coordinates",
   depth: "Depth",
   dirRatios: "DirectionRatios",
   extDirection: "ExtrudedDirection",
+  expressId: "_ExpressId",
   geometry: "_Geometry",
   geomRepresentations: "_GeometryRepresentations",
   hasBuildingElements: "_HasBuildingElements",
@@ -23,10 +27,13 @@ const namedProps = {
   mappingSource: "MappingSource",
   mappingTarget: "MappingTarget",
   objectPlacement: "ObjectPlacement",
+  orientation: "Orientation",
+  outer: "Outer",
   outerCurve: "OuterCurve",
   pivots: "Pivots",
   placementRelTo: "PlacementRelTo",
   points: "Points",
+  polygon: "Polygon",
   position: "Position",
   profile: "Profile",
   refDirection: "RefDirection",
@@ -53,6 +60,12 @@ const namedProps = {
   undefined: "undefined",
   xDim: "XDim",
   yDim: "YDim",
+};
+
+const itemsReaderValues = {
+  expressId: "expressId",
+  type: "type",
+  properties: "properties",
 };
 
 const typeValue = {
@@ -104,4 +117,5 @@ export {
   ifcBoolValues,
   structuredData,
   defaultValue,
+  itemsReaderValues,
 };

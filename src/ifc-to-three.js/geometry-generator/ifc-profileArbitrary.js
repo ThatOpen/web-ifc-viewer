@@ -1,20 +1,16 @@
 import { createExtrusion } from "./three-extrusion.js";
-import {
-  namedProps as n,
-  typeValue as v,
-} from "../../utils/global-constants.js";
-import { getName, ifcTypes } from "../../utils/ifc-types.js";
+import { namedProps as n } from "../../utils/global-constants.js";
 
-function mapArbitraryProfileExtrusion(extruded, product) {
+function mapArbitraryProfileExtrusion(extruded) {
   const points = getArbitraryProfilePoints(extruded);
   return createExtrusion(points, extruded.depth);
 }
 
 function getArbitraryProfilePoints(extruded) {
   const profile = extruded.profile;
-  const points = profile[n.outerCurve][v.value][n.points][v.value];
+  const points = profile[n.outerCurve][n.points];
   return points.map((point) => {
-    const coords = point[n.coordinates][v.value];
+    const coords = point[n.coordinates];
     return [-coords[0], -coords[1]];
   });
 }

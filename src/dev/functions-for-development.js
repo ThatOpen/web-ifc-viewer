@@ -1,12 +1,12 @@
 import { getName, ifcTypes } from "../utils/ifc-types.js";
-import { namedProps as n } from "../utils/global-constants.js";
+import { itemsReaderValues as i, namedProps as n } from "../utils/global-constants.js";
 
 function findRemainingTypes(items) {
   const remainingTypes = [];
   items.forEach((element) => {
-    if (Object.values(ifcTypes).indexOf(element.type) < 0) {
-      if (!remainingTypes.includes(element.type)) {
-        remainingTypes.push(element.type);
+    if (Object.values(ifcTypes).indexOf(element[i.type]) < 0) {
+      if (!remainingTypes.includes(element[i.type])) {
+        remainingTypes.push(element[i.type]);
       }
     }
   });

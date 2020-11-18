@@ -15,12 +15,20 @@ function applyTransform(geometry, pivots) {
   if (geometry) {
     bindGeometryToPivots(geometry, pivots);
     scene.add(pivots[0]);
-    scene.attach(geometry);
+    attachGeometryToScene(geometry);
     scene.remove(pivots[0]);
   }
 }
 
+function attachGeometryToScene(geometry) {
+  if (geometry.constructor === Array)
+    return geometry.forEach((e) => attachGeometryToScene(e));
+  return scene.attach(geometry);
+}
+
 function bindGeometryToPivots(geometry, pivots) {
+  if (geometry.constructor === Array)
+    return geometry.forEach((e) => bindGeometryToPivots(e, pivots));
   pivots[pivots.length - 1].add(geometry);
 }
 

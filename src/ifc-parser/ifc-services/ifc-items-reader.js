@@ -1,3 +1,4 @@
+import { itemsReaderValues as i } from "../../utils/global-constants.js";
 import { regexp } from "../../utils/regexp.js";
 
 class IfcItemsReader {
@@ -22,9 +23,9 @@ class IfcItemsReader {
     const flatIfcItemList = this.separateIfcEntities(dataSection);
     return flatIfcItemList.map((e) => {
       return {
-        expressId: this.getId(e),
-        type: this.getIfcType(e),
-        properties: this.getIfcRawProperties(e),
+        [i.expressId]: this.getId(e),
+        [i.type]: this.getIfcType(e),
+        [i.properties]: this.getIfcRawProperties(e),
       };
     });
   }

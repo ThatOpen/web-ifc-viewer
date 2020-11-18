@@ -2,7 +2,6 @@ import {
   defaultValue as def,
   namedProps as n,
   pivots as p,
-  typeValue as t,
 } from "../../utils/global-constants.js";
 
 function trackLocalTransform(product, placement, property) {
@@ -16,11 +15,11 @@ function trackLocalTransform(product, placement, property) {
 
 function initializeTransform(product, property) {
   if (!product[property])
-  product[property] = {
-      [p.locat] : [],
-      [p.xAxis] : [],
-      [p.yAxis] : [],
-      [p.zAxis] : [],
+    product[property] = {
+      [p.locat]: [],
+      [p.xAxis]: [],
+      [p.yAxis]: [],
+      [p.zAxis]: [],
     };
   return product[property];
 }
@@ -30,27 +29,27 @@ function getTransform(placement) {
   const xAxis = getAxisX(placement);
   const zAxis = getAxisZ(placement);
   const yAxis = getAxisY(zAxis, xAxis);
-  return {locat, xAxis, yAxis, zAxis};
+  return { locat, xAxis, yAxis, zAxis };
 }
 
 function getLocat(placement) {
   if (isInvalid(placement[n.location])) return [0, 0, 0];
-  const location = placement[n.location][t.value][n.coordinates][t.value];
-  if(location.length === 2) location.push(0);
+  const location = placement[n.location][n.coordinates];
+  if (location.length === 2) location.push(0);
   return location;
 }
 
 function getAxisX(placement) {
   if (isInvalid(placement[n.refDirection])) return [1, 0, 0];
-  let x = placement[n.refDirection][t.value][n.dirRatios][t.value];
-  if(x.length === 2) x.push(0);
+  let x = placement[n.refDirection][n.dirRatios];
+  if (x.length === 2) x.push(0);
   return x;
 }
 
 function getAxisZ(placement) {
   if (isInvalid(placement[n.axis])) return [0, 0, 1];
-  const z = placement[n.axis][t.value][n.dirRatios][t.value];
-  if(z.length === 2) z.push(0);
+  const z = placement[n.axis][n.dirRatios];
+  if (z.length === 2) z.push(0);
   return z;
 }
 
@@ -65,7 +64,7 @@ function getAxisY(X, Z) {
 }
 
 function isInvalid(prop) {
-  if (!prop || prop[t.value] === def) return true;
+  if (!prop || prop === def) return true;
   return false;
 }
 
