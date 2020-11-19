@@ -24,6 +24,14 @@ function constructGeometry(structured) {
       console.warn(e);
     }
   });
+  structured[s.spaces].forEach((space) => {
+    try {
+      getRepresentations(space);
+      mapRepresentations(space);
+    } catch (e) {
+      console.warn(e);
+    }
+  });
 }
 
 function getRepresentations(product) {

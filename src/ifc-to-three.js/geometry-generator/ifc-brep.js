@@ -1,5 +1,4 @@
 import { namedProps as n } from "../../utils/global-constants.js";
-import { scene } from "../scene/three-scene.js";
 import { createFace } from "./three-shapeGeometry.js";
 
 function mapBrep(shape, product) {

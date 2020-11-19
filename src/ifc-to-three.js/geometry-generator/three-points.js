@@ -1,4 +1,4 @@
-import { scene } from "../three-scene.js";
+import { scene } from "../scene/three-scene.js";
 
 const sprite = new THREE.TextureLoader().load(
   "../../resources/images/point.png"
@@ -17,8 +17,8 @@ function createPoint(coordinates) {
   dotMaterial.color.setRGB(1, 0.3, 0.3);
   var dot = new THREE.Points(dotGeometry, dotMaterial);
   dot.position.x = dot.position.x + coordinates[0];
-  dot.position.z = dot.position.z + coordinates[1];
-  dot.position.y = dot.position.y + coordinates[3] ? coordinates[3] : 0;
+  dot.position.y = dot.position.y + coordinates[1];
+  dot.position.z = dot.position.z + coordinates[2];
   scene.add(dot);
 }
 

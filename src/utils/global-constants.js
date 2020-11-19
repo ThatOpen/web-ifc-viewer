@@ -96,6 +96,7 @@ const ifcBoolValues = {
 const structuredData = {
   ifcProject: "IfcProject",
   products: "Products",
+  spaces: "Spaces",
 };
 
 const pivots = {
