@@ -71,3 +71,17 @@ newObject({
   [n.representation]: d.id,
   Tag: d.text,
 });
+
+newObject({
+  [n.ifcClass]: getName(t.IfcWindow),
+  GlobalId: d.guid,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ObjectType: d.text,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
+  Tag: d.text,
+  OverallHeight: d.number,
+  OverallWidth: d.number,
+});

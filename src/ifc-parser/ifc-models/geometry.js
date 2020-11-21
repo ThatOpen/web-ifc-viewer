@@ -89,6 +89,14 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcArbitraryProfileDefWithVoids),
+  ProfileType: d.enum,
+  ProfileName: d.text,
+  [n.outerCurve]: d.id,
+  [n.innerCurves]: d.idSet,
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcArbitraryClosedProfileDef),
   ProfileType: d.enum,
   ProfileName: d.text,

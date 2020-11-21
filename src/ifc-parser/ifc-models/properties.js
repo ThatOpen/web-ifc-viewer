@@ -109,3 +109,36 @@ newObject({
   ParameterTakesPrecedence: d.bool,
   Sizeable: d.bool,
 });
+
+newObject({
+  [n.ifcClass]: getName(t.IfcWindowStyle),
+  GlobalId: d.guid,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ApplicableOccurrence: d.text,
+  HasPropertySets: d.idSet,
+  RepresentationMaps: d.idSet,
+  Tag: d.text,
+  ConstructionType: d.enum,
+  OperationType: d.enum,
+  ParameterTakesPrecedence: d.bool,
+  Sizeable: d.bool,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcWindowLiningProperties),
+  GlobalId: d.guid,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  LiningDepth: d.number,
+  LiningThickness: d.number,
+  TransomThickness: d.number,
+  MullionThickness: d.number,
+  FirstTransomOffset: d.number,
+  SecondTransomOffset: d.number,
+  FirstMullionOffset: d.number,
+  SecondMullionOffset: d.number,
+  ShapeAspectStyle: d.number,
+});

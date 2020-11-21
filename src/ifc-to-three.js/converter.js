@@ -1,8 +1,8 @@
 import { applyTransformations } from "./geometry-transformer/transformation.js";
 import { constructGeometry } from "./geometry-generator/geometry-mapper.js";
 import { applyBooleanOperations } from "./geometry-operator/boolean-operator.js";
-import { applycolors, drawEdges } from "./scene/materials.js";
-import { scene } from "./scene/three-scene.js";
+import { applyMaterials } from "./scene/materials.js";
+import {drawEdges } from "./scene/edges.js";
 
 function buildGeometry(structured) {
   console.log(structured);
@@ -10,7 +10,7 @@ function buildGeometry(structured) {
   applyTransformations(structured);
   drawEdges(structured);
   applyBooleanOperations(structured);
-  applycolors(structured);
+  applyMaterials(structured);
 }
 
 export { buildGeometry };

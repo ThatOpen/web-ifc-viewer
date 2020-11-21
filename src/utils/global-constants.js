@@ -19,6 +19,7 @@ const namedProps = {
   hasSpatial: "_HasSpatialStructures",
   hasType: "_HasType",
   ifcClass: "_IfcClass",
+  innerCurves: "InnerCurves",
   items: "Items",
   location: "Location",
   localOrigin: "LocalOrigin",

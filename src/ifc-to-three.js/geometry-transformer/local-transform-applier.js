@@ -1,5 +1,6 @@
 import { namedProps as n, pivots as p } from "../../utils/global-constants.js";
 import { createAxes, scene } from "../scene/three-scene.js";
+import { resetTransformData } from "./local-transform-reseter.js";
 
 function applyTransforms(product, property) {
   const pivots = getPivots(product[property]);
@@ -9,6 +10,7 @@ function applyTransforms(product, property) {
 function applyTransformsTo(product, geometry, property) {
   const pivots = getPivots(product[property]);
   applyTransform(geometry, pivots);
+  resetTransformData(product, property);
 }
 
 function applyTransform(geometry, pivots) {
@@ -56,22 +58,10 @@ function getRotMat(transform, index) {
   const directionMatrix = new THREE.Matrix4();
   const rotationMatrix = new THREE.Matrix4();
   directionMatrix.set(
-    x[0],
-    x[1],
-    x[2],
-    0,
-    y[0],
-    y[1],
-    y[2],
-    0,
-    z[0],
-    z[1],
-    z[2],
-    0,
-    0,
-    0,
-    0,
-    1
+    x[0], x[1], x[2], 0,
+    y[0], y[1], y[2], 0,
+    z[0], z[1], z[2], 0,
+      0,    0,    0,  1
   );
   rotationMatrix.getInverse(directionMatrix);
   return rotationMatrix;

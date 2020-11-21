@@ -1,53 +1,10 @@
+import { ifcTypes as t } from "../../utils/ifc-types.js";
 import {
   namedProps as n,
   structuredData as s,
-  structuredData,
 } from "../../utils/global-constants.js";
-import { ifcTypes as t, getName } from "../../utils/ifc-types.js";
-import { scene } from "./three-scene.js";
 
-const materials = {
-
-  whiteDefault: new THREE.MeshLambertMaterial({
-    color: 0xffffff,
-    side: 2,
-    polygonOffset: true,
-    polygonOffsetFactor: 1,
-    polygonOffsetUnits: 1,
-  }),
-
-  brownDefault: new THREE.MeshLambertMaterial({
-    color: 0xc2893a,
-    side: 2,
-    polygonOffset: true,
-    polygonOffsetFactor: 1,
-    polygonOffsetUnits: 1,
-  }),
-
-  blueTransparent: new THREE.MeshBasicMaterial({
-    color: 0x52b2bf,
-    side: 2,
-    polygonOffset: true,
-    polygonOffsetFactor: 1,
-    polygonOffsetUnits: 1,
-    opacity: 0.2,
-    transparent: true
-  }),
-
-};
-
-const materialsMap = {
-  [t.IfcWall]: materials.whiteDefault,
-  [t.IfcWallStandardCase]: materials.whiteDefault,
-  [t.IfcDoor]: materials.brownDefault,
-  [t.IfcSpace]: materials.blueTransparent,
-};
-
-function getmaterial(ifcType) {
-  return materialsMap[t[ifcType]];
-}
-
-function applycolors(structured) {
+function applyMaterials(structured) {
   structured[s.products].forEach((product) => {
     product[n.geometry].forEach((item) => {
       if (item.type === "Mesh")
@@ -57,39 +14,83 @@ function applycolors(structured) {
 
   structured[s.spaces].forEach((space) => {
     space[n.geometry].forEach((item) => {
-      if (item.type === "Mesh")
-        item.material = getmaterial(space[n.ifcClass]);
+      if (item.type === "Mesh") item.material = getmaterial(space[n.ifcClass]);
     });
   });
 }
 
-function drawEdges(structured) {
-  const products = structured[s.products];
-  
-  products.forEach((product) => {
-    product[n.geometry].forEach((item) => {
+const colors = {
+  black: 0x000000,
+  brown: 0xc2893a,
+  grey: 0x606060,
+  darkBrown: 0x5c3d1e,
+  darkBlue: 0x23395d,
+  lightBlue: 0xadd8e6,
+  white: 0xffffff,
+};
 
-      if (item.type === "Mesh" && product[n.ifcClass])
+const materialsMap = {
+  [t.IfcWall]: {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.grey,
+  },
+  [t.IfcWallStandardCase]: {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.grey,
+  },
+  [t.IfcDoor]: {
+    material: getDiffuseMat(colors.brown),
+    lineColor: colors.darkBrown,
+  },
+  [t.IfcWindow]: {
+    material: getTransparentMat(colors.lightBlue, 0.2),
+    lineColor: colors.darkBlue,
+  },
+  [t.IfcSpace]: {
+    material: getTransparentMat(colors.lightBlue, 0.2),
+    lineColor: colors.black,
+  },
+};
 
-      var geo = new THREE.EdgesGeometry(item.geometry);
-      var mat = new THREE.LineBasicMaterial({ color: 0x000000 });
-      var wireframe = new THREE.LineSegments(geo, mat);
+function getmaterial(ifcType) {
+  return materialsMap[t[ifcType]].material;
+}
 
-      item.add(wireframe);
-      scene.attach(wireframe);
+function getLineColor(ifcType) {
+  return materialsMap[t[ifcType]].lineColor;
+}
 
-      if(product[n.hasOpenings])
-        product[n.hasOpenings].forEach((opening)=>{
-          opening[n.geometry].forEach((o)=>{
-            var geo2 = new THREE.EdgesGeometry(o.geometry);
-            var wireframe2 = new THREE.LineSegments(geo2, mat);
-            o.add(wireframe2);
-            scene.attach(wireframe2);
-          })
-        })
-    });
+function getTransparentMat(color, opacity = 0.2){
+  return new THREE.MeshBasicMaterial({
+    color: color,
+    side: 2,
+    polygonOffset: true,
+    polygonOffsetFactor: 1,
+    polygonOffsetUnits: 1,
+    opacity: opacity,
+    transparent: true,
+    depthWrite: false,
   });
 }
 
+function getDiffuseMat(color){
+  return new THREE.MeshLambertMaterial({
+    color: color,
+    side: 2,
+    polygonOffset: true,
+    polygonOffsetFactor: 1,
+    polygonOffsetUnits: 1,
+  });
+}
 
-export { applycolors, drawEdges };
+function getBasicMat(color){
+  return new THREE.MeshBasicMaterial({
+    color: color,
+    side: 2,
+    polygonOffset: true,
+    polygonOffsetFactor: 1,
+    polygonOffsetUnits: 1,
+  });
+}
+
+export { applyMaterials, getLineColor };

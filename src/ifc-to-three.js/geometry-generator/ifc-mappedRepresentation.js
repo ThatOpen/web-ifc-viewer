@@ -15,7 +15,7 @@ function getMappingSource(product, representation) {
   const source = representation[n.mappingSource];
   const origin = source[n.mappingOrigin];
   const mappedGeometry = source[n.mappedRepresentation];
-  const geometry = getMappedGeometry(mappedGeometry);
+  const geometry = getMappedGeometry(mappedGeometry, product);
   applyTransformation(product, origin, geometry);
   return geometry;
 }

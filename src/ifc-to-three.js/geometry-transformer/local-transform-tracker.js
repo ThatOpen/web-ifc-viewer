@@ -1,3 +1,4 @@
+import { resetTransformData } from "./local-transform-reseter.js";
 import {
   defaultValue as def,
   namedProps as n,
@@ -14,13 +15,7 @@ function trackLocalTransform(product, placement, property) {
 }
 
 function initializeTransform(product, property) {
-  if (!product[property])
-    product[property] = {
-      [p.locat]: [],
-      [p.xAxis]: [],
-      [p.yAxis]: [],
-      [p.zAxis]: [],
-    };
+  if (!product[property]) resetTransformData(product, property);
   return product[property];
 }
 

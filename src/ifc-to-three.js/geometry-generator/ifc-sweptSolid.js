@@ -4,29 +4,36 @@ import { mapArbitraryProfileExtrusion } from "./ifc-profileArbitrary.js";
 import { trackLocalTransform } from "../geometry-transformer/local-transform-tracker.js";
 import { applyTransformsTo } from "../geometry-transformer/local-transform-applier.js";
 import { namedProps as n } from "../../utils/global-constants.js";
+import { mapArbitraryProfileWithVoidsExtrusion } from "./ifc-profileArbitraryWithVoids.js";
+import { scene } from "../scene/three-scene.js";
 
 function mapSweptSolid(shape, product) {
-  const extruded = shape[n.items][0];
-  return constructSweptSolid(product, extruded);
+  const items = [];
+  shape[n.items].forEach((extruded) => items.push(newSolid(product, extruded)));
+  return joinAllExtrusions(items);
+}
+
+function joinAllExtrusions(items){
+  var singleGeometry = new THREE.Geometry();
+  items.forEach((item)=>{
+    item.updateMatrix();
+    singleGeometry.merge(item.geometry, item.matrix);
+    scene.remove(item);
+  })
+  return new THREE.Mesh(singleGeometry);
 }
 
 //Beware: the creation of the solid must occur BEFORE trackLocalTransformation()
 //Because the local transformations are tracked from inside to outside
 //Same logic as IfcLocalPlacement used to locate the products
 
-function constructSweptSolid(product, extruded) {
+function newSolid(product, extruded) {
   const extrudedProps = getExtrusionProps(extruded);
-  const solid = selectSpecificProfileMapper(extrudedProps, product);
-  trackLocalTransformation(product, extruded);
+  const solid = getExtrusionByType(extrudedProps, product);
+  const position = extruded[n.position];
+  trackLocalTransform(product, position, n.transformOfExtrusion);
   applyTransformsTo(product, solid, n.transformOfExtrusion);
   return solid;
-}
-
-function selectSpecificProfileMapper(extruded, product) {
-  if (extruded.ifcClass === getName(t.IfcRectangleProfileDef))
-    return mapRectangleProfileExtrusion(extruded, product);
-  if (extruded.ifcClass === getName(t.IfcArbitraryClosedProfileDef))
-    return mapArbitraryProfileExtrusion(extruded, product);
 }
 
 function getExtrusionProps(extruded) {
@@ -38,9 +45,14 @@ function getExtrusionProps(extruded) {
   };
 }
 
-function trackLocalTransformation(product, extruded) {
-  const position = extruded[n.position];
-  trackLocalTransform(product, position, n.transformOfExtrusion);
+const extrusionTypes = {
+  [t.IfcRectangleProfileDef]: mapRectangleProfileExtrusion,
+  [t.IfcArbitraryClosedProfileDef]: mapArbitraryProfileExtrusion,
+  [t.IfcArbitraryProfileDefWithVoids]: mapArbitraryProfileWithVoidsExtrusion,
+};
+
+function getExtrusionByType(extruded, product) {
+  return extrusionTypes[extruded.ifcClass.toUpperCase()](extruded, product);
 }
 
 export { mapSweptSolid };

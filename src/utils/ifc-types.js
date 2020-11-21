@@ -6,7 +6,7 @@ const ifcTypes = {
   IfcOpeningElement: "IFCOPENINGELEMENT",
   IfcWallStandardCase: "IFCWALLSTANDARDCASE",
   IfcWall: "IFCWALL",
-  // IfcDoor: "IFCDOOR",
+  IfcWindow: "IFCWINDOW",
   //Classification
   IfcClassification: "IFCCLASSIFICATION",
   //Contexts
@@ -17,6 +17,7 @@ const ifcTypes = {
   IfcLocalPlacement: "IFCLOCALPLACEMENT",
   //Geometry
   IfcArbitraryClosedProfileDef: "IFCARBITRARYCLOSEDPROFILEDEF",
+  IfcArbitraryProfileDefWithVoids: "IFCARBITRARYPROFILEDEFWITHVOIDS",
   IfcAxis2Placement2D: "IFCAXIS2PLACEMENT2D",
   IfcAxis2Placement3D: "IFCAXIS2PLACEMENT3D",
   IfcBooleanClippingResult: "IFCBOOLEANCLIPPINGRESULT",
@@ -68,7 +69,9 @@ const ifcTypes = {
   IfcPropertySingleValue: "IFCPROPERTYSINGLEVALUE",
   IfcSpaceType: "IFCSPACETYPE",
   IfcWallType: "IFCWALLTYPE",
+  IfcWindowStyle: "IFCWINDOWSTYLE",
   IfcSlabType: "IFCSLABTYPE",
+  IfcWindowLiningProperties: "IFCWINDOWLININGPROPERTIES",
   // Relationships
   IfcRelAggregates: "IFCRELAGGREGATES",
   IfcRelAssociatesMaterial: "IFCRELASSOCIATESMATERIAL",
