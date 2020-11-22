@@ -46,6 +46,10 @@ const materialsMap = {
     material: getDiffuseMat(colors.white),
     lineColor: colors.grey,
   },
+  [t.IfcSlab]: {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.grey,
+  },
   [t.IfcDoor]: {
     material: getDiffuseMat(colors.brown),
     lineColor: colors.darkBrown,

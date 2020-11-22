@@ -1,9 +1,9 @@
-import { createExtrusion } from "./three-extrusion.js";
+import { createExtrusionsByPoints } from "./three-extrusion.js";
 import { namedProps as n } from "../../utils/global-constants.js";
 
 function mapArbitraryProfileExtrusion(extruded) {
   const points = getArbitraryProfilePoints(extruded);
-  return createExtrusion(points, extruded.depth);
+  return createExtrusionsByPoints(points, extruded.depth);
 }
 
 function getArbitraryProfilePoints(extruded) {

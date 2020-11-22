@@ -38,6 +38,7 @@ const namedProps = {
   polygon: "Polygon",
   position: "Position",
   profile: "Profile",
+  radius: "Radius",
   refDirection: "RefDirection",
   relatedBuildingElement: "RelatedBuildingElement",
   relatedElements: "RelatedElements",

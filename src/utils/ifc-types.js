@@ -24,6 +24,7 @@ const ifcTypes = {
   IfcCartesianPoint: "IFCCARTESIANPOINT",
   IfcCartesianTransformationOperator3D: "IFCCARTESIANTRANSFORMATIONOPERATOR3D",
   IfcClosedShell: "IFCCLOSEDSHELL",
+  IfcCircleProfileDef: "IFCCIRCLEPROFILEDEF",
   IfcConnectionSurfaceGeometry: "IFCCONNECTIONSURFACEGEOMETRY",
   IfcCurveBoundedPlane: "IFCCURVEBOUNDEDPLANE",
   IfcDirection: "IFCDIRECTION",

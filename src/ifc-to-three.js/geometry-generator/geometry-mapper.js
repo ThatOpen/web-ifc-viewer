@@ -15,23 +15,18 @@ const geometryMap = {
   [g.brep]: mapBrep,
 };
 
-function constructGeometry(structured) {
-  structured[s.products].forEach((product) => {
-    try {
-      getRepresentations(product);
-      mapRepresentations(product);
-    } catch (e) {
-      console.warn(e);
-    }
-  });
-  structured[s.spaces].forEach((space) => {
-    try {
-      getRepresentations(space);
-      mapRepresentations(space);
-    } catch (e) {
-      console.warn(e);
-    }
-  });
+function constructGeometries(structured) {
+  structured[s.products].forEach((product) => constructGeometry(product));
+  structured[s.spaces].forEach((space) => constructGeometry(space));
+}
+
+function constructGeometry(item) {
+  try {
+    getRepresentations(item);
+    mapRepresentations(item);
+  } catch (e) {
+    console.warn(e);
+  }
 }
 
 function getRepresentations(product) {
@@ -79,4 +74,4 @@ function getType(representation) {
   return representation[n.representationType];
 }
 
-export { constructGeometry, getMappedGeometry };
+export { constructGeometries, getMappedGeometry };

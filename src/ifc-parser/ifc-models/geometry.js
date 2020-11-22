@@ -89,6 +89,14 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcCircleProfileDef),
+  ProfileType: d.enum,
+  ProfileName: d.text,
+  [n.position]: d.id,
+  [n.radius]: d.number,
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcArbitraryProfileDefWithVoids),
   ProfileType: d.enum,
   ProfileName: d.text,
