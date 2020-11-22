@@ -28,6 +28,7 @@ const ifcTypes = {
   IfcCurveBoundedPlane: "IFCCURVEBOUNDEDPLANE",
   IfcDirection: "IFCDIRECTION",
   IfcExtrudedAreaSolid: "IFCEXTRUDEDAREASOLID",
+  IfcFaceBound: "IFCFACEBOUND",
   IfcFace: "IFCFACE",
   IfcFaceOuterBound: "IFCFACEOUTERBOUND",
   IfcFacetedBrep: "IFCFACETEDBREP",

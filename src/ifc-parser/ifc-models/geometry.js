@@ -118,6 +118,12 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcFaceBound),
+  [n.bound]: d.id,
+  [n.orientation]: d.bool,
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcFace),
   [n.bounds]: d.idSet,
 });

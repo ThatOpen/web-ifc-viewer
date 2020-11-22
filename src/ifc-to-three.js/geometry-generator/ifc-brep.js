@@ -1,4 +1,5 @@
 import { namedProps as n } from "../../utils/global-constants.js";
+import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
 import { createFace } from "./three-shapeGeometry.js";
 
 function mapBrep(shape, product) {
@@ -17,28 +18,33 @@ function joinAllFaces(faces) {
   const mesh = new THREE.Mesh(joined, material);
   mesh.geometry.computeVertexNormals();
   mesh.geometry.computeFaceNormals();
+  mesh[n.isBrep] = true;
   return mesh;
 }
 
 function getBrepGeometry(representation) {
   const faces = [];
   const ifcFaces = representation[n.outer][n.cfsFaces];
-  ifcFaces.forEach((face) => faces.push(getBounds(face)));
+  ifcFaces.forEach((face) => faces.push(getAllBounds(face)));
   return faces;
 }
 
-function getBounds(face) {
-  const ifcBounds = face[n.bounds];
-  const points = [];
-  const directions = [];
+function getAllBounds(face) {
+  const outerBoundsInfo = filterBounds(face, t.IfcFaceOuterBound);
+  const innerBoundsInfo = filterBounds(face, t.IfcFaceBound);
+  const outerBounds = getBounds(outerBoundsInfo);
+  const innerBounds = innerBoundsInfo ? getBounds(innerBoundsInfo) : {};
+  return { outerBounds, innerBounds };
+}
+
+function getBounds(ifcBounds) {
+  const bounds = [];
+  const orientation = [];
   ifcBounds.forEach((bound) => {
-    points.push(...getPoints(bound));
-    directions.push(bound[n.orientation]);
+    bounds.push(getPoints(bound));
+    orientation.push(bound[n.orientation]);
   });
-  return {
-    orientation: directions,
-    coordinates: points,
-  };
+  return {orientation, bounds};
 }
 
 function getPoints(bound) {
@@ -49,6 +55,10 @@ function getPoints(bound) {
     if (coord) coordinates.push(coord);
   });
   return coordinates;
+}
+
+function filterBounds(face, type) {
+  return face[n.bounds].filter((e) => e[n.ifcClass] === getName(type));
 }
 
 export { mapBrep };

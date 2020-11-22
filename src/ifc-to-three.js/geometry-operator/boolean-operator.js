@@ -8,31 +8,33 @@ import {
 function applyBooleanOperations(structured) {
   structured[s.products].forEach((product) => {
     if (product[n.hasOpenings]) {
+      for (let i = 0; i < product[n.geometry].length; i++) {
+        const geometryItem = product[n.geometry][i];
+        const openings = product[n.hasOpenings];
 
-      var openings = product[n.hasOpenings];
-      var wall = product[n.geometry][1];
-      var result = wall;
+        if (geometryItem.type === "Mesh" && !geometryItem[n.isBrep]) {
+          geometryItem.geometry.computeFaceNormals();
+          geometryItem.updateMatrix();
+          let bspA = CSG.fromMesh(geometryItem);
 
-      for (let i = 0; i < openings.length; i++) {
-        var opening = openings[i][n.geometry][0];
-        
-        result.updateMatrix();
-        var bspA = CSG.fromMesh(result);
-        opening.updateMatrix();
-        var bspB = CSG.fromMesh(opening);
-        
-        var subtracted = bspA.subtract(bspB);
-        result = CSG.toMesh(subtracted, wall.matrix);
-        
-        opening.material = new THREE.MeshPhongMaterial({color: 0xff0000});
-        scene.remove(opening);
+          for (let i = 0; i < openings.length; i++) {
+            const opening = openings[i][n.geometry][0];
+            opening.updateMatrix();
+            let bspB = CSG.fromMesh(opening);
+            bspA = bspA.subtract(bspB);
+          }
+
+          const result = CSG.toMesh(bspA, geometryItem.matrix);
+          result.geometry = new THREE.BufferGeometry().fromGeometry(
+            result.geometry
+          );
+
+          result.material = new THREE.MeshPhongMaterial();
+          scene.add(result);
+          scene.remove(geometryItem);
+          product[n.geometry][i] = result;
+        }
       }
-
-      result.geometry = new THREE.BufferGeometry().fromGeometry(result.geometry);
-      result.material = new THREE.MeshPhongMaterial();
-      scene.add(result);
-      scene.remove(wall);
-      product[n.geometry][1] = result;
     }
   });
 }

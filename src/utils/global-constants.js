@@ -20,6 +20,7 @@ const namedProps = {
   hasType: "_HasType",
   ifcClass: "_IfcClass",
   innerCurves: "InnerCurves",
+  isBrep: "_IsBrep",
   items: "Items",
   location: "Location",
   localOrigin: "LocalOrigin",

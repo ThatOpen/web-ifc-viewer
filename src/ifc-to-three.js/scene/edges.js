@@ -16,16 +16,17 @@ function drawEdges(structured) {
         var geo = new THREE.EdgesGeometry(item.geometry);
         var mat = new THREE.LineBasicMaterial({ color: lineColor });
         var wireframe = new THREE.LineSegments(geo, mat);
-
         item.add(wireframe);
         scene.attach(wireframe);
 
         if (product[n.hasOpenings])
           product[n.hasOpenings].forEach((opening) => {
-            opening[n.geometry].forEach((opening) => {
-              var geo2 = new THREE.EdgesGeometry(opening.geometry);
-              var wireframe2 = new THREE.LineSegments(geo2, mat);
-              opening.add(wireframe2);
+            opening[n.geometry].forEach((item) => {
+              var geo2 = new THREE.EdgesGeometry(item.geometry);
+              const openingLineColor = getLineColor(opening[n.ifcClass]);
+              var openingMat = new THREE.LineBasicMaterial({ color: openingLineColor });
+              var wireframe2 = new THREE.LineSegments(geo2, openingMat);
+              item.add(wireframe2);
               scene.attach(wireframe2);
             });
           });

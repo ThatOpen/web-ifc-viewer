@@ -6,10 +6,18 @@ import {
 
 function applyMaterials(structured) {
   structured[s.products].forEach((product) => {
+    
     product[n.geometry].forEach((item) => {
       if (item.type === "Mesh")
         item.material = getmaterial(product[n.ifcClass]);
+      if (item.material.transparent === true) item.renderOrder = 1;
     });
+
+    if (product[n.hasOpenings])
+      product[n.hasOpenings].forEach((opening) => {
+        const openingMesh = opening[n.geometry][0];
+        openingMesh.material = getmaterial(opening[n.ifcClass]);
+      });
   });
 
   structured[s.spaces].forEach((space) => {
@@ -50,6 +58,10 @@ const materialsMap = {
     material: getTransparentMat(colors.lightBlue, 0.2),
     lineColor: colors.black,
   },
+  [t.IfcOpeningElement]: {
+    material: getTransparentMat(colors.lightBlue, 0),
+    lineColor: colors.grey,
+  },
 };
 
 function getmaterial(ifcType) {
@@ -60,7 +72,7 @@ function getLineColor(ifcType) {
   return materialsMap[t[ifcType]].lineColor;
 }
 
-function getTransparentMat(color, opacity = 0.2){
+function getTransparentMat(color, opacity = 0.2) {
   return new THREE.MeshBasicMaterial({
     color: color,
     side: 2,
@@ -73,7 +85,7 @@ function getTransparentMat(color, opacity = 0.2){
   });
 }
 
-function getDiffuseMat(color){
+function getDiffuseMat(color) {
   return new THREE.MeshLambertMaterial({
     color: color,
     side: 2,
@@ -83,7 +95,7 @@ function getDiffuseMat(color){
   });
 }
 
-function getBasicMat(color){
+function getBasicMaterial(color) {
   return new THREE.MeshBasicMaterial({
     color: color,
     side: 2,

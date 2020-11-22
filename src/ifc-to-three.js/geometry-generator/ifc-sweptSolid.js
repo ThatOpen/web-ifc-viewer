@@ -20,7 +20,9 @@ function joinAllExtrusions(items){
     singleGeometry.merge(item.geometry, item.matrix);
     scene.remove(item);
   })
-  return new THREE.Mesh(singleGeometry);
+  const result = new THREE.Mesh(singleGeometry);
+  scene.add(result);
+  return result;
 }
 
 //Beware: the creation of the solid must occur BEFORE trackLocalTransformation()
