@@ -15,8 +15,14 @@ function parse(text, ifcType) {
   const lexingResult = lexer.tokenize(text);
   parser.input = lexingResult.tokens;
   const cstOutput = parser[parserByType(ifcType)[n.ifcClass]]();
-  if (parser.errors.length > 0) console.log(parser.errors);
+  if (parser.errors.length > 0) showErrors(text, ifcType, parser);
   return ifcVisitor.visit(cstOutput);
+}
+
+function showErrors(text, ifcType, parser) {
+  console.warn(parser.errors);
+  console.warn(ifcType);
+  console.warn(text);
 }
 
 export { parse };

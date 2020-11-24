@@ -1,13 +1,22 @@
 import { createPoint } from "./three-points.js";
 
-function createFace(faceDefinition) {
+function createFace(faceDefinition, stop) {
   //Credit to the following algorithm:
   //https://stackoverflow.com/questions/50272399/three-js-2d-object-in-3d-space-by-vertices/50274103#50274103
 
   const outerCoords = faceDefinition.outerBounds.bounds[0];
-  const outerPoints = getPoints(outerCoords);
-  const quaternion = getQuaternions(outerPoints);
-  const tempOuterPoints = getTempPoints(outerPoints, quaternion);
+  let outerPoints = getPoints(outerCoords);
+  let quaternion = getQuaternions(outerPoints);
+  let tempOuterPoints = getTempPoints(outerPoints, quaternion);
+
+  const temp = tempOuterPoints.map((e) => new THREE.Vector2(e.x, e.y));
+
+  if (!THREE.ShapeUtils.isClockWise(temp)) {
+    outerPoints = getPoints(outerCoords).reverse();
+    quaternion = getQuaternions(outerPoints);
+    tempOuterPoints = getTempPoints(outerPoints, quaternion);
+  }
+
   const outerShape = new THREE.Shape(tempOuterPoints);
   const allPoints = [...outerPoints];
 
@@ -46,15 +55,20 @@ function punchHoles(faceDefinition, quaternion, allPoints, outerShape) {
 }
 
 //To find the normal of the face it is necessary to iterate through the vertices
-//To make sure that the selected triangle of vertex is valid
-//That is, it doesn't have all vertices aligned in same dimension
+//To make sure that the selected triangle of vertex is valid (not aligned)
+//The precission correction is necessary because in a surface with a lot of points
+//the triangle used to calculate the normal should be as big as possible to avoid 
+//small precision deviations to affect the direction of the normal
 function getQuaternions(points) {
   const baseNormal = new THREE.Vector3(0, 0, 1);
   const normal = new THREE.Vector3();
+  const precisionCorrection = points.length > 20; 
+  const corrector1 = precisionCorrection ? Math.ceil((points.length / 2)) : 0;
+  const corrector2 = precisionCorrection ? Math.ceil((points.length / 4)) : 0;
   let i = 0;
 
   while (normal.x === 0 && normal.y === 0 && normal.z === 0) {
-    const tri = new THREE.Triangle(points[2 + i], points[1 + i], points[0 + i]);
+    const tri = new THREE.Triangle(points[2 + i + corrector1], points[1 + i + corrector2], points[0 + i]);
     tri.getNormal(normal);
     i++;
   }

@@ -1,5 +1,6 @@
 const ifcDataTypes = {
   asterisk: "Asterisk",
+  anything: "Anything",
   bool: "Boolean",
   date: "Date",
   default: "DefaultValue",

@@ -1,6 +1,8 @@
 const ifcTypes = {
   //Building elements
+  IfcCurtainWall: "IFCCURTAINWALL",
   IfcDoor: "IFCDOOR",
+  IfcFurnishingElement: "IFCFURNISHINGELEMENT",
   IfcMappedItem: "IFCMAPPEDITEM",
   IfcSlab: "IFCSLAB",
   IfcOpeningElement: "IFCOPENINGELEMENT",
@@ -28,6 +30,7 @@ const ifcTypes = {
   IfcConnectionSurfaceGeometry: "IFCCONNECTIONSURFACEGEOMETRY",
   IfcCurveBoundedPlane: "IFCCURVEBOUNDEDPLANE",
   IfcDirection: "IFCDIRECTION",
+  IfcEllipse: "IfcEllipse",
   IfcExtrudedAreaSolid: "IFCEXTRUDEDAREASOLID",
   IfcFaceBound: "IFCFACEBOUND",
   IfcFace: "IFCFACE",
@@ -64,6 +67,8 @@ const ifcTypes = {
   IfcSurfaceStyle: "IFCSURFACESTYLE",
   IfcSurfaceStyleRendering: "IFCSURFACESTYLERENDERING",
   //Properties
+  IfcCurtainWallType: "IFCCURTAINWALLTYPE",
+  IfcFurnitureType: "IFCFURNITURETYPE",
   IfcDoorLiningProperties: "IFCDOORLININGPROPERTIES",
   IfcDoorPanelProperties: "IFCDOORPANELPROPERTIES",
   IfcDoorStyle: "IFCDOORSTYLE",

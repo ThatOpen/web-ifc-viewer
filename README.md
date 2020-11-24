@@ -10,7 +10,7 @@ IFC (Industry Foundation Classes) is an open format developed by the [Building S
 
 This project reads IFC files, structures their data in memory and converts them to Three.js custom geometric entities for display in any browser. Even though there are many libraries capable of parsing IFC formats, almost all of them depend on communication with a server, with all the disadvantages that this entails. The development of the parser entirely in JavaScript makes it possible to decentralise parsing, so that each client is able to read an IFC file and display its geometry and parameters to the user on its own.
 
-<a href="url"><img src="https://github.com/agviegas/IFC.js/blob/master/resources/images/20201119_screenshot.jpg"  ></a>
+<a href="url"><img src="https://github.com/agviegas/IFC.js/blob/master/resources/images/20201124_screenshot.jpg"  ></a>
 
 ## Contribution
 

@@ -54,6 +54,8 @@ const namedProps = {
   representations: "Representations",
   representationType: "RepresentationType",
   scale: "Scale",
+  SemiAxis1: "SEMIAXIS1",
+  SemiAxis2: "SEMIAXIS2",
   sweptArea: "SweptArea",
   transform: "_Transformation",
   transformedGeometry: "_TransformedGeometry",

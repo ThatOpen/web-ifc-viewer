@@ -24,6 +24,13 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcEllipse),
+  [n.position]: d.id,
+  [n.SemiAxis1]: d.number,
+  [n.SemiAxis2]: d.number,
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcCartesianPoint),
   [n.coordinates]: d.numSet,
 });

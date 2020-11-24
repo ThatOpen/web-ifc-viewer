@@ -50,6 +50,10 @@ const materialsMap = {
     material: getDiffuseMat(colors.white),
     lineColor: colors.grey,
   },
+  [t.IfcFurnishingElement]: {
+    material: getDiffuseMat(colors.white, 0),
+    lineColor: colors.darkBrown,
+  },
   [t.IfcDoor]: {
     material: getDiffuseMat(colors.brown),
     lineColor: colors.darkBrown,

@@ -9,7 +9,7 @@ const tokens = [];
 
 const patterns = {
   [d.id]: /#\d+/,
-  [d.guid]: /'[a-zA-Z0-9_$]{22}'(?=[\)|,])/,
+  [d.guid]: /'\d[a-zA-Z0-9_$]{21}'(?=[\)|,])/,
   [d.asterisk]: /\*/,
   [d.default]: /\$/,
   [d.emptyText]: /''(?=[\)|,])/,
@@ -23,6 +23,7 @@ const patterns = {
   ClosePar: /\)/,
   Semicolon: /;/,
   Comma: /,/,
+  [d.anything]: /.+/,
 };
 
 const ingoredPatterns = {
