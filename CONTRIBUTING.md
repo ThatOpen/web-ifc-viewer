@@ -87,7 +87,7 @@ If you find any issue while trying to load an IFC, take a look at the console to
 
 ## 5. How does the parser work?
 
-If find difficulties understanding the following information, you should take a look [here](https://tomassetti.me/guide-parsing-algorithms-terminology/) and [here](https://sap.github.io/chevrotain/docs/). Also, if you are not familiar with IFC syntax, you should take a look [here](https://standards.buildingsmart.org/documents/Implementation/ifcXML%20Implementation%20Guide%20v2-0.pdf), especially at the examples.
+If you find difficulties understanding the following information, you should take a look [here](https://tomassetti.me/guide-parsing-algorithms-terminology/) and [here](https://sap.github.io/chevrotain/docs/). Also, if you are not familiar with IFC syntax, you should take a look [here](https://standards.buildingsmart.org/documents/Implementation/ifcXML%20Implementation%20Guide%20v2-0.pdf), especially at the examples.
 
 ### 5.1. IFC in a nutshell
 
