@@ -87,7 +87,7 @@ If you find any issue while trying to load an IFC, take a look at the console to
 
 ## 5. How does the parser work?
 
-If you find difficulties understanding the following information, you should take a look [here](https://tomassetti.me/guide-parsing-algorithms-terminology/) and [here](https://sap.github.io/chevrotain/docs/). Also, if you are not familiar with IFC syntax, you should take a look [here](https://standards.buildingsmart.org/documents/Implementation/ifcXML%20Implementation%20Guide%20v2-0.pdf), especially at the examples.
+If you find difficulties understanding the following information, you should take a look [here](https://tomassetti.me/guide-parsing-algorithms-terminology/) and [here](https://sap.github.io/chevrotain/docs/). Also, if you are not familiar with IFC syntax, you should take a look [here](https://standards.buildingsmart.org/documents/Implementation/ifcXML%20Implementation%20Guide%20v2-0.pdf), especially at the examples. Also bear in mind that the parser is ultimately based on [regular expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions).
 
 ### 5.1. IFC in a nutshell
 
@@ -132,11 +132,44 @@ We have not mentioned all the types of primitive data that an IFC might contain,
 
 ### 5.2. The parser in a nutshell
 
-The parser is really simple. It is fully based in chevrotain.js, which has a wonderful [documentation](https://sap.github.io/chevrotain/docs/). The parsing process is composed by 3 steps: 
+The process has 4 steps: 
 
-* Definition of the [lexer](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/lexer/lexer.js) : tokens / atomic regular expressions that construct a vocabulary.
-* Definition of the [parser](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/parser/parse-process.js) : syntax or conditional structures of regular expressions.
-* Definition of the [semantic](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/semantic/semantic.js) : logic to retrieve the desired information and structure it in memory.
+1. The [lexer](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/lexer/lexer.js) defines the vocabulary, also kwnown as tokens or atomic regular expresions.
+2. The [parser](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/parser/parse-process.js) defines the [primitive syntax](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/parser/parser-primitives.js) (structures of tokens) for every data type in IFC.
+3. The parser defines the high-level syntax for every ifc class.
+4. The parser reads every line of the IFC using the specific syntax for that ifc class. 
+5. The [semantics](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/semantic/semantic.js) query the result to retrieve the parsed information and load it in memory.
+
+This might sound confusing at first, but it is actually really simple.
+
+#### 5.2.1. The lexer
+
+In short, the mission of the lexer is to define the _words_ that can be found in an IFC.
+
+As we have seen, an IFC is a plain text, that is, a long sequence of characters. The lexer defines several tokens or _words_ that make up the vocabulary. Actually, tokens are just small regular expressions that recognize distinguishable units of text to be parsed. For example, the bools in IFC are expressed as `.T.` (true) and `.F.` (false). The token for recognizing bools in IFC would be as follows (following _chevrotain_'s syntax):
+
+    const booleanToken = newToken({
+        name: "BooleanToken",
+        pattern: /\.T\.|\.F\./,
+      })
+
+There might be tokens that need to be ignored; for example, space characters. This is defined using the _chevrotain.lexer.SKIPPED_ flag:
+
+     const spaceToken = newToken({
+        name: "SpaceToken",
+        pattern: /\s+/,
+        group: chevrotain.Lexer.SKIPPED,
+      })
+
+This is what happens in the [lexer](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/lexer/lexer.js); it defines one token for each recognizable unit of text that can be found within an IFC. But instead of defining the tokens one by one (which would be very repetitive), there is an iteration through an object that defines all the names and regular expressions for each token. Actually, there are two objects: one for the read tokens and other for the ignored tokens. In addition, the name of the tokens is linked to a JS object that defines the types of data that can be in an IFC. This object is actually used as an _enum_ to ensure nomenclature consistency whenever data types are referred to.
+
+#### 5.2.2. The primitive syntax
+
+#### 5.2.3. The high level syntax
+
+#### 5.2.4. The parsing process
+
+#### 5.2.5. The semantics
 
 (WIP)
 
