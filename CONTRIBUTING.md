@@ -161,7 +161,7 @@ The items reader constructs an array with the following structure:
     {"id": 8, "type": "IFCDIRECTION", "properties":"(1.,0.,0.)"},
     {"id": 9, "type": "IFCAXIS2PLACEMENT3D", "properties":"(#6,#7,#8)"}]
 
-This way, the parser can iterate all the items and extract the information one by one. Extracting the _express ID_ and the _ifc class_ is a trivial task that you can see implemented in the [items reader](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/ifc-services/ifc-items-reader.js) module. Now, extracting the information from the _properties_ is where the difficulty lies, and the rest of the steps of the parser will concentrate on this task. Thus, note that from now on each parsing step is referring exclusively to parsing a single _properties_ field. The code will iterate through this object and apply the following logic to the _properties_ of each item.
+This way, the parser can iterate all the items and extract the information one by one. Extracting the _express ID_ and the _type_ is a trivial task that you can see implemented in the [items reader](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/ifc-services/ifc-items-reader.js) module. Now, extracting the information from the _properties_ is where the difficulty lies, and the rest of the steps of the parser will concentrate on this task. Thus, note that from now on each parsing step is referring exclusively to parsing a single _properties_ field. The code will iterate through this object and apply the following logic to the _properties_ of each item.
 
 #### 5.2.2. The lexer
 
@@ -174,7 +174,7 @@ As we have seen, an IFC is a plain text, that is, a long sequence of characters.
         pattern: /\.T\.|\.F\./,
       })
 
-So, every time that the lexer sees `.T.` or `.F.` in a text, it recognizes it as a token. For example, `.F..T..T.` would be reconized as `boolToken boolToken boolToken` (the name of the token is not important). 
+So, every time that the lexer sees `.T.` or `.F.` in a text, it recognizes it as a token. For example, an input text like `.F..T..T.` would be converted into the following sequence: `BooleanToken BooleanToken BooleanToken` . Note that the name of the token is not important. 
 
 There might be text that need to be ignored; for example, space characters. This is defined using the _chevrotain.lexer.SKIPPED_ flag, which will create _tokens_ that will be ignored by the parser:
 
@@ -186,28 +186,83 @@ There might be text that need to be ignored; for example, space characters. This
 
 This is all the [lexer](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/lexer/lexer.js) does; it defines one token for each recognizable unit of text that can be found within an IFC. But instead of defining the tokens one by one (which would be very repetitive), there is an iteration through an object that defines all the names and regular expressions for each token. Actually, there are two objects: one for the read tokens and other for the ignored tokens. 
 
-As you may know, the patterns (_tokens_) to be found within the _properties_ of an _ifc item_ depend on the data type of each property. For example, a property of type number set always looks like this: `(2.,1.)` , whereas a property of type boolean always looks like this: `.T.`. Therefore, most of the tokens defined in the lexer are correspondant to a _data type_. For this reason, the name of the created tokens is linked to a JS object listing all the _data types_. This object is simply used as an _enum_ to ensure nomenclature consistency whenever _data types_ are referred to. Beware: here, _data types_ is only referring to the pattern of the text a property, that is, how a property is supposed to look like. 
+As you may know, the patterns (_tokens_) to be found within the _properties_ of an _ifc item_ depend on the data type of each property. For example, a property of type number set always looks like this: `(2.,1.)` , whereas a property of type boolean always looks like this: `.T.`. Therefore, most of the tokens defined in the lexer are correspondant to a _data type_. For this reason, the name of the created tokens is linked to a JS object listing all the _data types_. This object is simply used as an _enum_ to ensure nomenclature consistency whenever _data types_ are referred to. Beware: here, _data types_ is only referring to the pattern of the text that represents the property, that is, how a property is supposed to look like. 
 
 #### 5.2.3. The primitive syntax
 
-Now that the vocabulary has been defined, it is necessary to create the syntax. The term _syntax_ simply means one or more structure of words / tokens. To be able to parse any text, we have to tell the software what the structure of the text is. For example, imagine that we want to parse a sum like the following:
+Now that the vocabulary has been defined, it is necessary to create _syntatic rules_. The term _syntactic rule_ simply means conditional structure of words / tokens. To be able to parse any text, we have to tell the software what the structure of the text is. For example, imagine that we want to parse a sum like the following:
 
     1+2
 
-In this case, the structure is really simple: `{numberToken} {plusSignToken} {numberToken} ` . Previously the _lexer_ had convert the text to an array of tokens. In this step we are telling the parser the sequence of tokens we are expecting, so it can check wether the parsing has been done correctly. Obviously, this example is really easy, but let's go back to the example of a point in space:
+In this case, the structure is really simple: `NumberToken PlusSignToken NumberToken` . Previously the _lexer_ had converted the text to an array of tokens. In this step we are telling the parser the sequence of tokens we are expecting, so it can check wether the parsing has been done correctly. Obviously, this example is really easy, but let's go back to the example of a point in space:
 
     #6= IFCCARTESIANPOINT((0.,0.,0.));
 
+As mentioned before, the parser is only parsing the _properties_ part, which in this case are `(0.,0.,0.)`. In the [lexer](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/lexer/lexer.js) we have defined tokens like _number_, _coma_, _closingParenthesis_, _openingParenthesis_, etc. To build the syntax, we have to construct a structure that is able to match the pattern of the property of type _number set_. At a high level, it should be something like: 
 
+    1 OpenParenthesisToken + 1 or more (NumberToken + (optional) CommaToken) + 1 CloseParenthesisToken
 
+The `CommaToken` is optional because the last number of the set is not followed by a comma. How can we express this pattern in _chevrotain_? The syntax is defined [here](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/parser/parser-primitives.js) and looks like this:
 
+    // Check the _chevrotain_'s documentation for further details about the syntax
+    function NumberSet_Parser($) {
+      return () => {
+        $.OR([
+          {
+            ALT: () => {
+              $.CONSUME(v.OpenPar);
+              $.MANY(() => {
+                $.CONSUME(v[d.number]);
+                $.OPTION(() => {
+                  $.CONSUME(v.Comma);
+                });
+              });
+              $.CONSUME(v.ClosePar);
+            },
+          },
+          {
+            ALT: () => {
+              $.CONSUME(v[d.default]);
+            },
+          },
+        ]);
+        $.OPTION2(() => {
+          $.CONSUME2(v.Comma);
+        });
+      };
+    }
 
-As mentioned before, _IfcCartesianPoint_ only has one property, which is a number set; that is, one or more numbers separated by commas between brackets. 
+Even though at first glance this might look intimidating, it is simply a conditional tree of tokens, which is somehow a way of creating complex _regular expressions_ using the _tokens_ as building blocks. For example, the `OR` structure allows to define a syntax that can have different tokens, with `ALT` beeing each alternative. Note that here, for example, there is an `OR` statement first that states that a property of type _number set_ can either be something like `(3.1,4.23)` or something like `$` (when the number set is not defined). 
 
+It is important to note that in this structure all the posibilities have to be covered: if the parser finds something that is not expected in this structure, it will throw an error and will be incapable of parsing the text correctly. In other words: note that this last big and verbose chunk of code is _only_ for parsing _number sets_. Of course, this is great if we are parsing something like an _IfcCartesianPoint_ or a _IfcDirection_, which only have one parameter of type _number set_. But imagine that we want to parse an instance of type _IfcProject_, which looks like this:
+
+    #119= IFCPROJECT('1Xsibz5yH5MxqU$tFrpDk0',#41,'0001',$,$,'Name of project','State of project',(#111),#106);
+
+Notice how big (and unmantainable) this structure will become; perhaps hundreds of lines just for one _ifc class_ (_IfcProject_ in this case). And yes, we have to define a _sintactic structure_ to be able to parse all the _ifc classes_, so this is a problem. This is the reason why in the [parser primitives](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/parser/parser-primitives.js) module I define one _syntactic structure_ per data type that can be found in an IFC. The idea is that instead of defining a structure for each _ifc class_ , I can use these basic _syntactic structures_ as building blocks to create the _syntactic structure_ for each _ifc class_ dinamically at runtime. This is explained in the next point.
 
 #### 5.2.4. The high level syntax
 
+Basically, now we have a bunch of _syntactic structures_; specifically, one per _data type_. How can we build a structure for each _ifc class_ using this? To me, the answer is the [strategy pattern] (https://refactoring.guru/design-patterns/strategy). As mentioned above, the items in the IFC can be seen as a sequence of properties, and each property has a predefined type. For example, _IfcProject_ has the following properties:
+
+    #119= IFCPROJECT(GlobalId, OwnerHistory, Name, Description, ObjectType, LongName, Phase, RepresentationContexts, UnitsInContext);
+
+These properties are of type:
+
+    #119= IFCPROJECT(guid, id, text, text, text, text, text, text, id);
+    
+So, defining _factory function_ that is able to create _syntactic structures_ taking as argument an array of _data types_, I was be able to define all the _ifc classes_ simply as an array of _data types_ and the factory would automatically create the _syntactic structures_ for them. This is something you can see in any of the files in the [models folder](https://github.com/agviegas/IFC.js/tree/master/src/ifc-parser/ifc-models). Notice how easy it is to add new _ifc classes_. The _newObject_ function is simply constructing the [parser map](https://github.com/agviegas/IFC.js/blob/7301ac217595d1a1309284860e199dd16c31e739/src/ifc-parser/parser/parser-map.js#L6), which maps each _ifc class_ to its correspondant _syntactic structure_. And this is the key of this implementation, explained in the following point.
+
+Notice that in the [models folder](https://github.com/agviegas/IFC.js/tree/master/src/ifc-parser/ifc-models) some of the properties have names imported from the [namedProps](https://github.com/agviegas/IFC.js/blob/7301ac217595d1a1309284860e199dd16c31e739/src/utils/global-constants.js) object. This is simply used as _enum_ for ensuring the naming consistency.
+
 #### 5.2.5. The parsing process
+
+All the previous points come toguether in the [parser process](https://github.com/agviegas/IFC.js/blob/7301ac217595d1a1309284860e199dd16c31e739/src/ifc-parser/parser/parse-process.js) module. This is the module that orchestrates everything and that reflects the steps explained above:
+
+1. The arguments are the _ifc properties_ and the _ifc type_ (both strings) of item to parse. 
+2. The lexer converts the _ifc properties_ to an array of tokens.
+3. The parser applies the _syntactic structure_ correspondant to the given _ifc type_.
+
+The output is a _chevrotain_ structure that contains the parsed information. Finally, this information is retrieved by the _visitor_, which is an object defined following the _chevrotain_ architecture explained in the following point.
 
 #### 5.2.6. The semantics
 
