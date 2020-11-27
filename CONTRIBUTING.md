@@ -93,11 +93,11 @@ If you find difficulties understanding the following information, you should tak
 
 Before digging into the implementation of the parser, it is necessary to understand how ifc entities look like. At a basic level, an IFC is nothing more than a list of objects with attributes. Each attribute can be a primitive value (a number, a text, a boolean) or a reference to another object. For example, a point in space in IFC is expressed as follows:
 
-`#6= IFCCARTESIANPOINT((0.,0.,0.));`
+    #6= IFCCARTESIANPOINT((0.,0.,0.));
 
 All the objects can be broken down in three parts: _express ID_, _ifc class_ and properties. So, the general schema is something like:
 
-`#ID= IFCCLASS(PROPERTIES);`
+    #ID= IFCCLASS(PROPERTIES);
 
 Note that the properties are always between parenthesis. In this case:
 
@@ -113,7 +113,7 @@ Note that the properties are always between parenthesis. In this case:
 
 Finally, `;` means the end of the instance declaration.
 
-So, esentially, what `#6= IFCCARTESIANPOINT((0.,0.,0.));` means is: This is an instance of _IfcCartesianPoint_ with ID _6_ and only one property, of type _number set_, that contains 3 numbers (representing X, Y and Z) whose value is _0_. Not hard, right? However, there are properties that can be references to other objects. For example: 
+So, esentially, what `#6= IFCCARTESIANPOINT((0.,0.,0.));` means is: This is an instance of _IfcCartesianPoint_ with ID _6_ and only one property, of type _number set_, that contains 3 numbers (representing X, Y and Z) whose value is _0_. Easy, right? However, there are properties that can be references to other objects. For example: 
 
 
     #6= IFCCARTESIANPOINT((0.,0.,0.));
@@ -132,19 +132,40 @@ We have not mentioned all the types of primitive data that an IFC might contain,
 
 ### 5.2. The parser in a nutshell
 
-The process has 4 steps: 
+The process has 5 steps: 
 
-1. The [lexer](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/lexer/lexer.js) defines the vocabulary, also kwnown as tokens or atomic regular expresions.
-2. The [parser](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/parser/parse-process.js) defines the [primitive syntax](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/parser/parser-primitives.js) (structures of tokens) for every data type in IFC.
-3. The parser defines the high-level syntax for every ifc class.
-4. The parser reads every line of the IFC using the specific syntax for that ifc class. 
-5. The [semantics](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/semantic/semantic.js) query the result to retrieve the parsed information and load it in memory.
+1. The [items reader](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/ifc-services/ifc-items-reader.js) will extract the individual entities of the IFC.
+2. The [lexer](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/lexer/lexer.js) defines the vocabulary.
+3. The [parser](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/parser/parse-process.js) defines the [primitive syntax](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/parser/parser-primitives.js) (structures of tokens) for every data type in IFC.
+4. The parser defines the high-level syntax for every IFC class.
+5. The parser reads every item of the IFC using the specific syntax for that ifc class. 
+6. The [semantics](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/semantic/semantic.js) query the result to retrieve the parsed information and load it in memory.
 
 This might sound confusing at first, but it is actually really simple.
 
-#### 5.2.1. The lexer
+#### 5.2.1. The items reader
 
-In short, the mission of the lexer is to define the _words_ that can be found in an IFC.
+Essentially, the mission of the [items reader](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/ifc-services/ifc-items-reader.js) is to extract the individual ifc items from the raw IFC.
+
+As you already now, an IFC file is a plain text file containing an array of items which look like `#ID= IFCCLASS(PROPERTIES);`. Trying to parse an IFC in a "monolithic" way, i.e. extract all its information at once from thousands of lines of text, is a very difficult task. Therefore, this first step will extract each statement, so the task of the parser will be much easier. That is, instead of parsing the following text with one single (and complex) algorithm:
+
+    #6= IFCCARTESIANPOINT((0.,0.,0.));
+    #7= IFCDIRECTION((0.,0.,1.));
+    #8= IFCDIRECTION((1.,0.,0.));
+    #9= IFCAXIS2PLACEMENT3D(#6,#7,#8);
+    
+The items reader constructs an array with the following structure:
+
+    [{"id": 6, "type": "IFCCARTESIANPOINT", "properties":"(0.,0.,0.)"},
+    {"id": 7, "type": "IFCDIRECTION", "properties":"(0.,0.,1.)"},
+    {"id": 8, "type": "IFCDIRECTION", "properties":"(1.,0.,0.)"},
+    {"id": 9, "type": "IFCAXIS2PLACEMENT3D", "properties":"(#6,#7,#8)"}]
+
+This way, the parser can iterate all the items and extract the information one by one. Extracting the _express ID_ and the _ifc class_ is a trivial task that you can see implemented in the [items reader](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/ifc-services/ifc-items-reader.js) module. Now, extracting the information from the _properties_ is where the difficulty lies, and the rest of the steps of the parser will concentrate on this task. Thus, note that from now on each parsing step is referring exclusively to parsing a single _properties_ field. The code will iterate through this object and apply the following logic to the _properties_ of each item.
+
+#### 5.2.2. The lexer
+
+In short, the mission of the lexer is to define the _words_ that can be found in an IFC. It receives an array of characters (the _properties_ of an ifc item as text) and outputs an array of tokens.
 
 As we have seen, an IFC is a plain text, that is, a long sequence of characters. The lexer defines several tokens or _words_ that make up the vocabulary. Actually, tokens are just small regular expressions that recognize distinguishable units of text to be parsed. For example, the bools in IFC are expressed as `.T.` (true) and `.F.` (false). The token for recognizing bools in IFC would be as follows (following _chevrotain_'s syntax):
 
@@ -153,7 +174,9 @@ As we have seen, an IFC is a plain text, that is, a long sequence of characters.
         pattern: /\.T\.|\.F\./,
       })
 
-There might be tokens that need to be ignored; for example, space characters. This is defined using the _chevrotain.lexer.SKIPPED_ flag:
+So, every time that the lexer sees `.T.` or `.F.` in a text, it recognizes it as a token. For example, `.F..T..T.` would be reconized as `boolToken boolToken boolToken` (the name of the token is not important). 
+
+There might be text that need to be ignored; for example, space characters. This is defined using the _chevrotain.lexer.SKIPPED_ flag, which will create _tokens_ that will be ignored by the parser:
 
      const spaceToken = newToken({
         name: "SpaceToken",
@@ -161,15 +184,32 @@ There might be tokens that need to be ignored; for example, space characters. Th
         group: chevrotain.Lexer.SKIPPED,
       })
 
-This is what happens in the [lexer](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/lexer/lexer.js); it defines one token for each recognizable unit of text that can be found within an IFC. But instead of defining the tokens one by one (which would be very repetitive), there is an iteration through an object that defines all the names and regular expressions for each token. Actually, there are two objects: one for the read tokens and other for the ignored tokens. In addition, the name of the tokens is linked to a JS object that defines the types of data that can be in an IFC. This object is actually used as an _enum_ to ensure nomenclature consistency whenever data types are referred to.
+This is all the [lexer](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/lexer/lexer.js) does; it defines one token for each recognizable unit of text that can be found within an IFC. But instead of defining the tokens one by one (which would be very repetitive), there is an iteration through an object that defines all the names and regular expressions for each token. Actually, there are two objects: one for the read tokens and other for the ignored tokens. 
 
-#### 5.2.2. The primitive syntax
+As you may know, the patterns (_tokens_) to be found within the _properties_ of an _ifc item_ depend on the data type of each property. For example, a property of type number set always looks like this: `(2.,1.)` , whereas a property of type boolean always looks like this: `.T.`. Therefore, most of the tokens defined in the lexer are correspondant to a _data type_. For this reason, the name of the created tokens is linked to a JS object listing all the _data types_. This object is simply used as an _enum_ to ensure nomenclature consistency whenever _data types_ are referred to. Beware: here, _data types_ is only referring to the pattern of the text a property, that is, how a property is supposed to look like. 
 
-#### 5.2.3. The high level syntax
+#### 5.2.3. The primitive syntax
 
-#### 5.2.4. The parsing process
+Now that the vocabulary has been defined, it is necessary to create the syntax. The term _syntax_ simply means one or more structure of words / tokens. To be able to parse any text, we have to tell the software what the structure of the text is. For example, imagine that we want to parse a sum like the following:
 
-#### 5.2.5. The semantics
+    1+2
+
+In this case, the structure is really simple: `{numberToken} {plusSignToken} {numberToken} ` . Previously the _lexer_ had convert the text to an array of tokens. In this step we are telling the parser the sequence of tokens we are expecting, so it can check wether the parsing has been done correctly. Obviously, this example is really easy, but let's go back to the example of a point in space:
+
+    #6= IFCCARTESIANPOINT((0.,0.,0.));
+
+
+
+
+
+As mentioned before, _IfcCartesianPoint_ only has one property, which is a number set; that is, one or more numbers separated by commas between brackets. 
+
+
+#### 5.2.4. The high level syntax
+
+#### 5.2.5. The parsing process
+
+#### 5.2.6. The semantics
 
 (WIP)
 
