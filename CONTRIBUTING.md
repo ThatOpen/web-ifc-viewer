@@ -200,7 +200,7 @@ In this case, the structure is really simple: `NumberToken PlusSignToken NumberT
 
 As mentioned before, the parser is only parsing the _properties_ part, which in this case are `(0.,0.,0.)`. In the [lexer](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/lexer/lexer.js) we have defined tokens like _number_, _coma_, _closingParenthesis_, _openingParenthesis_, etc. To build the syntax, we have to construct a structure that is able to match the pattern of the property of type _number set_. At a high level, it should be something like: 
 
-    1 OpenParenthesisToken + 1 or more (NumberToken + (optional) CommaToken) + 1 CloseParenthesisToken
+    number set = 1 OpenParenthesisToken + 1 or more (NumberToken + (optional) CommaToken) + 1 CloseParenthesisToken
 
 The `CommaToken` is optional because the last number of the set is not followed by a comma. How can we express this pattern in _chevrotain_? The syntax is defined [here](https://github.com/agviegas/IFC.js/blob/master/src/ifc-parser/parser/parser-primitives.js) and looks like this:
 
