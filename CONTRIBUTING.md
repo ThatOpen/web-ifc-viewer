@@ -194,7 +194,7 @@ Now that the vocabulary has been defined, it is necessary to create _syntatic ru
 
     1+2
 
-In this case, the structure is really simple: `NumberToken PlusSignToken NumberToken` . Previously the _lexer_ had converted the text to an array of tokens. In this step we are telling the parser the sequence of tokens we are expecting, so it can check wether the parsing has been done correctly. Obviously, this example is really easy, but let's go back to the example of a point in space:
+In this case, the structure is really simple: `NumberToken PlusSignToken NumberToken` . Previously the _lexer_ had converted the text to an array of tokens. In this step we are telling the parser the sequence of tokens we are expecting, so it can group tokens toguether into recognizable structures (in this case, a _sum expression_). Obviously, this example is really easy, but let's go back to the example of a point in space:
 
     #6= IFCCARTESIANPOINT((0.,0.,0.));
 
