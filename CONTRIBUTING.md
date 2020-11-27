@@ -85,7 +85,7 @@ This is a usual project using node and npm. As in any project, you can contribut
 If you find any issue while trying to load an IFC, take a look at the console to see more information about the issue.
 
 
-## 5. How does the parser work?
+## 5. How does the parser works?
 
 If you find difficulties understanding the following information, you should take a look [here](https://tomassetti.me/guide-parsing-algorithms-terminology/) and [here](https://sap.github.io/chevrotain/docs/). Also, if you are not familiar with IFC syntax, you should take a look [here](https://standards.buildingsmart.org/documents/Implementation/ifcXML%20Implementation%20Guide%20v2-0.pdf), especially at the examples. Also bear in mind that the parser is ultimately based on [regular expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions).
 
@@ -130,7 +130,7 @@ We have not mentioned all the types of primitive data that an IFC might contain,
 
 `*` means that the properties of the parent class are inherited. Yes, IFC is _Object Oriented_, and the structure of entities are organized in a hierarchical inheritance structure. Nonetheless, this type of value is rare and the parser doesn't implement it for now, so you don't have to worry about this.
 
-### 5.2. The parser in a nutshell
+### 5.2. The parser step by step
 
 The process has 5 steps: 
 
@@ -242,7 +242,7 @@ Notice how big (and unmantainable) this structure will become; perhaps hundreds 
 
 #### 5.2.4. The high level syntax
 
-Basically, now we have a bunch of _syntactic structures_; specifically, one per _data type_. How can we build a structure for each _ifc class_ using this? To me, the answer is the [strategy pattern] (https://refactoring.guru/design-patterns/strategy). As mentioned above, the items in the IFC can be seen as a sequence of properties, and each property has a predefined type. For example, _IfcProject_ has the following properties:
+Basically, now we have a bunch of _syntactic structures_; specifically, one per _data type_. How can we build a structure for each _ifc class_ using this? To me, the answer is the [strategy pattern](https://refactoring.guru/design-patterns/strategy). As mentioned above, the items in the IFC can be seen as a sequence of properties, and each property has a predefined type. For example, _IfcProject_ has the following properties:
 
     #119= IFCPROJECT(GlobalId, OwnerHistory, Name, Description, ObjectType, LongName, Phase, RepresentationContexts, UnitsInContext);
 
@@ -265,6 +265,11 @@ All the previous points come toguether in the [parser process](https://github.co
 The output is a _chevrotain_ structure that contains the parsed information. Finally, this information is retrieved by the _visitor_, which is an object defined following the _chevrotain_ architecture explained in the following point.
 
 #### 5.2.6. The semantics
+
+
+## 6. How does the project builder works?
+
+## 7. How does the Ifc to Three.js module works?
 
 (WIP)
 
