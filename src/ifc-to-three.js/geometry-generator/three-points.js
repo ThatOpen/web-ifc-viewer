@@ -1,15 +1,10 @@
 import { scene } from "../scene/three-scene.js";
 
-const sprite = new THREE.TextureLoader().load(
-  "../../resources/images/point.png"
-);
-
 function createPoint(coordinates) {
   var dotGeometry = new THREE.Geometry();
   dotGeometry.vertices.push(new THREE.Vector3(0, 0, 0));
   var dotMaterial = new THREE.PointsMaterial({
     size: 10,
-    map: sprite,
     sizeAttenuation: false,
     alphaTest: 0.5,
   });
