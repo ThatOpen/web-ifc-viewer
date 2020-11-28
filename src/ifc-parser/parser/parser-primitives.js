@@ -74,6 +74,11 @@ function IfcValue_Parser($) {
             },
             {
               ALT: () => {
+                $.CONSUME(v[d.emptyText]);
+              },
+            },
+            {
+              ALT: () => {
                 $.CONSUME(v[d.text]);
               },
             },
