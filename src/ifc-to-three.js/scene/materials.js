@@ -68,6 +68,14 @@ const materialsMap = {
     material: getDiffuseMat(colors.white),
     lineColor: colors.darkBrown,
   },
+  [t.IfcStair]: {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.darkBrown,
+  },
+  [t.IfcStairFlight]: {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.darkBrown,
+  },
   [t.IfcPlate]: {
     material: getTransparentMat(colors.lightBlue, 0.2),
     lineColor: colors.darkBlue,

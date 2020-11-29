@@ -77,6 +77,20 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcStairFlightType),
+  GlobalId: d.guid,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ApplicableOccurrence: d.text,
+  HasPropertySets: d.idSet,
+  RepresentationMaps: d.idSet,
+  Tag: d.text,
+  ElementType: d.text,
+  PredefinedType: d.enum,
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcCurtainWallType),
   GlobalId: d.guid,
   OwnerHistory: d.id,

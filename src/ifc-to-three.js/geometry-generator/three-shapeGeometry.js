@@ -62,7 +62,7 @@ function punchHoles(faceDefinition, quaternion, allPoints, outerShape) {
 function getQuaternions(points) {
   const baseNormal = new THREE.Vector3(0, 0, 1);
   const normal = new THREE.Vector3();
-  const precisionCorrection = points.length > 20; 
+  const precisionCorrection = points.length > 10; 
   const corrector1 = precisionCorrection ? Math.ceil((points.length / 2)) : 0;
   const corrector2 = precisionCorrection ? Math.ceil((points.length / 4)) : 0;
   let i = 0;
