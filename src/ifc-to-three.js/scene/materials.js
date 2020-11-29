@@ -18,6 +18,12 @@ function applyMaterials(structured) {
         const openingMesh = opening[n.geometry][0];
         openingMesh.material = getmaterial(opening[n.ifcClass]);
       });
+
+      if (product[n.hasSpatial])
+      product[n.hasSpatial].forEach((spatial) => {
+        const spatialMesh = spatial[n.geometry][0];
+        spatialMesh.material = getmaterial(spatial[n.ifcClass]);
+      });
   });
 
   structured[s.spaces].forEach((space) => {
@@ -56,6 +62,26 @@ const materialsMap = {
   },
   [t.IfcDoor]: {
     material: getDiffuseMat(colors.brown),
+    lineColor: colors.darkBrown,
+  },
+  [t.IfcRailing]: {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.darkBrown,
+  },
+  [t.IfcStair]: {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.darkBrown,
+  },
+  [t.IfcStairFlight]: {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.darkBrown,
+  },
+  [t.IfcPlate]: {
+    material: getTransparentMat(colors.lightBlue, 0.2),
+    lineColor: colors.darkBlue,
+  },
+  [t.IfcMember]: {
+    material: getDiffuseMat(colors.white),
     lineColor: colors.darkBrown,
   },
   [t.IfcWindow]: {

@@ -21,6 +21,12 @@ function applyTransform(product) {
       getTransform(opening, getPlacement(opening));
       applyTransforms(opening, n.transform);
     });
+
+    if (product[n.hasSpatial])
+    product[n.hasSpatial].forEach((spatial) => {
+      getTransform(spatial, getPlacement(spatial));
+      applyTransforms(spatial, n.transform);
+    });
 }
 
 //Gets all the transforms (local origins) recursively

@@ -60,6 +60,43 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcRailing),
+  GlobalId: d.guid,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ObjectType: d.text,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
+  Tag: d.text,
+  PredefinedType: d.enum,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcPlate),
+  GlobalId: d.guid,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ObjectType: d.text,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
+  Tag: d.text,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcMember),
+  GlobalId: d.guid,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ObjectType: d.text,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
+  Tag: d.text,
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcSlab),
   GlobalId: d.guid,
   OwnerHistory: d.id,
@@ -96,6 +133,35 @@ newObject({
   Tag: d.text,
   OverallHeight: d.number,
   OverallWidth: d.number,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcStair),
+  GlobalId: d.guid,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ObjectType: d.text,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
+  Tag: d.text,
+  ShapeType: d.enum,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcStairFlight),
+  GlobalId: d.guid,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ObjectType: d.text,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
+  Tag: d.text,
+  NumberOfRiser: d.number,
+  NumberOfThreads: d.number,
+  RiserHeight: d.number,
+  TreadLength: d.number,
 });
 
 newObject({
