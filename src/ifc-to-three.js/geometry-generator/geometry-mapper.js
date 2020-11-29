@@ -31,16 +31,22 @@ function constructGeometry(item) {
 
 function getRepresentations(product) {
   getRepresentationValue(product);
+
   if (product[n.hasOpenings])
     product[n.hasOpenings].forEach((opening) => {
       getRepresentationValue(opening);
     });
+
+  if(product[n.hasSpatial])
+  product[n.hasSpatial].forEach((spatial) => {
+    getRepresentationValue(spatial);
+  });
 }
 
 function getRepresentationValue(product) {
   try {
-    product[n.geomRepresentations] =
-      product[n.representation][n.representations];
+    const representations = product[n.representation][n.representations];
+    product[n.geomRepresentations] = representations ? representations : [];
   } catch (e) {
     console.warn(e);
   }
@@ -51,6 +57,11 @@ function mapRepresentations(product) {
   if (product[n.hasOpenings])
     product[n.hasOpenings].forEach((opening) => {
       mapProductRepresentations(opening);
+    });
+
+    if (product[n.hasSpatial])
+    product[n.hasSpatial].forEach((spatial) => {
+      mapProductRepresentations(spatial);
     });
 }
 
