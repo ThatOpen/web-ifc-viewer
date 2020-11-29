@@ -60,6 +60,19 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcRailing),
+  GlobalId: d.guid,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ObjectType: d.text,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
+  Tag: d.text,
+  PredefinedType: d.enum,
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcSlab),
   GlobalId: d.guid,
   OwnerHistory: d.id,

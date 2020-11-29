@@ -4,6 +4,7 @@ const ifcTypes = {
   IfcDoor: "IFCDOOR",
   IfcFurnishingElement: "IFCFURNISHINGELEMENT",
   IfcMappedItem: "IFCMAPPEDITEM",
+  IfcRailing: "IFCRAILING",
   IfcSlab: "IFCSLAB",
   IfcOpeningElement: "IFCOPENINGELEMENT",
   IfcWallStandardCase: "IFCWALLSTANDARDCASE",
