@@ -2,13 +2,16 @@
 
 <a href="url"><img src="https://github.com/agviegas/IFC.js/blob/master/resources/images/logo.jpg"  height="256" width="256" ></a>
 
+This is a frontend parser between .ifc files and Three.js geometry.
+
+## Try it
+
 [Application](https://agviegas.github.io/IFC.js/)
 
 [Example 01](https://agviegas.github.io/IFC.js/examples/01/)
 
 [Example 02](https://agviegas.github.io/IFC.js/examples/02/)
 
-This is a frontend parser between .ifc files and Three.js geometry.
 
 ## Introduction
 
