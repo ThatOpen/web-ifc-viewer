@@ -1,4 +1,4 @@
-import "../../../node_modules/chevrotain/lib/chevrotain.js";
+import "../../../libs/chevrotain.js"
 import { tokens, vocabulary as v } from "../lexer/lexer.js";
 import { addPrimitiveParsers } from "./parser-primitives.js";
 import { typesParserMap } from "./parser-map.js";
