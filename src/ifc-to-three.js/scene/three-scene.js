@@ -1,3 +1,5 @@
+import { OrbitControls } from "../../../libs/OrbitControls.js";
+
 //Scene
 var scene = new THREE.Scene();
 //Camera
@@ -14,12 +16,12 @@ camera.up = new THREE.Vector3(0, 0, 1);
 camera.lookAt(new THREE.Vector3(0, 0, 0));
 
 //Renderer
+const canvas = document.querySelector("#c");
 const width = window.innerWidth;
 const height = window.innerHeight;
 const pixelRatio = window.devicePixelRatio;
 const heightHD = (height * pixelRatio) | 0;
 const widthHD = (width * pixelRatio) | 0;
-const canvas = document.querySelector("#c");
 var renderer = new THREE.WebGLRenderer({ canvas });
 renderer.setSize(widthHD, heightHD, false);
 renderer.setClearColor(0xa9a9a9, 1);
@@ -56,14 +58,20 @@ scene.add(light3);
 scene.add(light4);
 
 // smooth Zoom
-const controls = new THREE.OOrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.25;
-controls.constraint.smoothZoom = true;
-controls.constraint.zoomDampingFactor = 0.2;
-controls.constraint.smoothZoomSpeed = 5.0;
-controls.rotateSpeed = 0.5;
-controls.target.set = new THREE.Vector3(0, 0, 0);
+const onMobile = isMobile();
+let controls = {};
+if (onMobile) {
+  controls = new OrbitControls(camera, renderer.domElement);
+} else {
+  controls = new THREE.OOrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.25;
+  controls.constraint.smoothZoom = true;
+  controls.constraint.zoomDampingFactor = 0.2;
+  controls.constraint.smoothZoomSpeed = 5.0;
+  controls.rotateSpeed = 0.5;
+  controls.target.set = new THREE.Vector3(0, 0, 0);
+}
 
 //Autoadjust camera to window size
 function resizeRendererToDisplaySize(renderer) {
@@ -81,11 +89,16 @@ function resizeRendererToDisplaySize(renderer) {
 var animate = function () {
   requestAnimationFrame(animate);
 
-  controls.update();
+   controls.update();
+  
   resizeRendererToDisplaySize(renderer);
 
   renderer.render(scene, camera);
 };
+
+function isMobile() {
+  return "ontouchstart" in document.documentElement;
+}
 
 animate();
 
