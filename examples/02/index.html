@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="../../resources/images/logo.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="../../src/styles/styles.css" />
+    <script src="../../libs/three.js"></script>
+    <script src="../../libs/ThreeCSG.js"></script>
+    <script src="../../libs/smooth-zoom.js"></script>
+    <title>IFC.js</title>
+  </head>
+  <body>
+    <div id="loading" class="loaderBackground">
+      <div class="loader"></div>
+    </div>
+    <div id="generalContainer">
+      <div id="GUI">
+        <input readonly type="file" id="openFileDialog" />
+        <button
+          class="normalButton"
+          onclick="document.getElementById('openFileDialog').click();"
+        >
+          Open
+        </button>
+      </div>
+      <canvas id="c"></canvas>
+    </div>
+    <script type="module" src="index.js"></script>
+    <script
+      type="module"
+      src="../../src/ifc-to-three.js/scene/three-scene.js"
+    ></script>
+    <script type="module" src="../../src/ifc-to-three.js/converter.js"></script>
+  </body>
+</html>
