@@ -109,7 +109,6 @@ function getAsterisk() {
 
 function getValue(parsed, type, formatFunction) {
   if (isDefaultValue(parsed, type)) return getDefault(parsed, type);
-  if (isEmptyText(parsed, type)) return getEmptyText(type);
   return formatFunction(extract(parsed, type));
 }
 
@@ -155,12 +154,6 @@ function isDefaultValue(parsed, type) {
     : false;
 }
 
-function isEmptyText(parsed, type) {
-  return parsed[getParser(type)][counter[type]].children[d.emptyText]
-    ? true
-    : false;
-}
-
 function isEmptySet(parsed, type, subtype) {
   return parsed[getParser(type)][counter[type]].children[subtype]
     ? false
@@ -169,11 +162,6 @@ function isEmptySet(parsed, type, subtype) {
 
 function getDefault(parsed, type) {
   return parsed[getParser(type)][counter[type]++].children[d.default][0].image;
-}
-
-function getEmptyText(type) {
-  counter[type]++;
-  return "";
 }
 
 function isExpressId(parsed, type) {

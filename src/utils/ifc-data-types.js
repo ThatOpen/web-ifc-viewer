@@ -4,7 +4,6 @@ const ifcDataTypes = {
   bool: "Boolean",
   date: "Date",
   default: "DefaultValue",
-  emptyText: "EmptyText",
   enum: "Enum",
   guid: "Guid",
   id: "ExpressId",
