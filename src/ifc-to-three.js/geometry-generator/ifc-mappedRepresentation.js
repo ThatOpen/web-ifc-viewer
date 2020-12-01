@@ -1,6 +1,10 @@
-import { defaultValue, namedProps as n } from "../../utils/global-constants.js";
+import {
+  defaultValue,
+  namedProps as n,
+} from "../../utils/global-constants.js";
 import { applyTransformsTo } from "../geometry-transformer/local-transform-applier.js";
 import { trackLocalTransform } from "../geometry-transformer/local-transform-tracker.js";
+import { scene } from "../scene/three-scene.js";
 import { getMappedGeometry } from "./geometry-mapper.js";
 
 function mapMappedRepresentation(shape, product) {
@@ -11,13 +15,36 @@ function mapMappedRepresentation(shape, product) {
   return mapped;
 }
 
+//The concept of mapped representation is that there are several instances
+//of the same geometry. Storing the geometries allows to generate them 
+//only once and them simply create each instance copying the source geometry.
+
+const mappingSources = {};
+
 function getMappingSource(product, representation) {
   const source = representation[n.mappingSource];
   const origin = source[n.mappingOrigin];
-  const mappedGeometry = source[n.mappedRepresentation];
-  const geometry = getMappedGeometry(mappedGeometry, product);
+  const geometry = isGeometryGenerated(source)
+    ? getGeneratedGeometry(source)
+    : generateGeometry(source, product);
   applyTransformation(product, origin, geometry);
   return geometry;
+}
+
+function generateGeometry(source, product) {
+  const mappedGeometry = source[n.mappedRepresentation];
+  const geometry = getMappedGeometry(mappedGeometry, product);
+  mappingSources[source[n.expressId]] = geometry;
+  scene.remove(geometry);
+  return geometry.clone();
+}
+
+function isGeometryGenerated(source) {
+  return mappingSources[source[n.expressId]] ? true : false;
+}
+
+function getGeneratedGeometry(source) {
+  return mappingSources[source[n.expressId]].clone();
 }
 
 function applyTransformation(product, origin, geometry) {
