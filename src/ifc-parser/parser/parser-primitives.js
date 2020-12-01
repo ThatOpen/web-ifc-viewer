@@ -74,11 +74,6 @@ function IfcValue_Parser($) {
             },
             {
               ALT: () => {
-                $.CONSUME(v[d.emptyText]);
-              },
-            },
-            {
-              ALT: () => {
                 $.CONSUME(v[d.text]);
               },
             },
@@ -172,18 +167,7 @@ function TextSet_Parser($) {
         ALT: () => {
           $.CONSUME(v.OpenPar);
           $.MANY(() => {
-            $.OR2([
-              {
-                ALT: () => {
-                  $.CONSUME(v[d.emptyText]);
-                },
-              },
-              {
-                ALT: () => {
-                  $.CONSUME(v[d.text]);
-                },
-              },
-            ]);
+            $.CONSUME(v[d.text]);
             $.OPTION(() => {
               $.CONSUME(v.Comma);
             });
@@ -233,11 +217,6 @@ function IdSet_Parser($) {
 function IfcText_Parser($) {
   return () => {
     $.OR([
-      {
-        ALT: () => {
-          $.CONSUME(v[d.emptyText]);
-        },
-      },
       {
         ALT: () => {
           $.CONSUME(v[d.default]);
