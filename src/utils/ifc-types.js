@@ -1,5 +1,6 @@
 const ifcTypes = {
   //Building elements
+  IfcBuildingElementProxy: "IFCBUILDINGELEMENTPROXY",
   IfcCurtainWall: "IFCCURTAINWALL",
   IfcDoor: "IFCDOOR",
   IfcFurnishingElement: "IFCFURNISHINGELEMENT",
@@ -71,6 +72,7 @@ const ifcTypes = {
   IfcStyledRepresentation: "IFCSTYLEDREPRESENTATION",
   IfcSurfaceStyle: "IFCSURFACESTYLE",
   IfcSurfaceStyleRendering: "IFCSURFACESTYLERENDERING",
+  IfcSurfaceStyleShading: "IFCSURFACESTYLESHADING",
   //Properties
   IfcCurtainWallType: "IFCCURTAINWALLTYPE",
   IfcFurnitureType: "IFCFURNITURETYPE",

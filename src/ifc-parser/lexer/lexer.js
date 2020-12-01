@@ -22,7 +22,7 @@ const patterns = {
   OpenPar: /\(/,
   ClosePar: /\)/,
   Semicolon: /;/,
-  Comma: /,/,
+  Comma: /\s*,\s*/,
   [d.anything]: /.+/,
 };
 

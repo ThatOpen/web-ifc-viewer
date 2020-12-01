@@ -175,3 +175,16 @@ newObject({
   [n.representation]: d.id,
   Tag: d.text,
 });
+
+newObject({
+  [n.ifcClass]: getName(t.IfcBuildingElementProxy),
+  GlobalId: d.guid,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ObjectType: d.text,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
+  Tag: d.text,
+  CompositionType: d.enum,
+});
