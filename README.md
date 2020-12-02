@@ -6,7 +6,7 @@ This is a frontend parser between .ifc files and Three.js geometry.
 
 ## Try it
 
-[Application](https://ifc-js.vercel.app/#/uploader)
+[Application](https://ifc-js.vercel.app)
 
 [Example 01](https://ifc-js.vercel.app/#/sample1)
 
