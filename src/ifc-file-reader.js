@@ -1,21 +1,21 @@
-import { main } from "../index.js";
+// export function readIfcFile(cb) {
+//   const input = document.querySelector('input[type="file"]');
+//   if (!input) return;
+//   input.addEventListener(
+//     'change',
+//     (e) => {
+//       readFile(input, cb);
+//     },
+//     false
+//   );
+// }
 
-export function readIfcFile() {
-  const input = document.querySelector('input[type="file"]');
-  if (!input) return;
-  input.addEventListener(
-    "change",
-    (e) => {
-      readFile(input);
-    },
-    false
-  );
-}
-
-function readFile(input) {
+export function readIfcFile(file, cb) {
   const reader = new FileReader();
   reader.onload = () => {
-    main(reader.result);
+    if (cb) {
+      cb(reader.result);
+    }
   };
-  reader.readAsText(input.files[0]);
+  reader.readAsText(file);
 }

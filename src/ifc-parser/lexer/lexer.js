@@ -1,7 +1,6 @@
-import "../../../libs/chevrotain.js"
-import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
-const newToken = chevrotain.createToken;
-const Lexer = chevrotain.Lexer;
+import { createToken, Lexer } from 'chevrotain';
+import { ifcDataTypes as d } from '../../utils/ifc-data-types.js';
+const newToken = createToken;
 
 //Tokens / vocabulary for constructing the parser primitives
 
@@ -23,12 +22,12 @@ const patterns = {
   ClosePar: /\)/,
   Semicolon: /;/,
   Comma: /\s*,\s*/,
-  [d.anything]: /.+/,
+  [d.anything]: /.+/
 };
 
 const ingoredPatterns = {
   NewLine: /[\n\r]+/,
-  WhiteSpace: /\s+/,
+  WhiteSpace: /\s+/
 };
 
 function createTokens() {
@@ -36,7 +35,7 @@ function createTokens() {
     tokens.push(
       newToken({
         name: e,
-        pattern: patterns[e],
+        pattern: patterns[e]
       })
     );
   });
@@ -48,7 +47,7 @@ function createIgnoredTokens() {
       newToken({
         name: e,
         pattern: ingoredPatterns[e],
-        group: chevrotain.Lexer.SKIPPED,
+        group: Lexer.SKIPPED
       })
     );
   });

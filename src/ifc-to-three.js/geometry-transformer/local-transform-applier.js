@@ -1,6 +1,5 @@
-import { namedProps as n, pivots as p } from "../../utils/global-constants.js";
-import { createAxes, scene } from "../scene/three-scene.js";
-import { resetTransformData } from "./local-transform-reseter.js";
+import { namedProps as n, pivots as p } from '../../utils/global-constants.js';
+import { resetTransformData } from './local-transform-reseter.js';
 
 function applyTransforms(product, property) {
   const pivots = getPivots(product[property]);
@@ -14,18 +13,19 @@ function applyTransformsTo(product, geometry, property) {
 }
 
 function applyTransform(geometry, pivots) {
+  const object3D = new THREE.Object3D();
   if (geometry) {
     bindGeometryToPivots(geometry, pivots);
-    scene.add(pivots[0]);
-    attachGeometryToScene(geometry);
-    scene.remove(pivots[0]);
+    object3D.add(pivots[0]);
+    attachGeometryToScene(geometry, object3D);
+    object3D.remove(pivots[0]);
   }
 }
 
-function attachGeometryToScene(geometry) {
+function attachGeometryToScene(geometry, object3D) {
   if (geometry.constructor === Array)
-    return geometry.forEach((e) => attachGeometryToScene(e));
-  return scene.attach(geometry);
+    return geometry.forEach((e) => attachGeometryToScene(e, object3D));
+  return object3D.attach(geometry);
 }
 
 function bindGeometryToPivots(geometry, pivots) {
@@ -58,10 +58,22 @@ function getRotMat(transform, index) {
   const directionMatrix = new THREE.Matrix4();
   const rotationMatrix = new THREE.Matrix4();
   directionMatrix.set(
-    x[0], x[1], x[2], 0,
-    y[0], y[1], y[2], 0,
-    z[0], z[1], z[2], 0,
-      0,    0,    0,  1
+    x[0],
+    x[1],
+    x[2],
+    0,
+    y[0],
+    y[1],
+    y[2],
+    0,
+    z[0],
+    z[1],
+    z[2],
+    0,
+    0,
+    0,
+    0,
+    1
   );
   rotationMatrix.getInverse(directionMatrix);
   return rotationMatrix;
@@ -72,10 +84,6 @@ function getTransforms(transform, index) {
   const y = transform[p.yAxis][index];
   const z = transform[p.zAxis][index];
   return { x, y, z };
-}
-
-function showLocalOrigins(pivots) {
-  pivots.forEach((pivot) => pivot.add(createAxes()));
 }
 
 export { applyTransforms, applyTransformsTo };
