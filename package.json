@@ -1,6 +1,6 @@
 {
   "name": "ifc.js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "IFC viewer",
   "main": "dist/IFC.js",
   "module": "dist/IFC.es.js",
