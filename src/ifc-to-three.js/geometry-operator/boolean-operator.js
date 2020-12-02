@@ -2,7 +2,7 @@ import CSG from '../../libs/CSGMesh.js';
 import { structuredData as s, namedProps as n } from '../../utils/global-constants.js';
 
 function applyBooleanOperations(structured) {
-  const object3D = THREE.Object3D();
+  const object3D = new THREE.Object3D();
   structured[s.products].forEach((product) => {
     if (product[n.hasOpenings]) {
       for (let i = 0; i < product[n.geometry].length; i++) {

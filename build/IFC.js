@@ -3347,7 +3347,7 @@ CSG.eval = function (tokens, doRemove) {
 //
 
 function applyBooleanOperations(structured) {
-  const object3D = THREE.Object3D();
+  const object3D = new THREE.Object3D();
   structured[structuredData.products].forEach(product => {
     if (product[namedProps.hasOpenings]) {
       for (let i = 0; i < product[namedProps.geometry].length; i++) {
