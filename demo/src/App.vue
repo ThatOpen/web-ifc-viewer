@@ -6,12 +6,13 @@
         <el-menu
           :default-openeds="['1', '1-1', '1-2']"
           @select="onSelect"
-          :default-active="$route.params.id"
+          :default-active="$route.params.id || $route.name"
         >
           <el-submenu index="1">
             <template #title><i class="el-icon-menu"></i>Examples</template>
             <el-menu-item-group title="Group One">
               <template #title>Buildings</template>
+              <el-menu-item index="uploader">Upload File</el-menu-item>
               <el-menu-item index="sample1"> Simple Building 1 </el-menu-item>
               <el-menu-item index="sample2">Simple Building 2</el-menu-item>
             </el-menu-item-group>
@@ -39,6 +40,12 @@ export default {
   methods: {
     onSelect(id) {
       console.log(id);
+      if (id == 'uploader') {
+        this.$router.push({
+          name: 'uploader'
+        });
+        return;
+      }
       this.$router.push({
         name: 'viewer',
         params: {

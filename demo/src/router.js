@@ -1,5 +1,7 @@
-import { createRouter, createMemoryHistory, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
+
 import Viewer from '@/views/Viewer.vue';
+import Uploader from '@/views/Uploader.vue';
 
 const routes = [
   {
@@ -9,7 +11,8 @@ const routes = [
   },
   {
     path: '/',
-    redirect: { path: '/sample2' }
+    name: 'uploader',
+    component: Uploader
   }
 ];
 

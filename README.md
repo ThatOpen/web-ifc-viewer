@@ -6,11 +6,11 @@ This is a frontend parser between .ifc files and Three.js geometry.
 
 ## Try it
 
-[Application](https://agviegas.github.io/IFC.js/)
+[Application](https://ifc-js.vercel.app/#/uploader)
 
-[Example 01](https://agviegas.github.io/IFC.js/examples/01/)
+[Example 01](https://ifc-js.vercel.app/#/sample1)
 
-[Example 02](https://agviegas.github.io/IFC.js/examples/02/)
+[Example 02](https://ifc-js.vercel.app/#/sample2)
 
 ## Introduction
 
