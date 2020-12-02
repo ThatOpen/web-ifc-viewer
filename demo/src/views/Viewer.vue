@@ -8,7 +8,7 @@ window.THREE = THREE;
 
 import '@/libs/smooth-zoom.js';
 
-import { constructProject, buildGeometry, loadIfcFileItems } from 'ifc.js/dist/IFC.es.js';
+import { constructProject, buildGeometry, loadIfcFileItems } from 'ifc.js';
 
 export default {
   name: 'Viewer',
@@ -62,7 +62,10 @@ export default {
     onIfcLoaded(text) {
       const loaded = loadIfcFileItems(text);
       const structured = constructProject(loaded);
-      buildGeometry(structured);
+      const model = buildGeometry(structured);
+      if (this.scene) {
+        this.scene.add(model);
+      }
     },
 
     initViewer() {
