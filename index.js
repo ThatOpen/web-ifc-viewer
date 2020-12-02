@@ -2,7 +2,6 @@ import { readIfcFile } from "./src/ifc-file-reader.js";
 import { loadIfcFileItems } from "./src/ifc-parser/ifc-services/ifc-processor.js";
 import { constructProject } from "./src/ifc-project-builder/ifc-structure-builder.js";
 import { buildGeometry } from "./src/ifc-to-three.js/converter.js";
-import { simpleBuilding } from "./resources/ifcs/simple building.js";
 
 readIfcFile();
 

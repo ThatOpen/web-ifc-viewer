@@ -26,8 +26,8 @@ newObject({
 newObject({
   [n.ifcClass]: getName(t.IfcEllipse),
   [n.position]: d.id,
-  [n.SemiAxis1]: d.number,
-  [n.SemiAxis2]: d.number,
+  [n.semiAxis1]: d.number,
+  [n.semiAxis2]: d.number,
 });
 
 newObject({

@@ -17,7 +17,6 @@ function drawEdges(structured) {
         var mat = new THREE.LineBasicMaterial({ color: lineColor });
         var wireframe = new THREE.LineSegments(geo, mat);
         item.add(wireframe);
-        scene.attach(wireframe);
 
         if (product[n.hasOpenings])
           product[n.hasOpenings].forEach((opening) => {
@@ -27,7 +26,6 @@ function drawEdges(structured) {
               var openingMat = new THREE.LineBasicMaterial({ color: openingLineColor });
               var wireframe2 = new THREE.LineSegments(geo2, openingMat);
               item.add(wireframe2);
-              scene.attach(wireframe2);
             });
           });
       }
@@ -41,7 +39,6 @@ function drawEdges(structured) {
         var spatialMat = new THREE.LineBasicMaterial({ color: spatialLineColor });
         var wireframe3 = new THREE.LineSegments(geo3, spatialMat);
         item.add(wireframe3);
-        scene.attach(wireframe3);
       });
     });
 

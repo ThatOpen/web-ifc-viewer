@@ -72,3 +72,8 @@ newObject({
   AssignedItems: d.idSet,
   Identifier: d.text,
 });
+
+newObject({
+  [n.ifcClass]: getName(t.IfcSurfaceStyleShading),
+  SurfaceColour: d.id,
+});

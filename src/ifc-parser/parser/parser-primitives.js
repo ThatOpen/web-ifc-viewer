@@ -172,7 +172,18 @@ function TextSet_Parser($) {
         ALT: () => {
           $.CONSUME(v.OpenPar);
           $.MANY(() => {
-            $.CONSUME(v[d.text]);
+            $.OR2([
+              {
+                ALT: () => {
+                  $.CONSUME(v[d.emptyText]);
+                },
+              },
+              {
+                ALT: () => {
+                  $.CONSUME(v[d.text]);
+                },
+              },
+            ]);
             $.OPTION(() => {
               $.CONSUME(v.Comma);
             });
