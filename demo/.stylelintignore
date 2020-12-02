@@ -1,0 +1,7 @@
+# .gitignore syntax (uses node-ignore behind the scenes)
+node_modules/
+dist
+dist/*
+public
+public/*
+src/config/*.tmp

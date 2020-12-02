@@ -1,0 +1,11 @@
+node_modules/
+dist
+dist/*
+/dist
+/dist/*
+public
+public/*
+src/libs
+src/libs/*
+src/plugins
+package-lock.json

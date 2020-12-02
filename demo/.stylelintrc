@@ -1,0 +1,23 @@
+{
+  "extends": [
+    "stylelint-config-standard",
+    "stylelint-config-recess-order"
+  ],
+  "ignoreFiles": ["**/*.js"],
+  "rules": {
+    
+    "no-empty-source": null,
+    "indentation": 2,
+    "selector-list-comma-newline-after": "always-multi-line",
+    "selector-pseudo-element-colon-notation": null,
+    "selector-pseudo-class-no-unknown":null,
+    "property-no-unknown": null,
+     "at-rule-no-unknown": [true, {
+        "ignoreAtRules": ["function", "if", "for", "each", "include", "mixin", "return"]
+    }],
+    "no-descending-specificity": null,
+    "no-missing-end-of-source-newline": null,
+    "function-parentheses-newline-inside": null,
+    "no-extra-semicolons": null
+  }
+}
