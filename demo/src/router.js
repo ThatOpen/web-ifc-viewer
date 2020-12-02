@@ -6,6 +6,10 @@ const routes = [
     path: '/:id',
     name: 'viewer',
     component: Viewer
+  },
+  {
+    path: '/',
+    redirect: { path: '/sample2' }
   }
 ];
 

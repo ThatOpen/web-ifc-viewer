@@ -3,7 +3,11 @@
     <el-header>IFC.js demo</el-header>
     <el-container>
       <el-aside width="300px">
-        <el-menu :default-openeds="['1', '1-1', '1-2']" @select="onSelect">
+        <el-menu
+          :default-openeds="['1', '1-1', '1-2']"
+          @select="onSelect"
+          :default-active="$route.params.id"
+        >
           <el-submenu index="1">
             <template #title><i class="el-icon-menu"></i>Examples</template>
             <el-menu-item-group title="Group One">
@@ -78,6 +82,10 @@ body {
     .el-menu {
       height: 100%;
     }
+  }
+
+  .el-main {
+    padding: 0;
   }
 }
 </style>

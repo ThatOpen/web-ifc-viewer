@@ -1,5 +1,7 @@
 <template>
-  <div id="viewer" v-loading="loading"></div>
+  <div class="viewer" v-loading="loading">
+    <canvas />
+  </div>
 </template>
 
 <script>
@@ -28,14 +30,14 @@ export default {
     // if (this.scene) {
     //   this.scene.dispose();
     // }
-    this.$el.innerHTML = '';
+    if (this.canvas) {
+      this.canvas.innerHTML = '';
+    }
   },
 
   methods: {
     async loadModel() {
-      const vm = this;
-      this.loading = true;
-
+      // load ifc file
       fetch(`/assets/models/${this.$route.params.id}.ifc`, {
         method: 'get'
       })
@@ -50,12 +52,9 @@ export default {
 
           return res.text();
         })
-        .then(vm.onIfcLoaded)
+        .then(this.onIfcLoaded)
         .catch((err) => {
           console.error(err);
-        })
-        .then(() => {
-          vm.loading = false;
         });
     },
 
@@ -66,48 +65,24 @@ export default {
       if (this.scene) {
         this.scene.add(model);
       }
+      this.loading = false;
     },
 
     initViewer() {
       // readIfcFile();
 
-      const Preset = { ASSET_GENERATOR: 'assetgenerator' };
-
-      Cache.enabled = true;
-
-      const DEFAULT_CAMERA = '[default]';
-
-      const state = {
-        background: false,
-        playbackSpeed: 1.0,
-        actionStates: {},
-        camera: DEFAULT_CAMERA,
-        wireframe: false,
-        skeleton: false,
-        grid: false,
-
-        // Lights
-        addLights: true,
-        exposure: 1.0,
-        textureEncoding: 'sRGB',
-        ambientIntensity: 0.3,
-        ambientColor: 0xffffff,
-        directIntensity: 0.8 * Math.PI, // TODO(#116)
-        directColor: 0xffffff,
-        bgColor1: '#ffffff',
-        bgColor2: '#353535'
-      };
+      const vm = this;
 
       //Renderer
-      const el = this.$el;
-      const height = el.clientHeight;
-      const width = el.clientWidth;
+      this.canvas = this.$el.querySelector('canvas');
+      const height = this.canvas.clientHeight;
+      const width = this.canvas.clientWidth;
 
       //Scene
       var scene = new THREE.Scene();
       this.scene = scene;
       //Camera
-      var camera = new THREE.PerspectiveCamera(75, el.clientWidth / el.clientHeight, 0.1, 1000);
+      var camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
       camera.position.z = 5;
       camera.position.y = 5;
       camera.position.x = 5;
@@ -115,14 +90,14 @@ export default {
       camera.lookAt(new THREE.Vector3(0, 0, 0));
 
       const pixelRatio = window.devicePixelRatio;
-      var renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.physicallyCorrectLights = true;
-      // renderer.outputEncoding = THREE.sRGBEncoding;
+      var renderer = new THREE.WebGLRenderer({ antialias: true, canvas: this.canvas });
+      // renderer.physicallyCorrectLights = true;
+      renderer.outputEncoding = THREE.sRGBEncoding;
       renderer.setClearColor(0xcccccc);
       renderer.setPixelRatio(window.devicePixelRatio);
       renderer.setSize(width, height);
 
-      el.appendChild(renderer.domElement);
+      //el.appendChild(renderer.domElement);
 
       //Axes and grids
       function createAxes() {
@@ -182,10 +157,10 @@ export default {
       }
 
       //Autoadjust camera to window size
-      function resizeRendererToDisplaySize(renderer) {
+      function resizeRendererToDisplaySize() {
         const canvas = renderer.domElement;
-        const width = canvas.clientWidth;
-        const height = canvas.clientHeight;
+        const width = vm.$el.clientWidth;
+        const height = vm.$el.clientHeight;
         if (canvas.width !== width || canvas.height !== height) {
           renderer.setSize(width, height);
           camera.aspect = width / height;
@@ -200,7 +175,7 @@ export default {
 
         controls.update();
 
-        resizeRendererToDisplaySize(renderer);
+        // resizeRendererToDisplaySize(renderer);
 
         renderer.render(scene, camera);
       };
@@ -209,16 +184,21 @@ export default {
         return 'ontouchstart' in document.documentElement;
       }
 
-      animate();
+      window.addEventListener('resize', resizeRendererToDisplaySize);
 
-      this.loading = false;
+      animate();
     }
   }
 };
 </script>
 <style lang="scss">
-#viewer {
+.viewer {
   width: 100%;
   height: 100%;
+
+  canvas {
+    width: 100%;
+    height: 100%;
+  }
 }
 </style>
