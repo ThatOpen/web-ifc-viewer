@@ -1,5 +1,5 @@
-import { namedProps as n } from "../utils/global-constants.js";
-import { getName } from "../utils/ifc-types.js";
+import { namedProps as n } from '../utils/global-constants.js';
+import { getName } from '../utils/ifc-types.js';
 
 class IfcEntityFinder {
   constructor(ifcData) {

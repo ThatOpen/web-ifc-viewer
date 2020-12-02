@@ -2,21 +2,21 @@
   "name": "ifc.js",
   "version": "1.0.1",
   "description": "IFC viewer",
-  "main": "dist/IFC.js",
-  "module": "dist/IFC.es.js",
-  "browser": "dist/IFC.umd.js",
+  "main": "build/IFC.js",
+  "module": "build/IFC.es.js",
+  "browser": "build/IFC.umd.js",
   "scripts": {
     "pretest": "npm run lint && npm run lint-spec",
     "test": "npm run test-nolint",
     "test-nolint": "karma start ./spec/karma.conf.js",
     "build": "npm run rollup && npm run uglify",
-    "release": "./build/publish.sh",
+    "release": "./rollup/publish.sh",
     "lint": "eslint src",
     "lint-spec": "eslint spec/suites",
     "lintfix": "eslint src --fix; eslint spec/suites --fix;",
-    "rollup": "rollup -c build/rollup-config.js",
-    "watch": "rollup -w -c build/rollup-config.js",
-    "uglify": "uglifyjs dist/IFC.js -c -m -o dist/IFC.min.js --source-map filename=dist/IFC.min.js.map --comments"
+    "rollup": "rollup -c rollup/rollup-config.js",
+    "watch": "rollup -w -c rollup/rollup-config.js",
+    "uglify": "uglifyjs build/IFC.js -c -m -o build/IFC.min.js --source-map filename=build/IFC.min.js.map --comments"
   },
   "repository": {
     "type": "git",

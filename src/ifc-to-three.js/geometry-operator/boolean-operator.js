@@ -1,8 +1,5 @@
-import CSG from '../../../libs/CSGMesh.js';
-import {
-  structuredData as s,
-  namedProps as n
-} from '../../utils/global-constants.js';
+import CSG from '../../libs/CSGMesh.js';
+import { structuredData as s, namedProps as n } from '../../utils/global-constants.js';
 
 function applyBooleanOperations(structured) {
   const object3D = THREE.Object3D();
@@ -25,9 +22,7 @@ function applyBooleanOperations(structured) {
           }
 
           const result = CSG.toMesh(bspA, geometryItem.matrix);
-          result.geometry = new THREE.BufferGeometry().fromGeometry(
-            result.geometry
-          );
+          result.geometry = new THREE.BufferGeometry().fromGeometry(result.geometry);
 
           result.material = new THREE.MeshPhongMaterial();
           object3D.add(result);
