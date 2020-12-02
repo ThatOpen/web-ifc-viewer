@@ -29,6 +29,11 @@ function applyBooleanOperations(structured) {
             result.geometry
           );
 
+          for (let i = 0; i < openings.length; i++) {
+            const opening = openings[i][n.geometry][0];
+            result.attach(opening);
+          }
+
           result.material = new THREE.MeshPhongMaterial();
           scene.add(result);
           scene.remove(geometryItem);

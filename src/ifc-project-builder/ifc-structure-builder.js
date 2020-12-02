@@ -9,22 +9,20 @@ import {
 function constructProject(ifcData) {
   const finder = createIfcItemsFinder(ifcData);
   bindAllElements(finder);
-  const ifcProjects = getIfcProjects(finder);
+  const ifcProjects = get(finder, t.IfcProject);
   const elements = finder.findAllProducts(ifcProjects);
-  const spaces = getIfcSpaces(finder);
+  const spaces = get(finder, t.IfcSpace);
+  const units = get(finder, t.IfcUnitAssignment)[0];
   return {
     [s.ifcProject]: ifcProjects,
     [s.products]: elements,
     [s.spaces]: spaces,
+    [s.units]: units,
   };
 }
 
-function getIfcProjects(finder){
-  return Object.values(finder.findByType(t.IfcProject));
-}
-
-function getIfcSpaces(finder){
-return Object.values(finder.findByType(t.IfcSpace));
+function get(finder, type){
+  return Object.values(finder.findByType(type));
 }
 
 function bindAllElements(finder) {
