@@ -7,8 +7,6 @@ import { simpleBuilding } from "../../resources/ifcs/simple building.js";
 readIfcFile();
 
 main(simpleBuilding);
-var element = document.getElementById("loading");
-element.parentNode.removeChild(element);
 
 function main(ifcData) {
   const loaded = loadIfcFileItems(ifcData);
