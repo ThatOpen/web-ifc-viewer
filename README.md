@@ -12,7 +12,6 @@ This is a frontend parser between .ifc files and Three.js geometry.
 
 [Example 02](https://agviegas.github.io/IFC.js/examples/02/)
 
-
 ## Introduction
 
 IFC (Industry Foundation Classes) is an open format developed by the [Building Smart](https://www.buildingsmart.org/) for the exchange of information between applications of different developers in the AEC sector. IFC files generally contain much of the relevant information about a building, including all its geometry and the information associated with each element, possibly including measurement, structural, thermal, acoustic, economic or fire resistance data.
@@ -26,7 +25,16 @@ This project reads IFC files, structures their data in memory and converts them 
 
 Check the [CONTRIBUTING](https://github.com/agviegas/IFC.js/blob/master/CONTRIBUTING.md) documentation to find out how to take part in this project.
 
-tldr:  `npm install` `npm run dev` 
+Core:
+`npm install`
+
+`npm run watch` for watching core changes
+
+Demo:
+
+`cd demo`
+`npm install`
+`npm run serve`
 
 ## License
 
