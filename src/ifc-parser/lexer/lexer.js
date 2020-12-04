@@ -1,7 +1,6 @@
-import { createToken, Lexer } from 'chevrotain';
 import { ifcDataTypes as d } from '../../utils/ifc-data-types.js';
-const newToken = createToken;
-
+// import chevrotain from '../../libs/chevrotain.js';
+import { createToken, Lexer } from 'chevrotain';
 //Tokens / vocabulary for constructing the parser primitives
 
 const tokens = [];
@@ -33,7 +32,7 @@ const ingoredPatterns = {
 function createTokens() {
   Object.keys(patterns).forEach((e) => {
     tokens.push(
-      newToken({
+      createToken({
         name: e,
         pattern: patterns[e]
       })
@@ -44,7 +43,7 @@ function createTokens() {
 function createIgnoredTokens() {
   Object.keys(ingoredPatterns).forEach((e) => {
     tokens.push(
-      newToken({
+      createToken({
         name: e,
         pattern: ingoredPatterns[e],
         group: Lexer.SKIPPED

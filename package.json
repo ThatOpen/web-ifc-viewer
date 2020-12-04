@@ -3,20 +3,10 @@
   "version": "1.0.1",
   "description": "IFC viewer",
   "main": "build/IFC.js",
-  "module": "build/IFC.es.js",
-  "browser": "build/IFC.umd.js",
+  "module": "build/IFC.module.js",
+  "browser": "build/IFC.min.js",
   "scripts": {
-    "pretest": "npm run lint && npm run lint-spec",
-    "test": "npm run test-nolint",
-    "test-nolint": "karma start ./spec/karma.conf.js",
-    "build": "npm run rollup && npm run uglify",
-    "release": "./rollup/publish.sh",
-    "lint": "eslint src",
-    "lint-spec": "eslint spec/suites",
-    "lintfix": "eslint src --fix; eslint spec/suites --fix;",
-    "rollup": "rollup -c rollup/rollup-config.js",
-    "watch": "rollup -w -c rollup/rollup-config.js",
-    "uglify": "uglifyjs build/IFC.js -c -m -o build/IFC.min.js --source-map filename=build/IFC.min.js.map --comments"
+    "watch": "rollup -c -w"
   },
   "repository": {
     "type": "git",
@@ -41,16 +31,31 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
+    "@babel/preset-env": "^7.12.7",
+    "@rollup/plugin-babel": "^5.2.2",
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-node-resolve": "^11.0.0",
+    "babel-loader": "^8.2.2",
+    "babel-preset-env": "^1.7.0",
+    "npm-run-all": "^4.1.5",
     "prettier": "^2.0.2",
     "rollup": "^2.2.0",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-copy": "^3.3.0",
     "rollup-plugin-git-version": "^0.3.1",
     "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-globals": "^1.4.0",
+    "rollup-plugin-serve": "^1.1.0",
+    "serve": "^11.3.2",
     "style-loader": "^1.1.3",
     "uglify-js": "^3.8.0",
-    "uglifyjs-webpack-plugin": "^2.2.0"
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "webpack": "^5.9.0",
+    "webpack-cli": "^4.2.0",
+    "webpack-dev-server": "^3.11.0",
+    "yargs": "^16.1.1"
   }
 }

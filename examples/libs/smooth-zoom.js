@@ -7,8 +7,6 @@
  */
 /*global THREE, console */
 
-import * as THREE from 'three';
-
 (function () {
   function OrbitConstraint(object) {
     // smooth Zoom

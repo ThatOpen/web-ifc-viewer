@@ -12,7 +12,7 @@
 
 export function readIfcFile(file, cb) {
   const reader = new FileReader();
-  reader.onload = () => {
+  reader.onload = function onload() {
     if (cb) {
       cb(reader.result);
     }

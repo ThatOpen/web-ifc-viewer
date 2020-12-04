@@ -5,45 +5,54 @@ import commonjs from 'rollup-plugin-commonjs';
 import builtins from 'rollup-plugin-node-builtins';
 import globals from 'rollup-plugin-node-globals';
 import json from 'rollup-plugin-json';
-import pkg from '../package.json';
+import copy from 'rollup-plugin-copy';
+
+import pkg from './package.json';
 
 const GLOBALS = {
-  three: 'THREE'
+  three: 'THREE',
+  chevrotain: 'chevrotain'
 };
 
+const EXTERNAL = ['three'];
+
 export default {
-  input: 'src/IFC.js',
+  input: 'src/index.js',
+  external: EXTERNAL,
+
   output: [
     {
       file: pkg.main,
       format: 'cjs',
-      external: ['three'],
       globals: GLOBALS
     },
     {
       file: pkg.module,
-      format: 'es',
-      external: ['three'],
+      format: 'esm',
       globals: GLOBALS
     },
     {
       file: pkg.browser,
       format: 'umd',
       name: 'IFC',
-      external: ['three'],
       globals: GLOBALS
     }
   ],
-  external: ['three'],
   plugins: [
     commonjs(),
     json(),
     babel({
       exclude: 'node_modules/**'
     }),
-    globals({
-      THREE: 'three'
-    }),
-    builtins()
+    globals(GLOBALS),
+    builtins(),
+    copy({
+      targets: [
+        {
+          src: 'build/**',
+          dest: 'examples/libs'
+        }
+      ]
+    })
   ]
 };

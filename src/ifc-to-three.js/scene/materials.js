@@ -1,4 +1,3 @@
-import * as THREE from 'three';
 import { ifcTypes as t } from '../../utils/ifc-types.js';
 import { namedProps as n, structuredData as s } from '../../utils/global-constants.js';
 

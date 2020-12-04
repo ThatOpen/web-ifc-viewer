@@ -1,11 +1,10 @@
-import { CstParser } from 'chevrotain';
 import { tokens, vocabulary as v } from '../lexer/lexer.js';
 import { addPrimitiveParsers } from './parser-primitives.js';
 import { typesParserMap } from './parser-map.js';
 import { newParser } from './parser-factory.js';
 import { namedProps as n } from '../../utils/global-constants.js';
-
-// const CstParser = chevrotain.CstParser;
+// import chevrotain from '../../libs/chevrotain.js';
+import { CstParser } from 'chevrotain';
 
 //Contains all the syntactical structures (RULEs)
 

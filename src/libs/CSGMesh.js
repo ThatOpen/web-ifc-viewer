@@ -1,5 +1,4 @@
 'use strict';
-import * as THREE from 'three';
 // ## License
 //
 // Copyright (c) 2011 Evan Wallace (http://madebyevan.com/), under the MIT license.

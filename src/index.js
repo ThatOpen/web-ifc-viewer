@@ -1,7 +1,3 @@
-import * as THREE from 'three';
-
-window.THREE = THREE;
-
 import { readIfcFile } from './ifc-file-reader.js';
 import { loadIfcFileItems } from './ifc-parser/ifc-services/ifc-processor.js';
 import { constructProject } from './ifc-project-builder/ifc-structure-builder.js';

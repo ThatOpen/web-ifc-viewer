@@ -1,8 +1,4 @@
-'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-var chevrotain = require('chevrotain');
+import { Lexer, createToken, CstParser } from 'chevrotain';
 
 // export function readIfcFile(cb) {
 //   const input = document.querySelector('input[type="file"]');
@@ -596,7 +592,7 @@ var ingoredPatterns = {
 
 function createTokens() {
   Object.keys(patterns).forEach(function (e) {
-    tokens.push(chevrotain.createToken({
+    tokens.push(createToken({
       name: e,
       pattern: patterns[e]
     }));
@@ -605,17 +601,17 @@ function createTokens() {
 
 function createIgnoredTokens() {
   Object.keys(ingoredPatterns).forEach(function (e) {
-    tokens.push(chevrotain.createToken({
+    tokens.push(createToken({
       name: e,
       pattern: ingoredPatterns[e],
-      group: chevrotain.Lexer.SKIPPED
+      group: Lexer.SKIPPED
     }));
   });
 }
 
 createTokens();
 createIgnoredTokens();
-var lexer = new chevrotain.Lexer(tokens);
+var lexer = new Lexer(tokens);
 var vocabulary = {};
 tokens.forEach(function (token) {
   vocabulary[token.name] = token;
@@ -940,7 +936,7 @@ var IfcParser = /*#__PURE__*/function (_CstParser) {
   }
 
   return IfcParser;
-}(chevrotain.CstParser); //Creates the syntactical structures (RULEs) for all the IFC Classes
+}(CstParser); //Creates the syntactical structures (RULEs) for all the IFC Classes
 
 
 function addParsesForAllIfcTypes($) {
@@ -2999,7 +2995,4 @@ function buildGeometry(structured) {
   return object3D;
 }
 
-exports.buildGeometry = buildGeometry;
-exports.constructProject = constructProject;
-exports.loadIfcFileItems = loadIfcFileItems;
-exports.readIfcFile = readIfcFile;
+export { buildGeometry, constructProject, loadIfcFileItems, readIfcFile };
