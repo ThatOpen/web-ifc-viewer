@@ -28,6 +28,7 @@ const viewer = document.getElementById('viewer');
 const { clientWidth: width, clientHeight: height } = viewer;
 
 const loader = document.getElementById('loader');
+const uploader = document.getElementById('uploader');
 
 init();
 
@@ -48,8 +49,22 @@ function init() {
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setClearColor(0xcccccc);
   renderer.setSize(width, height);
   viewer.appendChild(renderer.domElement);
+
+  // Axes
+  const axes = new THREE.AxesHelper();
+  axes.material.depthTest = false;
+  axes.renderOrder = 2; // after the grids
+  scene.add(axes);
+
+  // grids
+  const grid = new THREE.GridHelper(100, 100);
+  grid.material.depthTest = true;
+  grid.renderOrder = 1;
+  grid.rotation.x = Math.PI / 2;
+  scene.add(grid);
 
   // smooth Zoom
   const onMobile = isMobile();
@@ -127,6 +142,18 @@ function stopLoading() {
   loader.style.display = 'none';
 }
 
+function showUploader() {
+  uploader.style.display = 'block';
+}
+
+function hideUploader() {
+  uploader.style.display = 'none';
+}
+
+uploader.addEventListener('change', function (e) {
+  IFC.readIfcFile(e.target.files[0], onIfcLoaded);
+});
+
 let model, currentHash;
 onUrlChanged();
 
@@ -158,10 +185,13 @@ async function loadModel(id) {
 
 function onUrlChanged() {
   let hash = window.location.hash;
+
   if (!hash) {
-    window.location.hash = '#building_1';
+    showUploader();
+    stopLoading();
     return;
   }
+  hideUploader();
   hash = hash.substring(1);
   if (currentHash == hash) return;
   currentHash = hash;

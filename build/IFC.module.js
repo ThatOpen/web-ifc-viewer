@@ -2995,4 +2995,6 @@ function buildGeometry(structured) {
   return object3D;
 }
 
-export { buildGeometry, constructProject, loadIfcFileItems, readIfcFile };
+var VERSION = '1.0.1'; // readIfcFile();
+
+export { buildGeometry, constructProject, loadIfcFileItems, readIfcFile, VERSION as version };

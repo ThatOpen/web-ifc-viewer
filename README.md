@@ -1,16 +1,16 @@
 # IFC.js
 
-<a href="url"><img src="https://github.com/agviegas/IFC.js/blob/master/screenshots/logo.jpg"  height="256" width="256" ></a>
+<a href="url"><img src="https://github.com/agviegas/IFC.js/blob/master/resources/images/logo.jpg"  height="256" width="256" ></a>
 
-This is a frontend parser between .ifc files and Three.js geometry.
+This library helps to parse ifc files and convert to Three.js objects.
 
 ## Try it
 
-[Application](https://ifc-js.vercel.app)
+[Application](https://agviegas.github.io/IFC.js/)
 
-[Example 01](https://ifc-js.vercel.app/#/sample1)
+[Example 01](https://agviegas.github.io/IFC.js/examples/01/)
 
-[Example 02](https://ifc-js.vercel.app/#/sample2)
+[Example 02](https://agviegas.github.io/IFC.js/examples/02/)
 
 ## Introduction
 
@@ -26,15 +26,22 @@ This project reads IFC files, structures their data in memory and converts them 
 Check the [CONTRIBUTING](https://github.com/agviegas/IFC.js/blob/master/CONTRIBUTING.md) documentation to find out how to take part in this project.
 
 Core:
+
 `npm install`
 
 `npm run watch` for watching core changes
 
-Demo:
+`npm run build` for production
 
-`cd demo`
+Examples:
+
+`cd examples`
+
 `npm install`
-`npm run serve`
+
+`npm run dev` - for development
+
+`npm run build` - for production
 
 ## License
 

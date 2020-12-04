@@ -45,14 +45,14 @@ export default {
       exclude: 'node_modules/**'
     }),
     globals(GLOBALS),
-    builtins(),
-    copy({
-      targets: [
-        {
-          src: 'build/**',
-          dest: 'examples/libs'
-        }
-      ]
-    })
+    builtins()
+    // copy({
+    //   targets: [
+    //     {
+    //       src: 'build/**',
+    //       dest: 'examples/libs'
+    //     }
+    //   ]
+    // })
   ]
 };

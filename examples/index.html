@@ -42,7 +42,14 @@
       </div>
     </div>
 
-    <div id="viewer"></div>
+    <div id="viewer">
+      <div id="uploader">
+        <input readonly type="file" id="openFileDialog" />
+        <button class="normalButton" onclick="document.getElementById('openFileDialog').click();">
+          Open file
+        </button>
+      </div>
+    </div>
 
     <script>
       const panel = document.getElementById('panel');
@@ -64,6 +71,7 @@
         content.appendChild(container);
 
         const files = {
+          upload: [''],
           buildings: ['building_1', 'building_2'],
           'house objects': ['chair_1', 'chair_2', 'window_1', 'window_2', 'window_and_door']
         };
@@ -147,6 +155,7 @@
       }
 
       function getName(file) {
+        if (!file) return 'File';
         const name = file.split('_');
         // name.shift();
         return name.join(' ');

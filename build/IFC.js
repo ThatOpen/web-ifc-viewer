@@ -2999,7 +2999,10 @@ function buildGeometry(structured) {
   return object3D;
 }
 
+var VERSION = '1.0.1'; // readIfcFile();
+
 exports.buildGeometry = buildGeometry;
 exports.constructProject = constructProject;
 exports.loadIfcFileItems = loadIfcFileItems;
 exports.readIfcFile = readIfcFile;
+exports.version = VERSION;

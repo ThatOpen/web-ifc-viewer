@@ -8,6 +8,17 @@
    overscroll-behavior: none;
  }
 
+ #uploader {
+  position: absolute;
+  top: 100px;
+  left: 10px;
+  color: #000;
+ }
+
+ #uploader input[type=file] {
+   display: none;
+ }
+
  a {
    color: #ff0;
    text-decoration: none;

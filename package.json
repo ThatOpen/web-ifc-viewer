@@ -6,7 +6,10 @@
   "module": "build/IFC.module.js",
   "browser": "build/IFC.min.js",
   "scripts": {
-    "watch": "rollup -c -w"
+    "watch": "rollup -c -w",
+    "build": "npm run rollup && npm run uglify",
+    "rollup": "rollup -c",
+    "uglify": "uglifyjs build/IFC.js -c -m -o build/IFC.min.js --source-map filename=build/IFC.min.js.map --comments"
   },
   "repository": {
     "type": "git",
