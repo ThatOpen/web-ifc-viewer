@@ -27,7 +27,6 @@
             <p id="percentage"></p>
           </div>
         </div>
-        <span class="bottom">powered by 3i INSITE</span>
       </div>
     </div>
 
@@ -64,7 +63,10 @@
       async function init() {
         content.appendChild(container);
 
-        const files = await (await fetch('files.json')).json();
+        const files = {
+          buildings: ['building_1', 'building_2'],
+          'house objects': ['chair_1', 'chair_2', 'window_1', 'window_2', 'window_and_door']
+        };
 
         for (const key in files) {
           const section = files[key];

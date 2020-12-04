@@ -1,12 +1,16 @@
 // import * as THREE from 'three';
-// window.THREE = THREE;
+window.THREE = THREE;
 import 'three/examples/js/controls/OrbitControls.js';
 
 // console.log(THREE);
 
 import './libs/smooth-zoom.js';
 
-import * as IFC from './libs/IFC.js';
+import * as IFC from 'ifc.js';
+window.IFC = IFC;
+
+console.info('three.js v0.' + THREE.REVISION);
+console.info('IFC.js v' + IFC.version);
 
 import { GUI } from './libs/dat.gui.module.js';
 import Stats from './libs/stats.module.js';
@@ -131,6 +135,7 @@ function isMobile() {
 }
 
 function onIfcLoaded(text) {
+  console.log(text);
   if (scene) {
     if (model) {
       scene.remove(model);
@@ -143,28 +148,12 @@ function onIfcLoaded(text) {
   stopLoading();
 }
 
-function loadModel(id) {
+async function loadModel(id) {
   startLoading();
 
   // load ifc file
-  fetch(`./models/${id}.ifc`, {
-    method: 'get'
-  })
-    .then((res) => {
-      // a non-200 response code
-      if (!res.ok) {
-        // create error instance with HTTP status text
-        const error = new Error(res.statusText);
-        error.json = res.json();
-        throw error;
-      }
-
-      return res.text();
-    })
-    .then(onIfcLoaded)
-    .catch((err) => {
-      console.error(err);
-    });
+  const text = await import(`!!raw-loader!./models/${id}.ifc`);
+  onIfcLoaded(text.default);
 }
 
 function onUrlChanged() {
