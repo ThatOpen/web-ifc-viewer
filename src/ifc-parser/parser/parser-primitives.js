@@ -26,6 +26,7 @@ const primitiveParsers = {
   [d.idSet]: IdSet_Parser,
   [d.numSet]: NumberSet_Parser,
   [d.value]: IfcValue_Parser,
+  [d.valueSet]: ValueSet_Parser,
   [d.textSet]: TextSet_Parser,
 };
 
@@ -195,6 +196,34 @@ function IdSet_Parser($) {
           $.CONSUME(v.OpenPar);
           $.MANY(() => {
             $.CONSUME(v[d.id]);
+            $.OPTION(() => {
+              $.CONSUME(v.Comma);
+            });
+          });
+          $.CONSUME(v.ClosePar);
+        },
+      },
+      {
+        ALT: () => {
+          $.CONSUME(v[d.default]);
+        },
+      },
+    ]);
+    $.OPTION2(() => {
+      $.CONSUME2(v.Comma);
+    });
+  };
+}
+
+function ValueSet_Parser($) {
+  return () => {
+    $.OR([
+      {
+        ALT: () => {
+          $.CONSUME(v.OpenPar);
+
+          $.MANY(() => {
+            $.SUBRULE($.IfcValue_Parser)
             $.OPTION(() => {
               $.CONSUME(v.Comma);
             });

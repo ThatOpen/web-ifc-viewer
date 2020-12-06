@@ -21,6 +21,7 @@ const semanticUnits = {
   [d.bool]: getBool,
   [d.enum]: getEnum,
   [d.asterisk]: getAsterisk,
+  [d.valueSet]: getValueSet,
 };
 
 function getProperty(parsed, type) {
@@ -45,6 +46,7 @@ function resetSemanticFactory() {
     [d.value]: 0,
     [d.textSet]: 0,
     [d.bool]: 0,
+    [d.valueSet]: 0,
   };
 }
 
@@ -90,10 +92,24 @@ function getNumberSet(parsed) {
   return getSet(parsed, d.numSet, d.number, (e) => Number(e.image));
 }
 
+function getValueSet(parsed) {
+  const valueSet = parsed[getParser(d.valueSet)][counter[d.valueSet]++];
+  const values = valueSet.children[getParser(d.value)];
+  return values.map((ifcValue) => {
+    const valueProps = ifcValue.children;
+    let type = getIfcValueType(valueProps);
+    const value = valueProps[type][0].image;
+    const formattedValue = formatIfcValue(type, value);
+    const unit = valueProps[d.value] ? valueProps[d.value][0].image : "";
+    return { Value: formattedValue, IfcUnit: unit };
+  });
+}
+
 function getIfcValue(parsed) {
   if (isDefaultValue(parsed, d.value)) return getDefault(parsed, d.value);
   if (isExpressId(parsed, d.value)) return getIfcValueId(parsed, d.value);
-  let type = getIfcValueType(parsed);
+  const data = parsed[getParser(d.value)][counter[d.value]].children;
+  let type = getIfcValueType(data);
   const value = formatIfcValue(type, getIfcValueValue(parsed, type));
   return { Value: value, IfcUnit: getIfcUnit(parsed) };
 }
@@ -186,8 +202,7 @@ function formatIfcValue(type, value) {
   return value;
 }
 
-function getIfcValueType(parsed) {
-  const data = parsed[getParser(d.value)][counter[d.value]].children;
+function getIfcValueType(data) {
   if (data[d.number]) return v.number;
   if (data[d.text]) return v.text;
   if (data[d.bool]) return v.bool;

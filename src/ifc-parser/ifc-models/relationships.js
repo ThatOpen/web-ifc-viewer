@@ -44,6 +44,16 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcRelAssociatesMaterial),
+  GlobalId: d.guid,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  RelatedObjects: d.idSet,
+  RelatingMaterial: d.id,
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcRelDefinesByType),
   GlobalId: d.guid,
   OwnerHistory: d.id,
