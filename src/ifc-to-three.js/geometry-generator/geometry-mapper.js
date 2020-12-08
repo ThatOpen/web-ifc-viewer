@@ -1,19 +1,5 @@
-import { mapCurve2D } from "./ifc-curve2d.js";
-import { mapSweptSolid } from "./ifc-sweptSolid.js";
-import { mapMappedRepresentation } from "./ifc-mappedRepresentation.js";
-import { mapBrep } from "./ifc-brep.js";
-import {
-  geometryTypes as g,
-  namedProps as n,
-  structuredData as s,
-} from "../../utils/global-constants.js";
-
-const geometryMap = {
-  [g.curve2D]: mapCurve2D,
-  [g.sweptSolid]: mapSweptSolid,
-  [g.mappedRepresentation]: mapMappedRepresentation,
-  [g.brep]: mapBrep,
-};
+import { namedProps as n, structuredData as s } from '../../utils/global-constants.js';
+import { getMappedGeometry } from './geometry-map.js';
 
 function constructGeometries(structured) {
   structured[s.products].forEach((product) => constructGeometry(product));
@@ -37,10 +23,10 @@ function getRepresentations(product) {
       getRepresentationValue(opening);
     });
 
-  if(product[n.hasSpatial])
-  product[n.hasSpatial].forEach((spatial) => {
-    getRepresentationValue(spatial);
-  });
+  if (product[n.hasSpatial])
+    product[n.hasSpatial].forEach((spatial) => {
+      getRepresentationValue(spatial);
+    });
 }
 
 function getRepresentationValue(product) {
@@ -59,7 +45,7 @@ function mapRepresentations(product) {
       mapProductRepresentations(opening);
     });
 
-    if (product[n.hasSpatial])
+  if (product[n.hasSpatial])
     product[n.hasSpatial].forEach((spatial) => {
       mapProductRepresentations(spatial);
     });
@@ -72,17 +58,4 @@ function mapProductRepresentations(product) {
   });
 }
 
-function getMappedGeometry(representation, product) {
-  try {
-    const representationType = getType(representation);
-    return geometryMap[representationType](representation, product);
-  } catch (e) {
-    console.warn(e);
-  }
-}
-
-function getType(representation) {
-  return representation[n.representationType];
-}
-
-export { constructGeometries, getMappedGeometry };
+export { constructGeometries };

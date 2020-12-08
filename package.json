@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "live-server",
+    "build": "rollup -c",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -29,6 +30,9 @@
     "three": "^0.122.0"
   },
   "devDependencies": {
-    "live-server": "^1.2.1"
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-node-resolve": "^11.0.0",
+    "live-server": "^1.2.1",
+    "rollup": "^2.34.2"
   }
 }

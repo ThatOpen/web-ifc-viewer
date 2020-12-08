@@ -1,11 +1,8 @@
-import {
-  defaultValue,
-  namedProps as n,
-} from "../../utils/global-constants.js";
-import { applyTransformsTo } from "../geometry-transformer/local-transform-applier.js";
-import { trackLocalTransform } from "../geometry-transformer/local-transform-tracker.js";
-import { mainObject } from "../converter.js";
-import { getMappedGeometry } from "./geometry-mapper.js";
+import { defaultValue, namedProps as n } from '../../utils/global-constants.js';
+import { applyTransformsTo } from '../geometry-transformer/local-transform-applier.js';
+import { trackLocalTransform } from '../geometry-transformer/local-transform-tracker.js';
+import { mainObject } from '../scene/mainObject.js';
+import { getMappedGeometry } from './geometry-map.js';
 
 function mapMappedRepresentation(shape, product) {
   const representation = shape[n.items][0];
@@ -16,7 +13,7 @@ function mapMappedRepresentation(shape, product) {
 }
 
 //The concept of mapped representation is that there are several instances
-//of the same geometry. Storing the geometries allows to generate them 
+//of the same geometry. Storing the geometries allows to generate them
 //only once and them simply create each instance copying the source geometry.
 
 const mappingSources = {};
@@ -62,7 +59,7 @@ function getMappingTarget(representation) {
     [n.location]: { [n.coordinates]: getTargetOrigin(target) },
     [n.refDirection]: { [n.dirRatios]: getAxis(target, n.axis1, [1, 0, 0]) },
     [n.axis]: { [n.dirRatios]: getAxis(target, n.axis3, [0, 0, 1]) },
-    [n.scale]: target[n.scale],
+    [n.scale]: target[n.scale]
   };
 }
 

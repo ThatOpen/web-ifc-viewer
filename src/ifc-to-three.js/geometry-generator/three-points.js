@@ -1,4 +1,4 @@
-import { mainObject } from "../converter.js";
+import { mainObject } from "../scene/mainObject.js";
 
 function createPoint(coordinates) {
   var dotGeometry = new THREE.Geometry();

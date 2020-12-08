@@ -6,10 +6,7 @@ import {drawEdges } from "./scene/edges.js";
 import { applyScale } from "./geometry-transformer/units-applier.js";
 import { structuredData as s } from "../utils/global-constants.js";
 
-let mainObject;
-
 function buildGeometry(structured) {
-  mainObject = structured[s.mainObject];
   console.log(structured);
   constructGeometries(structured);
   applyTransformations(structured);
@@ -20,4 +17,4 @@ function buildGeometry(structured) {
   return structured;
 }
 
-export { buildGeometry, mainObject };
+export { buildGeometry };

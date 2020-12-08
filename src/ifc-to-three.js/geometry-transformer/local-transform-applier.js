@@ -1,5 +1,5 @@
 import { namedProps as n, pivots as p } from "../../utils/global-constants.js";
-import { mainObject } from "../converter.js";
+import { mainObject } from "../scene/mainObject.js";
 import { resetTransformData } from "./local-transform-reseter.js";
 
 function applyTransforms(product, property) {

@@ -1,4 +1,4 @@
-import { mainObject } from "../converter.js";
+import { mainObject } from "../scene/mainObject.js";
 import CSG from "../../../libs/CSGMesh.js";
 import {
   structuredData as s,

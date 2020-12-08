@@ -1,12 +1,12 @@
-import { loadIfc } from "../../src/IFC.js";
-import { simpleBuilding } from "../ifcs/simple building.js";
-import { scene } from "./three-scene.js";
+import { loadIfc } from "../../build/IFC.js"
+import { simpleBuilding } from '../ifcs/simple building.js';
+import { scene } from './three-scene.js';
 
 export function readIfcFile() {
   const input = document.querySelector('input[type="file"]');
   if (!input) return;
   input.addEventListener(
-    "change",
+    'change',
     (e) => {
       readFile(input);
     },
@@ -24,7 +24,7 @@ function readFile(input) {
 
 readIfcFile();
 const loaded = loadIfc(simpleBuilding);
-var element = document.getElementById("loading");
-element.parentNode.removeChild(element);
 scene.add(loaded.MainObject);
 
+var element = document.getElementById('loading');
+element.parentNode.removeChild(element);

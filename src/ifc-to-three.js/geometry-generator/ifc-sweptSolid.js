@@ -5,7 +5,7 @@ import { trackLocalTransform } from "../geometry-transformer/local-transform-tra
 import { applyTransformsTo } from "../geometry-transformer/local-transform-applier.js";
 import { namedProps as n } from "../../utils/global-constants.js";
 import { mapArbitraryProfileWithVoidsExtrusion } from "./ifc-profileArbitraryWithVoids.js";
-import { mainObject } from "../converter.js";
+import { mainObject } from "../scene/mainObject.js";
 import { mapCircleProfileExtrusion } from "./ifc-profileCircle.js";
 
 function mapSweptSolid(shape, product) {
