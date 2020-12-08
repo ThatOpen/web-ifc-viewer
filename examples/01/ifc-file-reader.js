@@ -1,4 +1,5 @@
-import { main } from "../index.js";
+import { loadIfc } from "../../src/IFC.js";
+import { simpleBuilding } from "../ifcs/simple building.js";
 
 export function readIfcFile() {
   const input = document.querySelector('input[type="file"]');
@@ -15,7 +16,10 @@ export function readIfcFile() {
 function readFile(input) {
   const reader = new FileReader();
   reader.onload = () => {
-    main(reader.result);
+    loadIfc(reader.result);
   };
   reader.readAsText(input.files[0]);
 }
+
+readIfcFile();
+loadIfc(simpleBuilding);
