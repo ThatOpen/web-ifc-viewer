@@ -35,6 +35,7 @@ function applyBooleanOperations(structured) {
           }
 
           result.material = new THREE.MeshPhongMaterial();
+          result.attach(...geometryItem.children);
           scene.add(result);
           scene.remove(geometryItem);
           product[n.geometry][i] = result;
