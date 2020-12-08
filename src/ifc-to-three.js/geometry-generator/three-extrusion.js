@@ -1,5 +1,3 @@
-import { scene } from "../scene/three-scene.js";
-
 function createExtrusionsByPoints(points, depth) {
   //Profile
   const shapePoints = [];

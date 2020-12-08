@@ -3,7 +3,6 @@ import {
   namedProps as n,
   structuredData as s,
 } from "../../utils/global-constants.js";
-import { scene } from "./three-scene.js";
 
 function drawEdges(structured) {
   const products = structured[s.products];

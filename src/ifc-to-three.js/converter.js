@@ -4,8 +4,12 @@ import { applyBooleanOperations } from "./geometry-operator/boolean-operator.js"
 import { applyMaterials } from "./scene/materials.js";
 import {drawEdges } from "./scene/edges.js";
 import { applyScale } from "./geometry-transformer/units-applier.js";
+import { structuredData as s } from "../utils/global-constants.js";
+
+let mainObject;
 
 function buildGeometry(structured) {
+  mainObject = structured[s.mainObject];
   console.log(structured);
   constructGeometries(structured);
   applyTransformations(structured);
@@ -13,6 +17,7 @@ function buildGeometry(structured) {
   applyBooleanOperations(structured);
   applyMaterials(structured);
   applyScale(structured);
+  return structured;
 }
 
-export { buildGeometry };
+export { buildGeometry, mainObject };

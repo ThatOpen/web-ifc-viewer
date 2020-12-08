@@ -18,6 +18,7 @@ function constructProject(ifcData) {
     [s.products]: elements,
     [s.spaces]: spaces,
     [s.units]: units,
+    [s.mainObject]: new THREE.Object3D(),
   };
 }
 
