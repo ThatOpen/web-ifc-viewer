@@ -2,7 +2,7 @@
 
 <a href="url"><img src="https://github.com/agviegas/IFC.js/blob/master/img/logo.jpg"  height="256" width="256" ></a>
 
-This library helps to parse ifc files and convert to Three.js objects.
+This library converts any browser into an IFC viewer. It parses IFC entities to WebGL geometry through THREE.js.
 
 ## Try it
 
