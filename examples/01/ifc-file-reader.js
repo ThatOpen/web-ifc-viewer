@@ -1,4 +1,4 @@
-import { loadIfc } from "../../build/IFC.js"
+import { loadIfc } from "../../build/IFC.module.js"
 import { simpleBuilding } from '../ifcs/simple building.js';
 import { scene } from './three-scene.js';
 
