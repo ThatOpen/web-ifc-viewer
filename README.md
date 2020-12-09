@@ -6,7 +6,7 @@ This library converts any browser into an IFC viewer. It parses IFC entities to 
 
 ## Try it
 
-[Application](https://agviegas.github.io/IFC.js/)
+[Application](https://agviegas.github.io/IFC.js/examples/00/)
 
 [Example 01](https://agviegas.github.io/IFC.js/examples/01/)
 
