@@ -1,4 +1,3 @@
-import "../../../libs/chevrotain.js"
 import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 const newToken = chevrotain.createToken;
 const Lexer = chevrotain.Lexer;

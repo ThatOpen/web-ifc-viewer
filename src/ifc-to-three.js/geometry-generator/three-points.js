@@ -1,4 +1,4 @@
-import { scene } from "../scene/three-scene.js";
+import { mainObject } from "../scene/mainObject.js";
 
 function createPoint(coordinates) {
   var dotGeometry = new THREE.Geometry();
@@ -14,7 +14,7 @@ function createPoint(coordinates) {
   dot.position.x = dot.position.x + coordinates[0];
   dot.position.y = dot.position.y + coordinates[1];
   dot.position.z = dot.position.z + coordinates[2];
-  scene.add(dot);
+  mainObject.add(dot);
 }
 
 export { createPoint };

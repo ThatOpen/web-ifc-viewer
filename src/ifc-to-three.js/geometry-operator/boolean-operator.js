@@ -1,4 +1,4 @@
-import { scene } from "../scene/three-scene.js";
+import { mainObject } from "../scene/mainObject.js";
 import CSG from "../../../libs/CSGMesh.js";
 import {
   structuredData as s,
@@ -35,8 +35,9 @@ function applyBooleanOperations(structured) {
           }
 
           result.material = new THREE.MeshPhongMaterial();
-          scene.add(result);
-          scene.remove(geometryItem);
+          result.attach(...geometryItem.children);
+          mainObject.add(result);
+          mainObject.remove(geometryItem);
           product[n.geometry][i] = result;
         }
       }

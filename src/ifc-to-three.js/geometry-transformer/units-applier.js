@@ -1,4 +1,4 @@
-import { createAxes, scene } from "../scene/three-scene.js";
+import { mainObject } from "../scene/mainObject.js";
 import {
   namedProps as n,
   structuredData as s,
@@ -12,37 +12,18 @@ function applyScale(structured) {
 
 function applyScaleOnObjects(scale, structured) {
   if (scale === 1) return;
-  const axis = createAxes();
-  scene.add(axis);
+  const axis = new THREE.Object3D();
+  mainObject.add(axis);
 
   structured[s.products].forEach((product)=> {
     const geometries = product[n.geometry];
     if(geometries) geometries.forEach((geometry)=> {
       axis.attach(geometry);
       axis.scale.set(scale, scale, scale);
-      scene.attach(geometry);
+      mainObject.attach(geometry);
       axis.scale.set(1,1,1);
     })
   })
-
-  // scene.traverse((object) => {
-  //   if(isValid(object)){
-  //     axis.attach(object);
-  //     axis.scale.set(0.000001, 0.000001, 0.000001);
-  //     scene.attach(object);
-  //     axis.scale.set(1,1,1);
-  //   }
-  //   // console.log(scale);
-  //   // console.log(object.type);
-  // });
-}
-
-function isValid(object){
-  return object.type != "Scene" 
-      && object.type != "AxesHelper" 
-      && object.type != "GridHelper"
-      && object.type != "DirectionalLight"
-      && object.type != "AmbientLight";
 }
 
 function getUnitScale(units) {

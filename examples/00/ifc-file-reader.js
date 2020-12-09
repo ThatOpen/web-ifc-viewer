@@ -1,10 +1,11 @@
-import { main } from "../index.js";
+// import { loadIfc } from "../../build/IFC.module.js"
+import { scene } from './three-scene.js';
 
 export function readIfcFile() {
   const input = document.querySelector('input[type="file"]');
   if (!input) return;
   input.addEventListener(
-    "change",
+    'change',
     (e) => {
       readFile(input);
     },
@@ -15,7 +16,13 @@ export function readIfcFile() {
 function readFile(input) {
   const reader = new FileReader();
   reader.onload = () => {
-    main(reader.result);
+    const loaded = IFCjs.loadIfc(reader.result);
+    scene.add(loaded.MainObject);
   };
   reader.readAsText(input.files[0]);
 }
+
+readIfcFile();
+
+var element = document.getElementById('loading');
+element.parentNode.removeChild(element);

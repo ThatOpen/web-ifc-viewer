@@ -11,6 +11,7 @@ const ifcDataTypes = {
   value: "IfcValue",
   number: "Number",
   numSet: "NumberSet",
+  valueSet: "ValueSet",
   text: "Text",
   textSet: "TextSet",
 };

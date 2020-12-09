@@ -106,6 +106,7 @@ const structuredData = {
   products: "Products",
   spaces: "Spaces",
   units: "Units",
+  mainObject: "MainObject",
 };
 
 const pivots = {

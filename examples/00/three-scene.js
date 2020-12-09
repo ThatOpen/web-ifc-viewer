@@ -1,5 +1,3 @@
-import { OrbitControls } from "../../../libs/OrbitControls.js";
-
 //Scene
 var scene = new THREE.Scene();
 //Camera
@@ -40,7 +38,6 @@ grid.renderOrder = 1;
 grid.rotation.x = Math.PI / 2;
 scene.add(grid);
 
-//TODO: Adjust light to avoid planes too bright / dark on any angle
 //Light
 const color = 0xffffff;
 const highIntensity = 1;
@@ -102,4 +99,4 @@ function isMobile() {
 
 animate();
 
-export { scene, createAxes };
+export { scene };

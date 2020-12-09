@@ -1,5 +1,5 @@
 import { namedProps as n, pivots as p } from "../../utils/global-constants.js";
-import { createAxes, scene } from "../scene/three-scene.js";
+import { mainObject } from "../scene/mainObject.js";
 import { resetTransformData } from "./local-transform-reseter.js";
 
 function applyTransforms(product, property) {
@@ -16,16 +16,16 @@ function applyTransformsTo(product, geometry, property) {
 function applyTransform(geometry, pivots) {
   if (geometry) {
     bindGeometryToPivots(geometry, pivots);
-    scene.add(pivots[0]);
+    mainObject.add(pivots[0]);
     attachGeometryToScene(geometry);
-    scene.remove(pivots[0]);
+    mainObject.remove(pivots[0]);
   }
 }
 
 function attachGeometryToScene(geometry) {
   if (geometry.constructor === Array)
     return geometry.forEach((e) => attachGeometryToScene(e));
-  return scene.attach(geometry);
+  return mainObject.attach(geometry);
 }
 
 function bindGeometryToPivots(geometry, pivots) {
@@ -72,10 +72,6 @@ function getTransforms(transform, index) {
   const y = transform[p.yAxis][index];
   const z = transform[p.zAxis][index];
   return { x, y, z };
-}
-
-function showLocalOrigins(pivots) {
-  pivots.forEach((pivot) => pivot.add(createAxes()));
 }
 
 export { applyTransforms, applyTransformsTo };

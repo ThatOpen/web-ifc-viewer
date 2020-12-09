@@ -35,6 +35,20 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcColumnType),
+  GlobalId: d.guid,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ApplicableOccurrence: d.text,
+  HasPropertySets: d.idSet,
+  RepresentationMaps: d.idSet,
+  Tag: d.text,
+  ElementType: d.text,
+  PredefinedType: d.enum,
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcPlateType),
   GlobalId: d.guid,
   OwnerHistory: d.id,
@@ -120,6 +134,34 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcSlabType),
+  GlobalId: d.guid,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ApplicableOccurrence: d.text,
+  HasPropertySets: d.idSet,
+  RepresentationMaps: d.idSet,
+  Tag: d.text,
+  ElementType: d.text,
+  PredefinedType: d.enum,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcBuildingElementProxyType),
+  GlobalId: d.guid,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ApplicableOccurrence: d.text,
+  HasPropertySets: d.idSet,
+  RepresentationMaps: d.idSet,
+  Tag: d.text,
+  ElementType: d.text,
+  PredefinedType: d.enum,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcSanitaryTerminalType),
   GlobalId: d.guid,
   OwnerHistory: d.id,
   Name: d.text,

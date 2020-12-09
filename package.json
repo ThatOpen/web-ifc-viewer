@@ -1,10 +1,13 @@
 {
   "name": "ifc.js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "IFC viewer",
-  "main": "index.js",
+  "main": "build/IFC.js",
+  "module": "build/IFC.module.js",
+  "browser": "build/IFC.min.js",
   "scripts": {
     "dev": "live-server",
+    "build": "rollup -c",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -25,10 +28,15 @@
   },
   "homepage": "https://github.com/agviegas/IFC.js#readme",
   "dependencies": {
-    "chevrotain": "^7.0.3",
-    "three": "^0.122.0"
+    "chevrotain": "^7.0.3"
   },
   "devDependencies": {
-    "live-server": "^1.2.1"
+    "@babel/core": "^7.12.9",
+    "@babel/preset-env": "^7.12.7",
+    "@rollup/plugin-babel": "^5.2.2",
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-node-resolve": "^11.0.0",
+    "live-server": "^1.2.1",
+    "rollup": "^2.34.2"
   }
 }
