@@ -1,8 +1,10 @@
 {
   "name": "ifc.js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "IFC viewer",
-  "main": "index.js",
+  "main": "build/IFC.js",
+  "module": "build/IFC.module.js",
+  "browser": "build/IFC.min.js",
   "scripts": {
     "dev": "live-server",
     "build": "rollup -c",
