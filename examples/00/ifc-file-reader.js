@@ -1,5 +1,4 @@
 // import { loadIfc } from "../../build/IFC.module.js"
-import { simpleBuilding } from '../models/simple building.js';
 import { scene } from './three-scene.js';
 
 export function readIfcFile() {
@@ -24,8 +23,6 @@ function readFile(input) {
 }
 
 readIfcFile();
-const loaded = IFCjs.loadIfc(simpleBuilding);
-scene.add(loaded.MainObject);
 
 var element = document.getElementById('loading');
 element.parentNode.removeChild(element);

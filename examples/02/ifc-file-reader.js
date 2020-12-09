@@ -1,5 +1,5 @@
 import { loadIfc } from "../../build/IFC.module.js"
-import { simpleBuilding2 } from '../ifcs/simple building 2.js';
+import { simpleBuilding2 } from '../models/simple building 2.js';
 import { scene } from './three-scene.js';
 
 export function readIfcFile() {
@@ -17,7 +17,8 @@ export function readIfcFile() {
 function readFile(input) {
   const reader = new FileReader();
   reader.onload = () => {
-    loadIfc(reader.result);
+    const loaded = IFCjs.loadIfc(reader.result);
+    scene.add(loaded.MainObject);
   };
   reader.readAsText(input.files[0]);
 }
