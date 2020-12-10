@@ -1,4 +1,7 @@
-import { regexp as r } from "./regexp.js";
+const r = {
+  unicode: /\\X2\\[0-9A-F]+?\\X\d\\/,
+  getUnicode: /[0-9A-F]+(?=\\X\d\\)/,
+};
 
 function unicode(text) {
   while (r.unicode.test(text)) {
