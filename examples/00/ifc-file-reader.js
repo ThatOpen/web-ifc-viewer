@@ -1,4 +1,4 @@
-// import { loadIfc } from "../../build/IFC.module.js"
+import { loadIfc } from "../../src/IFC.js"
 import { scene } from './three-scene.js';
 
 export function readIfcFile() {
@@ -16,7 +16,7 @@ export function readIfcFile() {
 function readFile(input) {
   const reader = new FileReader();
   reader.onload = () => {
-    const loaded = IFCjs.loadIfc(reader.result);
+    const loaded = loadIfc(reader.result);
     scene.add(loaded.MainObject);
   };
   reader.readAsText(input.files[0]);

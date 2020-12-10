@@ -2,8 +2,10 @@ const ifcTypes = {
   //Building elements
   IfcBuildingElementProxy: "IFCBUILDINGELEMENTPROXY",
   IfcColumn: "IFCCOLUMN",
+  IfcCovering: "IFCCOVERING",
   IfcCurtainWall: "IFCCURTAINWALL",
   IfcDoor: "IFCDOOR",
+  IfcEquipmentElement: "IFCEQUIPMENTELEMENT",
   IfcFlowTerminal: "IFCFLOWTERMINAL",
   IfcFurnishingElement: "IFCFURNISHINGELEMENT",
   IfcMappedItem: "IFCMAPPEDITEM",
@@ -36,6 +38,7 @@ const ifcTypes = {
   IfcCartesianPoint: "IFCCARTESIANPOINT",
   IfcCartesianTransformationOperator3D: "IFCCARTESIANTRANSFORMATIONOPERATOR3D",
   IfcCircle: "IFCCIRCLE",
+  IfcCircleHollowProfileDef: "IFCCIRCLEHOLLOWPROFILEDEF",
   IfcClosedShell: "IFCCLOSEDSHELL",
   IfcCircleProfileDef: "IFCCIRCLEPROFILEDEF",
   IfcCompositeCurve: "IFCCOMPOSITECURVE",
@@ -88,6 +91,7 @@ const ifcTypes = {
   //Properties
   IfcBuildingElementProxyType: "IFCBUILDINGELEMENTPROXYTYPE",
   IfcColumnType: "IFCCOLUMNTYPE",
+  IfcCoveringType: "IFCCOVERINGTYPE",
   IfcCurtainWallType: "IFCCURTAINWALLTYPE",
   IfcFurnitureType: "IFCFURNITURETYPE",
   IfcDoorLiningProperties: "IFCDOORLININGPROPERTIES",
@@ -106,14 +110,18 @@ const ifcTypes = {
   IfcWindowLiningProperties: "IFCWINDOWLININGPROPERTIES",
   // Relationships
   IfcRelAggregates: "IFCRELAGGREGATES",
+  IfcRelAssignsToGroup: "IFCRELASSIGNSTOGROUP",
   IfcRelAssociatesClassification: "IFCRELASSOCIATESCLASSIFICATION",
   IfcRelAssociatesMaterial: "IFCRELASSOCIATESMATERIAL",
   IfcRelConnectsPathElements: "IFCRELCONNECTSPATHELEMENTS",
+  IfcRelConnectsPortToElement: "IFCRELCONNECTSPORTTOELEMENT",
   IfcRelContainedInSpatialStructure: "IFCRELCONTAINEDINSPATIALSTRUCTURE",
   IfcRelDefinesByProperties: "IFCRELDEFINESBYPROPERTIES",
   IfcRelDefinesByType: "IFCRELDEFINESBYTYPE",
   IfcRelFillsElement: "IFCRELFILLSELEMENT",
+  IfcGroup: "IFCGROUP",
   IfcRelSpaceBoundary: "IFCRELSPACEBOUNDARY",
+  IfcRelServicesBuildings: "IFCRELSERVICESBUILDINGS",
   IfcRelVoidsElement: "IFCRELVOIDSELEMENT",
   //Spatial structure elements
   IfcBuilding: "IFCBUILDING",
@@ -121,6 +129,9 @@ const ifcTypes = {
   IfcProject: "IFCPROJECT",
   IfcSite: "IFCSITE",
   IfcSpace: "IFCSPACE",
+  //Systems
+  IfcDistributionPort: "IFCDISTRIBUTIONPORT",
+  IfcSystem: "IFCSYSTEM",
   //Units
   IfcConversionBasedUnit: "IFCCONVERSIONBASEDUNIT",
   IfcDerivedUnit: "IFCDERIVEDUNIT",

@@ -5,7 +5,6 @@ const ifcDataTypes = {
   date: "Date",
   default: "DefaultValue",
   enum: "Enum",
-  guid: "Guid",
   id: "ExpressId",
   idSet: "ExpressIdSet",
   value: "IfcValue",
