@@ -21,8 +21,7 @@ function parse(text, ifcType) {
 
 function showErrors(text, ifcType, parser) {
   console.warn(parser.errors);
-  console.warn(ifcType);
-  console.warn(text);
+  console.warn(`Error with item: ${text} of type ${ifcType}`);
 }
 
 export { parse };

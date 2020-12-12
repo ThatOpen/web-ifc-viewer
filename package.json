@@ -28,7 +28,8 @@
   },
   "homepage": "https://github.com/agviegas/IFC.js#readme",
   "dependencies": {
-    "chevrotain": "^7.0.3"
+    "chevrotain": "^7.0.3",
+    "three": "^0.123.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

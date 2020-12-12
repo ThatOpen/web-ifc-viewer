@@ -1,5 +1,5 @@
 import { getParser } from "../parser/parser-primitives.js";
-import { formatDate, unicode } from "../../utils/format.js";
+import { formatDate, unicode } from "./format.js";
 import {
   ifcBoolValues,
   ifcValueType as v,
@@ -9,7 +9,6 @@ import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 //Each method retrieves information from a given parsed data type
 
 const semanticUnits = {
-  [d.guid]: getGuid,
   [d.id]: getExpressId,
   [d.idSet]: getIdSet,
   [d.text]: getIfcText,
@@ -36,7 +35,6 @@ let counter = {};
 
 function resetSemanticFactory() {
   counter = {
-    [d.guid]: 0,
     [d.id]: 0,
     [d.text]: 0,
     [d.number]: 0,
@@ -48,10 +46,6 @@ function resetSemanticFactory() {
     [d.bool]: 0,
     [d.valueSet]: 0,
   };
-}
-
-function getGuid(parsed) {
-  return extract(parsed, d.guid).slice(1, -1);
 }
 
 function getBool(parsed) {

@@ -25,11 +25,12 @@ This project reads IFC files, structures their data in memory and converts them 
 
 Check the [CONTRIBUTING](https://github.com/agviegas/IFC.js/blob/master/CONTRIBUTING.md) documentation to find out how to take part in this project.
 
+### Testing files
+You can find the IFC files for testing [here](https://drive.google.com/drive/folders/1wXLaf1wPaWzfEwWzu7kNTdJoOUqU6K0E?usp=sharing).
+
 Core:
 
-`npm install`
-
-`npm run build` for production
+`npm run build` for generating the build files.
 
 
 ## License

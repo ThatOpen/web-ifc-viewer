@@ -14,7 +14,6 @@ function addPrimitiveParsers($) {
 }
 
 const primitiveParsers = {
-  [d.guid]: IfcGuid_Parser,
   [d.asterisk]: Asterisk_Parser,
   [d.number]: Number_Parser,
   [d.date]: Number_Parser,
@@ -31,15 +30,6 @@ const primitiveParsers = {
 
 function getParser(dataType) {
   return primitiveParsers[dataType].name;
-}
-
-function IfcGuid_Parser($) {
-  return () => {
-    $.CONSUME(v[d.guid]);
-    $.OPTION(() => {
-      $.CONSUME(v.Comma);
-    });
-  };
 }
 
 function Asterisk_Parser($) {

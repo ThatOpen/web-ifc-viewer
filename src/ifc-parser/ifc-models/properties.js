@@ -5,7 +5,7 @@ import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
 
 newObject({
   [n.ifcClass]: getName(t.IfcPropertySet),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -22,7 +22,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcSpaceType),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -36,7 +36,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcColumnType),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -50,7 +50,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcPlateType),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -64,7 +64,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcMemberType),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -78,7 +78,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcWallType),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -92,7 +92,21 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcStairFlightType),
-  GlobalId: d.guid,
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ApplicableOccurrence: d.text,
+  HasPropertySets: d.idSet,
+  RepresentationMaps: d.idSet,
+  Tag: d.text,
+  ElementType: d.text,
+  PredefinedType: d.enum,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcCoveringType),
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -106,7 +120,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcCurtainWallType),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -120,7 +134,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcFurnitureType),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -134,7 +148,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcSlabType),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -148,7 +162,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcBuildingElementProxyType),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -162,7 +176,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcSanitaryTerminalType),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -176,7 +190,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcDoorLiningProperties),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -195,7 +209,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcDoorPanelProperties),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -208,7 +222,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcDoorStyle),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -224,7 +238,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcWindowStyle),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -240,7 +254,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcWindowLiningProperties),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,

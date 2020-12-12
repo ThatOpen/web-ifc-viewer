@@ -5,6 +5,7 @@ import {
   namedProps as n,
   structuredData as s,
 } from "../../utils/global-constants.js";
+import { mainObject } from "../scene/mainObject.js";
 
 function applyTransformations(structured) {
   structured[s.products].forEach((product) => {

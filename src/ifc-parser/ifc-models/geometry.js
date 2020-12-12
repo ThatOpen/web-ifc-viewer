@@ -104,6 +104,15 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcCircleHollowProfileDef),
+  ProfileType: d.enum,
+  ProfileName: d.text,
+  [n.position]: d.id,
+  [n.radius]: d.number,
+  WallThickness: d.number,
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcArbitraryProfileDefWithVoids),
   ProfileType: d.enum,
   ProfileName: d.text,
@@ -169,7 +178,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcGeometricCurveSet),
-  Elements: d.idSet,
+  [n.elements]: d.idSet,
 });
 
 newObject({

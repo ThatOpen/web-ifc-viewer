@@ -1,6 +1,14 @@
 import { itemsReaderValues as i } from "../../utils/global-constants.js";
-import { regexp } from "../../utils/regexp.js";
 
+const regexp = {
+  allNewLines: /\r?\n|\r/g,
+  headerSection: /HEADER;.+?(?=ENDSEC;)/,
+  dataSection: /DATA;\s+.+(?=ENDSEC;)/,
+  singleIfcItems: /#\d+\s*=\s*IFC.+?\)(;\s*(?=#\d*)|;\s*$)/g,
+  expressId: /^#\d+/,
+  rawIfcType: /IFC\w+/,
+  rawIfcProperties: /\(.+?(?=;\s*$)/,
+};
 class IfcItemsReader {
   constructor(ifcFile) {
     this.ifcFile = ifcFile;
@@ -30,6 +38,10 @@ class IfcItemsReader {
     });
   }
 
+  separateIfcEntities(dataSection) {
+    return dataSection.match(regexp.singleIfcItems);
+  }
+
   readHeaderSection(ifcLine) {
     return ifcLine.match(regexp.headerSection)[0];
   }
@@ -40,10 +52,6 @@ class IfcItemsReader {
 
   removeAllNewLines(ifcFile) {
     return ifcFile.replace(regexp.allNewLines, " ");
-  }
-
-  separateIfcEntities(dataSection) {
-    return dataSection.match(regexp.singleIfcItems);
   }
 
   getId(rawIfcLine) {

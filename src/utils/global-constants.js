@@ -9,6 +9,7 @@ const namedProps = {
   coordinates: "Coordinates",
   depth: "Depth",
   dirRatios: "DirectionRatios",
+  elements: "Elements",
   extDirection: "ExtrudedDirection",
   expressId: "_ExpressId",
   geometry: "_Geometry",
@@ -94,6 +95,7 @@ const geometryTypes = {
   sweptSolid: "SweptSolid",
   mappedRepresentation: "MappedRepresentation",
   brep: "Brep",
+  geometricSet: "GeometricSet",
 };
 
 const ifcBoolValues = {
