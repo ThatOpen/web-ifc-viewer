@@ -1,4 +1,3 @@
-import { OrbitControls } from "../libs/OrbitControls.js";
 //Scene
 var scene = new THREE.Scene();
 //Camera
@@ -59,7 +58,7 @@ scene.add(light4);
 const onMobile = isMobile();
 let controls = {};
 if (onMobile) {
-  controls = new OrbitControls(camera, renderer.domElement);
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
 } else {
   controls = new THREE.OOrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
