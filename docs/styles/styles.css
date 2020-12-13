@@ -51,6 +51,8 @@ p {
 .Navbar a:hover {
   text-decoration: underline;
   text-underline-offset: 5px;
+  text-decoration-color: rgba(0, 128, 128, 0.575);
+  text-decoration-thickness: 3px;
 }
 
 .NavbarTitle {
@@ -90,7 +92,9 @@ p {
 }
 
 .MainTitle {
-  font-size: 9rem;
+  font-size: 10rem;
+  padding: 1px;
+  box-sizing: border-box;
   font-weight: 100;
   color: #535857;
 }
@@ -113,8 +117,24 @@ p {
   align-items: center;
 }
 
+@media(max-width: 700px){
+
+  .MainTitle {
+    font-size: 7rem;
+  }
+
+  .Description {
+    font-size: 1rem;
+  }
+
+  .WelcomeSectionsRow {
+    flex-wrap: wrap;
+  }
+}
+
+
+
 .WelcomeSection {
-  min-width: 300px;
   display: flex;
   flex-direction: column;
   margin: 1rem 1.5rem;
