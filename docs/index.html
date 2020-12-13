@@ -16,24 +16,36 @@
   <body>
     <div class="Navbar">
       <ul class="NavbarExpanded">
-        <li class="NavbarTitle"><a href="#">IFC.js</a></li>
+        <li class="NavbarTitle"><a class="NavbarTitleText" href="#">IFC.js</a></li>
         <li><a href="#">Tutorial</a></li>
         <li><a href="#">Docs</a></li>
         <li><a href="#">Contribute</a></li>
         <li><a href="#">Github</a></li>
         <li><a href="#">About</a></li>
       </ul>  
-      <div class="NavbarCollapsed">
-        <button><img src="./resources/menu-icon.svg"></button>
-        <a href="#">IFC.js</a>
+      <div class="NavbarCollapsedMenu">
+        <input class="NavbarCollapsedCheckBox" type="checkbox">
+        <div class="NavbarCollapsedElements">
+          <div class="NavbarCollapsedCheckBoxIconLine"></div>
+          <div class="NavbarCollapsed">
+            <ul>
+              <li><a href="#">Tutorial</a></li>
+              <li><a href="#">Docs</a></li>
+              <li><a href="#">Contribute</a></li>
+              <li><a href="#">Github</a></li>
+              <li><a href="#">About</a></li>
+            </ul>  
+          </div>
+        </div>
       </div>
     </div>
-
     <div class="WelcomeContent">
         <header>
           <h1 class="MainTitle">IFC.js</h1>
           <p class="Description">Front-end open source IFC parser</p>
-          <img class="MainLogo" src="./resources/transparent-logo-light.png" />
+          <div class="MainLogoWrapper">
+            <img class="MainLogo" src="./resources/transparent-logo-light.png" />
+          </div>
         </header>
         <div class="WelcomeSections">
           <div class="WelcomeSectionsColumn">

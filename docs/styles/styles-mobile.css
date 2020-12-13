@@ -20,26 +20,87 @@
     display: none;
   }
 
-  .NavbarCollapsed {
+  .NavbarCollapsedMenu {
     display: flex;
     justify-content: flex-start;
     align-items: center;
     min-height: 3rem;
-    height: stretch;
   }
 
-  .NavbarCollapsed button {
+  .NavbarCollapsedCheckBox {
     padding: 0.3rem;
-    margin-left: 1rem;
-    margin-right: 1rem;
+    margin-left: 2rem;
+    transform: scale(2);
+    z-index: 2;
+    opacity: 0;
   }
 
-  .NavbarCollapsed button img {
-    height: 1rem;
+  .NavbarCollapsedCheckBoxIconLine{
+    position: absolute;
+    background: black;
+    left: 29px;
+    height: 3px;
+    width: 20px;
+    transition: all 0.4s ease;
+  }
+
+  .NavbarCollapsedCheckBoxIconLine::before,
+  .NavbarCollapsedCheckBoxIconLine::after{
+    content: '';
+    position: absolute;
+    z-index: 1;
+    top: -7px;
+    height: 3px;
+    width: 100%;
+    background: black;
+    transition: all 0.4s ease;
+  }
+
+  .NavbarCollapsedCheckBoxIconLine::after{
+    top: 7px;
+  }
+
+  .NavbarCollapsedCheckBox:checked + .NavbarCollapsedElements .NavbarCollapsedCheckBoxIconLine{
+    transform: rotate(45deg);
+  }
+
+  .NavbarCollapsedCheckBox:checked:hover + .NavbarCollapsedElements .NavbarCollapsedCheckBoxIconLine{
+    transform: rotate(135deg);
+  }
+
+  .NavbarCollapsedCheckBox:checked + .NavbarCollapsedElements .NavbarCollapsedCheckBoxIconLine::before,
+  .NavbarCollapsedCheckBox:checked + .NavbarCollapsedElements .NavbarCollapsedCheckBoxIconLine::after{
+    transform: rotate(90deg);
+    top: 0;
+  }
+
+  .NavbarCollapsed {
+    position: fixed;
+    top:0;
+    left:0;
+    margin-top: 49px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    width: 10rem;
+    background-color: white;
+    opacity: 0.9;
+    transform: translateX(-100%);
+    transition: all 0.4s ease;
+    border: 1px solid #ccd3d1;
   }
 
   .NavbarCollapsed a {
-    padding: 0.3rem;
-    padding: 0.1rem;
+    color: #535857;
+  }
+
+  .NavbarCollapsed li {
+    margin: 1rem;
+    list-style-type: none;
+    text-decoration: none;
+  }
+
+  .NavbarCollapsedCheckBox:checked +.NavbarCollapsedElements .NavbarCollapsed{
+    transform: translateX(0%);
   }
 }

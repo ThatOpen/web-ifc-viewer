@@ -24,7 +24,14 @@ a {
   color: #535857;
 }
 
-button:hover{
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  text-decoration-color: rgba(0, 128, 128, 0.575);
+  text-decoration-thickness: 3px;
+}
+
+.NavbarCollapsedCheckBox:hover{
   cursor: pointer;
 }
 
@@ -37,7 +44,6 @@ button:hover{
   position: fixed;
   top: 0;
   left: 0;
-  z-index: -1;
 }
 
 .Navbar {
@@ -48,16 +54,8 @@ button:hover{
   top: 0;
 }
 
-.NavbarCollapsed {
+.NavbarCollapsedMenu, .NavbarCollapsed {
   display: none;
-}
-
-.NavbarCollapsed button{
-  background-color: white;
-  outline: none;
-  padding: 1rem;
-  color: #535857;
-  border: none;
 }
 
 .NavbarExpanded {
@@ -70,25 +68,18 @@ button:hover{
   height: stretch;
 }
 
-.NavbarExpanded a:hover {
-  text-decoration: underline;
-  text-underline-offset: 5px;
-  text-decoration-color: rgba(0, 128, 128, 0.575);
-  text-decoration-thickness: 3px;
-}
-
 .NavbarTitle {
   position: absolute;
   left: 0;
 }
 
-.NavbarTitle a {
-    pointer-events: none;
-  }
+.NavbarTitleText {
+  pointer-events: none;
+}
 
-.NavbarTitle a:hover {
-    text-decoration: none;
-  }
+.NavbarTitleText:hover {
+  text-decoration: none;
+}
 
 .MainLogo {
   max-width: 7rem;
@@ -97,6 +88,47 @@ button:hover{
   border-radius: 100%;
   margin: 2rem;
   background-image: linear-gradient(to top, #37ecba 0%, #72afd3 100%);
+}
+
+.MainLogo {
+  max-width: 7rem;
+  box-sizing: border-box;
+  padding: 1.4rem;
+  border-radius: 100%;
+  margin: 2rem;
+  background-image: linear-gradient(to top, #37ecba 0%, #72afd3 100%);
+}
+
+.MainLogoWrapper{
+  animation: logo-rotate 4s infinite 0s ease-in-out;
+}
+
+@keyframes logo-rotate {
+  0%{
+    position: relative;
+    z-index: -1;
+    transform:rotate(0deg);
+  }
+    25%{
+      position: relative;
+      z-index: -1;
+      transform:rotate(90deg);
+    }
+    50%{
+      position: relative;
+      z-index: -1;
+      transform:rotate(180deg);
+    }
+    75%{
+      position: relative;
+      z-index: -1;
+      transform:rotate(270deg);
+    }
+    100%{
+      position: relative;
+      z-index: -1;
+      transform:rotate(360deg);
+    }
 }
 
 .WelcomeContent {
