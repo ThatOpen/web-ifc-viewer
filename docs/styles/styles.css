@@ -14,6 +14,20 @@ p {
   line-height: 2rem;
 }
 
+a {
+  box-sizing: border-box;
+  padding: 10px 30px;
+  height: stretch;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #535857;
+}
+
+button:hover{
+  cursor: pointer;
+}
+
 .Background {
   background-image: linear-gradient(to top, #e6e9f0 0%, #eef1f5 100%);
   min-height: 100%;
@@ -27,7 +41,26 @@ p {
 }
 
 .Navbar {
+  background-color: white;
   border-bottom: 1px solid #ccd3d1;
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 0;
+}
+
+.NavbarCollapsed {
+  display: none;
+}
+
+.NavbarCollapsed button{
+  background-color: white;
+  outline: none;
+  padding: 1rem;
+  color: #535857;
+  border: none;
+}
+
+.NavbarExpanded {
   padding-right: 3rem;
   list-style-type: none;
   display: flex;
@@ -37,18 +70,7 @@ p {
   height: stretch;
 }
 
-.Navbar a {
-  box-sizing: border-box;
-  padding: 10px 30px;
-  height: stretch;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 1rem;
-  margin-bottom: 1.1rem;
-  color: #535857;
-}
-
-.Navbar a:hover {
+.NavbarExpanded a:hover {
   text-decoration: underline;
   text-underline-offset: 5px;
   text-decoration-color: rgba(0, 128, 128, 0.575);
@@ -72,7 +94,7 @@ p {
   max-width: 7rem;
   box-sizing: border-box;
   padding: 1.4rem;
-  border-radius: 2rem;
+  border-radius: 100%;
   margin: 2rem;
   background-image: linear-gradient(to top, #37ecba 0%, #72afd3 100%);
 }
@@ -107,32 +129,19 @@ p {
 }
 
 .WelcomeSections {
+  display: flex;
+  flex-direction: row;
   padding: 1.5rem 0;
   border-top: 1px solid #ccd3d1;
   border-bottom: 1px solid #ccd3d1;
 }
 
-.WelcomeSectionsRow {
+.WelcomeSectionsColumn {
   display: flex;
+  max-width: 20rem;
+  flex-direction: column;
   align-items: center;
 }
-
-@media(max-width: 700px){
-
-  .MainTitle {
-    font-size: 7rem;
-  }
-
-  .Description {
-    font-size: 1rem;
-  }
-
-  .WelcomeSectionsRow {
-    flex-wrap: wrap;
-  }
-}
-
-
 
 .WelcomeSection {
   display: flex;

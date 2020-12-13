@@ -1,0 +1,45 @@
+@media (max-width: 700px) {
+  .MainTitle {
+    font-size: 7rem;
+  }
+
+  .Description {
+    font-size: 1rem;
+  }
+
+  .WelcomeSections {
+    flex-direction: column;
+    margin: auto 2rem;
+  }
+
+  .WelcomeSectionsColumn {
+    max-width: 40rem;
+  }
+
+  .NavbarExpanded {
+    display: none;
+  }
+
+  .NavbarCollapsed {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 3rem;
+    height: stretch;
+  }
+
+  .NavbarCollapsed button {
+    padding: 0.3rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
+
+  .NavbarCollapsed button img {
+    height: 1rem;
+  }
+
+  .NavbarCollapsed a {
+    padding: 0.3rem;
+    padding: 0.1rem;
+  }
+}
