@@ -1,3 +1,4 @@
+import { OrbitControls } from "../libs/OrbitControls.js";
 //Scene
 var scene = new THREE.Scene();
 //Camera
