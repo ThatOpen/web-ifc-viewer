@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="./resources/favicon.ico" />
     <link rel="stylesheet" type="text/css" href="./styles/styles.css" />
+    <link rel="stylesheet" type="text/css" href="./styles/styles-mobile.css" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap"rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap"rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap"rel="stylesheet"/>
@@ -13,16 +14,21 @@
     <title>Document</title>
   </head>
   <body>
-    <ul class = "Navbar">
-      <li class="NavbarTitle"><a href="#">IFC.js</a></li>
-      <li><a href="#">Tutorial</a></li>
-      <li><a href="#">Docs</a></li>
-      <li><a href="#">Contribute</a></li>
-      <li><a href="#">Github</a></li>
-      <li><a href="#">News</a></li>
-      <li><a href="#">Contact</a></li>
-      <li><a href="#">About</a></li>
-    </ul>
+    <div class="Navbar">
+      <ul class="NavbarExpanded">
+        <li class="NavbarTitle"><a href="#">IFC.js</a></li>
+        <li><a href="#">Tutorial</a></li>
+        <li><a href="#">Docs</a></li>
+        <li><a href="#">Contribute</a></li>
+        <li><a href="#">Github</a></li>
+        <li><a href="#">About</a></li>
+      </ul>  
+      <div class="NavbarCollapsed">
+        <button><img src="./resources/menu-icon.svg"></button>
+        <a href="#">IFC.js</a>
+      </div>
+    </div>
+
     <div class="WelcomeContent">
         <header>
           <h1 class="MainTitle">IFC.js</h1>
@@ -30,32 +36,36 @@
           <img class="MainLogo" src="./resources/transparent-logo-light.png" />
         </header>
         <div class="WelcomeSections">
-          <div class="WelcomeSectionsRow">
+          <div class="WelcomeSectionsColumn">
             <div class="WelcomeSection">
               <h2>Open source</h2>
-              <p>This library can be used for any purpose at no cost. You can also edit the code freely, or make the library grow with your contributions and ideas.</p>
+              <p>This library can be used for any purpose at no cost. Let us do the heavy lifting for you!</p>
             </div>
             <div class="WelcomeSection">
               <h2>3D library</h2>
-              <p>This library generates geometry associated with the parsed information and with customizable aspect, including color, transparencies, edges and more. </p>
-            </div>
-            <div class="WelcomeSection">
-              <h2>Browser based</h2>
-              <p>The code of this library is 100% Javascript and runs on the client side. No servers, no installations. </p>
+              <p>IFC.js generates geometry with customizable aspect, including color, transparencies, edges and more. </p>
             </div>
           </div>
-          <div class="WelcomeSectionsRow">
+          <div class="WelcomeSectionsColumn">
+            <div class="WelcomeSection">
+              <h2>Browser based</h2>
+              <p>The code of this library is 100% Javascript and runs on the client side, not depending on servers. </p>
+            </div>
             <div class="WelcomeSection">
               <h2>Lightweight</h2>
-              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo blanditiis dolore, ullam ipsam a debitis.</p>
+              <p>The builds can be included in any project as compact common js or ES modules, taking less than 200 KB.</p>
             </div>
-            <div class="WelcomeSection">
-              <h2>Custom API</h2>
-              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo blanditiis dolore, ullam ipsam a debitis.</p>
-            </div>
+          </div>
+          <div class="WelcomeSectionsColumn">
             <div class="WelcomeSection">
               <h2>Mantainable</h2>
-              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo blanditiis dolore, ullam ipsam a debitis.</p>
+              <p>The library is self-contained, and allow to build custom IFC parsers and viewers with no effect on your code.</p>
+            </div>
+            <div class="WelcomeSectionsColumn">
+              <div class="WelcomeSection">
+                <h2>Custom API</h2>
+                <p>You can use this as an efficient IFC parser or as a whole IFC viewer to build your BIM app.</p>
+              </div>
             </div>
           </div>
         </div>
