@@ -4,13 +4,15 @@ import { mapSweptSolid } from './ifc-sweptSolid.js';
 import { mapMappedRepresentation } from './ifc-mappedRepresentation.js';
 import { mapBrep } from './ifc-brep.js';
 import { mapGeometricSet } from './ifc-geometricSet.js';
+import { mapClipping } from './ifc-clipping.js';
 
 const geometryMap = {
   [g.curve2D]: mapCurve2D,
   [g.sweptSolid]: mapSweptSolid,
   [g.mappedRepresentation]: mapMappedRepresentation,
   [g.brep]: mapBrep,
-  [g.geometricSet]: mapGeometricSet
+  [g.geometricSet]: mapGeometricSet,
+  [g.clipping]: mapClipping
 };
 
 function getMappedGeometry(representation, product) {

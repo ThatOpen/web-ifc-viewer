@@ -96,6 +96,7 @@ const geometryTypes = {
   mappedRepresentation: "MappedRepresentation",
   brep: "Brep",
   geometricSet: "GeometricSet",
+  clipping: "Clipping",
 };
 
 const ifcBoolValues = {
