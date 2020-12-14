@@ -1,4 +1,4 @@
-import { loadIfc } from "../../build/IFC.module.js"
+import { loadIfc } from "../../src/IFC.js"
 import { scene } from './three-scene.js';
 
 export function readIfcFile() {

@@ -35,6 +35,10 @@ a:hover {
   cursor: pointer;
 }
 
+.NavbarCollapsedBullets {
+  padding-left: 0;
+} 
+
 .Background {
   background-image: linear-gradient(to top, #e6e9f0 0%, #eef1f5 100%);
   min-height: 100%;
@@ -82,6 +86,7 @@ a:hover {
 }
 
 .MainLogo {
+  overflow: hidden;
   max-width: 7rem;
   box-sizing: border-box;
   padding: 1.4rem;
