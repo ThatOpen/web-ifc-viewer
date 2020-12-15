@@ -7,6 +7,15 @@ body {
   font-family: 'roboto', sans-serif;
 }
 
+html {
+  overflow: scroll;
+}
+
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent; /* make scrollbar transparent */
+}
+
 p {
   color: #8a928f;
   font-weight: 400;
@@ -30,6 +39,8 @@ a:hover {
   text-decoration-color: rgba(0, 128, 128, 0.575);
   text-decoration-thickness: 3px;
 }
+
+
 
 .NavbarCollapsedCheckBox:hover{
   cursor: pointer;
