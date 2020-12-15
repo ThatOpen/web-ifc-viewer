@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "live-server",
     "build": "rollup -c",
+    "watch": "rollup -c -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

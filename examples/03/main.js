@@ -1,19 +1,22 @@
-// import * as THREE from 'three';
-window.THREE = THREE;
-import 'three/examples/js/controls/OrbitControls.js';
+// import * as THREE from '../libs/three.module.js';
+// import * as chevrotain from '../libs/chevrotain.min.js';
+// window.THREE = THREE;
+// window.chevrotain = chevrotain;
+
+// import '../libs/OrbitControls.js';
 
 // console.log(THREE);
 
-import './libs/smooth-zoom.js';
+// import '../libs/smooth-zoom.js';
 
-import * as IFC from 'ifc.js';
+import * as IFC from '../../build/IFC.module.js';
 window.IFC = IFC;
 
 console.info('three.js v0.' + THREE.REVISION);
 console.info('IFC.js v' + IFC.version);
 
-import { GUI } from './libs/dat.gui.module.js';
-import Stats from './libs/stats.module.js';
+import { GUI } from '../libs/dat.gui.module.js';
+import Stats from '../libs/stats.module.js';
 
 const params = {
   wireframe: false
@@ -165,22 +168,34 @@ function onIfcLoaded(text) {
   console.log(text);
   if (scene) {
     if (model) {
-      scene.remove(model);
+      model.MainObject.children = [];
+      scene.remove(model.MainObject);
     }
-    const loaded = IFC.loadIfcFileItems(text);
-    const structured = IFC.constructProject(loaded);
-    model = IFC.buildGeometry(structured);
-    scene.add(model);
+    model = IFC.loadIfc(text);
+    scene.add(model.MainObject);
+    window.scene = scene;
   }
   stopLoading();
+}
+
+function loadText(url, cb) {
+  var client = new XMLHttpRequest();
+  client.open('GET', url);
+  client.onreadystatechange = function () {
+    if (cb) {
+      cb(client.responseText);
+    }
+  };
+  client.send();
 }
 
 async function loadModel(id) {
   startLoading();
 
   // load ifc file
-  const text = await import(`!!raw-loader!./models/${id}.ifc`);
-  onIfcLoaded(text.default);
+  loadText(`../models/${id}.ifc`, (text) => {
+    onIfcLoaded(text);
+  });
 }
 
 function onUrlChanged() {

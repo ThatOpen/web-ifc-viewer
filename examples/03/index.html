@@ -10,6 +10,9 @@
     <link rel="shortcut icon" href="./favicon.ico" />
     <link rel="stylesheet" type="text/css" href="./styles/index.css" />
     <link rel="stylesheet" type="text/css" href="./styles/main.css" />
+
+    <script src="../libs/three.js"></script>
+    <script src="../libs/smooth-zoom.js"></script>
   </head>
   <body>
     <div id="loader-wrapper">
@@ -50,6 +53,10 @@
         </button>
       </div>
     </div>
+
+    <script src="../libs/chevrotain.min.js"></script>
+    <script src="../libs/OrbitControls.js"></script>
+    <script src="../../build/IFC.js"></script>
 
     <script>
       const panel = document.getElementById('panel');
@@ -202,5 +209,7 @@
         return div.firstChild;
       }
     </script>
+
+    <script src="main.js" type="module"></script>
   </body>
 </html>
