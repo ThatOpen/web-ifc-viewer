@@ -1,10 +1,12 @@
+import { mainObject } from "../scene/mainObject.js";
+
 function createPoint(coordinates) {
   var dotGeometry = new THREE.Geometry();
   dotGeometry.vertices.push(new THREE.Vector3(0, 0, 0));
   var dotMaterial = new THREE.PointsMaterial({
     size: 10,
     sizeAttenuation: false,
-    alphaTest: 0.5
+    alphaTest: 0.5,
   });
 
   dotMaterial.color.setRGB(1, 0.3, 0.3);
@@ -12,7 +14,7 @@ function createPoint(coordinates) {
   dot.position.x = dot.position.x + coordinates[0];
   dot.position.y = dot.position.y + coordinates[1];
   dot.position.z = dot.position.z + coordinates[2];
-  return point;
+  mainObject.add(dot);
 }
 
 export { createPoint };

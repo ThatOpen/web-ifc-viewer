@@ -26,8 +26,8 @@ newObject({
 newObject({
   [n.ifcClass]: getName(t.IfcEllipse),
   [n.position]: d.id,
-  [n.SemiAxis1]: d.number,
-  [n.SemiAxis2]: d.number,
+  [n.semiAxis1]: d.number,
+  [n.semiAxis2]: d.number,
 });
 
 newObject({
@@ -104,6 +104,15 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcCircleHollowProfileDef),
+  ProfileType: d.enum,
+  ProfileName: d.text,
+  [n.position]: d.id,
+  [n.radius]: d.number,
+  WallThickness: d.number,
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcArbitraryProfileDefWithVoids),
   ProfileType: d.enum,
   ProfileName: d.text,
@@ -165,4 +174,53 @@ newObject({
   [n.localOrigin]: d.id,
   [n.scale]: d.number,
   [n.axis3]: d.id,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcGeometricCurveSet),
+  [n.elements]: d.idSet,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcConnectedFaceSet),
+  CfsFaces: d.idSet,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcFaceBasedSurfaceModel),
+  FbsmFaces: d.idSet,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcHalfSpaceSolid),
+  BaseSurface: d.id,
+  AgreementFlag: d.bool,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcCompositeCurveSegment),
+  Transition: d.enum,
+  SameSense: d.bool,
+  ParentCurve: d.id,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcCircle),
+  Position: d.id,
+  Radius: d.number,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcTrimmedCurve),
+  BasisCurve: d.id,
+  Trim1: d.valueSet,
+  Trim2: d.valueSet,
+  SenseAgreement: d.bool,
+  MasterRepresentation: d.enum,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcCompositeCurve),
+  Segments: d.idSet,
+  SelfIntersect: d.bool,
 });

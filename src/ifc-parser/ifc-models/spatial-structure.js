@@ -5,7 +5,7 @@ import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
 
 newObject({
   [n.ifcClass]: getName(t.IfcProject),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -18,7 +18,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcSite),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -36,7 +36,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcBuilding),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -52,7 +52,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcBuildingStorey),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -66,7 +66,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcSpace),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,

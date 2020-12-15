@@ -9,6 +9,7 @@ const namedProps = {
   coordinates: "Coordinates",
   depth: "Depth",
   dirRatios: "DirectionRatios",
+  elements: "Elements",
   extDirection: "ExtrudedDirection",
   expressId: "_ExpressId",
   geometry: "_Geometry",
@@ -37,6 +38,7 @@ const namedProps = {
   points: "Points",
   polygon: "Polygon",
   position: "Position",
+  prefix: "Prefix",
   profile: "Profile",
   radius: "Radius",
   refDirection: "RefDirection",
@@ -54,8 +56,8 @@ const namedProps = {
   representations: "Representations",
   representationType: "RepresentationType",
   scale: "Scale",
-  SemiAxis1: "SEMIAXIS1",
-  SemiAxis2: "SEMIAXIS2",
+  semiAxis1: "SEMIAXIS1",
+  semiAxis2: "SEMIAXIS2",
   sweptArea: "SweptArea",
   transform: "_Transformation",
   transformedGeometry: "_TransformedGeometry",
@@ -63,6 +65,8 @@ const namedProps = {
   transformOfMappedItem: "_TransformOfMappedItem",
   trueGeometry: "_trueGeometry",
   undefined: "undefined",
+  units: "Units",
+  unitType: "UnitType",
   xDim: "XDim",
   yDim: "YDim",
 };
@@ -91,6 +95,8 @@ const geometryTypes = {
   sweptSolid: "SweptSolid",
   mappedRepresentation: "MappedRepresentation",
   brep: "Brep",
+  geometricSet: "GeometricSet",
+  clipping: "Clipping",
 };
 
 const ifcBoolValues = {
@@ -102,6 +108,8 @@ const structuredData = {
   ifcProject: "IfcProject",
   products: "Products",
   spaces: "Spaces",
+  units: "Units",
+  mainObject: "MainObject",
 };
 
 const pivots = {

@@ -9,7 +9,7 @@ function createExtrusionsByPoints(points, depth) {
 function createCircularExtrusion(radius, depth) {
   const geometry = new THREE.CylinderGeometry(radius, radius, depth, 64);
   const mesh = new THREE.Mesh(geometry);
-  mesh.rotation.x = Math.PI / 2;
+  mesh.rotation.x =  Math.PI / 2;
   mesh.position.z = depth / 2;
   mesh.updateMatrix();
   return mesh;
@@ -28,7 +28,7 @@ function createExtrusion(shape, depth) {
   var extrudeSettings = {
     bevelEnabled: false,
     steps: 1,
-    extrudePath: path
+    extrudePath: path,
   };
 
   //Mesh

@@ -1,5 +1,5 @@
 import { getParser } from "../parser/parser-primitives.js";
-import { formatDate, unicode } from "../../utils/format.js";
+import { formatDate, unicode } from "./format.js";
 import {
   ifcBoolValues,
   ifcValueType as v,
@@ -9,7 +9,6 @@ import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 //Each method retrieves information from a given parsed data type
 
 const semanticUnits = {
-  [d.guid]: getGuid,
   [d.id]: getExpressId,
   [d.idSet]: getIdSet,
   [d.text]: getIfcText,
@@ -21,6 +20,7 @@ const semanticUnits = {
   [d.bool]: getBool,
   [d.enum]: getEnum,
   [d.asterisk]: getAsterisk,
+  [d.valueSet]: getValueSet,
 };
 
 function getProperty(parsed, type) {
@@ -35,7 +35,6 @@ let counter = {};
 
 function resetSemanticFactory() {
   counter = {
-    [d.guid]: 0,
     [d.id]: 0,
     [d.text]: 0,
     [d.number]: 0,
@@ -45,11 +44,8 @@ function resetSemanticFactory() {
     [d.value]: 0,
     [d.textSet]: 0,
     [d.bool]: 0,
+    [d.valueSet]: 0,
   };
-}
-
-function getGuid(parsed) {
-  return extract(parsed, d.guid).slice(1, -1);
 }
 
 function getBool(parsed) {
@@ -90,10 +86,24 @@ function getNumberSet(parsed) {
   return getSet(parsed, d.numSet, d.number, (e) => Number(e.image));
 }
 
+function getValueSet(parsed) {
+  const valueSet = parsed[getParser(d.valueSet)][counter[d.valueSet]++];
+  const values = valueSet.children[getParser(d.value)];
+  return values.map((ifcValue) => {
+    const valueProps = ifcValue.children;
+    let type = getIfcValueType(valueProps);
+    const value = valueProps[type][0].image;
+    const formattedValue = formatIfcValue(type, value);
+    const unit = valueProps[d.value] ? valueProps[d.value][0].image : "";
+    return { Value: formattedValue, IfcUnit: unit };
+  });
+}
+
 function getIfcValue(parsed) {
   if (isDefaultValue(parsed, d.value)) return getDefault(parsed, d.value);
   if (isExpressId(parsed, d.value)) return getIfcValueId(parsed, d.value);
-  let type = getIfcValueType(parsed);
+  const data = parsed[getParser(d.value)][counter[d.value]].children;
+  let type = getIfcValueType(data);
   const value = formatIfcValue(type, getIfcValueValue(parsed, type));
   return { Value: value, IfcUnit: getIfcUnit(parsed) };
 }
@@ -109,7 +119,6 @@ function getAsterisk() {
 
 function getValue(parsed, type, formatFunction) {
   if (isDefaultValue(parsed, type)) return getDefault(parsed, type);
-  if (isEmptyText(parsed, type)) return getEmptyText(type);
   return formatFunction(extract(parsed, type));
 }
 
@@ -155,12 +164,6 @@ function isDefaultValue(parsed, type) {
     : false;
 }
 
-function isEmptyText(parsed, type) {
-  return parsed[getParser(type)][counter[type]].children[d.emptyText]
-    ? true
-    : false;
-}
-
 function isEmptySet(parsed, type, subtype) {
   return parsed[getParser(type)][counter[type]].children[subtype]
     ? false
@@ -169,11 +172,6 @@ function isEmptySet(parsed, type, subtype) {
 
 function getDefault(parsed, type) {
   return parsed[getParser(type)][counter[type]++].children[d.default][0].image;
-}
-
-function getEmptyText(type) {
-  counter[type]++;
-  return "";
 }
 
 function isExpressId(parsed, type) {
@@ -198,8 +196,7 @@ function formatIfcValue(type, value) {
   return value;
 }
 
-function getIfcValueType(parsed) {
-  const data = parsed[getParser(d.value)][counter[d.value]].children;
+function getIfcValueType(data) {
   if (data[d.number]) return v.number;
   if (data[d.text]) return v.text;
   if (data[d.bool]) return v.bool;

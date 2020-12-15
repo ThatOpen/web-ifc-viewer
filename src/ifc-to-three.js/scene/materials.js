@@ -5,7 +5,7 @@ function applyMaterials(structured) {
   structured[s.products].forEach((product) => {
     product[n.geometry].forEach((item) => {
       if (item.type === 'Mesh') item.material = getmaterial(product[n.ifcClass]);
-      if (item.material.transparent === true) item.renderOrder = 1;
+      if (item.material && item.material.transparent === true) item.renderOrder = 1;
     });
 
     if (product[n.hasOpenings])

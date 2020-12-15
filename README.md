@@ -1,12 +1,12 @@
 # IFC.js
 
-<a href="url"><img src="https://github.com/agviegas/IFC.js/blob/master/resources/images/logo.jpg"  height="256" width="256" ></a>
+<a href="url"><img src="https://github.com/agviegas/IFC.js/blob/master/img/logo.jpg"  height="256" width="256" ></a>
 
-This library helps to parse ifc files and convert to Three.js objects.
+This library converts any browser into an IFC viewer. It parses IFC entities to WebGL geometry through THREE.js.
 
 ## Try it
 
-[Application](https://agviegas.github.io/IFC.js/)
+[Application](https://agviegas.github.io/IFC.js/examples/00/)
 
 [Example 01](https://agviegas.github.io/IFC.js/examples/01/)
 
@@ -18,30 +18,20 @@ IFC (Industry Foundation Classes) is an open format developed by the [Building S
 
 This project reads IFC files, structures their data in memory and converts them to Three.js custom geometric entities for display in any browser. Even though there are many libraries capable of parsing IFC formats, almost all of them depend on communication with a server, with all the disadvantages that this entails. The development of the parser entirely in JavaScript makes it possible to decentralise parsing, so that each client is able to read an IFC file and display its geometry and parameters to the user on its own.
 
-<a href="url"><img src="https://github.com/agviegas/IFC.js/blob/master/screenshots/20201124_screenshot.jpg"  ></a>
-<a href="url"><img src="https://github.com/agviegas/IFC.js/blob/master/screenshots/20201130_screenshot.jpg"  ></a>
+<a href="url"><img src="https://github.com/agviegas/IFC.js/blob/master/img/20201124_screenshot.jpg"  ></a>
+<a href="url"><img src="https://github.com/agviegas/IFC.js/blob/master/img/20201130_screenshot.jpg"  ></a>
 
 ## Contribution
 
 Check the [CONTRIBUTING](https://github.com/agviegas/IFC.js/blob/master/CONTRIBUTING.md) documentation to find out how to take part in this project.
 
+### Testing files
+You can find the IFC files for testing [here](https://drive.google.com/drive/folders/1wXLaf1wPaWzfEwWzu7kNTdJoOUqU6K0E?usp=sharing).
+
 Core:
 
-`npm install`
+`npm run build` for generating the build files.
 
-`npm run watch` for watching core changes
-
-`npm run build` for production
-
-Examples:
-
-`cd examples`
-
-`npm install`
-
-`npm run dev` - for development
-
-`npm run build` - for production
 
 ## License
 

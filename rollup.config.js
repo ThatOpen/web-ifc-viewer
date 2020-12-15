@@ -1,58 +1,33 @@
-// Config file for running Rollup in "normal" mode (non-watch)
-
-import babel from 'rollup-plugin-babel';
-import commonjs from 'rollup-plugin-commonjs';
-import builtins from 'rollup-plugin-node-builtins';
-import globals from 'rollup-plugin-node-globals';
-import json from 'rollup-plugin-json';
-import copy from 'rollup-plugin-copy';
-
-import pkg from './package.json';
-
-const GLOBALS = {
-  three: 'THREE',
-  chevrotain: 'chevrotain'
-};
-
-const EXTERNAL = ['three'];
+import babel from '@rollup/plugin-babel';
+import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 
 export default {
-  input: 'src/index.js',
-  external: EXTERNAL,
-
+  input: './src/IFC.js',
+  external: ['three'],
   output: [
     {
-      file: pkg.main,
-      format: 'cjs',
-      globals: GLOBALS
+      file: './build/IFC.module.js',
+      format: 'es',
+      globals: {
+        three: 'THREE'
+      }
     },
     {
-      file: pkg.module,
-      format: 'esm',
-      globals: GLOBALS
-    },
-    {
-      file: pkg.browser,
-      format: 'umd',
-      name: 'IFC',
-      globals: GLOBALS
+      file: './build/IFC.js',
+      format: 'iife',
+      name: 'IFCjs',
+      globals: {
+        three: 'THREE'
+      }
     }
   ],
   plugins: [
-    commonjs(),
-    json(),
     babel({
-      exclude: 'node_modules/**'
+      exclude: ['node_modules/**', 'libs/**'],
+      babelHelpers: 'bundled'
     }),
-    globals(GLOBALS),
-    builtins()
-    // copy({
-    //   targets: [
-    //     {
-    //       src: 'build/**',
-    //       dest: 'examples/libs'
-    //     }
-    //   ]
-    // })
+    resolve(),
+    commonjs()
   ]
 };

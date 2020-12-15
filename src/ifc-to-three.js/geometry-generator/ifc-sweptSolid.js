@@ -1,11 +1,12 @@
-import { mapRectangleProfileExtrusion } from './ifc-profileRectangle.js';
-import { getName, ifcTypes as t } from '../../utils/ifc-types.js';
-import { mapArbitraryProfileExtrusion } from './ifc-profileArbitrary.js';
-import { trackLocalTransform } from '../geometry-transformer/local-transform-tracker.js';
-import { applyTransformsTo } from '../geometry-transformer/local-transform-applier.js';
-import { namedProps as n } from '../../utils/global-constants.js';
-import { mapArbitraryProfileWithVoidsExtrusion } from './ifc-profileArbitraryWithVoids.js';
-import { mapCircleProfileExtrusion } from './ifc-profileCircle.js';
+import { mapRectangleProfileExtrusion } from "./ifc-profileRectangle.js";
+import { ifcTypes as t } from "../../utils/ifc-types.js";
+import { mapArbitraryProfileExtrusion } from "./ifc-profileArbitrary.js";
+import { trackLocalTransform } from "../geometry-transformer/local-transform-tracker.js";
+import { applyTransformsTo } from "../geometry-transformer/local-transform-applier.js";
+import { namedProps as n } from "../../utils/global-constants.js";
+import { mapArbitraryProfileWithVoidsExtrusion } from "./ifc-profileArbitraryWithVoids.js";
+import { mainObject } from "../scene/mainObject.js";
+import { mapCircleProfileExtrusion } from "./ifc-profileCircle.js";
 
 function mapSweptSolid(shape, product) {
   const items = [];
@@ -13,15 +14,15 @@ function mapSweptSolid(shape, product) {
   return joinAllExtrusions(items);
 }
 
-function joinAllExtrusions(items) {
+function joinAllExtrusions(items){
   var singleGeometry = new THREE.Geometry();
-  items.forEach((item) => {
+  items.forEach((item)=>{
     item.updateMatrix();
     singleGeometry.merge(item.geometry, item.matrix);
-    // scene.remove(item);
-  });
+    mainObject.remove(item);
+  })
   const result = new THREE.Mesh(singleGeometry);
-  // scene.add(result);
+  mainObject.add(result);
   return result;
 }
 
@@ -43,7 +44,7 @@ function getExtrusionProps(extruded) {
     profile: extruded[n.sweptArea],
     ifcClass: extruded[n.sweptArea][n.ifcClass],
     depth: extruded[n.depth],
-    direction: extruded[n.extDirection][n.dirRatios]
+    direction: extruded[n.extDirection][n.dirRatios],
   };
 }
 
@@ -51,7 +52,7 @@ const extrusionTypes = {
   [t.IfcRectangleProfileDef]: mapRectangleProfileExtrusion,
   [t.IfcCircleProfileDef]: mapCircleProfileExtrusion,
   [t.IfcArbitraryClosedProfileDef]: mapArbitraryProfileExtrusion,
-  [t.IfcArbitraryProfileDefWithVoids]: mapArbitraryProfileWithVoidsExtrusion
+  [t.IfcArbitraryProfileDefWithVoids]: mapArbitraryProfileWithVoidsExtrusion,
 };
 
 function getExtrusionByType(extruded, product) {

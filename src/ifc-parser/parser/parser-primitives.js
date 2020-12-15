@@ -1,6 +1,5 @@
 import { vocabulary as v } from "../lexer/lexer.js";
 import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
-import { parser } from "./parser.js";
 
 //Basic syntactical structures (one structure per data type)
 
@@ -15,7 +14,6 @@ function addPrimitiveParsers($) {
 }
 
 const primitiveParsers = {
-  [d.guid]: IfcGuid_Parser,
   [d.asterisk]: Asterisk_Parser,
   [d.number]: Number_Parser,
   [d.date]: Number_Parser,
@@ -26,20 +24,12 @@ const primitiveParsers = {
   [d.idSet]: IdSet_Parser,
   [d.numSet]: NumberSet_Parser,
   [d.value]: IfcValue_Parser,
+  [d.valueSet]: ValueSet_Parser,
   [d.textSet]: TextSet_Parser,
 };
 
 function getParser(dataType) {
   return primitiveParsers[dataType].name;
-}
-
-function IfcGuid_Parser($) {
-  return () => {
-    $.CONSUME(v[d.guid]);
-    $.OPTION(() => {
-      $.CONSUME(v.Comma);
-    });
-  };
 }
 
 function Asterisk_Parser($) {
@@ -70,11 +60,6 @@ function IfcValue_Parser($) {
             {
               ALT: () => {
                 $.CONSUME(v[d.number]);
-              },
-            },
-            {
-              ALT: () => {
-                $.CONSUME(v[d.emptyText]);
               },
             },
             {
@@ -172,18 +157,7 @@ function TextSet_Parser($) {
         ALT: () => {
           $.CONSUME(v.OpenPar);
           $.MANY(() => {
-            $.OR2([
-              {
-                ALT: () => {
-                  $.CONSUME(v[d.emptyText]);
-                },
-              },
-              {
-                ALT: () => {
-                  $.CONSUME(v[d.text]);
-                },
-              },
-            ]);
+            $.CONSUME(v[d.text]);
             $.OPTION(() => {
               $.CONSUME(v.Comma);
             });
@@ -230,14 +204,37 @@ function IdSet_Parser($) {
   };
 }
 
-function IfcText_Parser($) {
+function ValueSet_Parser($) {
   return () => {
     $.OR([
       {
         ALT: () => {
-          $.CONSUME(v[d.emptyText]);
+          $.CONSUME(v.OpenPar);
+
+          $.MANY(() => {
+            $.SUBRULE($.IfcValue_Parser)
+            $.OPTION(() => {
+              $.CONSUME(v.Comma);
+            });
+          });
+          $.CONSUME(v.ClosePar);
         },
       },
+      {
+        ALT: () => {
+          $.CONSUME(v[d.default]);
+        },
+      },
+    ]);
+    $.OPTION2(() => {
+      $.CONSUME2(v.Comma);
+    });
+  };
+}
+
+function IfcText_Parser($) {
+  return () => {
+    $.OR([
       {
         ALT: () => {
           $.CONSUME(v[d.default]);

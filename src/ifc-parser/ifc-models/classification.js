@@ -10,3 +10,11 @@ newObject({
   EditionDate: d.id,
   Name: d.text,
 });
+
+newObject({
+  [p.ifcClass]: getName(t.IfcClassificationReference),
+  Location: d.text,
+  ItemReference: d.text,
+  Name: d.text,
+  ReferencedSource: d.id,
+});

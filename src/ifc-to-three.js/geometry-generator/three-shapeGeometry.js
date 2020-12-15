@@ -1,21 +1,13 @@
 import { createPoint } from "./three-points.js";
 
-function createFace(faceDefinition, stop) {
+function createFace(faceDefinition) {
   //Credit to the following algorithm:
   //https://stackoverflow.com/questions/50272399/three-js-2d-object-in-3d-space-by-vertices/50274103#50274103
 
   const outerCoords = faceDefinition.outerBounds.bounds[0];
   let outerPoints = getPoints(outerCoords);
-  let quaternion = getQuaternions(outerPoints);
-  let tempOuterPoints = getTempPoints(outerPoints, quaternion);
 
-  const temp = tempOuterPoints.map((e) => new THREE.Vector2(e.x, e.y));
-
-  if (!THREE.ShapeUtils.isClockWise(temp)) {
-    outerPoints = getPoints(outerCoords).reverse();
-    quaternion = getQuaternions(outerPoints);
-    tempOuterPoints = getTempPoints(outerPoints, quaternion);
-  }
+  let { tempOuterPoints, quaternion } = getProjectedPointsAndQuaternion(outerPoints);
 
   const outerShape = new THREE.Shape(tempOuterPoints);
   const allPoints = [...outerPoints];
@@ -46,34 +38,61 @@ function hasHoles(faceDefinition) {
 
 function punchHoles(faceDefinition, quaternion, allPoints, outerShape) {
   faceDefinition.innerBounds.bounds.forEach((bound) => {
-    const innerPoints = getPoints(bound);
-    const tempInnerPoints = getTempPoints(innerPoints, quaternion);
+    let innerPoints = getPoints(bound);
+    let tempInnerPoints = getTempPoints(innerPoints, quaternion);
     const innerShape = new THREE.Path(tempInnerPoints);
     outerShape.holes.push(innerShape);
     allPoints.push(...innerPoints);
   });
 }
 
-//To find the normal of the face it is necessary to iterate through the vertices
-//To make sure that the selected triangle of vertex is valid (not aligned)
-//The precission correction is necessary because in a surface with a lot of points
-//the triangle used to calculate the normal should be as big as possible to avoid 
-//small precision deviations to affect the direction of the normal
-function getQuaternions(points) {
+//To find the normal of the face it is necessary to ensure that:
+// 1. the selected triangle of vertices is valid (they are not aligned)
+// 2. the area of the selected triangle is big enough to increment the precission of the vector
+// 3. the generated 2d surface has its points defined clockwise
+function getProjectedPointsAndQuaternion(points) {
   const baseNormal = new THREE.Vector3(0, 0, 1);
   const normal = new THREE.Vector3();
-  const precisionCorrection = points.length > 10; 
-  const corrector1 = precisionCorrection ? Math.ceil((points.length / 2)) : 0;
-  const corrector2 = precisionCorrection ? Math.ceil((points.length / 4)) : 0;
-  let i = 0;
-
-  while (normal.x === 0 && normal.y === 0 && normal.z === 0) {
-    const tri = new THREE.Triangle(points[2 + i + corrector1], points[1 + i + corrector2], points[0 + i]);
-    tri.getNormal(normal);
-    i++;
+  const triangles = [];
+  let index1 = 1,
+    index2 = 2;
+  while (index2 < points.length) {
+    const triangle = new THREE.Triangle(
+      points[index2],
+      points[index1],
+      points[0]
+    );
+    const temp = new THREE.Vector3();
+    triangle.getNormal(temp);
+    //1.
+    if (temp.x != 0 || temp.y != 0 || temp.z != 0) {
+      triangles.push({ area: triangle.getArea(), triangle });
+    }
+    index1++;
+    index2++;
   }
 
-  return new THREE.Quaternion().setFromUnitVectors(normal, baseNormal);
+  //2.
+  triangles
+    .sort((a, b) => (a.area > b.area ? 1 : b.area > a.area ? -1 : 0))
+    .reverse();
+
+  //3.
+  let selectedTriangle = 0;
+  let tempOuterPoints = [];
+  let quaternion = {};
+  let isClockWise = false;
+  while (isClockWise === false) {
+    const tri = triangles[selectedTriangle];
+    tri.triangle.getNormal(normal);
+    quaternion = new THREE.Quaternion().setFromUnitVectors(normal, baseNormal);
+
+    tempOuterPoints = getTempPoints(points, quaternion);
+    const t = tempOuterPoints.map((p) => new THREE.Vector2(p.x, p.y));
+    isClockWise = THREE.ShapeUtils.isClockWise(t);
+    selectedTriangle++;
+  }
+  return { tempOuterPoints, quaternion };
 }
 
 export { createFace };

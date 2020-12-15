@@ -1,0 +1,202 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'roboto', sans-serif;
+}
+
+p {
+  color: #8a928f;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 2rem;
+}
+
+a {
+  box-sizing: border-box;
+  padding: 10px 30px;
+  height: stretch;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #535857;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  text-decoration-color: rgba(0, 128, 128, 0.575);
+  text-decoration-thickness: 3px;
+}
+
+.NavbarCollapsedCheckBox:hover{
+  cursor: pointer;
+}
+
+.NavbarCollapsedBullets {
+  padding-left: 0;
+} 
+
+.Background {
+  background-image: linear-gradient(to top, #e6e9f0 0%, #eef1f5 100%);
+  min-height: 100%;
+  min-width: 1024px;
+  width: 100%;
+  height: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.Navbar {
+  background-color: white;
+  border-bottom: 1px solid #ccd3d1;
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 0;
+}
+
+.NavbarCollapsedMenu, .NavbarCollapsed {
+  display: none;
+}
+
+.NavbarExpanded {
+  padding-right: 3rem;
+  list-style-type: none;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 3rem;
+  height: stretch;
+}
+
+.NavbarTitle {
+  position: absolute;
+  left: 0;
+}
+
+.NavbarTitleText {
+  pointer-events: none;
+}
+
+.NavbarTitleText:hover {
+  text-decoration: none;
+}
+
+.MainLogo {
+  overflow: hidden;
+  max-width: 7rem;
+  box-sizing: border-box;
+  padding: 1.4rem;
+  border-radius: 100%;
+  margin: 2rem;
+  background-image: linear-gradient(to top, #37ecba 0%, #72afd3 100%);
+}
+
+.MainLogo {
+  max-width: 7rem;
+  box-sizing: border-box;
+  padding: 1.4rem;
+  border-radius: 100%;
+  margin: 2rem;
+  background-image: linear-gradient(to top, #37ecba 0%, #72afd3 100%);
+}
+
+.MainLogoWrapper{
+  animation: logo-rotate 4s infinite 0s ease-in-out;
+}
+
+@keyframes logo-rotate {
+  0%{
+    position: relative;
+    z-index: -1;
+    transform:rotate(0deg);
+  }
+    25%{
+      position: relative;
+      z-index: -1;
+      transform:rotate(90deg);
+    }
+    50%{
+      position: relative;
+      z-index: -1;
+      transform:rotate(180deg);
+    }
+    75%{
+      position: relative;
+      z-index: -1;
+      transform:rotate(270deg);
+    }
+    100%{
+      position: relative;
+      z-index: -1;
+      transform:rotate(360deg);
+    }
+}
+
+.WelcomeContent {
+  max-width: 960px;
+  margin: auto;
+  margin-top: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.WelcomeContent {
+  text-align: center;
+}
+
+.MainTitle {
+  font-size: 10rem;
+  padding: 1px;
+  box-sizing: border-box;
+  font-weight: 100;
+  color: #535857;
+}
+
+.Description {
+  font-size: 1.4rem;
+  font-weight: 400;
+  margin-top: 0.5rem;
+  color: #a4aaa8;
+}
+
+.WelcomeSections {
+  display: flex;
+  flex-direction: row;
+  padding: 1.5rem 0;
+  border-top: 1px solid #ccd3d1;
+  border-bottom: 1px solid #ccd3d1;
+}
+
+.WelcomeSectionsColumn {
+  display: flex;
+  max-width: 20rem;
+  flex-direction: column;
+  align-items: center;
+}
+
+.WelcomeSection {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem 1.5rem;
+  text-align: left;
+}
+
+.WelcomeSection h2 {
+  font-weight: 500;
+  font-size: 1.4rem;
+  margin-bottom: 1.1rem;
+  color: #535857;
+}
+
+.LegalNotice {
+  margin: 1rem;
+  color: #626665;
+  text-align: center;
+  font-size: 0.8rem;
+}

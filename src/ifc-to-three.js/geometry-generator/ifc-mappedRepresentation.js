@@ -1,7 +1,8 @@
 import { defaultValue, namedProps as n } from '../../utils/global-constants.js';
 import { applyTransformsTo } from '../geometry-transformer/local-transform-applier.js';
 import { trackLocalTransform } from '../geometry-transformer/local-transform-tracker.js';
-import { getMappedGeometry } from './geometry-mapper.js';
+import { mainObject } from '../scene/mainObject.js';
+import { getMappedGeometry } from './geometry-map.js';
 
 function mapMappedRepresentation(shape, product) {
   const representation = shape[n.items][0];
@@ -31,7 +32,7 @@ function generateGeometry(source, product) {
   const mappedGeometry = source[n.mappedRepresentation];
   const geometry = getMappedGeometry(mappedGeometry, product);
   mappingSources[source[n.expressId]] = geometry;
-  // scene.remove(geometry);
+  mainObject.remove(geometry);
   return geometry.clone();
 }
 

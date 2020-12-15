@@ -5,7 +5,7 @@ import { namedProps as n } from "../../utils/global-constants.js";
 
 newObject({
   [n.ifcClass]: getName(t.IfcRelAggregates),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -15,7 +15,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcRelContainedInSpatialStructure),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -25,7 +25,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcRelDefinesByProperties),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -35,7 +35,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcRelAssociatesMaterial),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -44,8 +44,18 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcRelAssociatesClassification),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  RelatedObjects: d.idSet,
+  RelatingClassification: d.id,
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcRelDefinesByType),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -55,7 +65,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcRelSpaceBoundary),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -68,7 +78,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcRelConnectsPathElements),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -83,7 +93,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcRelVoidsElement),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
@@ -93,10 +103,50 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcRelFillsElement),
-  GlobalId: d.guid,
+  GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
   [n.relatingOpeningElement]: d.id,
   [n.relatedBuildingElement]: d.id,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcRelConnectsPortToElement),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  RelatingPort: d.id,
+  RelatedElement: d.id,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcRelAssignsToGroup),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  RelatedObjects: d.idSet,
+  RelatedObjectsType : d.enum,
+  RelatingGroup : d.id,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcRelServicesBuildings),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  RelatingSystem : d.id,
+  RelatedBuildings: d.idSet,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcGroup),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ObjectType: d.text,
 });

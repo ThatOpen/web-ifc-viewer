@@ -6,7 +6,7 @@ import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
 newObject({
   [n.ifcClass]: getName(t.IfcConversionBasedUnit),
   Dimensions: d.id,
-  UnitType: d.enum,
+  [n.unitType]: d.enum,
   Name: d.text,
   ConversionFactor: d.id,
 });
@@ -14,7 +14,7 @@ newObject({
 newObject({
   [n.ifcClass]: getName(t.IfcDerivedUnit),
   Elements: d.idSet,
-  UnitType: d.enum,
+  [n.unitType]: d.enum,
   UserDefinedType: d.text,
 });
 
@@ -44,12 +44,12 @@ newObject({
 newObject({
   [n.ifcClass]: getName(t.IfcSIUnit),
   [n.undefined]: d.asterisk,
-  UnitType: d.enum,
-  Prefix: d.enum,
+  [n.unitType]: d.enum,
+  [n.prefix]: d.enum,
   Name: d.enum,
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcUnitAssignment),
-  Units: d.idSet,
+  [n.units]: d.idSet,
 });
