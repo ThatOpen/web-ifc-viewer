@@ -18,9 +18,9 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcBooleanClippingResult),
-  Operator: d.enum,
-  FirstOperand: d.id,
-  SecondOperand: d.id,
+  [n.operator]: d.enum,
+  [n.firstOperand]: d.id,
+  [n.secondOperand]: d.id,
 });
 
 newObject({
