@@ -10,7 +10,7 @@ import { mapCircleProfileExtrusion } from "./ifc-profileCircle.js";
 
 function mapSweptSolid(shape, product) {
   const items = [];
-  shape[n.items].forEach((extruded) => items.push(newSolid(product, extruded)));
+  shape[n.items].forEach((extruded) => items.push(mapExtrudedAreaSolid(extruded, product)));
   return joinAllExtrusions(items);
 }
 
@@ -26,11 +26,7 @@ function joinAllExtrusions(items){
   return result;
 }
 
-//Beware: the creation of the solid must occur BEFORE trackLocalTransformation()
-//Because the local transformations are tracked from inside to outside
-//Same logic as IfcLocalPlacement used to locate the products
-
-function newSolid(product, extruded) {
+function mapExtrudedAreaSolid(extruded, product) {
   const extrudedProps = getExtrusionProps(extruded);
   const solid = getExtrusionByType(extrudedProps, product);
   const position = extruded[n.position];
@@ -59,4 +55,4 @@ function getExtrusionByType(extruded, product) {
   return extrusionTypes[extruded.ifcClass.toUpperCase()](extruded, product);
 }
 
-export { mapSweptSolid };
+export { mapSweptSolid, mapExtrudedAreaSolid};

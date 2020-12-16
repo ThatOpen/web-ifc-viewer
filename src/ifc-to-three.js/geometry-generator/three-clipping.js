@@ -1,12 +1,8 @@
-function createClippingBox(clippingRep) {
-  //const geometry = new THREE.BoxBufferGeometry(100, 100, 20);
-  const geometry = new THREE.BoxBufferGeometry(1, 1, 1);
+function createClippingBox(orientation) {
+  const geometry = new THREE.BoxBufferGeometry(30, 30, 5);
   const mesh = new THREE.Mesh(geometry);
-
-  // TODO Use direction (normal) from half space solid to determine rotation of the box
-  // mesh.rotation.x =  ...
-  // Offset in z direction so that base/top of box is cutting surface
-  //mesh.position.z = 10;
+  const direction = orientation ? -1 : 1;
+  mesh.position.z += 2.5 * direction;
   mesh.updateMatrix();
   return mesh;
 }

@@ -68,10 +68,10 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcPolygonalBoundedHalfSpace),
-  BaseSurface: d.id,
-  AgreementFlag: d.bool,
-  Position: d.id,
-  PolygonalBoundary: d.id,
+  [n.baseSurface]: d.id,
+  [n.agreementFlag]: d.bool,
+  [n.position]: d.id,
+  [n.polygonalBoundary]: d.id,
 });
 
 newObject({
@@ -193,8 +193,8 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcHalfSpaceSolid),
-  BaseSurface: d.id,
-  AgreementFlag: d.bool,
+  [n.baseSurface]: d.id,
+  [n.agreementFlag]: d.bool,
 });
 
 newObject({

@@ -1,8 +1,10 @@
 const namedProps = {
+  agreementFlag: "AgreementFlag",
   axis: "Axis",
   axis1: "Axis1",
   axis2: "Axis2",
   axis3: "Axis3",
+  baseSurface: "BaseSurface",
   bound: "Bound",
   bounds: "Bounds",
   cfsFaces: "CfsFaces",
@@ -39,6 +41,7 @@ const namedProps = {
   placementRelTo: "PlacementRelTo",
   points: "Points",
   polygon: "Polygon",
+  polygonalBoundary: "PolygonalBoundary",
   position: "Position",
   prefix: "Prefix",
   profile: "Profile",
@@ -65,6 +68,7 @@ const namedProps = {
   transform: "_Transformation",
   transformedGeometry: "_TransformedGeometry",
   transformOfExtrusion: "_TransformationOfExtrusion",
+  transformOfClippingVolume: "_TransformationOfClippingVolume",
   transformOfMappedItem: "_TransformOfMappedItem",
   trueGeometry: "_trueGeometry",
   undefined: "undefined",
@@ -100,6 +104,7 @@ const geometryTypes = {
   brep: "Brep",
   geometricSet: "GeometricSet",
   clipping: "Clipping",
+  extrudedAreaSolid: "IfcExtrudedAreaSolid",
 };
 
 const ifcBoolValues = {
