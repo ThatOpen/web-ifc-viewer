@@ -4,13 +4,14 @@ import commonjs from '@rollup/plugin-commonjs';
 
 export default {
   input: './src/IFC.js',
-  external: ['three'],
+  external: ['three', 'chevrotain'],
   output: [
     {
       file: './build/IFC.module.js',
       format: 'es',
       globals: {
-        three: 'THREE'
+        three: 'THREE',
+        chevrotain: 'chevrotain'
       }
     },
     {
@@ -18,7 +19,8 @@ export default {
       format: 'iife',
       name: 'IFCjs',
       globals: {
-        three: 'THREE'
+        three: 'THREE',
+        chevrotain: 'chevrotain'
       }
     }
   ],

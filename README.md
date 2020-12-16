@@ -28,7 +28,12 @@ Check the [CONTRIBUTING](https://github.com/agviegas/IFC.js/blob/master/CONTRIBU
 ### Testing files
 You can find the IFC files for testing [here](https://drive.google.com/drive/folders/1wXLaf1wPaWzfEwWzu7kNTdJoOUqU6K0E?usp=sharing).
 
-Core:
+Development:
+
+`npm run watch` for generating the build files with watch.
+`npm run dev` for running examples.
+
+Build:
 
 `npm run build` for generating the build files.
 

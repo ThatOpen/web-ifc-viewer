@@ -240,7 +240,8 @@ var geometryTypes = {
   sweptSolid: "SweptSolid",
   mappedRepresentation: "MappedRepresentation",
   brep: "Brep",
-  geometricSet: "GeometricSet"
+  geometricSet: "GeometricSet",
+  clipping: "Clipping"
 };
 var ifcBoolValues = {
   trueValue: ".T.",
@@ -2195,8 +2196,12 @@ function mapGeometricSet(shape) {
   return result;
 }
 
+function mapClipping(shape) {
+  console.log(shape);
+}
+
 var _geometryMap;
-var geometryMap = (_geometryMap = {}, _defineProperty(_geometryMap, geometryTypes.curve2D, mapCurve2D), _defineProperty(_geometryMap, geometryTypes.sweptSolid, mapSweptSolid), _defineProperty(_geometryMap, geometryTypes.mappedRepresentation, mapMappedRepresentation), _defineProperty(_geometryMap, geometryTypes.brep, mapBrep), _defineProperty(_geometryMap, geometryTypes.geometricSet, mapGeometricSet), _geometryMap);
+var geometryMap = (_geometryMap = {}, _defineProperty(_geometryMap, geometryTypes.curve2D, mapCurve2D), _defineProperty(_geometryMap, geometryTypes.sweptSolid, mapSweptSolid), _defineProperty(_geometryMap, geometryTypes.mappedRepresentation, mapMappedRepresentation), _defineProperty(_geometryMap, geometryTypes.brep, mapBrep), _defineProperty(_geometryMap, geometryTypes.geometricSet, mapGeometricSet), _defineProperty(_geometryMap, geometryTypes.clipping, mapClipping), _geometryMap);
 
 function getMappedGeometry(representation, product) {
   var type = getType(representation);
