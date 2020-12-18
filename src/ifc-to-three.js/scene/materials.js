@@ -91,6 +91,10 @@ const materialsMap = {
     material: getTransparentMat(colors.lightBlue, 0),
     lineColor: colors.grey
   },
+  [t.IfcFlowTerminal]: {
+    material: getTransparentMat(colors.lightBlue, 0),
+    lineColor: colors.grey
+  },
   [t.IfcBuildingElementProxy]: {
     material: getDiffuseMat(colors.white),
     lineColor: colors.darkBrown
