@@ -2,7 +2,7 @@ import { geometryTypes as g, namedProps as n } from '../../utils/global-constant
 import { mapCurve2D } from './ifc-curve2d.js';
 import { mapExtrudedAreaSolid, mapSweptSolid } from './ifc-sweptSolid.js';
 import { mapMappedRepresentation } from './ifc-mappedRepresentation.js';
-import { mapBrep } from './ifc-brep.js';
+import { mapBrep, mapSurfaceModel } from './ifc-brep.js';
 import { mapGeometricSet } from './ifc-geometricSet.js';
 import { mapClipping } from './ifc-clipping.js';
 
@@ -14,6 +14,7 @@ const geometryMap = {
   [g.geometricSet]: mapGeometricSet,
   [g.clipping]: mapClipping,
   [g.extrudedAreaSolid]: mapExtrudedAreaSolid,
+  [g.surfaceModel]: mapSurfaceModel
 };
 
 function getMappedGeometry(representation, product) {
