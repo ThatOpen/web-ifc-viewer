@@ -7,7 +7,7 @@ function mapRectangleProfileExtrusion(extruded, product) {
   const position = extruded.profile[n.position];
   trackLocalTransform(product, position, n.transformOfExtrusion);
   const points = getRectProfilePoints(extruded);
-  return createExtrusionsByPoints(points, extruded.depth);
+  return createExtrusionsByPoints(points, extruded.depth, extruded.direction);
 }
 
 function getRectProfilePoints(extruded) {

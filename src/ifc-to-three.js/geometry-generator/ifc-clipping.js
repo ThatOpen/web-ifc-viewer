@@ -67,7 +67,9 @@ function mapIfcHalfSpaceSolid(clippingRep, product) {
 }
 
 function mapIfcPolygonalBoundedHalfSpace(clippingRep, product) {
-  const orientation = clippingRep[n.agreementFlag];
+  let orientation = clippingRep[n.agreementFlag];
+  if (typeof orientation != "boolean")
+  orientation = orientation.value;
 
   const clippingGeom = createClippingBox(orientation);
   const position = clippingRep[n.baseSurface][n.position];
@@ -78,9 +80,12 @@ function mapIfcPolygonalBoundedHalfSpace(clippingRep, product) {
     const coords = point[n.coordinates];
     return [-coords[0], -coords[1]];
   });
-  const boundingGeom = createExtrusionsByPoints(points, 100);
-  trackLocalTransform(product, position, n.transformOfClippingVolume);
-  applyTransformsTo(product, boundingGeom, n.transformOfClippingVolume);
+
+  const boundingGeom = createExtrusionsByPoints(points, 1000);
+  const boundPosition = clippingRep[n.position];
+  trackLocalTransform(product, boundPosition, n.transformOfClippingVolumeBound);
+  applyTransformsTo(product, boundingGeom, n.transformOfClippingVolumeBound);
+  boundingGeom.position.z -= 500;
 
   // Apply boolean operations usng CSGMesh
   clippingGeom.geometry.computeFaceNormals();
@@ -89,9 +94,9 @@ function mapIfcPolygonalBoundedHalfSpace(clippingRep, product) {
 
   boundingGeom.updateMatrix();
   let bspB = CSG.fromMesh(boundingGeom);
-  bspA = bspA.subtract(bspB);
+  let geomResult = bspA.intersect(bspB);
 
-  const result = CSG.toMesh(bspA, clippingGeom.matrix);
+  const result = CSG.toMesh(geomResult, clippingGeom.matrix);
   result.geometry = new THREE.BufferGeometry().fromGeometry(result.geometry);
   result.material = new THREE.MeshPhongMaterial();
   mainObject.remove(clippingGeom);

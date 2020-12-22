@@ -1,8 +1,8 @@
 function createClippingBox(orientation) {
-  const geometry = new THREE.BoxBufferGeometry(30, 30, 5);
+  const geometry = new THREE.BoxBufferGeometry(100, 100, 100);
   const mesh = new THREE.Mesh(geometry);
   const direction = orientation ? -1 : 1;
-  mesh.position.z += 2.5 * direction;
+  mesh.position.z += 50 * direction;
   mesh.updateMatrix();
   return mesh;
 }

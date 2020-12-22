@@ -7,6 +7,7 @@ import "../ifc-models/materials.js";
 import "../ifc-models/presentation.js";
 import "../ifc-models/properties.js";
 import "../ifc-models/relationships.js";
+import "../ifc-models/quantities.js";
 import "../ifc-models/systems.js";
 import "../ifc-models/spatial-structure.js";
 import "../ifc-models/units.js";

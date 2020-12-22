@@ -147,6 +147,23 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcDoorType),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ApplicableOccurrence: d.text,
+  HasPropertySets: d.idSet,
+  RepresentationMaps: d.idSet,
+  Tag: d.text,
+  ElementType: d.text,
+  PredefinedType: d.enum,
+  OperationType: d.enum,
+  ParameterTakesPrecedence: d.bool,
+  UserDefinedOperationType: d.text,
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcSlabType),
   GlobalId: d.text,
   OwnerHistory: d.id,

@@ -35,6 +35,7 @@ const ifcTypes = {
   IfcAxis2Placement2D: "IFCAXIS2PLACEMENT2D",
   IfcAxis2Placement3D: "IFCAXIS2PLACEMENT3D",
   IfcBooleanClippingResult: "IFCBOOLEANCLIPPINGRESULT",
+  IfcBoundingBox: "IFCBOUNDINGBOX",
   IfcCartesianPoint: "IFCCARTESIANPOINT",
   IfcCartesianTransformationOperator3D: "IFCCARTESIANTRANSFORMATIONOPERATOR3D",
   IfcCircle: "IFCCIRCLE",
@@ -94,6 +95,7 @@ const ifcTypes = {
   IfcCoveringType: "IFCCOVERINGTYPE",
   IfcCurtainWallType: "IFCCURTAINWALLTYPE",
   IfcFurnitureType: "IFCFURNITURETYPE",
+  IfcDoorType: "IFCDOORTYPE",
   IfcDoorLiningProperties: "IFCDOORLININGPROPERTIES",
   IfcDoorPanelProperties: "IFCDOORPANELPROPERTIES",
   IfcDoorStyle: "IFCDOORSTYLE",
@@ -108,6 +110,8 @@ const ifcTypes = {
   IfcWindowStyle: "IFCWINDOWSTYLE",
   IfcSlabType: "IFCSLABTYPE",
   IfcWindowLiningProperties: "IFCWINDOWLININGPROPERTIES",
+  //Quantities
+  IfcQuantityArea: "IFCQUANTITYAREA",
   // Relationships
   IfcRelAggregates: "IFCRELAGGREGATES",
   IfcRelAssignsToGroup: "IFCRELASSIGNSTOGROUP",

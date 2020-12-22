@@ -1,5 +1,5 @@
-import { getName, ifcTypes } from "../utils/ifc-types.js";
-import { itemsReaderValues as i, namedProps as n } from "../utils/global-constants.js";
+import { getName, ifcTypes } from '../utils/ifc-types.js';
+import { itemsReaderValues as i, namedProps as n } from '../utils/global-constants.js';
 
 function findRemainingTypes(items) {
   const remainingTypes = [];
@@ -10,7 +10,8 @@ function findRemainingTypes(items) {
       }
     }
   });
-  if (remainingTypes.length > 0) console.log(remainingTypes);
+  if (remainingTypes.length > 0)
+    console.log('Error: the following classes are not implemented: ', remainingTypes);
 }
 
 function filterItems(items, filter) {

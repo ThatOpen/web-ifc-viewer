@@ -63,6 +63,10 @@ const materialsMap = {
     material: getDiffuseMat(colors.white),
     lineColor: colors.darkBrown
   },
+  [t.IfcColumn]: {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.darkBrown
+  },
   [t.IfcStair]: {
     material: getDiffuseMat(colors.white),
     lineColor: colors.darkBrown
@@ -84,7 +88,7 @@ const materialsMap = {
     lineColor: colors.darkBlue
   },
   [t.IfcSpace]: {
-    material: getTransparentMat(colors.lightBlue, 0.2),
+    material: getTransparentMat(colors.lightBlue, 0),
     lineColor: colors.black
   },
   [t.IfcOpeningElement]: {
@@ -98,7 +102,12 @@ const materialsMap = {
 };
 
 function getmaterial(ifcType) {
-  return materialsMap[t[ifcType]].material;
+  try{
+    return materialsMap[t[ifcType]].material;
+  }
+  catch(e){
+    console.warn(`The type ${ifcType} doesn't have a material implemented.`)
+  }
 }
 
 function getLineColor(ifcType) {

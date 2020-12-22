@@ -224,3 +224,11 @@ newObject({
   Segments: d.idSet,
   SelfIntersect: d.bool,
 });
+
+newObject({
+  [n.ifcClass]: getName(t.IfcBoundingBox),
+  Corner: d.id,
+  XDim: d.number,
+  YDim: d.number,
+  ZDim: d.number,
+});

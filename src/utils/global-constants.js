@@ -69,6 +69,7 @@ const namedProps = {
   transformedGeometry: "_TransformedGeometry",
   transformOfExtrusion: "_TransformationOfExtrusion",
   transformOfClippingVolume: "_TransformationOfClippingVolume",
+  transformOfClippingVolumeBound: "_TransformationOfClippingVolumeBound",
   transformOfMappedItem: "_TransformOfMappedItem",
   trueGeometry: "_trueGeometry",
   undefined: "undefined",
