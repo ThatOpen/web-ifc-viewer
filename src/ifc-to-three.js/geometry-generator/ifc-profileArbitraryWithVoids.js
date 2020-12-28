@@ -17,7 +17,8 @@ function getArbitraryProfilePoints(extruded) {
 }
 
 function getInnerVoids(extruded){
-  // console.log(extruded);
+  //TODO
+  console.log(extruded);
 }
 
 export { mapArbitraryProfileWithVoidsExtrusion };

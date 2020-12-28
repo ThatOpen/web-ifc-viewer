@@ -17,16 +17,12 @@ function constructGeometry(item) {
 
 function getRepresentations(product) {
   getRepresentationValue(product);
+  getRepresentationOfItem(product[n.hasOpenings]);
+  getRepresentationOfItem(product[n.hasSpatial]);
+}
 
-  if (product[n.hasOpenings])
-    product[n.hasOpenings].forEach((opening) => {
-      getRepresentationValue(opening);
-    });
-
-  if (product[n.hasSpatial])
-    product[n.hasSpatial].forEach((spatial) => {
-      getRepresentationValue(spatial);
-    });
+function getRepresentationOfItem(items) {
+  if (items) items.forEach((item) => getRepresentationValue(item));
 }
 
 function getRepresentationValue(product) {
@@ -40,22 +36,19 @@ function getRepresentationValue(product) {
 
 function mapRepresentations(product) {
   mapProductRepresentations(product);
-  if (product[n.hasOpenings])
-    product[n.hasOpenings].forEach((opening) => {
-      mapProductRepresentations(opening);
-    });
+  mapRepresentationsOfItems(product[n.hasOpenings]);
+  mapRepresentationsOfItems(product[n.hasSpatial]);
+}
 
-  if (product[n.hasSpatial])
-    product[n.hasSpatial].forEach((spatial) => {
-      mapProductRepresentations(spatial);
-    });
+function mapRepresentationsOfItems(items) {
+  if (items) items.forEach((item) => mapProductRepresentations(item));
 }
 
 function mapProductRepresentations(product) {
   product[n.geometry] = [];
-  product[n.geomRepresentations].forEach((representation) => {
-    product[n.geometry].push(getMappedGeometry(representation, product));
-  });
+  product[n.geomRepresentations].forEach((representation) =>
+    product[n.geometry].push(getMappedGeometry(representation, product))
+  );
 }
 
 export { constructGeometries };

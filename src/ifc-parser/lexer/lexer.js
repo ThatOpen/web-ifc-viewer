@@ -28,7 +28,7 @@ const ingoredPatterns = {
   WhiteSpace: /\s+/,
 };
 
-function createTokens() {
+(function createTokens() {
   Object.keys(patterns).forEach((e) => {
     tokens.push(
       newToken({
@@ -37,9 +37,9 @@ function createTokens() {
       })
     );
   });
-}
+})();
 
-function createIgnoredTokens() {
+(function createIgnoredTokens() {
   Object.keys(ingoredPatterns).forEach((e) => {
     tokens.push(
       newToken({
@@ -49,10 +49,7 @@ function createIgnoredTokens() {
       })
     );
   });
-}
-
-createTokens();
-createIgnoredTokens();
+})();
 
 const lexer = new Lexer(tokens);
 const vocabulary = {};

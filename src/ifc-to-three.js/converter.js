@@ -1,6 +1,6 @@
 import { applyTransformations } from "./geometry-transformer/transformation.js";
 import { constructGeometries } from "./geometry-generator/geometry-mapper.js";
-import { applyBooleanOperations } from "./geometry-operator/boolean-operator.js";
+import { subtractOpenings } from "./geometry-operator/openings-subtractor.js";
 import { applyMaterials } from "./scene/materials.js";
 import {drawEdges } from "./scene/edges.js";
 import { applyScale } from "./geometry-transformer/units-applier.js";
@@ -10,7 +10,7 @@ function buildGeometry(structured) {
   constructGeometries(structured);
   applyTransformations(structured);
   drawEdges(structured);
-  applyBooleanOperations(structured);
+  subtractOpenings(structured);
   applyMaterials(structured);
   applyScale(structured);
   return structured;

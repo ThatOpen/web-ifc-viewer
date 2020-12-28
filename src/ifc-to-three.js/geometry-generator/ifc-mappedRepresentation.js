@@ -50,8 +50,9 @@ function applyTransformation(product, origin, geometry) {
 }
 
 //The mapping target defines the transformation of the mapped items
-//Generally, the transformation is read from IfcAxis2Placement instances
+//Generally, in IFC the transformation is read from IfcAxis2Placement instances
 //This is an exception: data needs to be structured like an IfcAxis2Placement
+//to avoid poluting the transformation logic
 
 function getMappingTarget(representation) {
   const target = representation[n.mappingTarget];

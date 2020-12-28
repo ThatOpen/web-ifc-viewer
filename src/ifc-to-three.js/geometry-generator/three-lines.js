@@ -1,4 +1,5 @@
 function createLine(coordinates) {
+  
   const material = new THREE.LineBasicMaterial({
     linecap: "round",
     color: 0xff0000,

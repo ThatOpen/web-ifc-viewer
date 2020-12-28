@@ -1,23 +1,19 @@
-import { createPoint } from "./three-points.js";
+//Credit to the following algorithm:
+//https://stackoverflow.com/questions/50272399/three-js-2d-object-in-3d-space-by-vertices/50274103#50274103
 
 function createFace(faceDefinition) {
-  //Credit to the following algorithm:
-  //https://stackoverflow.com/questions/50272399/three-js-2d-object-in-3d-space-by-vertices/50274103#50274103
-
-  const outerCoords = faceDefinition.outerBounds.bounds[0];
-  let outerPoints = getPoints(outerCoords);
-
+  const coordinates = faceDefinition.outerBounds.bounds[0];
+  let outerPoints = getPoints(coordinates);
   let { tempOuterPoints, quaternion } = getProjectedPointsAndQuaternion(outerPoints);
-
   const outerShape = new THREE.Shape(tempOuterPoints);
   const allPoints = [...outerPoints];
+  if (hasHoles(faceDefinition)) punchHoles(faceDefinition, quaternion, allPoints, outerShape);
+  return createGeometry(outerShape, allPoints);
+}
 
-  if (hasHoles(faceDefinition))
-    punchHoles(faceDefinition, quaternion, allPoints, outerShape);
-
+function createGeometry(outerShape, allPoints) {
   const shapeGeom = new THREE.ShapeGeometry(outerShape, 24);
   const mesh = new THREE.Mesh(shapeGeom);
-
   mesh.geometry.vertices = allPoints;
   mesh.geometry.computeVertexNormals();
   mesh.geometry.computeFaceNormals();
@@ -38,61 +34,77 @@ function hasHoles(faceDefinition) {
 
 function punchHoles(faceDefinition, quaternion, allPoints, outerShape) {
   faceDefinition.innerBounds.bounds.forEach((bound) => {
-    let innerPoints = getPoints(bound);
-    let tempInnerPoints = getTempPoints(innerPoints, quaternion);
+    const innerPoints = getPoints(bound);
+    const tempInnerPoints = getTempPoints(innerPoints, quaternion);
     const innerShape = new THREE.Path(tempInnerPoints);
     outerShape.holes.push(innerShape);
     allPoints.push(...innerPoints);
   });
 }
 
-//To find the normal of the face it is necessary to ensure that:
-// 1. the selected triangle of vertices is valid (they are not aligned)
-// 2. the area of the selected triangle is big enough to increment the precission of the vector
-// 3. the generated 2d surface has its points defined clockwise
+//To implement this algorithm successfully (see link above)
+// the selected triangle of vertices needs to fulfill the following points to work:
+// 1. It must be a valid triangle (its vertices are not aligned)
+// 2. Its area should be as big as possible to increment the precission of its normal vector
+// 3. The generated 2d surface has its points defined clockwise
+
 function getProjectedPointsAndQuaternion(points) {
-  const baseNormal = new THREE.Vector3(0, 0, 1);
-  const normal = new THREE.Vector3();
+  const triangles = getAllTriangles(points); //1
+  sortTrianglesByArea(triangles); //2
+  return getQuatAndPoints(triangles, points); //3
+}
+
+function getAllTriangles(points) {
   const triangles = [];
-  let index1 = 1,
-    index2 = 2;
-  while (index2 < points.length) {
-    const triangle = new THREE.Triangle(
-      points[index2],
-      points[index1],
-      points[0]
-    );
-    const temp = new THREE.Vector3();
-    triangle.getNormal(temp);
-    //1.
-    if (temp.x != 0 || temp.y != 0 || temp.z != 0) {
-      triangles.push({ area: triangle.getArea(), triangle });
-    }
-    index1++;
-    index2++;
+  let i = 1;
+  while (i + 1 < points.length) {
+    const { vector, triangle } = getTriangleVector(points, i);
+    if (isVectorValid(vector)) triangles.push({ area: triangle.getArea(), triangle });
+    i++;
   }
+  return triangles;
+}
 
-  //2.
-  triangles
-    .sort((a, b) => (a.area > b.area ? 1 : b.area > a.area ? -1 : 0))
-    .reverse();
+function getTriangleVector(points, i) {
+  const triangle = new THREE.Triangle(points[i + 1], points[i], points[0]);
+  const vector = new THREE.Vector3();
+  triangle.getNormal(vector);
+  return { vector, triangle };
+}
 
-  //3.
-  let selectedTriangle = 0;
-  let tempOuterPoints = [];
-  let quaternion = {};
-  let isClockWise = false;
-  while (isClockWise === false) {
-    const tri = triangles[selectedTriangle];
-    tri.triangle.getNormal(normal);
-    quaternion = new THREE.Quaternion().setFromUnitVectors(normal, baseNormal);
+function sortTrianglesByArea(triangles) {
+  triangles.sort((a, b) => (a.area > b.area ? 1 : b.area > a.area ? -1 : 0)).reverse();
+}
 
-    tempOuterPoints = getTempPoints(points, quaternion);
-    const t = tempOuterPoints.map((p) => new THREE.Vector2(p.x, p.y));
-    isClockWise = THREE.ShapeUtils.isClockWise(t);
-    selectedTriangle++;
-  }
-  return { tempOuterPoints, quaternion };
+function isVectorValid(vector) {
+  return vector.x != 0 || vector.y != 0 || vector.z != 0;
+}
+
+function getQuatAndPoints(triangles, points) {
+  const props = initializeProperties();
+  while (props.isClockWise === false) selectAnotherTriangle(props, points, triangles);
+  return { tempOuterPoints: props.tempOuterPoints, quaternion: props.quaternion };
+}
+
+function selectAnotherTriangle(props, points, triangles) {
+  const tri = triangles[props.selectedTriangle];
+  tri.triangle.getNormal(props.normal);
+  props.quaternion = new THREE.Quaternion().setFromUnitVectors(props.normal, props.baseNormal);
+  props.tempOuterPoints = getTempPoints(points, props.quaternion);
+  const projected = props.tempOuterPoints.map((point) => new THREE.Vector2(point.x, point.y));
+  props.isClockWise = THREE.ShapeUtils.isClockWise(projected);
+  props.selectedTriangle++;
+}
+
+function initializeProperties() {
+  return {
+    baseNormal: new THREE.Vector3(0, 0, 1),
+    normal: new THREE.Vector3(),
+    selectedTriangle: 0,
+    tempOuterPoints: [],
+    quaternion: {},
+    isClockWise: false
+  };
 }
 
 export { createFace };

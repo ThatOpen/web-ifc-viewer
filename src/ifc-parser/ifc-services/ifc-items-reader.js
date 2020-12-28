@@ -9,67 +9,57 @@ const regexp = {
   rawIfcType: /IFC\w+/,
   rawIfcProperties: /\(.+?(?=;\s*$)/,
 };
-class IfcItemsReader {
-  constructor(ifcFile) {
-    this.ifcFile = ifcFile;
-  }
-
-  readItems() {
-    const { dataSection } = this.extractSections(this.ifcFile);
-    return this.constructRawIfcItems(dataSection);
-  }
-
-  extractSections() {
-    const ifcPlaneText = this.removeAllNewLines(this.ifcFile);
-    return {
-      headerSection: this.readHeaderSection(ifcPlaneText),
-      dataSection: this.readDataSection(ifcPlaneText),
-    };
-  }
-
-  constructRawIfcItems(dataSection) {
-    const flatIfcItemList = this.separateIfcEntities(dataSection);
-    return flatIfcItemList.map((e) => {
-      return {
-        [i.expressId]: this.getId(e),
-        [i.type]: this.getIfcType(e),
-        [i.properties]: this.getIfcRawProperties(e),
-      };
-    });
-  }
-
-  separateIfcEntities(dataSection) {
-    return dataSection.match(regexp.singleIfcItems);
-  }
-
-  readHeaderSection(ifcLine) {
-    return ifcLine.match(regexp.headerSection)[0];
-  }
-
-  readDataSection(ifcLine) {
-    return ifcLine.match(regexp.dataSection)[0];
-  }
-
-  removeAllNewLines(ifcFile) {
-    return ifcFile.replace(regexp.allNewLines, " ");
-  }
-
-  getId(rawIfcLine) {
-    return parseInt(rawIfcLine.match(regexp.expressId).toString().slice(1));
-  }
-
-  getIfcType(rawIfcLine) {
-    return rawIfcLine.match(regexp.rawIfcType).toString();
-  }
-
-  getIfcRawProperties(ifcLine) {
-    return ifcLine.match(regexp.rawIfcProperties).toString();
-  }
-}
 
 function readIfcItems(loadedIfc) {
-  const ifcReader = new IfcItemsReader(loadedIfc);
-  return ifcReader.readItems();
+  const { dataSection } = extractSections(loadedIfc);
+  return constructRawIfcItems(dataSection);
+}
+
+function extractSections(loadedIfc) {
+  const ifcPlaneText = removeAllNewLines(loadedIfc);
+  return {
+    headerSection: readHeaderSection(ifcPlaneText),
+    dataSection: readDataSection(ifcPlaneText),
+  };
+}
+
+function constructRawIfcItems(dataSection) {
+  const flatIfcItemList = separateIfcEntities(dataSection);
+  return flatIfcItemList.map((e) => {
+    return {
+      [i.expressId]: getId(e),
+      [i.type]: getIfcType(e),
+      [i.properties]: getIfcRawProperties(e),
+    };
+  });
+}
+
+function separateIfcEntities(dataSection) {
+  return dataSection.match(regexp.singleIfcItems);
+}
+
+function readHeaderSection(ifcLine) {
+  return ifcLine.match(regexp.headerSection)[0];
+}
+
+function readDataSection(ifcLine) {
+  return ifcLine.match(regexp.dataSection)[0];
+}
+
+function removeAllNewLines(ifcFile) {
+  return ifcFile.replace(regexp.allNewLines, " ");
+}
+
+function getId(rawIfcLine) {
+  return parseInt(rawIfcLine.match(regexp.expressId).toString().slice(1));
+}
+
+function getIfcType(rawIfcLine) {
+  return rawIfcLine.match(regexp.rawIfcType).toString();
+}
+
+function getIfcRawProperties(ifcLine) {
+  return ifcLine.match(regexp.rawIfcProperties).toString();
 }
 
 export { readIfcItems };

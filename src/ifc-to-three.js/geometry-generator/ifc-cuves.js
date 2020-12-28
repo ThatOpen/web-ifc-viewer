@@ -2,7 +2,7 @@ import { createLine } from "./three-lines.js";
 import { namedProps as n } from "../../utils/global-constants.js";
 import { ifcTypes as t } from "../../utils/ifc-types.js";
 
-function mapIfcGeometricPrimitive(shape){
+function mapCurve(shape){
   const ifcClass = shape[n.ifcClass].toUpperCase();
   return curve2DMap[ifcClass](shape);
 }
@@ -21,7 +21,8 @@ function mapPolyline(shape){
 }
 
 function mapTrimmedCurve(shape){
+  //TODO
   console.log(shape);
 }
 
-export { mapIfcGeometricPrimitive };
+export { mapCurve };

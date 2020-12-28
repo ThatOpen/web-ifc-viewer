@@ -35,4 +35,4 @@ function createIfcItemsFinder(loadedIfc) {
   return new IfcEntityFinder(loadedIfc);
 }
 
-export { IfcEntityFinder, createIfcItemsFinder };
+export { createIfcItemsFinder };

@@ -1,8 +1,8 @@
 import { namedProps as n } from "../../utils/global-constants.js";
-import { mapIfcGeometricPrimitive } from "./ifc-geometricPrimitives.js";
+import { mapCurve } from "./ifc-cuves.js";
 
 function mapCurve2D(shape) {
-  return mapIfcGeometricPrimitive(shape[n.items][0]);
+  return mapCurve(shape[n.items][0]);
 }
 
 export { mapCurve2D };

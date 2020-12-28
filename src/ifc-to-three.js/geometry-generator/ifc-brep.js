@@ -1,6 +1,6 @@
-import { namedProps as n } from "../../utils/global-constants.js";
-import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
-import { createFace } from "./three-shapeGeometry.js";
+import { namedProps as n } from '../../utils/global-constants.js';
+import { getName, ifcTypes as t } from '../../utils/ifc-types.js';
+import { createFace } from './three-shapeGeometry.js';
 
 function mapBrep(shape, product) {
   const representations = shape[n.items];
@@ -44,7 +44,7 @@ function getBounds(ifcBounds) {
     bounds.push(getPoints(bound));
     orientation.push(bound[n.orientation]);
   });
-  return {orientation, bounds};
+  return { orientation, bounds };
 }
 
 function getPoints(bound) {

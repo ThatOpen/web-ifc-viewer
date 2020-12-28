@@ -4,16 +4,14 @@ import { namedProps as n, structuredData as s } from '../../utils/global-constan
 function applyScale(structured) {
   const units = structured[s.units][n.units];
   const scale = getUnitScale(units);
-  applyScaleOnObjects(scale, structured);
+  if (scale === 1) return;
+  applyScaleOnItems(scale, structured);
 }
 
-function applyScaleOnObjects(scale, structured) {
-  if (scale === 1) return;
+function applyScaleOnItems(scale, structured) {
   const axis = new THREE.Object3D();
   mainObject.add(axis);
-
   const geometries = getALlGeometries(structured);
-
   geometries.forEach((geometry) => {
     axis.attach(geometry);
     axis.scale.set(scale, scale, scale);
@@ -43,23 +41,23 @@ function getUnitScale(units) {
 }
 
 const unitMap = {
-  EXA: 100000000,
-  PETA: 10000000,
-  TERA: 1000000,
-  GIGA: 100000,
-  MEGA: 10000,
-  KILO: 1000,
+  EXA:   100000000,
+  PETA:  10000000,
+  TERA:  1000000,
+  GIGA:  100000,
+  MEGA:  10000,
+  KILO:  1000,
   HECTO: 100,
-  DECA: 10,
-  $: 1,
-  DECI: 0.1,
+  DECA:  10,
+  $:     1,
+  DECI:  0.1,
   CENTI: 0.01,
   MILLI: 0.001,
   MICRO: 0.0001,
-  NANO: 0.00001,
-  PICO: 0.000001,
+  NANO:  0.00001,
+  PICO:  0.000001,
   FEMTO: 0.0000001,
-  ATTO: 0.00000001
+  ATTO:  0.00000001
 };
 
 export { applyScale };
