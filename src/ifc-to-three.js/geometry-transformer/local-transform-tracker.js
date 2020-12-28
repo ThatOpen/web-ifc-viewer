@@ -1,9 +1,4 @@
-import { resetTransformData } from "./local-transform-reseter.js";
-import {
-  defaultValue as def,
-  namedProps as n,
-  pivots as p,
-} from "../../utils/global-constants.js";
+import { defaultValue as def, namedProps as n, pivots as p } from '../../utils/global-constants.js';
 
 function trackLocalTransform(product, placement, property) {
   const transform = initializeTransform(product, property);
@@ -15,7 +10,13 @@ function trackLocalTransform(product, placement, property) {
 }
 
 function initializeTransform(product, property) {
-  if (!product[property]) resetTransformData(product, property);
+  if (!product[property])
+    product[property] = {
+      [p.locat]: [],
+      [p.xAxis]: [],
+      [p.yAxis]: [],
+      [p.zAxis]: []
+    };
   return product[property];
 }
 
@@ -25,6 +26,11 @@ function getTransform(placement) {
   const zAxis = getAxisZ(placement);
   const yAxis = getAxisY(zAxis, xAxis);
   return { locat, xAxis, yAxis, zAxis };
+}
+
+function getTransformOfGeometry(placement) {
+  const { locat, xAxis, yAxis, zAxis } = getTransform(placement);
+  return { [p.locat]: [locat], [p.xAxis]: [xAxis], [p.yAxis]: [yAxis], [p.zAxis]: [zAxis] };
 }
 
 function getLocat(placement) {
@@ -51,11 +57,7 @@ function getAxisZ(placement) {
 //In IFC the axis Y is implicit (computed from X and Z)
 
 function getAxisY(X, Z) {
-  return [
-    X[1] * Z[2] - X[2] * Z[1],
-    X[2] * Z[0] - X[0] * Z[2],
-    X[0] * Z[1] - X[1] * Z[0],
-  ];
+  return [X[1] * Z[2] - X[2] * Z[1], X[2] * Z[0] - X[0] * Z[2], X[0] * Z[1] - X[1] * Z[0]];
 }
 
 function isInvalid(prop) {
@@ -63,4 +65,4 @@ function isInvalid(prop) {
   return false;
 }
 
-export { trackLocalTransform };
+export { trackLocalTransform, getTransformOfGeometry };

@@ -1,13 +1,14 @@
-import { trackLocalTransform } from "../geometry-transformer/local-transform-tracker.js";
 import { createExtrusionsByPoints } from "./three-extrusion.js";
 import { namedProps as n } from "../../utils/global-constants.js";
+import { applyTransformsToGeometry } from "../geometry-transformer/local-transform-applier.js";
 
 function mapRectangleProfileExtrusion(extruded, product) {
   getRectProfileDimensions(extruded);
   const position = extruded.profile[n.position];
-  trackLocalTransform(product, position, n.transformOfExtrusion);
   const points = getRectProfilePoints(extruded);
-  return createExtrusionsByPoints(points, extruded.depth, extruded.direction);
+  const geometry = createExtrusionsByPoints(points, extruded.depth, extruded.direction);
+  applyTransformsToGeometry(geometry, position);
+  return geometry;
 }
 
 function getRectProfilePoints(extruded) {

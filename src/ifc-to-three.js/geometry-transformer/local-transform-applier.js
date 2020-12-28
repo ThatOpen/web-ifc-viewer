@@ -1,6 +1,6 @@
 import { namedProps as n, pivots as p } from "../../utils/global-constants.js";
 import { mainObject } from "../scene/mainObject.js";
-import { resetTransformData } from "./local-transform-reseter.js";
+import { getTransformOfGeometry } from "./local-transform-tracker.js";
 
 function applyTransforms(product, property) {
   const pivots = getPivots(product[property]);
@@ -11,6 +11,21 @@ function applyTransformsTo(product, geometry, property) {
   const pivots = getPivots(product[property]);
   applyTransform(geometry, pivots);
   resetTransformData(product, property);
+}
+
+function resetTransformData(product, property) {
+  product[property] = {
+    [p.locat]: [],
+    [p.xAxis]: [],
+    [p.yAxis]: [],
+    [p.zAxis]: [],
+  };
+}
+
+function applyTransformsToGeometry(geometry, placement){
+  const transform = getTransformOfGeometry(placement);
+  const pivots = getPivots(transform);
+  applyTransform(geometry, pivots);
 }
 
 function applyTransform(geometry, pivots) {
@@ -74,4 +89,4 @@ function getTransforms(transform, index) {
   return { x, y, z };
 }
 
-export { applyTransforms, applyTransformsTo };
+export { applyTransforms, applyTransformsTo, applyTransformsToGeometry };

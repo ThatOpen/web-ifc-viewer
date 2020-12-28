@@ -38,6 +38,40 @@ var IFCjs = (function (exports) {
     return obj;
   }
 
+  function ownKeys(object, enumerableOnly) {
+    var keys = Object.keys(object);
+
+    if (Object.getOwnPropertySymbols) {
+      var symbols = Object.getOwnPropertySymbols(object);
+      if (enumerableOnly) symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+      keys.push.apply(keys, symbols);
+    }
+
+    return keys;
+  }
+
+  function _objectSpread2(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i] != null ? arguments[i] : {};
+
+      if (i % 2) {
+        ownKeys(Object(source), true).forEach(function (key) {
+          _defineProperty(target, key, source[key]);
+        });
+      } else if (Object.getOwnPropertyDescriptors) {
+        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+      } else {
+        ownKeys(Object(source)).forEach(function (key) {
+          Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+        });
+      }
+    }
+
+    return target;
+  }
+
   function _inherits(subClass, superClass) {
     if (typeof superClass !== "function" && superClass !== null) {
       throw new TypeError("Super expression must either be null or a function");
@@ -1250,27 +1284,25 @@ var IFCjs = (function (exports) {
     return IfcVisitor;
   }(BaseVisitor);
 
-  function createPrimitiveSemantic() {
+  (function createPrimitiveSemantic() {
     Object.keys(primitiveParsers).forEach(function (e) {
       IfcVisitor.prototype[primitiveParsers[e].name] = function (parsed) {};
     });
-  }
+  })();
 
-  function createSemantic() {
+  (function createSemantic() {
     Object.values(typesParserMap).forEach(function (e) {
       IfcVisitor.prototype[e[namedProps.ifcClass]] = function (parsed) {
         return getSemantic(ifcTypes[e[namedProps.ifcClass]], parsed);
       };
     });
-  }
+  })();
 
   function getSemantic(ifcType, parsed) {
     var ifcItem = typesParserMap[ifcType];
     return newSemantic(parsed, ifcItem);
   }
 
-  createPrimitiveSemantic();
-  createSemantic();
   var ifcVisitor = new IfcVisitor();
 
   //1. The lexer tokenizes the input
@@ -1301,85 +1333,56 @@ var IFCjs = (function (exports) {
     rawIfcProperties: /\(.+?(?=;\s*$)/
   };
 
-  var IfcItemsReader = /*#__PURE__*/function () {
-    function IfcItemsReader(ifcFile) {
-      _classCallCheck(this, IfcItemsReader);
-
-      this.ifcFile = ifcFile;
-    }
-
-    _createClass(IfcItemsReader, [{
-      key: "readItems",
-      value: function readItems() {
-        var _this$extractSections = this.extractSections(this.ifcFile),
-            dataSection = _this$extractSections.dataSection;
-
-        return this.constructRawIfcItems(dataSection);
-      }
-    }, {
-      key: "extractSections",
-      value: function extractSections() {
-        var ifcPlaneText = this.removeAllNewLines(this.ifcFile);
-        return {
-          headerSection: this.readHeaderSection(ifcPlaneText),
-          dataSection: this.readDataSection(ifcPlaneText)
-        };
-      }
-    }, {
-      key: "constructRawIfcItems",
-      value: function constructRawIfcItems(dataSection) {
-        var _this = this;
-
-        var flatIfcItemList = this.separateIfcEntities(dataSection);
-        return flatIfcItemList.map(function (e) {
-          var _ref;
-
-          return _ref = {}, _defineProperty(_ref, itemsReaderValues.expressId, _this.getId(e)), _defineProperty(_ref, itemsReaderValues.type, _this.getIfcType(e)), _defineProperty(_ref, itemsReaderValues.properties, _this.getIfcRawProperties(e)), _ref;
-        });
-      }
-    }, {
-      key: "separateIfcEntities",
-      value: function separateIfcEntities(dataSection) {
-        return dataSection.match(regexp.singleIfcItems);
-      }
-    }, {
-      key: "readHeaderSection",
-      value: function readHeaderSection(ifcLine) {
-        return ifcLine.match(regexp.headerSection)[0];
-      }
-    }, {
-      key: "readDataSection",
-      value: function readDataSection(ifcLine) {
-        return ifcLine.match(regexp.dataSection)[0];
-      }
-    }, {
-      key: "removeAllNewLines",
-      value: function removeAllNewLines(ifcFile) {
-        return ifcFile.replace(regexp.allNewLines, " ");
-      }
-    }, {
-      key: "getId",
-      value: function getId(rawIfcLine) {
-        return parseInt(rawIfcLine.match(regexp.expressId).toString().slice(1));
-      }
-    }, {
-      key: "getIfcType",
-      value: function getIfcType(rawIfcLine) {
-        return rawIfcLine.match(regexp.rawIfcType).toString();
-      }
-    }, {
-      key: "getIfcRawProperties",
-      value: function getIfcRawProperties(ifcLine) {
-        return ifcLine.match(regexp.rawIfcProperties).toString();
-      }
-    }]);
-
-    return IfcItemsReader;
-  }();
-
   function readIfcItems(loadedIfc) {
-    var ifcReader = new IfcItemsReader(loadedIfc);
-    return ifcReader.readItems();
+    var _extractSections = extractSections(loadedIfc),
+        dataSection = _extractSections.dataSection;
+
+    return constructRawIfcItems(dataSection);
+  }
+
+  function extractSections(loadedIfc) {
+    var ifcPlaneText = removeAllNewLines(loadedIfc);
+    return {
+      headerSection: readHeaderSection(ifcPlaneText),
+      dataSection: readDataSection(ifcPlaneText)
+    };
+  }
+
+  function constructRawIfcItems(dataSection) {
+    var flatIfcItemList = separateIfcEntities(dataSection);
+    return flatIfcItemList.map(function (e) {
+      var _ref;
+
+      return _ref = {}, _defineProperty(_ref, itemsReaderValues.expressId, getId(e)), _defineProperty(_ref, itemsReaderValues.type, getIfcType(e)), _defineProperty(_ref, itemsReaderValues.properties, getIfcRawProperties(e)), _ref;
+    });
+  }
+
+  function separateIfcEntities(dataSection) {
+    return dataSection.match(regexp.singleIfcItems);
+  }
+
+  function readHeaderSection(ifcLine) {
+    return ifcLine.match(regexp.headerSection)[0];
+  }
+
+  function readDataSection(ifcLine) {
+    return ifcLine.match(regexp.dataSection)[0];
+  }
+
+  function removeAllNewLines(ifcFile) {
+    return ifcFile.replace(regexp.allNewLines, " ");
+  }
+
+  function getId(rawIfcLine) {
+    return parseInt(rawIfcLine.match(regexp.expressId).toString().slice(1));
+  }
+
+  function getIfcType(rawIfcLine) {
+    return rawIfcLine.match(regexp.rawIfcType).toString();
+  }
+
+  function getIfcRawProperties(ifcLine) {
+    return ifcLine.match(regexp.rawIfcProperties).toString();
   }
 
   function referenceEntities(items) {
@@ -1798,7 +1801,7 @@ var IFCjs = (function (exports) {
 
   var _curve2DMap;
 
-  function mapIfcGeometricPrimitive(shape) {
+  function mapCurve(shape) {
     var ifcClass = shape[namedProps.ifcClass].toUpperCase();
     return curve2DMap[ifcClass](shape);
   }
@@ -1814,11 +1817,12 @@ var IFCjs = (function (exports) {
   }
 
   function mapTrimmedCurve(shape) {
+    //TODO
     console.log(shape);
   }
 
   function mapCurve2D(shape) {
-    return mapIfcGeometricPrimitive(shape[namedProps.items][0]);
+    return mapCurve(shape[namedProps.items][0]);
   }
 
   function createExtrusionsByPoints(points, depth) {
@@ -1843,36 +1847,47 @@ var IFCjs = (function (exports) {
 
   function createExtrusion(shape, depth) {
     var dir = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [0, 0, 1];
-    // Material for mesh
     var material = new THREE.MeshPhongMaterial({
       color: 0xffffff
-    }); //Direction
-
-    var v1 = new THREE.Vector3(0, 0, 0);
-    var v2 = new THREE.Vector3(0, 0, depth);
-    var path = new THREE.LineCurve3(v1, v2); //Settings
-
-    var extrudeSettings = {
-      bevelEnabled: false,
-      steps: 1,
-      extrudePath: path
-    }; //Mesh
-
-    var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings); //Extrusion direction
-
-    var matrix = new THREE.Matrix4();
-    var direction = new THREE.Vector3(dir[0], dir[1], dir[2]);
-    var Syx = 0,
-        Szx = direction.y,
-        Sxy = 0,
-        Szy = direction.x,
-        Sxz = 0,
-        Syz = 0;
-    matrix.set(1, Syx, Szx, 0, Sxy, 1, Szy, 0, Sxz, Syz, 1, 0, 0, 0, 0, 1);
-    geometry.applyMatrix4(matrix);
+    });
+    var extrudeSettings = getExtrudeSettings(depth);
+    var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    applyExtrusionDirection(dir, geometry);
     var mesh = new THREE.Mesh(geometry, material);
     mesh.updateMatrix();
     return mesh;
+  }
+
+  function getExtrudeSettings(depth) {
+    var path = getVerticalDirection(depth);
+    return {
+      bevelEnabled: false,
+      steps: 1,
+      extrudePath: path
+    };
+  }
+
+  function applyExtrusionDirection(dir, geometry) {
+    var matrix = getTransformMatrix(dir);
+    geometry.applyMatrix4(matrix);
+  }
+
+  function getTransformMatrix(dir) {
+    var matrix = new THREE.Matrix4();
+    var direction = new THREE.Vector3(dir[0], dir[1], dir[2]);
+    var Syx = 0,
+        Sxy = 0,
+        Sxz = 0,
+        Syz = 0;
+    var Szx = direction.y,
+        Szy = direction.x;
+    return matrix.set(1, Syx, Szx, 0, Sxy, 1, Szy, 0, Sxz, Syz, 1, 0, 0, 0, 0, 1);
+  }
+
+  function getVerticalDirection(depth) {
+    var v1 = new THREE.Vector3(0, 0, 0);
+    var v2 = new THREE.Vector3(0, 0, depth);
+    return new THREE.LineCurve3(v1, v2);
   }
 
   function mapRectangleProfileExtrusion(extruded, product) {
@@ -1922,6 +1937,7 @@ var IFCjs = (function (exports) {
   }
 
   function mapArbitraryProfileWithVoidsExtrusion(extruded) {
+    getInnerVoids(extruded);
     var points = getArbitraryProfilePoints$1(extruded);
     return createExtrusionsByPoints(points, extruded.depth);
   }
@@ -1933,6 +1949,11 @@ var IFCjs = (function (exports) {
       var coords = point[namedProps.coordinates];
       return [-coords[0], -coords[1]];
     });
+  }
+
+  function getInnerVoids(extruded) {
+    //TODO
+    console.log(extruded);
   }
 
   function mapCircleProfileExtrusion(extruded, product) {
@@ -2029,8 +2050,9 @@ var IFCjs = (function (exports) {
     trackLocalTransform(product, origin, namedProps.transformOfMappedItem);
     applyTransformsTo(product, geometry, namedProps.transformOfMappedItem);
   } //The mapping target defines the transformation of the mapped items
-  //Generally, the transformation is read from IfcAxis2Placement instances
+  //Generally, in IFC the transformation is read from IfcAxis2Placement instances
   //This is an exception: data needs to be structured like an IfcAxis2Placement
+  //to avoid poluting the transformation logic
 
 
   function getMappingTarget(representation) {
@@ -2049,11 +2071,11 @@ var IFCjs = (function (exports) {
     return value === defaultValue ? def : value;
   }
 
+  //Credit to the following algorithm:
+  //https://stackoverflow.com/questions/50272399/three-js-2d-object-in-3d-space-by-vertices/50274103#50274103
   function createFace(faceDefinition) {
-    //Credit to the following algorithm:
-    //https://stackoverflow.com/questions/50272399/three-js-2d-object-in-3d-space-by-vertices/50274103#50274103
-    var outerCoords = faceDefinition.outerBounds.bounds[0];
-    var outerPoints = getPoints(outerCoords);
+    var coordinates = faceDefinition.outerBounds.bounds[0];
+    var outerPoints = getPoints(coordinates);
 
     var _getProjectedPointsAn = getProjectedPointsAndQuaternion(outerPoints),
         tempOuterPoints = _getProjectedPointsAn.tempOuterPoints,
@@ -2064,6 +2086,10 @@ var IFCjs = (function (exports) {
     var allPoints = _toConsumableArray(outerPoints);
 
     if (hasHoles(faceDefinition)) punchHoles(faceDefinition, quaternion, allPoints, outerShape);
+    return createGeometry(outerShape, allPoints);
+  }
+
+  function createGeometry(outerShape, allPoints) {
     var shapeGeom = new THREE.ShapeGeometry(outerShape, 24);
     var mesh = new THREE.Mesh(shapeGeom);
     mesh.geometry.vertices = allPoints;
@@ -2096,60 +2122,93 @@ var IFCjs = (function (exports) {
       outerShape.holes.push(innerShape);
       allPoints.push.apply(allPoints, _toConsumableArray(innerPoints));
     });
-  } //To find the normal of the face it is necessary to ensure that:
-  // 1. the selected triangle of vertices is valid (they are not aligned)
-  // 2. the area of the selected triangle is big enough to increment the precission of the vector
-  // 3. the generated 2d surface has its points defined clockwise
+  } //To implement this algorithm successfully (see link above)
+  // the selected triangle of vertices needs to fulfill the following points to work:
+  // 1. It must be a valid triangle (its vertices are not aligned)
+  // 2. Its area should be as big as possible to increment the precission of its normal vector
+  // 3. The generated 2d surface has its points defined clockwise
 
 
   function getProjectedPointsAndQuaternion(points) {
-    var baseNormal = new THREE.Vector3(0, 0, 1);
-    var normal = new THREE.Vector3();
+    var triangles = getAllTriangles(points); //1
+
+    sortTrianglesByArea(triangles); //2
+
+    return getQuatAndPoints(triangles, points); //3
+  }
+
+  function getAllTriangles(points) {
     var triangles = [];
-    var index1 = 1,
-        index2 = 2;
+    var i = 1;
 
-    while (index2 < points.length) {
-      var triangle = new THREE.Triangle(points[index2], points[index1], points[0]);
-      var temp = new THREE.Vector3();
-      triangle.getNormal(temp); //1.
+    while (i + 1 < points.length) {
+      var _getTriangleVector = getTriangleVector(points, i),
+          vector = _getTriangleVector.vector,
+          triangle = _getTriangleVector.triangle;
 
-      if (temp.x != 0 || temp.y != 0 || temp.z != 0) {
-        triangles.push({
-          area: triangle.getArea(),
-          triangle: triangle
-        });
-      }
+      if (isVectorValid(vector)) triangles.push({
+        area: triangle.getArea(),
+        triangle: triangle
+      });
+      i++;
+    }
 
-      index1++;
-      index2++;
-    } //2.
+    return triangles;
+  }
 
+  function getTriangleVector(points, i) {
+    var triangle = new THREE.Triangle(points[i + 1], points[i], points[0]);
+    var vector = new THREE.Vector3();
+    triangle.getNormal(vector);
+    return {
+      vector: vector,
+      triangle: triangle
+    };
+  }
 
+  function sortTrianglesByArea(triangles) {
     triangles.sort(function (a, b) {
       return a.area > b.area ? 1 : b.area > a.area ? -1 : 0;
-    }).reverse(); //3.
+    }).reverse();
+  }
 
-    var selectedTriangle = 0;
-    var tempOuterPoints = [];
-    var quaternion = {};
-    var isClockWise = false;
+  function isVectorValid(vector) {
+    return vector.x != 0 || vector.y != 0 || vector.z != 0;
+  }
 
-    while (isClockWise === false) {
-      var tri = triangles[selectedTriangle];
-      tri.triangle.getNormal(normal);
-      quaternion = new THREE.Quaternion().setFromUnitVectors(normal, baseNormal);
-      tempOuterPoints = getTempPoints(points, quaternion);
-      var t = tempOuterPoints.map(function (p) {
-        return new THREE.Vector2(p.x, p.y);
-      });
-      isClockWise = THREE.ShapeUtils.isClockWise(t);
-      selectedTriangle++;
+  function getQuatAndPoints(triangles, points) {
+    var props = initializeProperties();
+
+    while (props.isClockWise === false) {
+      selectAnotherTriangle(props, points, triangles);
     }
 
     return {
-      tempOuterPoints: tempOuterPoints,
-      quaternion: quaternion
+      tempOuterPoints: props.tempOuterPoints,
+      quaternion: props.quaternion
+    };
+  }
+
+  function selectAnotherTriangle(props, points, triangles) {
+    var tri = triangles[props.selectedTriangle];
+    tri.triangle.getNormal(props.normal);
+    props.quaternion = new THREE.Quaternion().setFromUnitVectors(props.normal, props.baseNormal);
+    props.tempOuterPoints = getTempPoints(points, props.quaternion);
+    var projected = props.tempOuterPoints.map(function (point) {
+      return new THREE.Vector2(point.x, point.y);
+    });
+    props.isClockWise = THREE.ShapeUtils.isClockWise(projected);
+    props.selectedTriangle++;
+  }
+
+  function initializeProperties() {
+    return {
+      baseNormal: new THREE.Vector3(0, 0, 1),
+      normal: new THREE.Vector3(),
+      selectedTriangle: 0,
+      tempOuterPoints: [],
+      quaternion: {},
+      isClockWise: false
     };
   }
 
@@ -2234,7 +2293,7 @@ var IFCjs = (function (exports) {
     var curves = shape[namedProps.items][0][namedProps.elements];
     var result = new THREE.Object3D();
     result.children = _toConsumableArray(curves.map(function (e) {
-      return mapIfcGeometricPrimitive(e);
+      return mapCurve(e);
     }));
     return result;
   }
@@ -2802,42 +2861,63 @@ var IFCjs = (function (exports) {
   //          +-------+
   //
 
+  function applyBoolDifferences(baseMesh, subtractedMeshes) {
+    baseMesh.updateMatrix();
+    var operand1 = CSG.fromMesh(baseMesh);
+
+    for (var i = 0; i < subtractedMeshes.length; i++) {
+      var clippingMesh = subtractedMeshes[i];
+      clippingMesh.updateMatrix();
+      var operand2 = CSG.fromMesh(clippingMesh);
+      operand1 = operand1.subtract(operand2);
+    }
+
+    return operand1;
+  }
+
   function mapClipping(shape, product) {
-    var clippingReps = [];
-    var representation = shape[namedProps.items][0];
+    var _getClippingRepresent = getClippingRepresentations(shape),
+        clippingReps = _getClippingRepresent.clippingReps,
+        bodyRep = _getClippingRepresent.bodyRep;
 
-    while (representation[namedProps.ifcClass] == 'IfcBooleanClippingResult') {
-      clippingReps.push(representation[namedProps.secondOperand]);
-      representation = representation[namedProps.firstOperand];
-    }
+    var mainGeometry = getMappedGeometry(bodyRep, product);
+    var clippingGeometries = createClippingPlanes(clippingReps, product);
+    var booleanResult = applyBoolDifferences(mainGeometry, clippingGeometries);
+    return generateResultMesh(booleanResult, mainGeometry, clippingGeometries);
+  }
 
-    var mainBody = representation;
-    var wallGeom = getMappedGeometry(mainBody, product);
-    var clippingGeos = [];
-    clippingReps.forEach(function (clippingRep) {
-      return clippingGeos.push(createClippingPlane(clippingRep, product));
-    }); // Apply boolean operations usng CSGMesh
-    // Delete all geometry except for the final result
-
-    wallGeom.geometry.computeFaceNormals();
-    wallGeom.updateMatrix();
-    var bspA = CSG.fromMesh(wallGeom);
-
-    for (var i = 0; i < clippingGeos.length; i++) {
-      var clippingGeo = clippingGeos[i];
-      clippingGeo.updateMatrix();
-      var bspB = CSG.fromMesh(clippingGeo);
-      bspA = bspA.subtract(bspB);
-    }
-
-    var result = CSG.toMesh(bspA, wallGeom.matrix);
+  function generateResultMesh(booleanResult, mainGeometry, clippingGeometries) {
+    var result = CSG.toMesh(booleanResult, mainGeometry.matrix);
     result.geometry = new THREE.BufferGeometry().fromGeometry(result.geometry);
     result.material = new THREE.MeshPhongMaterial();
-    mainObject.remove(wallGeom);
-    clippingGeos.forEach(function (clippingGeo) {
+    mainObject.remove(mainGeometry);
+    clippingGeometries.forEach(function (clippingGeo) {
       return mainObject.remove(clippingGeo);
     });
     return result;
+  }
+
+  function getClippingRepresentations(shape) {
+    var clippingReps = [];
+    var bodyRep = shape[namedProps.items][0];
+
+    while (bodyRep[namedProps.ifcClass] == 'IfcBooleanClippingResult') {
+      clippingReps.push(bodyRep[namedProps.secondOperand]);
+      bodyRep = bodyRep[namedProps.firstOperand];
+    }
+
+    return {
+      clippingReps: clippingReps,
+      bodyRep: bodyRep
+    };
+  }
+
+  function createClippingPlanes(clippingRepresentations, product) {
+    var clippingGeometries = [];
+    clippingRepresentations.forEach(function (clippingRep) {
+      return clippingGeometries.push(createClippingPlane(clippingRep, product));
+    });
+    return clippingGeometries;
   }
 
   function createClippingPlane(clippingRep, product) {
@@ -2855,34 +2935,51 @@ var IFCjs = (function (exports) {
   }
 
   function mapIfcPolygonalBoundedHalfSpace(clippingRep, product) {
-    var orientation = clippingRep[namedProps.agreementFlag];
-    if (typeof orientation != "boolean") orientation = orientation.value;
-    var clippingGeom = createClippingBox(orientation);
-    var position = clippingRep[namedProps.baseSurface][namedProps.position];
-    trackLocalTransform(product, position, namedProps.transformOfClippingVolume);
-    applyTransformsTo(product, clippingGeom, namedProps.transformOfClippingVolume);
-    var points = clippingRep[namedProps.polygonalBoundary][namedProps.points].map(function (point) {
-      var coords = point[namedProps.coordinates];
-      return [-coords[0], -coords[1]];
-    });
-    var boundingGeom = createExtrusionsByPoints(points, 1000);
-    var boundPosition = clippingRep[namedProps.position];
-    trackLocalTransform(product, boundPosition, namedProps.transformOfClippingVolumeBound);
-    applyTransformsTo(product, boundingGeom, namedProps.transformOfClippingVolumeBound);
-    boundingGeom.position.z -= 500; // Apply boolean operations usng CSGMesh
-
-    clippingGeom.geometry.computeFaceNormals();
-    clippingGeom.updateMatrix();
-    var bspA = CSG.fromMesh(clippingGeom);
-    boundingGeom.updateMatrix();
-    var bspB = CSG.fromMesh(boundingGeom);
-    var geomResult = bspA.intersect(bspB);
-    var result = CSG.toMesh(geomResult, clippingGeom.matrix);
+    var clippingGeom = getClippingGeometry(clippingRep, product);
+    var boundingGeom = getBoundingGeometry(clippingRep, product);
+    var result = applyBoundingToGeometry(clippingGeom, boundingGeom);
     result.geometry = new THREE.BufferGeometry().fromGeometry(result.geometry);
     result.material = new THREE.MeshPhongMaterial();
     mainObject.remove(clippingGeom);
     mainObject.remove(boundingGeom);
     return result;
+  }
+
+  function applyBoundingToGeometry(clippingGeom, boundingGeom) {
+    var bspA = CSG.fromMesh(clippingGeom);
+    var bspB = CSG.fromMesh(boundingGeom);
+    var geomResult = bspA.intersect(bspB);
+    return CSG.toMesh(geomResult, clippingGeom.matrix);
+  }
+
+  function getClippingGeometry(clippingRep, product) {
+    var orientation = clippingRep[namedProps.agreementFlag];
+    if (typeof orientation != 'boolean') orientation = orientation.value;
+    var clippingGeom = createClippingBox(orientation);
+    var position = clippingRep[namedProps.baseSurface][namedProps.position];
+    trackLocalTransform(product, position, namedProps.transformOfClippingVolume);
+    applyTransformsTo(product, clippingGeom, namedProps.transformOfClippingVolume);
+    clippingGeom.geometry.computeFaceNormals();
+    clippingGeom.updateMatrix();
+    return clippingGeom;
+  }
+
+  function getBoundingGeometry(clippingRep, product) {
+    var points = getBoundingPoints(clippingRep);
+    var boundingGeom = createExtrusionsByPoints(points, 1000);
+    var boundPosition = clippingRep[namedProps.position];
+    trackLocalTransform(product, boundPosition, namedProps.transformOfClippingVolumeBound);
+    applyTransformsTo(product, boundingGeom, namedProps.transformOfClippingVolumeBound);
+    boundingGeom.position.z -= 500;
+    boundingGeom.updateMatrix();
+    return boundingGeom;
+  }
+
+  function getBoundingPoints(clippingRep) {
+    return clippingRep[namedProps.polygonalBoundary][namedProps.points].map(function (point) {
+      var coords = point[namedProps.coordinates];
+      return [-coords[0], -coords[1]];
+    });
   }
 
   var _geometryMap;
@@ -2923,11 +3020,13 @@ var IFCjs = (function (exports) {
 
   function getRepresentations(product) {
     getRepresentationValue(product);
-    if (product[namedProps.hasOpenings]) product[namedProps.hasOpenings].forEach(function (opening) {
-      getRepresentationValue(opening);
-    });
-    if (product[namedProps.hasSpatial]) product[namedProps.hasSpatial].forEach(function (spatial) {
-      getRepresentationValue(spatial);
+    getRepresentationOfItem(product[namedProps.hasOpenings]);
+    getRepresentationOfItem(product[namedProps.hasSpatial]);
+  }
+
+  function getRepresentationOfItem(items) {
+    if (items) items.forEach(function (item) {
+      return getRepresentationValue(item);
     });
   }
 
@@ -2942,86 +3041,103 @@ var IFCjs = (function (exports) {
 
   function mapRepresentations(product) {
     mapProductRepresentations(product);
-    if (product[namedProps.hasOpenings]) product[namedProps.hasOpenings].forEach(function (opening) {
-      mapProductRepresentations(opening);
-    });
-    if (product[namedProps.hasSpatial]) product[namedProps.hasSpatial].forEach(function (spatial) {
-      mapProductRepresentations(spatial);
+    mapRepresentationsOfItems(product[namedProps.hasOpenings]);
+    mapRepresentationsOfItems(product[namedProps.hasSpatial]);
+  }
+
+  function mapRepresentationsOfItems(items) {
+    if (items) items.forEach(function (item) {
+      return mapProductRepresentations(item);
     });
   }
 
   function mapProductRepresentations(product) {
     product[namedProps.geometry] = [];
     product[namedProps.geomRepresentations].forEach(function (representation) {
-      product[namedProps.geometry].push(getMappedGeometry(representation, product));
+      return product[namedProps.geometry].push(getMappedGeometry(representation, product));
     });
   }
 
-  function applyBooleanOperations(structured) {
+  function subtractOpenings(structured) {
     structured[structuredData.products].forEach(function (product) {
-      if (product[namedProps.hasOpenings]) {
-        try {
-          for (var i = 0; i < product[namedProps.geometry].length; i++) {
-            var geometryItem = product[namedProps.geometry][i];
-            var openings = product[namedProps.hasOpenings];
-
-            if (geometryItem.type === 'Mesh' && !geometryItem[namedProps.isBrep]) {
-              geometryItem.geometry.computeFaceNormals();
-              geometryItem.updateMatrix();
-              var bspA = CSG.fromMesh(geometryItem);
-
-              for (var _i = 0; _i < openings.length; _i++) {
-                var opening = openings[_i][namedProps.geometry][0];
-                opening.updateMatrix();
-                var bspB = CSG.fromMesh(opening);
-                bspA = bspA.subtract(bspB);
-              }
-
-              var result = CSG.toMesh(bspA, geometryItem.matrix);
-              result.geometry = new THREE.BufferGeometry().fromGeometry(result.geometry);
-
-              for (var _i2 = 0; _i2 < openings.length; _i2++) {
-                var _opening = openings[_i2][namedProps.geometry][0];
-                result.attach(_opening);
-              }
-
-              result.material = new THREE.MeshPhongMaterial();
-              result.attach.apply(result, _toConsumableArray(geometryItem.children));
-              mainObject.add(result);
-              mainObject.remove(geometryItem);
-              product[namedProps.geometry][i] = result;
-            }
-          }
-        } catch (e) {
-          console.log(product);
-          console.warn("Error with CSG operations: ", e);
-        }
+      try {
+        if (product[namedProps.hasOpenings]) applyBooleanOperation(product);
+      } catch (e) {
+        console.warn('Error with CSG operations with: ', product, e);
       }
     });
   }
 
+  function applyBooleanOperation(product) {
+    for (var i = 0; i < product[namedProps.geometry].length; i++) {
+      var geometryItem = product[namedProps.geometry][i];
+      if (geometryItem.type === 'Mesh' && !geometryItem[namedProps.isBrep]) product[namedProps.geometry][i] = applyBooleanOperationOnMesh(product, geometryItem);
+    }
+  }
+
+  function applyBooleanOperationOnMesh(product, geometry) {
+    var openings = getOpenings(product);
+    var resultGeom = applyBoolDifferences(geometry, openings);
+    var result = CSG.toMesh(resultGeom, geometry.matrix);
+    result.geometry = new THREE.BufferGeometry().fromGeometry(result.geometry);
+    result.material = new THREE.MeshPhongMaterial();
+    addResultToScene(geometry, openings, result);
+    return result;
+  }
+
+  function addResultToScene(geometryItem, openings, result) {
+    result.attach.apply(result, _toConsumableArray(openings));
+    result.attach.apply(result, _toConsumableArray(geometryItem.children));
+    mainObject.add(result);
+    mainObject.remove(geometryItem);
+  }
+
+  function getOpenings(product) {
+    var openingsReps = product[namedProps.hasOpenings];
+    var openings = [];
+
+    for (var i = 0; i < openingsReps.length; i++) {
+      openings.push(openingsReps[i][namedProps.geometry][0]);
+    }
+
+    return openings;
+  }
+
   var _materialsMap;
 
-  function applyMaterials(structured) {
-    structured[structuredData.products].forEach(function (product) {
-      product[namedProps.geometry].forEach(function (item) {
-        if (item.type === 'Mesh') item.material = getmaterial(product[namedProps.ifcClass]);
-        if (item.material && item.material.transparent === true) item.renderOrder = 1;
-      });
-      if (product[namedProps.hasOpenings]) product[namedProps.hasOpenings].forEach(function (opening) {
-        var openingMesh = opening[namedProps.geometry][0];
-        openingMesh.material = getmaterial(opening[namedProps.ifcClass]);
-      });
-      if (product[namedProps.hasSpatial]) product[namedProps.hasSpatial].forEach(function (spatial) {
-        var spatialMesh = spatial[namedProps.geometry][0];
-        spatialMesh.material = getmaterial(spatial[namedProps.ifcClass]);
-      });
-    });
-    structured[structuredData.spaces].forEach(function (space) {
-      space[namedProps.geometry].forEach(function (item) {
-        if (item.type === 'Mesh') item.material = getmaterial(space[namedProps.ifcClass]);
-      });
-    });
+  function getMaterial(ifcType) {
+    try {
+      return materialsMap[ifcTypes[ifcType]].material;
+    } catch (e) {
+      console.warn("The type ".concat(ifcType, " doesn't have a material implemented."));
+    }
+  }
+
+  function getLineColor(ifcType) {
+    return materialsMap[ifcTypes[ifcType]].lineColor;
+  }
+
+  function getDiffuseMat(color) {
+    return new THREE.MeshLambertMaterial(_objectSpread2({}, getBaseSettings(color)));
+  }
+
+  function getTransparentMat(color) {
+    var opacity = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.2;
+    return new THREE.MeshBasicMaterial(_objectSpread2(_objectSpread2({}, getBaseSettings(color)), {}, {
+      opacity: opacity,
+      transparent: true,
+      depthWrite: false
+    }));
+  }
+
+  function getBaseSettings(color) {
+    return {
+      color: color,
+      side: 2,
+      polygonOffset: true,
+      polygonOffsetFactor: 1,
+      polygonOffsetUnits: 1
+    };
   }
 
   var colors = {
@@ -3080,91 +3196,90 @@ var IFCjs = (function (exports) {
     lineColor: colors.darkBrown
   }), _materialsMap);
 
-  function getmaterial(ifcType) {
-    try {
-      return materialsMap[ifcTypes[ifcType]].material;
-    } catch (e) {
-      console.warn("The type ".concat(ifcType, " doesn't have a material implemented."));
-    }
-  }
-
-  function getLineColor(ifcType) {
-    return materialsMap[ifcTypes[ifcType]].lineColor;
-  }
-
-  function getTransparentMat(color) {
-    var opacity = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.2;
-    return new THREE.MeshBasicMaterial({
-      color: color,
-      side: 2,
-      polygonOffset: true,
-      polygonOffsetFactor: 1,
-      polygonOffsetUnits: 1,
-      opacity: opacity,
-      transparent: true,
-      depthWrite: false
+  function applyMaterials(structured) {
+    applyMaterialOnSpaces(structured);
+    structured[structuredData.products].forEach(function (product) {
+      applyMaterialOnMesh(product);
+      applyMaterialOnOpenings(product);
+      applyMaterialOnSubElements(product);
     });
   }
 
-  function getDiffuseMat(color) {
-    return new THREE.MeshLambertMaterial({
-      color: color,
-      side: 2,
-      polygonOffset: true,
-      polygonOffsetFactor: 1,
-      polygonOffsetUnits: 1
+  function applyMaterialOnSpaces(structured) {
+    structured[structuredData.spaces].forEach(function (space) {
+      return space[namedProps.geometry].forEach(function (item) {
+        return getMeshMaterial(item, space[namedProps.ifcClass]);
+      });
+    });
+  }
+
+  function applyMaterialOnMesh(product) {
+    product[namedProps.geometry].forEach(function (item) {
+      return getMeshMaterial(item, product[namedProps.ifcClass]);
+    });
+  }
+
+  function applyMaterialOnOpenings(product) {
+    applyMaterialOnItem(product[namedProps.hasOpenings]);
+  }
+
+  function applyMaterialOnSubElements(product) {
+    applyMaterialOnItem(product[namedProps.hasSpatial]);
+  }
+
+  function getMeshMaterial(item, ifcType) {
+    if (item.type === 'Mesh') item.material = getMaterial(ifcType);
+    if (item.material && item.material.transparent === true) item.renderOrder = 1;
+  }
+
+  function applyMaterialOnItem(items) {
+    if (items) items.forEach(function (prop) {
+      var mesh = prop[namedProps.geometry][0];
+      mesh.material = getMaterial(prop[namedProps.ifcClass]);
     });
   }
 
   function drawEdges(structured) {
-    var products = structured[structuredData.products];
-    products.forEach(function (product) {
-      product[namedProps.geometry].forEach(function (item) {
-        var ifcClass = product[namedProps.ifcClass];
+    structured[structuredData.products].forEach(function (product) {
+      generateEdgesOnProduct(product);
+      generateEdgesOnItems(product[namedProps.hasSpatial]);
+      generateEdgesOnItems(product[namedProps.hasOpenings]);
+    });
+  }
 
-        if (item.type === "Mesh" && ifcClass) {
-          var lineColor = getLineColor(ifcClass);
-          var geo = new THREE.EdgesGeometry(item.geometry);
-          var mat = new THREE.LineBasicMaterial({
-            color: lineColor
-          });
-          var wireframe = new THREE.LineSegments(geo, mat);
-          item.add(wireframe);
-          if (product[namedProps.hasOpenings]) product[namedProps.hasOpenings].forEach(function (opening) {
-            opening[namedProps.geometry].forEach(function (item) {
-              var geo2 = new THREE.EdgesGeometry(item.geometry);
-              var openingLineColor = getLineColor(opening[namedProps.ifcClass]);
-              var openingMat = new THREE.LineBasicMaterial({
-                color: openingLineColor
-              });
-              var wireframe2 = new THREE.LineSegments(geo2, openingMat);
-              item.add(wireframe2);
-            });
-          });
-        }
-      });
-      if (product[namedProps.hasSpatial]) product[namedProps.hasSpatial].forEach(function (spatial) {
-        spatial[namedProps.geometry].forEach(function (item) {
-          var geo3 = new THREE.EdgesGeometry(item.geometry);
-          var spatialLineColor = getLineColor(spatial[namedProps.ifcClass]);
-          var spatialMat = new THREE.LineBasicMaterial({
-            color: spatialLineColor
-          });
-          var wireframe3 = new THREE.LineSegments(geo3, spatialMat);
-          item.add(wireframe3);
-        });
+  function generateEdgesOnProduct(product) {
+    product[namedProps.geometry].forEach(function (item) {
+      var ifcClass = product[namedProps.ifcClass];
+      if (item.type === 'Mesh' && ifcClass) createEdgesOfItem(ifcClass, item);
+    });
+  }
+
+  function generateEdgesOnItems(items) {
+    if (items) items.forEach(function (item) {
+      return item[namedProps.geometry].forEach(function (geometry) {
+        return createEdgesOfItem(item[namedProps.ifcClass], geometry);
       });
     });
+  }
+
+  function createEdgesOfItem(ifcClass, item) {
+    var lineColor = getLineColor(ifcClass);
+    var geometry = new THREE.EdgesGeometry(item.geometry);
+    var material = new THREE.LineBasicMaterial({
+      color: lineColor
+    });
+    var wireframe = new THREE.LineSegments(geometry, material);
+    item.add(wireframe);
   }
 
   function applyScale(structured) {
     var units = structured[structuredData.units][namedProps.units];
     var scale = getUnitScale(units);
-    applyScaleOnObjects(scale, structured);
+    if (scale === 1) return;
+    applyScaleOnItems(scale, structured);
   }
 
-  function applyScaleOnObjects(scale, structured) {
-    if (scale === 1) return;
+  function applyScaleOnItems(scale, structured) {
     var axis = new THREE.Object3D();
     mainObject.add(axis);
     var geometries = getALlGeometries(structured);
@@ -3224,7 +3339,7 @@ var IFCjs = (function (exports) {
     constructGeometries(structured);
     applyTransformations(structured);
     drawEdges(structured);
-    applyBooleanOperations(structured);
+    subtractOpenings(structured);
     applyMaterials(structured);
     applyScale(structured);
     return structured;

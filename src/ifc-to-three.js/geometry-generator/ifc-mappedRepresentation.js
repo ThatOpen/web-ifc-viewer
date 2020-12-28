@@ -1,6 +1,5 @@
 import { defaultValue, namedProps as n } from '../../utils/global-constants.js';
-import { applyTransformsTo } from '../geometry-transformer/local-transform-applier.js';
-import { trackLocalTransform } from '../geometry-transformer/local-transform-tracker.js';
+import { applyTransformsToGeometry } from '../geometry-transformer/local-transform-applier.js';
 import { mainObject } from '../scene/mainObject.js';
 import { getMappedGeometry } from './geometry-map.js';
 
@@ -8,7 +7,7 @@ function mapMappedRepresentation(shape, product) {
   const representation = shape[n.items][0];
   const target = getMappingTarget(representation);
   const mapped = getMappingSource(product, representation);
-  applyTransformation(product, target, mapped);
+  applyTransformsToGeometry(mapped, target);
   return mapped;
 }
 
@@ -24,7 +23,7 @@ function getMappingSource(product, representation) {
   const geometry = isGeometryGenerated(source)
     ? getGeneratedGeometry(source)
     : generateGeometry(source, product);
-  applyTransformation(product, origin, geometry);
+  applyTransformsToGeometry(geometry, origin);
   return geometry;
 }
 
@@ -42,11 +41,6 @@ function isGeometryGenerated(source) {
 
 function getGeneratedGeometry(source) {
   return mappingSources[source[n.expressId]].clone();
-}
-
-function applyTransformation(product, origin, geometry) {
-  trackLocalTransform(product, origin, n.transformOfMappedItem);
-  applyTransformsTo(product, geometry, n.transformOfMappedItem);
 }
 
 //The mapping target defines the transformation of the mapped items

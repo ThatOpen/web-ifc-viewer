@@ -1,11 +1,10 @@
-import { trackLocalTransform } from "./local-transform-tracker.js";
-import { applyTransforms } from "./local-transform-applier.js";
+import { trackLocalTransform } from './local-transform-tracker.js';
+import { applyTransforms } from './local-transform-applier.js';
 import {
   defaultValue as def,
   namedProps as n,
-  structuredData as s,
-} from "../../utils/global-constants.js";
-
+  structuredData as s
+} from '../../utils/global-constants.js';
 function applyTransformations(structured) {
   structured[s.products].forEach((product) => {
     applyTransform(product);
@@ -13,31 +12,27 @@ function applyTransformations(structured) {
 }
 
 function applyTransform(product) {
-  getTransform(product, getPlacement(product));
+  getTransforms(product, getPlacement(product));
   applyTransforms(product, n.transform);
+  applyTransformToItems(product[n.hasOpenings]);
+  applyTransformToItems(product[n.hasSpatial]);
+}
 
-  if (product[n.hasOpenings])
-    product[n.hasOpenings].forEach((opening) => {
-      getTransform(opening, getPlacement(opening));
-      applyTransforms(opening, n.transform);
-    });
-
-    if (product[n.hasSpatial])
-    product[n.hasSpatial].forEach((spatial) => {
-      getTransform(spatial, getPlacement(spatial));
-      applyTransforms(spatial, n.transform);
+function applyTransformToItems(items) {
+  if (items)
+    items.forEach((item) => {
+      getTransforms(item, getPlacement(item));
+      applyTransforms(item, n.transform);
     });
 }
 
 //Gets all the transforms (local origins) recursively
-
-function getTransform(product, objPlacement) {
+function getTransforms(product, objPlacement) {
   try {
     const placement = objPlacement[n.relativePlacement];
     trackLocalTransform(product, placement, n.transform);
-    if (objPlacement[n.placementRelTo] != def) {
-      getTransform(product, objPlacement[n.placementRelTo]);
-    }
+    if (objPlacement[n.placementRelTo] != def)
+      getTransforms(product, objPlacement[n.placementRelTo]);
   } catch (e) {
     console.warn(e);
   }
