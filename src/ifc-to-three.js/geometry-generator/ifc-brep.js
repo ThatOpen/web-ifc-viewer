@@ -5,8 +5,21 @@ import { createFace } from './three-shapeGeometry.js';
 function mapBrep(shape, product) {
   const representations = shape[n.items];
   const definitions = [];
+  representations.forEach((r) => definitions.push(...getGeometry(r[n.outer][n.cfsFaces])));
+
+  return createAndJoinFaces(definitions);
+}
+
+function mapSurfaceModel(shape, product) {
+  const faceSets = shape[n.items][0][n.fbsmFaces];
+  const definitions = [];
+  faceSets.forEach((faceSet) => definitions.push(...getGeometry(faceSet[n.cfsFaces])));
+
+  return createAndJoinFaces(definitions);
+}
+
+function createAndJoinFaces(definitions) {
   const faces = [];
-  representations.forEach((r) => definitions.push(...getBrepGeometry(r)));
   definitions.forEach((definition) => faces.push(createFace(definition)));
   return joinAllFaces(faces);
 }
@@ -22,10 +35,9 @@ function joinAllFaces(faces) {
   return mesh;
 }
 
-function getBrepGeometry(representation) {
+function getGeometry(faceSet) {
   const faces = [];
-  const ifcFaces = representation[n.outer][n.cfsFaces];
-  ifcFaces.forEach((face) => faces.push(getAllBounds(face)));
+  faceSet.forEach((face) => faces.push(getAllBounds(face)));
   return faces;
 }
 
@@ -61,4 +73,4 @@ function filterBounds(face, type) {
   return face[n.bounds].filter((e) => e[n.ifcClass] === getName(type));
 }
 
-export { mapBrep };
+export { mapBrep, mapSurfaceModel };

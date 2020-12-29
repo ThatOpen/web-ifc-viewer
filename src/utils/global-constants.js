@@ -14,6 +14,7 @@ const namedProps = {
   elements: "Elements",
   extDirection: "ExtrudedDirection",
   expressId: "_ExpressId",
+  fbsmFaces: "FbsmFaces",
   firstOperand: "FirstOperand",
   geometry: "_Geometry",
   geomRepresentations: "_GeometryRepresentations",
@@ -101,6 +102,7 @@ const geometryTypes = {
   geometricSet: "GeometricSet",
   clipping: "Clipping",
   extrudedAreaSolid: "IfcExtrudedAreaSolid",
+  surfaceModel: "SurfaceModel"
 };
 
 const ifcBoolValues = {
