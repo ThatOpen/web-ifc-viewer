@@ -98,6 +98,10 @@ const materialsMap = {
     material: getDiffuseMat(colors.white),
     lineColor: colors.darkBrown
   },
+  [t.IfcFlowTerminal]: {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.grey
+  },
   [t.IfcWindow]: {
     material: getTransparentMat(colors.lightBlue, 0.2),
     lineColor: colors.darkBlue
@@ -113,7 +117,7 @@ const materialsMap = {
   [t.IfcBuildingElementProxy]: {
     material: getDiffuseMat(colors.white),
     lineColor: colors.darkBrown
-  }
+  },
 };
 
 export { getMaterial, getLineColor };
