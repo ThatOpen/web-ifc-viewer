@@ -1,12 +1,14 @@
 const ifcTypes = {
   //Building elements
   IfcBuildingElementProxy: "IFCBUILDINGELEMENTPROXY",
+  IfcBeam: "IFCBEAM",
   IfcColumn: "IFCCOLUMN",
   IfcCovering: "IFCCOVERING",
   IfcCurtainWall: "IFCCURTAINWALL",
   IfcDoor: "IFCDOOR",
   IfcEquipmentElement: "IFCEQUIPMENTELEMENT",
   IfcFlowTerminal: "IFCFLOWTERMINAL",
+  IfcFooting: "IFCFOOTING",
   IfcFurnishingElement: "IFCFURNISHINGELEMENT",
   IfcMappedItem: "IFCMAPPEDITEM",
   IfcMember: "IFCMEMBER",
@@ -65,6 +67,9 @@ const ifcTypes = {
   IfcRectangleProfileDef: "IFCRECTANGLEPROFILEDEF",
   IfcShapeRepresentation: "IFCSHAPEREPRESENTATION",
   IfcTrimmedCurve: "IFCTRIMMEDCURVE",
+  IfcGeometricSet: "IFCGEOMETRICSET",
+  IfcArbitraryOpenProfileDef: "IFCARBITRARYOPENPROFILEDEF",
+  IfcSurfaceOfLinearExtrusion: "IFCSURFACEOFLINEAREXTRUSION",
   //Identities
   IfcApplication: "IFCAPPLICATION",
   IfcOrganization: "IFCORGANIZATION",
@@ -89,6 +94,12 @@ const ifcTypes = {
   IfcSurfaceStyle: "IFCSURFACESTYLE",
   IfcSurfaceStyleRendering: "IFCSURFACESTYLERENDERING",
   IfcSurfaceStyleShading: "IFCSURFACESTYLESHADING",
+  IfcCurveStyleFontPattern: "IFCCURVESTYLEFONTPATTERN",
+  IfcCurveStyle: "IFCCURVESTYLE",
+  IfcFillAreaStyle: "IFCFILLAREASTYLE",
+  IfcFillAreaStyleHatching: "IFCFILLAREASTYLEHATCHING",
+  IfcCurveStyleFont: "IFCCURVESTYLEFONT",
+  IfcDraughtingPredefinedCurveFont: "IFCDRAUGHTINGPREDEFINEDCURVEFONT",
   //Properties
   IfcBuildingElementProxyType: "IFCBUILDINGELEMENTPROXYTYPE",
   IfcColumnType: "IFCCOLUMNTYPE",
@@ -112,6 +123,7 @@ const ifcTypes = {
   IfcWindowLiningProperties: "IFCWINDOWLININGPROPERTIES",
   //Quantities
   IfcQuantityArea: "IFCQUANTITYAREA",
+  IfcElementQuantity: "IFCELEMENTQUANTITY",
   // Relationships
   IfcRelAggregates: "IFCRELAGGREGATES",
   IfcRelAssignsToGroup: "IFCRELASSIGNSTOGROUP",

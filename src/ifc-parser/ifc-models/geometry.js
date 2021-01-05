@@ -177,6 +177,26 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcSurfaceOfLinearExtrusion),
+  SweptCurve: d.id,
+  Position: d.id,
+  ExtrudedDirection: d.id,
+  Depth: d.number
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcArbitraryOpenProfileDef),
+  ProfileType: d.enum,
+  ProfileName: d.text,
+  Curve: d.id
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcGeometricSet),
+  Elements: d.id
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcGeometricCurveSet),
   [n.elements]: d.idSet,
 });
