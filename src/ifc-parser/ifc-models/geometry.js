@@ -193,7 +193,7 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcGeometricSet),
-  Elements: d.id
+  Elements: d.idSet
 });
 
 newObject({

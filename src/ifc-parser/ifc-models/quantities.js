@@ -18,5 +18,5 @@ newObject({
   Name: d.text,
   Description: d.text,
   MethodOfMeasurement: d.text,
-  Quantities: d.id
+  Quantities: d.idSet
 });

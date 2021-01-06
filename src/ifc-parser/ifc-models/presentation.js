@@ -28,7 +28,7 @@ newObject({
 newObject({
   [n.ifcClass]: getName(t.IfcFillAreaStyle),
   Name: d.text,
-  FillStyles: d.id
+  FillStyles: d.idSet
 });
 
 newObject({
