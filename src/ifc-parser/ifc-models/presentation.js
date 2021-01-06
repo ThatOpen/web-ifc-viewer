@@ -34,7 +34,7 @@ newObject({
 newObject({
   [n.ifcClass]: getName(t.IfcFillAreaStyleHatching),
   HatchLineAppearance: d.id,
-  StartOfNextHatchLine: d.id,
+  StartOfNextHatchLine: d.value,
   PointOfReferenceHatchLine: d.id,
   PatternStart: d.id,
   HatchLineAngle: d.number
@@ -43,7 +43,7 @@ newObject({
 newObject({
   [n.ifcClass]: getName(t.IfcCurveStyleFont),
   Name: d.text,
-  PatternList: d.id
+  PatternList: d.idSet
 });
 
 newObject({
