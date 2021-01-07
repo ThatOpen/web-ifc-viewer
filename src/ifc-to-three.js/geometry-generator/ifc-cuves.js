@@ -22,7 +22,8 @@ function mapPolyline(shape){
 
 function mapTrimmedCurve(shape){
   //TODO
-  console.log(shape);
+  console.log("TODO:", shape);
+  return new THREE.Object3D();
 }
 
 export { mapCurve };

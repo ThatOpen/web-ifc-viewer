@@ -1,56 +1,56 @@
-import { newObject } from "../parser/parser-map.js";
-import { namedProps as n } from "../../utils/global-constants.js";
-import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
-import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
+import { newObject } from '../parser/parser-map.js';
+import { namedProps as n } from '../../utils/global-constants.js';
+import { ifcDataTypes as d } from '../../utils/ifc-data-types.js';
+import { getName, ifcTypes as t } from '../../utils/ifc-types.js';
 
 newObject({
   [n.ifcClass]: getName(t.IfcAxis2Placement2D),
   [n.location]: d.id,
-  [n.refDirection]: d.id,
+  [n.refDirection]: d.id
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcAxis2Placement3D),
   [n.location]: d.id,
   [n.axis]: d.id,
-  [n.refDirection]: d.id,
+  [n.refDirection]: d.id
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcBooleanClippingResult),
   [n.operator]: d.enum,
   [n.firstOperand]: d.id,
-  [n.secondOperand]: d.id,
+  [n.secondOperand]: d.id
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcEllipse),
   [n.position]: d.id,
   [n.semiAxis1]: d.number,
-  [n.semiAxis2]: d.number,
+  [n.semiAxis2]: d.number
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcCartesianPoint),
-  [n.coordinates]: d.numSet,
+  [n.coordinates]: d.numSet
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcConnectionSurfaceGeometry),
   SurfaceOnRelatingElement: d.id,
-  SurfaceOnRelatedElement: d.id,
+  SurfaceOnRelatedElement: d.id
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcCurveBoundedPlane),
   BasisSurface: d.id,
   OuterBoundary: d.id,
-  InnerBoundaries: d.idSet,
+  InnerBoundaries: d.idSet
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcDirection),
-  [n.dirRatios]: d.numSet,
+  [n.dirRatios]: d.numSet
 });
 
 newObject({
@@ -58,12 +58,12 @@ newObject({
   [n.sweptArea]: d.id,
   [n.position]: d.id,
   [n.extDirection]: d.id,
-  [n.depth]: d.number,
+  [n.depth]: d.number
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcPlane),
-  Position: d.id,
+  Position: d.id
 });
 
 newObject({
@@ -71,19 +71,19 @@ newObject({
   [n.baseSurface]: d.id,
   [n.agreementFlag]: d.bool,
   [n.position]: d.id,
-  [n.polygonalBoundary]: d.id,
+  [n.polygonalBoundary]: d.id
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcPolyline),
-  [n.points]: d.idSet,
+  [n.points]: d.idSet
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcProductDefinitionShape),
   Description: d.text,
   [n.representationType]: d.text,
-  [n.representations]: d.idSet,
+  [n.representations]: d.idSet
 });
 
 newObject({
@@ -92,7 +92,7 @@ newObject({
   ProfileName: d.text,
   [n.position]: d.id,
   [n.xDim]: d.number,
-  [n.yDim]: d.number,
+  [n.yDim]: d.number
 });
 
 newObject({
@@ -100,7 +100,7 @@ newObject({
   ProfileType: d.enum,
   ProfileName: d.text,
   [n.position]: d.id,
-  [n.radius]: d.number,
+  [n.radius]: d.number
 });
 
 newObject({
@@ -109,7 +109,7 @@ newObject({
   ProfileName: d.text,
   [n.position]: d.id,
   [n.radius]: d.number,
-  WallThickness: d.number,
+  WallThickness: d.number
 });
 
 newObject({
@@ -117,14 +117,14 @@ newObject({
   ProfileType: d.enum,
   ProfileName: d.text,
   [n.outerCurve]: d.id,
-  [n.innerCurves]: d.idSet,
+  [n.innerCurves]: d.idSet
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcArbitraryClosedProfileDef),
   ProfileType: d.enum,
   ProfileName: d.text,
-  [n.outerCurve]: d.id,
+  [n.outerCurve]: d.id
 });
 
 newObject({
@@ -132,39 +132,39 @@ newObject({
   ContextOfItems: d.id,
   RepresentationIdentifier: d.text,
   [n.representationType]: d.text,
-  [n.items]: d.idSet,
+  [n.items]: d.idSet
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcFaceOuterBound),
   [n.bound]: d.id,
-  [n.orientation]: d.bool,
+  [n.orientation]: d.bool
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcFaceBound),
   [n.bound]: d.id,
-  [n.orientation]: d.bool,
+  [n.orientation]: d.bool
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcFace),
-  [n.bounds]: d.idSet,
+  [n.bounds]: d.idSet
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcPolyLoop),
-  [n.polygon]: d.idSet,
+  [n.polygon]: d.idSet
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcClosedShell),
-  [n.cfsFaces]: d.idSet,
+  [n.cfsFaces]: d.idSet
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcFacetedBrep),
-  [n.outer]: d.id,
+  [n.outer]: d.id
 });
 
 newObject({
@@ -173,62 +173,73 @@ newObject({
   [n.axis2]: d.id,
   [n.localOrigin]: d.id,
   [n.scale]: d.number,
-  [n.axis3]: d.id,
+  [n.axis3]: d.id
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcGeometricCurveSet),
-  [n.elements]: d.idSet,
+  [n.elements]: d.idSet
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcConnectedFaceSet),
-  CfsFaces: d.idSet,
+  CfsFaces: d.idSet
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcFaceBasedSurfaceModel),
-  FbsmFaces: d.idSet,
+  FbsmFaces: d.idSet
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcHalfSpaceSolid),
   [n.baseSurface]: d.id,
-  [n.agreementFlag]: d.bool,
+  [n.agreementFlag]: d.bool
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcCompositeCurveSegment),
   Transition: d.enum,
   SameSense: d.bool,
-  ParentCurve: d.id,
+  [n.parentCurve]: d.id
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcCircle),
   Position: d.id,
-  Radius: d.number,
+  Radius: d.number
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcTrimmedCurve),
-  BasisCurve: d.id,
-  Trim1: d.valueSet,
-  Trim2: d.valueSet,
+  [n.basisCurve]: d.id,
+  [n.trim1]: d.valueSet,
+  [n.trim2]: d.valueSet,
   SenseAgreement: d.bool,
-  MasterRepresentation: d.enum,
+  MasterRepresentation: d.enum
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcCompositeCurve),
-  Segments: d.idSet,
-  SelfIntersect: d.bool,
+  [n.segments]: d.idSet,
+  SelfIntersect: d.bool
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcBoundingBox),
-  Corner: d.id,
-  XDim: d.number,
-  YDim: d.number,
-  ZDim: d.number,
+  [n.corner]: d.id,
+  [n.xDim]: d.number,
+  [n.yDim]: d.number,
+  [n.zDim]: d.number
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcGeometricSet),
+  Elements: d.idSet
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcPlanarExtent),
+  SizeInX: d.number,
+  SizeInY: d.number
 });

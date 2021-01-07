@@ -150,3 +150,15 @@ newObject({
   Description: d.text,
   ObjectType: d.text,
 });
+
+newObject({
+  [n.ifcClass]: getName(t.IfcRelAssignsToActor),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  RelatedObjects : d.idSet,
+  RelatedObjectsType: d.enum,
+  RelatingActor: d.id,
+  ActingRole: d.id,
+});

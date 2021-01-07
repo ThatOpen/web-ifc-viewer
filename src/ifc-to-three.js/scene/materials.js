@@ -17,7 +17,9 @@ function applyMaterialOnSpaces(structured) {
 }
 
 function applyMaterialOnMesh(product) {
-  product[n.geometry].forEach((item) => getMeshMaterial(item, product[n.ifcClass]));
+  product[n.geometry].forEach((item) => {
+      getMeshMaterial(item, product[n.ifcClass]);
+  });
 }
 
 function applyMaterialOnOpenings(product) {

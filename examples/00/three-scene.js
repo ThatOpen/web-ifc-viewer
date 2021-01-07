@@ -1,12 +1,7 @@
 //Scene
 var scene = new THREE.Scene();
 //Camera
-var camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = 5;
 camera.position.y = 5;
 camera.position.x = 5;
@@ -14,7 +9,7 @@ camera.up = new THREE.Vector3(0, 0, 1);
 camera.lookAt(new THREE.Vector3(0, 0, 0));
 
 //Renderer
-const canvas = document.querySelector("#c");
+const canvas = document.querySelector('#c');
 const width = window.innerWidth;
 const height = window.innerHeight;
 const pixelRatio = window.devicePixelRatio;
@@ -86,17 +81,29 @@ function resizeRendererToDisplaySize(renderer) {
 var animate = function () {
   requestAnimationFrame(animate);
 
-   controls.update();
-  
+  controls.update();
+
   resizeRendererToDisplaySize(renderer);
 
   renderer.render(scene, camera);
 };
 
 function isMobile() {
-  return "ontouchstart" in document.documentElement;
+  return 'ontouchstart' in document.documentElement;
 }
 
 animate();
 
 export { scene };
+
+//Test
+
+// const shape = new THREE.Shape();
+// shape.moveTo(0, 0);
+// shape.lineTo(0, 1);
+// shape.lineTo(1, 1);
+// shape.absarc (0.7, 0.3, 0.3, 0, -Math.PI /2 , true);
+// const extrudeSettings = { depth: 1, bevelEnabled: false, steps: 1 };
+// const geometry = new THREE.ExtrudeBufferGeometry( shape, extrudeSettings );
+// const mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial({side: 2}) );
+// scene.add(mesh);

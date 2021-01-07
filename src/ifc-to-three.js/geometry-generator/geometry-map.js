@@ -5,6 +5,8 @@ import { mapMappedRepresentation } from './ifc-mappedRepresentation.js';
 import { mapBrep, mapSurfaceModel } from './ifc-brep.js';
 import { mapGeometricSet } from './ifc-geometricSet.js';
 import { mapClipping } from './ifc-clipping.js';
+import { mapBoundingBox } from './ifc-boundingBox.js';
+import { mapAnnotation } from './ifc-annotation.js';
 
 const geometryMap = {
   [g.curve2D]: mapCurve2D,
@@ -14,7 +16,9 @@ const geometryMap = {
   [g.geometricSet]: mapGeometricSet,
   [g.clipping]: mapClipping,
   [g.extrudedAreaSolid]: mapExtrudedAreaSolid,
-  [g.surfaceModel]: mapSurfaceModel
+  [g.surfaceModel]: mapSurfaceModel,
+  [g.boundingBox]: mapBoundingBox,
+  [g.annotation2D]: mapAnnotation
 };
 
 function getMappedGeometry(representation, product) {
