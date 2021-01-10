@@ -12,6 +12,46 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcCurveStyleFontPattern),
+  VisibleSegmentLength: d.number,
+  InvisibleSegmentLength: d.number
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcCurveStyle),
+  Name: d.text,
+  CurveFont: d.id,
+  CurveWidth: d.text,
+  CurveColour: d.id
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcFillAreaStyle),
+  Name: d.text,
+  FillStyles: d.idSet
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcFillAreaStyleHatching),
+  HatchLineAppearance: d.id,
+  StartOfNextHatchLine: d.value,
+  PointOfReferenceHatchLine: d.id,
+  PatternStart: d.id,
+  HatchLineAngle: d.number
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcCurveStyleFont),
+  Name: d.text,
+  PatternList: d.idSet
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcDraughtingPredefinedCurveFont),
+  Name: d.text
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcMaterialDefinitionRepresentation),
   Name: d.text,
   Description: d.text,

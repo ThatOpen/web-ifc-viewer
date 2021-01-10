@@ -22,6 +22,31 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcBeam),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ObjectType: d.text,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
+  Tag: d.text
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcFooting),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ObjectType: d.text,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
+  Tag: d.text,
+  PredefinedType: d.enum
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcWallStandardCase),
   GlobalId: d.text,
   OwnerHistory: d.id,

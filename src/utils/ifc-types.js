@@ -1,12 +1,14 @@
 const ifcTypes = {
   //Building elements
   IfcBuildingElementProxy: "IFCBUILDINGELEMENTPROXY",
+  IfcBeam: "IFCBEAM",
   IfcColumn: "IFCCOLUMN",
   IfcCovering: "IFCCOVERING",
   IfcCurtainWall: "IFCCURTAINWALL",
   IfcDoor: "IFCDOOR",
   IfcEquipmentElement: "IFCEQUIPMENTELEMENT",
   IfcFlowTerminal: "IFCFLOWTERMINAL",
+  IfcFooting: "IFCFOOTING",
   IfcFurnishingElement: "IFCFURNISHINGELEMENT",
   IfcMappedItem: "IFCMAPPEDITEM",
   IfcMember: "IFCMEMBER",
@@ -67,6 +69,9 @@ const ifcTypes = {
   IfcRectangleProfileDef: "IFCRECTANGLEPROFILEDEF",
   IfcShapeRepresentation: "IFCSHAPEREPRESENTATION",
   IfcTrimmedCurve: "IFCTRIMMEDCURVE",
+  IfcGeometricSet: "IFCGEOMETRICSET",
+  IfcArbitraryOpenProfileDef: "IFCARBITRARYOPENPROFILEDEF",
+  IfcSurfaceOfLinearExtrusion: "IFCSURFACEOFLINEAREXTRUSION",
   //Identities
   IfcApplication: "IFCAPPLICATION",
   IfcOrganization: "IFCORGANIZATION",
