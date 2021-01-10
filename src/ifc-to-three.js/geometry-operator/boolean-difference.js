@@ -7,7 +7,7 @@ function applyBoolDifferences(baseMesh, subtractedMeshes) {
     const clippingMesh = subtractedMeshes[i];
     clippingMesh.updateMatrix();
     const operand2 = CSG.fromMesh(clippingMesh);
-    operand1 = operand1.subtract(operand2);
+    operand1 = (operand2.polygons.length > 0) ? operand1.subtract(operand2) : operand1;
   }
   return operand1;
 }
