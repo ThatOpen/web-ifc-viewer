@@ -1,11 +1,10 @@
-import { mapRectangleProfileExtrusion } from "./ifc-profileRectangle.js";
+import { mapRectangleProfileExtrusion } from "./extrusions/rectangle-profile-extrusion.js";
 import { ifcTypes as t } from "../../utils/ifc-types.js";
-import { mapArbitraryProfileExtrusion } from "./ifc-profileArbitrary.js";
 import { applyTransformsToGeometry } from "../geometry-transformer/local-transform-applier.js";
 import { namedProps as n } from "../../utils/global-constants.js";
-import { mapArbitraryProfileWithVoidsExtrusion } from "./ifc-profileArbitraryWithVoids.js";
 import { mainObject } from "../scene/mainObject.js";
-import { mapCircleProfileExtrusion } from "./ifc-profileCircle.js";
+import { mapArbitraryProfileExtrusion, mapArbitraryProfileWithVoidsExtrusion } from "./extrusions/arbitrary-profile-extrusion.js";
+import { mapCircleHollowProfileExtrusion, mapCircleProfileExtrusion } from "./extrusions/circle-profile-extrusion.js";
 
 function mapSweptSolid(shape, product) {
   const items = [];
@@ -45,6 +44,7 @@ function getExtrusionProps(extruded) {
 const extrusionTypes = {
   [t.IfcRectangleProfileDef]: mapRectangleProfileExtrusion,
   [t.IfcCircleProfileDef]: mapCircleProfileExtrusion,
+  [t.IfcCircleHollowProfileDef]: mapCircleHollowProfileExtrusion,
   [t.IfcArbitraryClosedProfileDef]: mapArbitraryProfileExtrusion,
   [t.IfcArbitraryProfileDefWithVoids]: mapArbitraryProfileWithVoidsExtrusion,
 };

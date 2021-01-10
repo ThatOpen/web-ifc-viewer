@@ -2,7 +2,7 @@ import { namedProps as n } from '../../utils/global-constants.js';
 import { getName, ifcTypes as t } from '../../utils/ifc-types.js';
 import { createFace } from './three-shapeGeometry.js';
 
-function mapBrep(shape, product) {
+function mapBrep(shape) {
   const representations = shape[n.items];
   const definitions = [];
   representations.forEach((r) => definitions.push(...getGeometry(r[n.outer][n.cfsFaces])));
@@ -10,7 +10,7 @@ function mapBrep(shape, product) {
   return createAndJoinFaces(definitions);
 }
 
-function mapSurfaceModel(shape, product) {
+function mapSurfaceModel(shape) {
   const faceSets = shape[n.items][0][n.fbsmFaces];
   const definitions = [];
   faceSets.forEach((faceSet) => definitions.push(...getGeometry(faceSet[n.cfsFaces])));

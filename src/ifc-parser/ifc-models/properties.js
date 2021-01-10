@@ -206,6 +206,34 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcAirTerminalType),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ApplicableOccurrence: d.text,
+  HasPropertySets: d.idSet,
+  RepresentationMaps: d.idSet,
+  Tag: d.text,
+  ElementType: d.text,
+  PredefinedType: d.enum,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcLightFixtureType),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ApplicableOccurrence: d.text,
+  HasPropertySets: d.idSet,
+  RepresentationMaps: d.idSet,
+  Tag: d.text,
+  ElementType: d.text,
+  PredefinedType: d.enum,
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcDoorLiningProperties),
   GlobalId: d.text,
   OwnerHistory: d.id,

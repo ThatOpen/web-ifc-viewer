@@ -12,11 +12,27 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcQuantityLength),
+  Name: d.text,
+  Description: d.text,
+  Unit: d.id,
+  LengthValue: d.number,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcQuantityVolume),
+  Name: d.text,
+  Description: d.text,
+  Unit: d.id,
+  VolumeValue: d.number,
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcElementQuantity),
   GlobalId: d.text,
   OwnerHistory: d.id,
   Name: d.text,
   Description: d.text,
   MethodOfMeasurement: d.text,
-  Quantities: d.idSet
+  Quantities: d.idSet,
 });

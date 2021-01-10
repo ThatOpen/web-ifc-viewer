@@ -1,6 +1,6 @@
-import { createExtrusionsByPoints } from "./three-extrusion.js";
-import { namedProps as n } from "../../utils/global-constants.js";
-import { applyTransformsToGeometry } from "../geometry-transformer/local-transform-applier.js";
+import { createExtrusionsByPoints } from "../three-extrusion.js";
+import { namedProps as n } from "../../../utils/global-constants.js";
+import { applyTransformsToGeometry } from "../../geometry-transformer/local-transform-applier.js";
 
 function mapRectangleProfileExtrusion(extruded, product) {
   getRectProfileDimensions(extruded);

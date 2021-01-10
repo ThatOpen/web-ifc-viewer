@@ -5,10 +5,12 @@ const namedProps = {
   axis2: "Axis2",
   axis3: "Axis3",
   baseSurface: "BaseSurface",
+  basisCurve: "BasisCurve",
   bound: "Bound",
   bounds: "Bounds",
   cfsFaces: "CfsFaces",
   coordinates: "Coordinates",
+  corner: "Corner",
   depth: "Depth",
   dirRatios: "DirectionRatios",
   elements: "Elements",
@@ -38,6 +40,7 @@ const namedProps = {
   orientation: "Orientation",
   outer: "Outer",
   outerCurve: "OuterCurve",
+  parentCurve: "ParentCurve",
   pivots: "Pivots",
   placementRelTo: "PlacementRelTo",
   points: "Points",
@@ -63,16 +66,20 @@ const namedProps = {
   representationType: "RepresentationType",
   scale: "Scale",
   secondOperand: "SecondOperand",
-  semiAxis1: "SEMIAXIS1",
-  semiAxis2: "SEMIAXIS2",
+  segments: "Segments",
+  semiAxis1: "SemiAxis1",
+  semiAxis2: "SemiAxis2",
   sweptArea: "SweptArea",
   transform: "_Transformation",
+  trim1: "Trim1",
+  trim2: "Trim2",
   trueGeometry: "_trueGeometry",
   undefined: "undefined",
   units: "Units",
   unitType: "UnitType",
   xDim: "XDim",
   yDim: "YDim",
+  zDim: "ZDim",
 };
 
 const itemsReaderValues = {
@@ -95,6 +102,7 @@ const ifcValueType = {
 };
 
 const geometryTypes = {
+  annotation2D: "Annotation2D",
   curve2D: "Curve2D",
   sweptSolid: "SweptSolid",
   mappedRepresentation: "MappedRepresentation",
@@ -102,7 +110,8 @@ const geometryTypes = {
   geometricSet: "GeometricSet",
   clipping: "Clipping",
   extrudedAreaSolid: "IfcExtrudedAreaSolid",
-  surfaceModel: "SurfaceModel"
+  surfaceModel: "SurfaceModel",
+  boundingBox: "BoundingBox",
 };
 
 const ifcBoolValues = {

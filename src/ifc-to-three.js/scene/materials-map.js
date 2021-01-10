@@ -9,7 +9,11 @@ function getMaterial(ifcType) {
 }
 
 function getLineColor(ifcType) {
-  return materialsMap[t[ifcType]].lineColor;
+  try{
+    return materialsMap[t[ifcType]].lineColor;
+  } catch {
+    return materialsMap[t.IfcWall];
+  }
 }
 
 function getDiffuseMat(color) {
@@ -63,6 +67,18 @@ const materialsMap = {
     lineColor: colors.grey
   },
   [t.IfcSlab]: {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.grey
+  },
+  [t.IfcCovering]: {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.grey
+  },
+  [t.IfcRoof]: {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.grey
+  },
+  [t.IfcEquipmentElement]: {
     material: getDiffuseMat(colors.white),
     lineColor: colors.grey
   },

@@ -6,6 +6,7 @@ import "../ifc-models/identities.js";
 import "../ifc-models/materials.js";
 import "../ifc-models/presentation.js";
 import "../ifc-models/properties.js";
+import "../ifc-models/project.js";
 import "../ifc-models/relationships.js";
 import "../ifc-models/quantities.js";
 import "../ifc-models/systems.js";

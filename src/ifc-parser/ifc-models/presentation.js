@@ -1,14 +1,14 @@
-import { newObject } from "../parser/parser-map.js";
-import { namedProps as n } from "../../utils/global-constants.js";
-import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
-import { getName, ifcTypes as t } from "../../utils/ifc-types.js";
+import { newObject } from '../parser/parser-map.js';
+import { namedProps as n } from '../../utils/global-constants.js';
+import { ifcDataTypes as d } from '../../utils/ifc-data-types.js';
+import { getName, ifcTypes as t } from '../../utils/ifc-types.js';
 
 newObject({
   [n.ifcClass]: getName(t.IfcColourRgb),
   Name: d.text,
   Red: d.number,
   Green: d.number,
-  Blue: d.number,
+  Blue: d.number
 });
 
 newObject({
@@ -21,7 +21,7 @@ newObject({
   [n.ifcClass]: getName(t.IfcCurveStyle),
   Name: d.text,
   CurveFont: d.id,
-  CurveWidth: d.text,
+  CurveWidth: d.value,
   CurveColour: d.id
 });
 
@@ -47,7 +47,7 @@ newObject({
 });
 
 newObject({
-  [n.ifcClass]: getName(t.IfcDraughtingPredefinedCurveFont),
+  [n.ifcClass]: getName(t.IfcDraughtingPreDefinedCurveFont),
   Name: d.text
 });
 
@@ -56,19 +56,19 @@ newObject({
   Name: d.text,
   Description: d.text,
   [n.representations]: d.idSet,
-  RepresentedMaterial: d.id,
+  RepresentedMaterial: d.id
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcPresentationStyleAssignment),
-  Styles: d.idSet,
+  Styles: d.idSet
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcStyledItem),
   Item: d.id,
   Styles: d.idSet,
-  Name: d.id,
+  Name: d.id
 });
 
 newObject({
@@ -76,14 +76,14 @@ newObject({
   ContextOfItems: d.id,
   RepresentationIdentifier: d.text,
   [n.representationType]: d.text,
-  [n.items]: d.idSet,
+  [n.items]: d.idSet
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcSurfaceStyle),
   Name: d.text,
   Side: d.enum,
-  Styles: d.idSet,
+  Styles: d.idSet
 });
 
 newObject({
@@ -96,13 +96,13 @@ newObject({
   ReflectionColour: d.value,
   SpecularColour: d.value,
   SpecularHighlight: d.value,
-  ReflectanceMethod: d.enum,
+  ReflectanceMethod: d.enum
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcRepresentationMap),
   [n.mappingOrigin]: d.id,
-  [n.mappedRepresentation]: d.id,
+  [n.mappedRepresentation]: d.id
 });
 
 newObject({
@@ -110,10 +110,49 @@ newObject({
   Name: d.text,
   Description: d.text,
   AssignedItems: d.idSet,
-  Identifier: d.text,
+  Identifier: d.text
 });
 
 newObject({
   [n.ifcClass]: getName(t.IfcSurfaceStyleShading),
-  SurfaceColour: d.id,
+  SurfaceColour: d.id
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcTextStyleFontModel),
+  Name: d.text,
+  FontFamily: d.textSet,
+  FontStyle: d.text,
+  FontVariant: d.text,
+  FontWeight: d.number,
+  FontSize: d.value
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcTextStyleForDefinedFont),
+  Colour: d.id,
+  BackgroundColour: d.id
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcTextStyle),
+  Name: d.text,
+  TextCharacterAppearance: d.id,
+  TextStyle: d.id,
+  TextFontStyle: d.id
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcTextLiteralWithExtent),
+  Literal: d.text,
+  Placement: d.id,
+  Path: d.enum,
+  Extent: d.id,
+  BoxAlignment: d.text
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcAnnotationFillArea),
+  OuterBoundary: d.id,
+  InnerBoundaries: d.idSet,
 });
