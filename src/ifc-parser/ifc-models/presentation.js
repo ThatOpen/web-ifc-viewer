@@ -21,7 +21,7 @@ newObject({
   [n.ifcClass]: getName(t.IfcCurveStyle),
   Name: d.text,
   CurveFont: d.id,
-  CurveWidth: d.text,
+  CurveWidth: d.value,
   CurveColour: d.id
 });
 
@@ -47,7 +47,7 @@ newObject({
 });
 
 newObject({
-  [n.ifcClass]: getName(t.IfcDraughtingPredefinedCurveFont),
+  [n.ifcClass]: getName(t.IfcDraughtingPreDefinedCurveFont),
   Name: d.text
 });
 
@@ -116,46 +116,6 @@ newObject({
 newObject({
   [n.ifcClass]: getName(t.IfcSurfaceStyleShading),
   SurfaceColour: d.id
-});
-
-newObject({
-  [n.ifcClass]: getName(t.IfcDraughtingPreDefinedCurveFont),
-  CurvePattern: d.text
-});
-
-newObject({
-  [n.ifcClass]: getName(t.IfcCurveStyle),
-  Name: d.text,
-  CurveFont: d.id,
-  CurveWidth: d.value,
-  CurveColour: d.id
-});
-
-newObject({
-  [n.ifcClass]: getName(t.IfcFillAreaStyleHatching),
-  HatchLineAppearance: d.id,
-  StartOfNextHatchLine: d.value,
-  PointOfReferenceHatchLine: d.id,
-  PatternStart: d.id,
-  HatchLineAngle: d.number
-});
-
-newObject({
-  [n.ifcClass]: getName(t.IfcFillAreaStyle),
-  Name: d.text,
-  FillStyles: d.idSet
-});
-
-newObject({
-  [n.ifcClass]: getName(t.IfcCurveStyleFontPattern),
-  VisibleSegmentLength: d.number,
-  InvisibleSegmentLength: d.number
-});
-
-newObject({
-  [n.ifcClass]: getName(t.IfcCurveStyleFont),
-  Name: d.text,
-  PatternList: d.idSet
 });
 
 newObject({

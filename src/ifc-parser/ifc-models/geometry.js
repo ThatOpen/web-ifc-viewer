@@ -254,11 +254,6 @@ newObject({
 });
 
 newObject({
-  [n.ifcClass]: getName(t.IfcGeometricSet),
-  Elements: d.idSet
-});
-
-newObject({
   [n.ifcClass]: getName(t.IfcPlanarExtent),
   SizeInX: d.number,
   SizeInY: d.number
