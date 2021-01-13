@@ -17,7 +17,7 @@ function createCircularExtrusion(radius, depth) {
 
 function createExtrusion(shape, depth, dir = [0, 0, 1]) {
   const material = new THREE.MeshPhongMaterial({ color: 0xffffff });
-  const extrudeSettings = getExtrudeSettings(depth);
+  const extrudeSettings = getExtrudeSettings(depth, dir);
   const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
   applyExtrusionDirection(dir, geometry);
   const mesh = new THREE.Mesh(geometry, material);
@@ -25,14 +25,18 @@ function createExtrusion(shape, depth, dir = [0, 0, 1]) {
   return mesh;
 }
 
-function getExtrudeSettings(depth) {
-  const path = getVerticalDirection(depth);
+function getExtrudeSettings(depth, dir) {
+  const path = getVerticalDirection(depth, dir);
   return {
     bevelEnabled: false,
     steps: 1,
     extrudePath: path
   };
 }
+
+//To define the direction of the extrusion:
+// x and y are applied as a skew operation (transform matrix)
+// z is applied in the vertical direction
 
 function applyExtrusionDirection(dir, geometry){
   const matrix = getTransformMatrix(dir);
@@ -50,10 +54,10 @@ function getTransformMatrix(dir){
                       0,    0,    0,   1);
 }       
 
-function getVerticalDirection(depth) {
+function getVerticalDirection(depth, dir) {
   const v1 = new THREE.Vector3(0, 0, 0);
-  const v2 = new THREE.Vector3(0, 0, depth);
+  const v2 = new THREE.Vector3(0, 0, depth * dir[2]);
   return new THREE.LineCurve3(v1, v2);
 }
 
-export { createExtrusionsByPoints, createCircularExtrusion };
+export { createExtrusionsByPoints, createCircularExtrusion, createExtrusion };

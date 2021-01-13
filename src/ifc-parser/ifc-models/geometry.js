@@ -235,7 +235,7 @@ newObject({
   [n.basisCurve]: d.id,
   [n.trim1]: d.valueSet,
   [n.trim2]: d.valueSet,
-  SenseAgreement: d.bool,
+  [n.senseAgreement]: d.bool,
   MasterRepresentation: d.enum
 });
 

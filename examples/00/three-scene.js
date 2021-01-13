@@ -7,6 +7,7 @@ camera.position.y = 5;
 camera.position.x = 5;
 camera.up = new THREE.Vector3(0, 0, 1);
 camera.lookAt(new THREE.Vector3(0, 0, 0));
+scene.add(camera);
 
 //Renderer
 const canvas = document.querySelector('#c');
@@ -36,17 +37,10 @@ scene.add(grid);
 //Light
 const color = 0xffffff;
 const highIntensity = 1;
-const lowIntensity = 0.5;
 const light = new THREE.DirectionalLight(color, highIntensity);
-const light2 = new THREE.DirectionalLight(color, lowIntensity);
-const light3 = new THREE.DirectionalLight(color, highIntensity);
-const light4 = new THREE.AmbientLight(0x303030);
-light.position.set(-2, 2, 4);
-light2.position.set(4, 3, -2);
-light3.position.set(4, -3, -2);
-scene.add(light);
-scene.add(light2);
-scene.add(light3);
+const light4 = new THREE.AmbientLight(0x707070);
+light.position.set(2, 0, 4);
+camera.add(light);
 scene.add(light4);
 
 // smooth Zoom
@@ -95,15 +89,3 @@ function isMobile() {
 animate();
 
 export { scene };
-
-//Test
-
-// const shape = new THREE.Shape();
-// shape.moveTo(0, 0);
-// shape.lineTo(0, 1);
-// shape.lineTo(1, 1);
-// shape.absarc (0.7, 0.3, 0.3, 0, -Math.PI /2 , true);
-// const extrudeSettings = { depth: 1, bevelEnabled: false, steps: 1 };
-// const geometry = new THREE.ExtrudeBufferGeometry( shape, extrudeSettings );
-// const mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial({side: 2}) );
-// scene.add(mesh);
