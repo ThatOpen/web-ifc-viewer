@@ -17,11 +17,11 @@ function mapCircleHollowProfileExtrusion(extruded) {
 }
 
 function getProperties(extruded) {
-  return{
+  return {
     position: extruded.profile[n.position],
     radius: extruded.profile[n.radius],
-    thickness: extruded.profile[n.wallThickness],
-  } 
+    thickness: extruded.profile[n.wallThickness]
+  };
 }
 
 export { mapCircleProfileExtrusion, mapCircleHollowProfileExtrusion };
