@@ -78,6 +78,7 @@ const namedProps = {
   undefined: "undefined",
   units: "Units",
   unitType: "UnitType",
+  wallThickness: "WallThickness",
   xDim: "XDim",
   yDim: "YDim",
   zDim: "ZDim",

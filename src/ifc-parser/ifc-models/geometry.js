@@ -109,7 +109,7 @@ newObject({
   ProfileName: d.text,
   [n.position]: d.id,
   [n.radius]: d.number,
-  WallThickness: d.number
+  [n.wallThickness]: d.number
 });
 
 newObject({

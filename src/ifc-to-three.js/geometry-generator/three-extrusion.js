@@ -6,13 +6,39 @@ function createExtrusionsByPoints(points, depth, dir = [0, 0, 1]) {
   return createExtrusion(shape, depth, dir);
 }
 
-function createCircularExtrusion(radius, depth) {
-  const geometry = new THREE.CylinderGeometry(radius, radius, depth, 64);
-  const mesh = new THREE.Mesh(geometry);
-  mesh.rotation.x = Math.PI / 2;
-  mesh.position.z = depth / 2;
-  mesh.updateMatrix();
-  return mesh;
+function createCircularExtrusion(radius, depth, dir = [0, 0, 1], thickness) {
+  const segments = 36;
+  const outerShape = createCircularShape(radius, segments);
+  if(thickness){
+    const innerShape = createCircularShape(radius - thickness, segments);
+    outerShape.holes.push(innerShape);
+  }
+  return createExtrusion(outerShape, depth, (dir = [0, 0, 1]));
+}
+
+function createTubularExtrusion(radius, depth, dir = [0, 0, 1], thickness) {
+  return createCircularExtrusion(radius, depth, dir, thickness)
+}
+
+function createCircularShape(radius, segments) {
+  const coordinates = getCircleCoordinates(radius, segments);
+  const shape = new THREE.Shape();
+  shape.moveTo(...coordinates[0]);
+  coordinates.shift;
+  coordinates.forEach((point) => shape.lineTo(...point));
+  return shape;
+}
+
+function getCircleCoordinates(radius, steps) {
+  const coords = [];
+  for (let i = 0; i < steps; i++) {
+    coords.push([
+      radius * Math.cos(2 * Math.PI * (i / steps)),
+      radius * Math.sin(2 * Math.PI * (i / steps))
+    ]);
+  }
+  coords.push([...coords[0]]);
+  return coords;
 }
 
 function createExtrusion(shape, depth, dir = [0, 0, 1]) {
@@ -38,21 +64,25 @@ function getExtrudeSettings(depth, dir) {
 // x and y are applied as a skew operation (transform matrix)
 // z is applied in the vertical direction
 
-function applyExtrusionDirection(dir, geometry){
+function applyExtrusionDirection(dir, geometry) {
   const matrix = getTransformMatrix(dir);
   geometry.applyMatrix4(matrix);
 }
 
-function getTransformMatrix(dir){
+function getTransformMatrix(dir) {
   const matrix = new THREE.Matrix4();
   const direction = new THREE.Vector3(dir[0], dir[1], dir[2]);
-  const Syx = 0, Sxy = 0, Sxz = 0, Syz = 0; 
-  const Szx = direction.y, Szy = direction.x;
-  return matrix.set(  1,  Syx,  Szx,   0, 
-                    Sxy,    1,  Szy,   0, 
-                    Sxz,  Syz,    1,   0, 
-                      0,    0,    0,   1);
-}       
+  const Syx = 0,
+    Sxy = 0,
+    Sxz = 0,
+    Syz = 0;
+  const Szx = direction.y,
+    Szy = direction.x;
+  return matrix.set(   1, Syx,  Szx,  0, 
+                     Sxy,   1,  Szy,  0, 
+                     Sxz, Syz,    1,  0, 
+                       0,   0,    0,  1);
+}
 
 function getVerticalDirection(depth, dir) {
   const v1 = new THREE.Vector3(0, 0, 0);
@@ -60,4 +90,9 @@ function getVerticalDirection(depth, dir) {
   return new THREE.LineCurve3(v1, v2);
 }
 
-export { createExtrusionsByPoints, createCircularExtrusion, createExtrusion };
+export {
+  createExtrusionsByPoints,
+  createCircularExtrusion,
+  createTubularExtrusion,
+  createExtrusion
+};
