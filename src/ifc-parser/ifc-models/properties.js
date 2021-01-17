@@ -234,6 +234,32 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcSystemFurnitureElementType),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ApplicableOccurrence: d.text,
+  HasPropertySets: d.idSet,
+  RepresentationMaps: d.idSet,
+  Tag: d.text,
+  ElementType: d.text,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcDistributionElementType),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ApplicableOccurrence: d.text,
+  HasPropertySets: d.idSet,
+  RepresentationMaps: d.idSet,
+  Tag: d.text,
+  ElementType: d.text,
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcDoorLiningProperties),
   GlobalId: d.text,
   OwnerHistory: d.id,

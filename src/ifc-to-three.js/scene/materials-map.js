@@ -1,4 +1,5 @@
 import { ifcTypes as t } from '../../utils/ifc-types.js';
+import { getTransformOfGeometry } from '../geometry-transformer/local-transform-tracker.js';
 
 function getMaterial(ifcType) {
   try {
@@ -50,6 +51,7 @@ function getBaseSettings(color) {
 const colors = {
   black: 0x000000,
   brown: 0xc2893a,
+  red: 0xff0000,
   grey: 0x606060,
   darkBrown: 0x5c3d1e,
   darkBlue: 0x23395d,
@@ -63,6 +65,10 @@ const materialsMap = {
     lineColor: colors.grey
   },
   [t.IfcWallStandardCase]: {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.grey
+  },
+  [t.IfcSite]: {
     material: getDiffuseMat(colors.white),
     lineColor: colors.grey
   },
@@ -128,7 +134,7 @@ const materialsMap = {
   },
   [t.IfcOpeningElement]: {
     material: getTransparentMat(colors.lightBlue, 0),
-    lineColor: colors.grey
+    lineColor: colors.black
   },
   [t.IfcBuildingElementProxy]: {
     material: getDiffuseMat(colors.white),

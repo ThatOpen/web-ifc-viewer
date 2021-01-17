@@ -31,6 +31,18 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcIShapeProfileDef),
+  ProfileType: d.enum,
+  ProfileName: d.text,
+  Position: d.id,
+  OverallWidth: d.number,
+  OverallDepth: d.number,
+  WebThickness: d.number,
+  FlangeThickness: d.number,
+  FilletRadius: d.number
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcCartesianPoint),
   [n.coordinates]: d.numSet
 });
