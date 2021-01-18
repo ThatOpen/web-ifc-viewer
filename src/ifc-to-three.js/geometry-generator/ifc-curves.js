@@ -2,6 +2,10 @@ import { createLine } from "./three-lines.js";
 import { namedProps as n } from "../../utils/global-constants.js";
 import { ifcTypes as t } from "../../utils/ifc-types.js";
 
+function mapCurve2D(shape) {
+  return mapCurve(shape[n.items][0]);
+}
+
 function mapCurve(shape){
   const ifcClass = shape[n.ifcClass].toUpperCase();
   return curve2DMap[ifcClass](shape);
@@ -26,4 +30,4 @@ function mapTrimmedCurve(shape){
   return new THREE.Object3D();
 }
 
-export { mapCurve };
+export { mapCurve, mapCurve2D };

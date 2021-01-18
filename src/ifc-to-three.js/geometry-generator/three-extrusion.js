@@ -1,15 +1,15 @@
-function createExtrusionsByPoints(points, depth, dir = [0, 0, 1]) {
-  //Profile
+function createExtrusionsByPoints(points, depth, dir = [0, 0, 1], holes) {
   const shapePoints = [];
   points.forEach((e) => shapePoints.push(new THREE.Vector3(e[1], -e[0])));
   const shape = new THREE.Shape(shapePoints);
+  if (holes) holes.forEach((hole) => shape.holes.push(hole));
   return createExtrusion(shape, depth, dir);
 }
 
 function createCircularExtrusion(radius, depth, dir = [0, 0, 1], thickness) {
   const segments = 36;
   const outerShape = createCircularShape(radius, segments);
-  if(thickness){
+  if (thickness) {
     const innerShape = createCircularShape(radius - thickness, segments);
     outerShape.holes.push(innerShape);
   }
@@ -17,7 +17,7 @@ function createCircularExtrusion(radius, depth, dir = [0, 0, 1], thickness) {
 }
 
 function createTubularExtrusion(radius, depth, dir = [0, 0, 1], thickness) {
-  return createCircularExtrusion(radius, depth, dir, thickness)
+  return createCircularExtrusion(radius, depth, dir, thickness);
 }
 
 function createCircularShape(radius, segments) {
@@ -78,10 +78,10 @@ function getTransformMatrix(dir) {
     Syz = 0;
   const Szx = direction.y,
     Szy = direction.x;
-  return matrix.set(   1, Syx,  Szx,  0, 
-                     Sxy,   1,  Szy,  0, 
-                     Sxz, Syz,    1,  0, 
-                       0,   0,    0,  1);
+    return matrix.set(   1, Syx,  Szx,  0, 
+                       Sxy,   1,  Szy,  0, 
+                       Sxz, Syz,    1,  0, 
+                         0,   0,    0,  1);
 }
 
 function getVerticalDirection(depth, dir) {

@@ -1,5 +1,5 @@
 import { namedProps as n } from "../../utils/global-constants.js";
-import { mapCurve } from "./ifc-cuves.js";
+import { mapCurve } from "./ifc-curves.js";
 
 function mapGeometricSet(shape) {
   const curves = shape[n.items][0][n.elements];

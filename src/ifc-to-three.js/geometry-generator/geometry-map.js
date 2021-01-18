@@ -1,5 +1,5 @@
 import { geometryTypes as g, namedProps as n } from '../../utils/global-constants.js';
-import { mapCurve2D } from './ifc-curve2d.js';
+import { mapCurve2D } from './ifc-curves.js';
 import { mapExtrudedAreaSolid, mapSweptSolid } from './ifc-sweptSolid.js';
 import { mapMappedRepresentation } from './ifc-mappedRepresentation.js';
 import { mapBrep, mapSurfaceModel } from './ifc-brep.js';

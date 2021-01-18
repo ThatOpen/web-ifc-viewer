@@ -1,38 +1,75 @@
 import { createExtrusion, createExtrusionsByPoints } from '../three-extrusion.js';
 import { ifcTypes as t } from '../../../utils/ifc-types.js';
 import { namedProps as n, ifcUnitsValue as i } from '../../../utils/global-constants.js';
-import {scene} from '../../../../examples/00/three-scene.js'
+import { scene } from '../../../../examples/00/three-scene.js';
 
-function mapArbitraryProfileExtrusion(extruded) {
-  return mapExtrusionByTypeOfProfile(extruded);
+function mapArbitraryProfileExtrusion(props) {
+  return mapExtrusionByTypeOfProfile(props);
 }
 
-function mapArbitraryProfileWithVoidsExtrusion(extruded) {
-  // getInnerVoids(extruded);
-  return mapExtrusionByTypeOfProfile(extruded);
+function mapArbitraryProfileWithVoidsExtrusion(props) {
+    props.holes = getInnerVoids(props);
+    return mapExtrusionByTypeOfProfile(props);
 }
 
-function mapExtrusionByTypeOfProfile(extruded) {
-  const typeOfProfile = extruded.profile[n.outerCurve][n.ifcClass].toUpperCase();
-  return extrusionCurvesMap[typeOfProfile](extruded);
+function getInnerVoids(props) {
+  const shapes = [];
+  const innerCurvesRep = props.profile[n.innerCurves];
+  innerCurvesRep.forEach((curveRep) => {
+    const typeOfProfile = curveRep[n.ifcClass].toUpperCase();
+    shapes.push(extrusionCurvesMap[typeOfProfile].shape(curveRep));
+  });
+  return shapes;
+}
+
+function mapExtrusionByTypeOfProfile(props) {
+  const typeOfProfile = props.profile[n.outerCurve][n.ifcClass].toUpperCase();
+  return extrusionCurvesMap[typeOfProfile].extrusion(props);
 }
 
 const extrusionCurvesMap = {
-  [t.IfcPolyline]: mapPolylineExtrusion,
-  [t.IfcCompositeCurve]: mapCompositeCurveExtrusion
+  [t.IfcPolyline]: { extrusion: mapPolylineExtrusion, shape: mapPolylineShape },
+  [t.IfcCompositeCurve]: { extrusion: mapCompositeCurveExtrusion, shape: mapCompositeCurveShape }
 };
 
-function mapPolylineExtrusion(extruded) {
-  const points = getArbitraryProfilePoints(extruded);
-  return createExtrusionsByPoints(points, extruded.depth);
+function mapPolylineShape(shapeRepresentation) {
+  const points = getShapePoints(shapeRepresentation[n.points]);
+  const shape = new THREE.Shape();
+  shape.moveTo(...points[0]);
+  points.shift();
+  points.forEach((point) => shape.lineTo(...point));
+  return shape;
 }
 
-function mapCompositeCurveExtrusion(extruded) {
+function getShapePoints(pointsRepresentation) {
+  return pointsRepresentation.map((point) => {
+    const coords = point[n.coordinates];
+    return [-coords[1], coords[0]];
+  });
+}
+
+function mapPolylineExtrusion(props) {
+  const profileRepresentation = props.profile;
+  const pointsRepresentation = profileRepresentation[n.outerCurve][n.points];
+  const points = getExtrusionPoints(pointsRepresentation);
+  return createExtrusionsByPoints(points, props.depth, props.direction, props.holes);
+}
+
+function mapCompositeCurveShape(shapeRepresentation) {
   const shape = new THREE.Shape();
-  const segmentsRepresentation = extruded.profile[n.outerCurve][n.segments];
+  const segmentsRepresentation = shapeRepresentation[n.segments];
   segmentsRepresentation.forEach((curve) => mapCompositeCurveSegment(shape, curve));
   resetFirstCompositeCurve();
-  const extrusion = createExtrusion(shape, extruded.depth, extruded.direction);
+  return shape;
+}
+
+function mapCompositeCurveExtrusion(props) {
+  const shape = new THREE.Shape();
+  const segmentsRepresentation = props.profile[n.outerCurve][n.segments];
+  segmentsRepresentation.forEach((curve) => mapCompositeCurveSegment(shape, curve));
+  resetFirstCompositeCurve();
+  if (props.holes) props.holes.forEach((hole) => shape.holes.push(hole));
+  const extrusion = createExtrusion(shape, props.depth, props.direction);
   extrusion.rotation.z += Math.PI / 2;
   extrusion.updateMatrix();
   return extrusion;
@@ -68,7 +105,7 @@ const trimmedCurvesMap = {
   [t.IfcCircle]: mapTrimmedCircleCurve
 };
 
-//Three.js draw shapes continuously 
+//Three.js draw shapes continuously
 //(the last point of the current curve is the closest to the first point of the next curve)
 //But circles in IFC doesn't follow this pattern necessarily
 //This function computes the closest point of the next arc
@@ -124,23 +161,11 @@ function getDistanceBetweenPoints(point1, point2) {
   return Math.sqrt(a * a + b * b);
 }
 
-function getArbitraryProfilePoints(extruded) {
-  const profileRepresentation = extruded.profile;
-  const pointsRepresentation = profileRepresentation[n.outerCurve][n.points];
-  return getPoints(pointsRepresentation);
-}
-
-function getPoints(pointsRepresentation) {
+function getExtrusionPoints(pointsRepresentation) {
   return pointsRepresentation.map((point) => {
     const coords = point[n.coordinates];
     return [-coords[0], -coords[1]];
   });
-}
-
-function getInnerVoids(extruded) {
-  //TODO
-  console.log('TODO:', extruded);
-  return new THREE.Object3D();
 }
 
 //Three.js needs to know the first point of the first curve to create a shape
