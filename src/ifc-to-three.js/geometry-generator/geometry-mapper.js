@@ -46,8 +46,11 @@ function mapRepresentationsOfItems(items) {
 
 function mapProductRepresentations(product) {
   product[n.geometry] = [];
-  product[n.geomRepresentations].forEach((representation) =>
-    product[n.geometry].push(getMappedGeometry(representation, product))
+  product[n.geomRepresentations].forEach((representation) =>{
+    const generatedGeometry = getMappedGeometry(representation, product);
+    generatedGeometry._Data = product;
+    product[n.geometry].push(generatedGeometry);
+  }
   );
 }
 

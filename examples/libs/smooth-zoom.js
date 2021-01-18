@@ -346,9 +346,9 @@
 
     // Mouse buttons
     this.mouseButtons = {
-      ORBIT: THREE.MOUSE.LEFT,
-      ZOOM: THREE.MOUSE.MIDDLE,
-      PAN: THREE.MOUSE.RIGHT,
+      ORBIT: THREE.MOUSE.RIGHT,
+      ZOOM: THREE.MOUSE,
+      PAN: THREE.MOUSE.MIDDLE,
     };
 
     ////////////
