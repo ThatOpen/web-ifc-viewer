@@ -191,15 +191,18 @@ var IFCjs = (function (exports) {
     axis2: "Axis2",
     axis3: "Axis3",
     baseSurface: "BaseSurface",
+    basisCurve: "BasisCurve",
     bound: "Bound",
     bounds: "Bounds",
     cfsFaces: "CfsFaces",
     coordinates: "Coordinates",
+    corner: "Corner",
     depth: "Depth",
     dirRatios: "DirectionRatios",
     elements: "Elements",
     extDirection: "ExtrudedDirection",
     expressId: "_ExpressId",
+    fbsmFaces: "FbsmFaces",
     firstOperand: "FirstOperand",
     geometry: "_Geometry",
     geomRepresentations: "_GeometryRepresentations",
@@ -223,6 +226,7 @@ var IFCjs = (function (exports) {
     orientation: "Orientation",
     outer: "Outer",
     outerCurve: "OuterCurve",
+    parentCurve: "ParentCurve",
     pivots: "Pivots",
     placementRelTo: "PlacementRelTo",
     points: "Points",
@@ -248,21 +252,22 @@ var IFCjs = (function (exports) {
     representationType: "RepresentationType",
     scale: "Scale",
     secondOperand: "SecondOperand",
-    semiAxis1: "SEMIAXIS1",
-    semiAxis2: "SEMIAXIS2",
+    segments: "Segments",
+    senseAgreement: "SenseAgreement",
+    semiAxis1: "SemiAxis1",
+    semiAxis2: "SemiAxis2",
     sweptArea: "SweptArea",
     transform: "_Transformation",
-    transformedGeometry: "_TransformedGeometry",
-    transformOfExtrusion: "_TransformationOfExtrusion",
-    transformOfClippingVolume: "_TransformationOfClippingVolume",
-    transformOfClippingVolumeBound: "_TransformationOfClippingVolumeBound",
-    transformOfMappedItem: "_TransformOfMappedItem",
+    trim1: "Trim1",
+    trim2: "Trim2",
     trueGeometry: "_trueGeometry",
     undefined: "undefined",
     units: "Units",
     unitType: "UnitType",
+    wallThickness: "WallThickness",
     xDim: "XDim",
-    yDim: "YDim"
+    yDim: "YDim",
+    zDim: "ZDim"
   };
   var itemsReaderValues = {
     expressId: "expressId",
@@ -273,6 +278,10 @@ var IFCjs = (function (exports) {
     type: "type",
     value: "value"
   };
+  var ifcUnitsValue = {
+    value: "Value",
+    unit: "IfcUnit"
+  };
   var ifcValueType = {
     number: "Number",
     text: "Text",
@@ -281,13 +290,16 @@ var IFCjs = (function (exports) {
     singleNumber: "SingleNumber"
   };
   var geometryTypes = {
+    annotation2D: "Annotation2D",
     curve2D: "Curve2D",
     sweptSolid: "SweptSolid",
     mappedRepresentation: "MappedRepresentation",
     brep: "Brep",
     geometricSet: "GeometricSet",
     clipping: "Clipping",
-    extrudedAreaSolid: "IfcExtrudedAreaSolid"
+    extrudedAreaSolid: "IfcExtrudedAreaSolid",
+    surfaceModel: "SurfaceModel",
+    boundingBox: "BoundingBox"
   };
   var ifcBoolValues = {
     trueValue: ".T.",
@@ -309,15 +321,19 @@ var IFCjs = (function (exports) {
   };
   var defaultValue = "$";
 
-  var ifcTypes = {
+  var _ifcTypes;
+
+  var ifcTypes = (_ifcTypes = {
     //Building elements
     IfcBuildingElementProxy: "IFCBUILDINGELEMENTPROXY",
+    IfcBeam: "IFCBEAM",
     IfcColumn: "IFCCOLUMN",
     IfcCovering: "IFCCOVERING",
     IfcCurtainWall: "IFCCURTAINWALL",
     IfcDoor: "IFCDOOR",
     IfcEquipmentElement: "IFCEQUIPMENTELEMENT",
     IfcFlowTerminal: "IFCFLOWTERMINAL",
+    IfcFooting: "IFCFOOTING",
     IfcFurnishingElement: "IFCFURNISHINGELEMENT",
     IfcMappedItem: "IFCMAPPEDITEM",
     IfcMember: "IFCMEMBER",
@@ -359,7 +375,7 @@ var IFCjs = (function (exports) {
     IfcConnectionSurfaceGeometry: "IFCCONNECTIONSURFACEGEOMETRY",
     IfcCurveBoundedPlane: "IFCCURVEBOUNDEDPLANE",
     IfcDirection: "IFCDIRECTION",
-    IfcEllipse: "IfcEllipse",
+    IfcEllipse: "IFCELLIPSE",
     IfcExtrudedAreaSolid: "IFCEXTRUDEDAREASOLID",
     IfcFaceBound: "IFCFACEBOUND",
     IfcFace: "IFCFACE",
@@ -367,7 +383,10 @@ var IFCjs = (function (exports) {
     IfcFaceOuterBound: "IFCFACEOUTERBOUND",
     IfcFacetedBrep: "IFCFACETEDBREP",
     IfcGeometricCurveSet: "IFCGEOMETRICCURVESET",
+    IfcGeometricSet: "IFCGEOMETRICSET",
     IfcHalfSpaceSolid: "IFCHALFSPACESOLID",
+    IfcIShapeProfileDef: "IFCISHAPEPROFILEDEF",
+    IfcPlanarExtent: "IFCPLANAREXTENT",
     IfcPlane: "IFCPLANE",
     IfcPolygonalBoundedHalfSpace: "IFCPOLYGONALBOUNDEDHALFSPACE",
     IfcPolyline: "IFCPOLYLINE",
@@ -375,87 +394,8 @@ var IFCjs = (function (exports) {
     IfcProductDefinitionShape: "IFCPRODUCTDEFINITIONSHAPE",
     IfcRectangleProfileDef: "IFCRECTANGLEPROFILEDEF",
     IfcShapeRepresentation: "IFCSHAPEREPRESENTATION",
-    IfcTrimmedCurve: "IFCTRIMMEDCURVE",
-    //Identities
-    IfcApplication: "IFCAPPLICATION",
-    IfcOrganization: "IFCORGANIZATION",
-    IfcOwnerHistory: "IFCOWNERHISTORY",
-    IfcPerson: "IFCPERSON",
-    IfcPersonAndOrganization: "IFCPERSONANDORGANIZATION",
-    IfcPostalAddress: "IFCPOSTALADDRESS",
-    //Materials
-    IfcMaterial: "IFCMATERIAL",
-    IfcMaterialLayer: "IFCMATERIALLAYER",
-    IfcMaterialLayerSet: "IFCMATERIALLAYERSET",
-    IfcMaterialLayerSetUsage: "IFCMATERIALLAYERSETUSAGE",
-    IfcMaterialList: "IFCMATERIALLIST",
-    //Presentation
-    IfcColourRgb: "IFCCOLOURRGB",
-    IfcMaterialDefinitionRepresentation: "IFCMATERIALDEFINITIONREPRESENTATION",
-    IfcRepresentationMap: "IFCREPRESENTATIONMAP",
-    IfcPresentationLayerAssignment: "IFCPRESENTATIONLAYERASSIGNMENT",
-    IfcPresentationStyleAssignment: "IFCPRESENTATIONSTYLEASSIGNMENT",
-    IfcStyledItem: "IFCSTYLEDITEM",
-    IfcStyledRepresentation: "IFCSTYLEDREPRESENTATION",
-    IfcSurfaceStyle: "IFCSURFACESTYLE",
-    IfcSurfaceStyleRendering: "IFCSURFACESTYLERENDERING",
-    IfcSurfaceStyleShading: "IFCSURFACESTYLESHADING",
-    //Properties
-    IfcBuildingElementProxyType: "IFCBUILDINGELEMENTPROXYTYPE",
-    IfcColumnType: "IFCCOLUMNTYPE",
-    IfcCoveringType: "IFCCOVERINGTYPE",
-    IfcCurtainWallType: "IFCCURTAINWALLTYPE",
-    IfcFurnitureType: "IFCFURNITURETYPE",
-    IfcDoorType: "IFCDOORTYPE",
-    IfcDoorLiningProperties: "IFCDOORLININGPROPERTIES",
-    IfcDoorPanelProperties: "IFCDOORPANELPROPERTIES",
-    IfcDoorStyle: "IFCDOORSTYLE",
-    IfcMemberType: "IFCMEMBERTYPE",
-    IfcPlateType: "IFCPLATETYPE",
-    IfcPropertySet: "IFCPROPERTYSET",
-    IfcPropertySingleValue: "IFCPROPERTYSINGLEVALUE",
-    IfcSanitaryTerminalType: "IFCSANITARYTERMINALTYPE",
-    IfcSpaceType: "IFCSPACETYPE",
-    IfcStairFlightType: "IFCSTAIRFLIGHTTYPE",
-    IfcWallType: "IFCWALLTYPE",
-    IfcWindowStyle: "IFCWINDOWSTYLE",
-    IfcSlabType: "IFCSLABTYPE",
-    IfcWindowLiningProperties: "IFCWINDOWLININGPROPERTIES",
-    //Quantities
-    IfcQuantityArea: "IFCQUANTITYAREA",
-    // Relationships
-    IfcRelAggregates: "IFCRELAGGREGATES",
-    IfcRelAssignsToGroup: "IFCRELASSIGNSTOGROUP",
-    IfcRelAssociatesClassification: "IFCRELASSOCIATESCLASSIFICATION",
-    IfcRelAssociatesMaterial: "IFCRELASSOCIATESMATERIAL",
-    IfcRelConnectsPathElements: "IFCRELCONNECTSPATHELEMENTS",
-    IfcRelConnectsPortToElement: "IFCRELCONNECTSPORTTOELEMENT",
-    IfcRelContainedInSpatialStructure: "IFCRELCONTAINEDINSPATIALSTRUCTURE",
-    IfcRelDefinesByProperties: "IFCRELDEFINESBYPROPERTIES",
-    IfcRelDefinesByType: "IFCRELDEFINESBYTYPE",
-    IfcRelFillsElement: "IFCRELFILLSELEMENT",
-    IfcGroup: "IFCGROUP",
-    IfcRelSpaceBoundary: "IFCRELSPACEBOUNDARY",
-    IfcRelServicesBuildings: "IFCRELSERVICESBUILDINGS",
-    IfcRelVoidsElement: "IFCRELVOIDSELEMENT",
-    //Spatial structure elements
-    IfcBuilding: "IFCBUILDING",
-    IfcBuildingStorey: "IFCBUILDINGSTOREY",
-    IfcProject: "IFCPROJECT",
-    IfcSite: "IFCSITE",
-    IfcSpace: "IFCSPACE",
-    //Systems
-    IfcDistributionPort: "IFCDISTRIBUTIONPORT",
-    IfcSystem: "IFCSYSTEM",
-    //Units
-    IfcConversionBasedUnit: "IFCCONVERSIONBASEDUNIT",
-    IfcDerivedUnit: "IFCDERIVEDUNIT",
-    IfcDerivedUnitElement: "IFCDERIVEDUNITELEMENT",
-    IfcDimensionalExponents: "IFCDIMENSIONALEXPONENTS",
-    IfcMeasureWithUnit: "IFCMEASUREWITHUNIT",
-    IfcSIUnit: "IFCSIUNIT",
-    IfcUnitAssignment: "IFCUNITASSIGNMENT"
-  };
+    IfcTrimmedCurve: "IFCTRIMMEDCURVE"
+  }, _defineProperty(_ifcTypes, "IfcGeometricSet", "IFCGEOMETRICSET"), _defineProperty(_ifcTypes, "IfcArbitraryOpenProfileDef", "IFCARBITRARYOPENPROFILEDEF"), _defineProperty(_ifcTypes, "IfcSurfaceOfLinearExtrusion", "IFCSURFACEOFLINEAREXTRUSION"), _defineProperty(_ifcTypes, "IfcApplication", "IFCAPPLICATION"), _defineProperty(_ifcTypes, "IfcOrganization", "IFCORGANIZATION"), _defineProperty(_ifcTypes, "IfcOwnerHistory", "IFCOWNERHISTORY"), _defineProperty(_ifcTypes, "IfcPerson", "IFCPERSON"), _defineProperty(_ifcTypes, "IfcPersonAndOrganization", "IFCPERSONANDORGANIZATION"), _defineProperty(_ifcTypes, "IfcPostalAddress", "IFCPOSTALADDRESS"), _defineProperty(_ifcTypes, "IfcMaterial", "IFCMATERIAL"), _defineProperty(_ifcTypes, "IfcMaterialLayer", "IFCMATERIALLAYER"), _defineProperty(_ifcTypes, "IfcMaterialLayerSet", "IFCMATERIALLAYERSET"), _defineProperty(_ifcTypes, "IfcMaterialLayerSetUsage", "IFCMATERIALLAYERSETUSAGE"), _defineProperty(_ifcTypes, "IfcMaterialList", "IFCMATERIALLIST"), _defineProperty(_ifcTypes, "IfcAnnotation", "IFCANNOTATION"), _defineProperty(_ifcTypes, "IfcAnnotationFillArea", "IFCANNOTATIONFILLAREA"), _defineProperty(_ifcTypes, "IfcColourRgb", "IFCCOLOURRGB"), _defineProperty(_ifcTypes, "IfcCurveStyle", "IFCCURVESTYLE"), _defineProperty(_ifcTypes, "IfcCurveStyleFont", "IFCCURVESTYLEFONT"), _defineProperty(_ifcTypes, "IfcCurveStyleFontPattern", "IFCCURVESTYLEFONTPATTERN"), _defineProperty(_ifcTypes, "IfcDraughtingPreDefinedCurveFont", "IFCDRAUGHTINGPREDEFINEDCURVEFONT"), _defineProperty(_ifcTypes, "IfcFillAreaStyle", "IFCFILLAREASTYLE"), _defineProperty(_ifcTypes, "IfcFillAreaStyleHatching", "IFCFILLAREASTYLEHATCHING"), _defineProperty(_ifcTypes, "IfcMaterialDefinitionRepresentation", "IFCMATERIALDEFINITIONREPRESENTATION"), _defineProperty(_ifcTypes, "IfcRepresentationMap", "IFCREPRESENTATIONMAP"), _defineProperty(_ifcTypes, "IfcPresentationLayerAssignment", "IFCPRESENTATIONLAYERASSIGNMENT"), _defineProperty(_ifcTypes, "IfcPresentationStyleAssignment", "IFCPRESENTATIONSTYLEASSIGNMENT"), _defineProperty(_ifcTypes, "IfcStyledItem", "IFCSTYLEDITEM"), _defineProperty(_ifcTypes, "IfcStyledRepresentation", "IFCSTYLEDREPRESENTATION"), _defineProperty(_ifcTypes, "IfcSurfaceStyle", "IFCSURFACESTYLE"), _defineProperty(_ifcTypes, "IfcSurfaceStyleRendering", "IFCSURFACESTYLERENDERING"), _defineProperty(_ifcTypes, "IfcSurfaceStyleShading", "IFCSURFACESTYLESHADING"), _defineProperty(_ifcTypes, "IfcTextLiteralWithExtent", "IFCTEXTLITERALWITHEXTENT"), _defineProperty(_ifcTypes, "IfcTextStyle", "IFCTEXTSTYLE"), _defineProperty(_ifcTypes, "IfcTextStyleFontModel", "IFCTEXTSTYLEFONTMODEL"), _defineProperty(_ifcTypes, "IfcTextStyleForDefinedFont", "IFCTEXTSTYLEFORDEFINEDFONT"), _defineProperty(_ifcTypes, "IfcActor", "IFCACTOR"), _defineProperty(_ifcTypes, "IfcAirTerminalType", "IFCAIRTERMINALTYPE"), _defineProperty(_ifcTypes, "IfcBuildingElementProxyType", "IFCBUILDINGELEMENTPROXYTYPE"), _defineProperty(_ifcTypes, "IfcColumnType", "IFCCOLUMNTYPE"), _defineProperty(_ifcTypes, "IfcCoveringType", "IFCCOVERINGTYPE"), _defineProperty(_ifcTypes, "IfcCurtainWallType", "IFCCURTAINWALLTYPE"), _defineProperty(_ifcTypes, "IfcFurnitureType", "IFCFURNITURETYPE"), _defineProperty(_ifcTypes, "IfcDistributionElementType", "IFCDISTRIBUTIONELEMENTTYPE"), _defineProperty(_ifcTypes, "IfcDoorType", "IFCDOORTYPE"), _defineProperty(_ifcTypes, "IfcDoorLiningProperties", "IFCDOORLININGPROPERTIES"), _defineProperty(_ifcTypes, "IfcDoorPanelProperties", "IFCDOORPANELPROPERTIES"), _defineProperty(_ifcTypes, "IfcDoorStyle", "IFCDOORSTYLE"), _defineProperty(_ifcTypes, "IfcLightFixtureType", "IFCLIGHTFIXTURETYPE"), _defineProperty(_ifcTypes, "IfcMemberType", "IFCMEMBERTYPE"), _defineProperty(_ifcTypes, "IfcPlateType", "IFCPLATETYPE"), _defineProperty(_ifcTypes, "IfcPropertySet", "IFCPROPERTYSET"), _defineProperty(_ifcTypes, "IfcPropertySingleValue", "IFCPROPERTYSINGLEVALUE"), _defineProperty(_ifcTypes, "IfcSanitaryTerminalType", "IFCSANITARYTERMINALTYPE"), _defineProperty(_ifcTypes, "IfcSpaceType", "IFCSPACETYPE"), _defineProperty(_ifcTypes, "IfcStairFlightType", "IFCSTAIRFLIGHTTYPE"), _defineProperty(_ifcTypes, "IfcSystemFurnitureElementType", "IFCSYSTEMFURNITUREELEMENTTYPE"), _defineProperty(_ifcTypes, "IfcWallType", "IFCWALLTYPE"), _defineProperty(_ifcTypes, "IfcWindowStyle", "IFCWINDOWSTYLE"), _defineProperty(_ifcTypes, "IfcSlabType", "IFCSLABTYPE"), _defineProperty(_ifcTypes, "IfcWindowLiningProperties", "IFCWINDOWLININGPROPERTIES"), _defineProperty(_ifcTypes, "IfcElementQuantity", "IFCELEMENTQUANTITY"), _defineProperty(_ifcTypes, "IfcQuantityArea", "IFCQUANTITYAREA"), _defineProperty(_ifcTypes, "IfcQuantityLength", "IFCQUANTITYLENGTH"), _defineProperty(_ifcTypes, "IfcQuantityVolume", "IFCQUANTITYVOLUME"), _defineProperty(_ifcTypes, "IfcRelAggregates", "IFCRELAGGREGATES"), _defineProperty(_ifcTypes, "IfcRelAssignsToActor", "IFCRELASSIGNSTOACTOR"), _defineProperty(_ifcTypes, "IfcRelAssignsToGroup", "IFCRELASSIGNSTOGROUP"), _defineProperty(_ifcTypes, "IfcRelAssociatesClassification", "IFCRELASSOCIATESCLASSIFICATION"), _defineProperty(_ifcTypes, "IfcRelAssociatesMaterial", "IFCRELASSOCIATESMATERIAL"), _defineProperty(_ifcTypes, "IfcRelConnectsPathElements", "IFCRELCONNECTSPATHELEMENTS"), _defineProperty(_ifcTypes, "IfcRelConnectsPortToElement", "IFCRELCONNECTSPORTTOELEMENT"), _defineProperty(_ifcTypes, "IfcRelContainedInSpatialStructure", "IFCRELCONTAINEDINSPATIALSTRUCTURE"), _defineProperty(_ifcTypes, "IfcRelDefinesByProperties", "IFCRELDEFINESBYPROPERTIES"), _defineProperty(_ifcTypes, "IfcRelDefinesByType", "IFCRELDEFINESBYTYPE"), _defineProperty(_ifcTypes, "IfcRelFillsElement", "IFCRELFILLSELEMENT"), _defineProperty(_ifcTypes, "IfcGroup", "IFCGROUP"), _defineProperty(_ifcTypes, "IfcRelSpaceBoundary", "IFCRELSPACEBOUNDARY"), _defineProperty(_ifcTypes, "IfcRelServicesBuildings", "IFCRELSERVICESBUILDINGS"), _defineProperty(_ifcTypes, "IfcRelVoidsElement", "IFCRELVOIDSELEMENT"), _defineProperty(_ifcTypes, "IfcBuilding", "IFCBUILDING"), _defineProperty(_ifcTypes, "IfcBuildingStorey", "IFCBUILDINGSTOREY"), _defineProperty(_ifcTypes, "IfcProject", "IFCPROJECT"), _defineProperty(_ifcTypes, "IfcSite", "IFCSITE"), _defineProperty(_ifcTypes, "IfcSpace", "IFCSPACE"), _defineProperty(_ifcTypes, "IfcDistributionPort", "IFCDISTRIBUTIONPORT"), _defineProperty(_ifcTypes, "IfcSystem", "IFCSYSTEM"), _defineProperty(_ifcTypes, "IfcConversionBasedUnit", "IFCCONVERSIONBASEDUNIT"), _defineProperty(_ifcTypes, "IfcDerivedUnit", "IFCDERIVEDUNIT"), _defineProperty(_ifcTypes, "IfcDerivedUnitElement", "IFCDERIVEDUNITELEMENT"), _defineProperty(_ifcTypes, "IfcDimensionalExponents", "IFCDIMENSIONALEXPONENTS"), _defineProperty(_ifcTypes, "IfcMeasureWithUnit", "IFCMEASUREWITHUNIT"), _defineProperty(_ifcTypes, "IfcSIUnit", "IFCSIUNIT"), _defineProperty(_ifcTypes, "IfcUnitAssignment", "IFCUNITASSIGNMENT"), _ifcTypes);
 
   function getName(ifcType) {
     return Object.keys(ifcTypes).find(function (key) {
@@ -499,27 +439,30 @@ var IFCjs = (function (exports) {
     return Object.values(ifcDataTypes);
   }
 
-  var _newObject, _newObject2, _newObject3, _newObject4, _newObject5, _newObject6, _newObject7, _newObject8, _newObject9, _newObject10, _newObject11, _newObject12, _newObject13, _newObject14, _newObject15, _newObject16, _newObject17, _newObject18, _newObject19, _newObject20;
+  var _newObject, _newObject2, _newObject3, _newObject4, _newObject5, _newObject6, _newObject7, _newObject8, _newObject9, _newObject10, _newObject11, _newObject12, _newObject13, _newObject14, _newObject15, _newObject16, _newObject17, _newObject18, _newObject19, _newObject20, _newObject21, _newObject22, _newObject23;
   newObject((_newObject = {}, _defineProperty(_newObject, namedProps.ifcClass, getName(ifcTypes.IfcMappedItem)), _defineProperty(_newObject, namedProps.mappingSource, ifcDataTypes.id), _defineProperty(_newObject, namedProps.mappingTarget, ifcDataTypes.id), _newObject));
   newObject((_newObject2 = {}, _defineProperty(_newObject2, namedProps.ifcClass, getName(ifcTypes.IfcWall)), _defineProperty(_newObject2, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject2, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject2, "Name", ifcDataTypes.text), _defineProperty(_newObject2, "Description", ifcDataTypes.text), _defineProperty(_newObject2, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject2, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject2, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject2, "Tag", ifcDataTypes.text), _newObject2));
-  newObject((_newObject3 = {}, _defineProperty(_newObject3, namedProps.ifcClass, getName(ifcTypes.IfcWallStandardCase)), _defineProperty(_newObject3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject3, "Name", ifcDataTypes.text), _defineProperty(_newObject3, "Description", ifcDataTypes.text), _defineProperty(_newObject3, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject3, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject3, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject3, "Tag", ifcDataTypes.text), _newObject3));
-  newObject((_newObject4 = {}, _defineProperty(_newObject4, namedProps.ifcClass, getName(ifcTypes.IfcCurtainWall)), _defineProperty(_newObject4, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject4, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject4, "Name", ifcDataTypes.text), _defineProperty(_newObject4, "Description", ifcDataTypes.text), _defineProperty(_newObject4, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject4, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject4, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject4, "Tag", ifcDataTypes.text), _newObject4));
-  newObject((_newObject5 = {}, _defineProperty(_newObject5, namedProps.ifcClass, getName(ifcTypes.IfcDoor)), _defineProperty(_newObject5, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject5, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject5, "Name", ifcDataTypes.text), _defineProperty(_newObject5, "Description", ifcDataTypes.text), _defineProperty(_newObject5, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject5, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject5, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject5, "Tag", ifcDataTypes.text), _defineProperty(_newObject5, "OverallHeight", ifcDataTypes.number), _defineProperty(_newObject5, "OverallWidth", ifcDataTypes.number), _newObject5));
-  newObject((_newObject6 = {}, _defineProperty(_newObject6, namedProps.ifcClass, getName(ifcTypes.IfcRailing)), _defineProperty(_newObject6, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject6, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject6, "Name", ifcDataTypes.text), _defineProperty(_newObject6, "Description", ifcDataTypes.text), _defineProperty(_newObject6, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject6, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject6, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject6, "Tag", ifcDataTypes.text), _defineProperty(_newObject6, "PredefinedType", ifcDataTypes["enum"]), _newObject6));
-  newObject((_newObject7 = {}, _defineProperty(_newObject7, namedProps.ifcClass, getName(ifcTypes.IfcPlate)), _defineProperty(_newObject7, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject7, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject7, "Name", ifcDataTypes.text), _defineProperty(_newObject7, "Description", ifcDataTypes.text), _defineProperty(_newObject7, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject7, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject7, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject7, "Tag", ifcDataTypes.text), _newObject7));
-  newObject((_newObject8 = {}, _defineProperty(_newObject8, namedProps.ifcClass, getName(ifcTypes.IfcMember)), _defineProperty(_newObject8, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject8, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject8, "Name", ifcDataTypes.text), _defineProperty(_newObject8, "Description", ifcDataTypes.text), _defineProperty(_newObject8, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject8, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject8, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject8, "Tag", ifcDataTypes.text), _newObject8));
-  newObject((_newObject9 = {}, _defineProperty(_newObject9, namedProps.ifcClass, getName(ifcTypes.IfcSlab)), _defineProperty(_newObject9, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject9, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject9, "Name", ifcDataTypes.text), _defineProperty(_newObject9, "Description", ifcDataTypes.text), _defineProperty(_newObject9, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject9, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject9, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject9, "Tag", ifcDataTypes.text), _defineProperty(_newObject9, "PredefinedType", ifcDataTypes["enum"]), _newObject9));
-  newObject((_newObject10 = {}, _defineProperty(_newObject10, namedProps.ifcClass, getName(ifcTypes.IfcOpeningElement)), _defineProperty(_newObject10, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject10, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject10, "Name", ifcDataTypes.text), _defineProperty(_newObject10, "Description", ifcDataTypes.text), _defineProperty(_newObject10, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject10, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject10, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject10, "Tag", ifcDataTypes.text), _newObject10));
-  newObject((_newObject11 = {}, _defineProperty(_newObject11, namedProps.ifcClass, getName(ifcTypes.IfcWindow)), _defineProperty(_newObject11, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject11, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject11, "Name", ifcDataTypes.text), _defineProperty(_newObject11, "Description", ifcDataTypes.text), _defineProperty(_newObject11, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject11, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject11, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject11, "Tag", ifcDataTypes.text), _defineProperty(_newObject11, "OverallHeight", ifcDataTypes.number), _defineProperty(_newObject11, "OverallWidth", ifcDataTypes.number), _newObject11));
-  newObject((_newObject12 = {}, _defineProperty(_newObject12, namedProps.ifcClass, getName(ifcTypes.IfcStair)), _defineProperty(_newObject12, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject12, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject12, "Name", ifcDataTypes.text), _defineProperty(_newObject12, "Description", ifcDataTypes.text), _defineProperty(_newObject12, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject12, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject12, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject12, "Tag", ifcDataTypes.text), _defineProperty(_newObject12, "ShapeType", ifcDataTypes["enum"]), _newObject12));
-  newObject((_newObject13 = {}, _defineProperty(_newObject13, namedProps.ifcClass, getName(ifcTypes.IfcRoof)), _defineProperty(_newObject13, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject13, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject13, "Name", ifcDataTypes.text), _defineProperty(_newObject13, "Description", ifcDataTypes.text), _defineProperty(_newObject13, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject13, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject13, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject13, "Tag", ifcDataTypes.text), _defineProperty(_newObject13, "ShapeType", ifcDataTypes["enum"]), _newObject13));
-  newObject((_newObject14 = {}, _defineProperty(_newObject14, namedProps.ifcClass, getName(ifcTypes.IfcColumn)), _defineProperty(_newObject14, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject14, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject14, "Name", ifcDataTypes.text), _defineProperty(_newObject14, "Description", ifcDataTypes.text), _defineProperty(_newObject14, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject14, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject14, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject14, "Tag", ifcDataTypes.text), _newObject14));
-  newObject((_newObject15 = {}, _defineProperty(_newObject15, namedProps.ifcClass, getName(ifcTypes.IfcStairFlight)), _defineProperty(_newObject15, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject15, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject15, "Name", ifcDataTypes.text), _defineProperty(_newObject15, "Description", ifcDataTypes.text), _defineProperty(_newObject15, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject15, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject15, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject15, "Tag", ifcDataTypes.text), _defineProperty(_newObject15, "NumberOfRiser", ifcDataTypes.number), _defineProperty(_newObject15, "NumberOfThreads", ifcDataTypes.number), _defineProperty(_newObject15, "RiserHeight", ifcDataTypes.number), _defineProperty(_newObject15, "TreadLength", ifcDataTypes.number), _newObject15));
-  newObject((_newObject16 = {}, _defineProperty(_newObject16, namedProps.ifcClass, getName(ifcTypes.IfcFlowTerminal)), _defineProperty(_newObject16, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject16, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject16, "Name", ifcDataTypes.text), _defineProperty(_newObject16, "Description", ifcDataTypes.text), _defineProperty(_newObject16, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject16, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject16, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject16, "Tag", ifcDataTypes.text), _newObject16));
-  newObject((_newObject17 = {}, _defineProperty(_newObject17, namedProps.ifcClass, getName(ifcTypes.IfcFurnishingElement)), _defineProperty(_newObject17, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject17, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject17, "Name", ifcDataTypes.text), _defineProperty(_newObject17, "Description", ifcDataTypes.text), _defineProperty(_newObject17, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject17, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject17, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject17, "Tag", ifcDataTypes.text), _newObject17));
-  newObject((_newObject18 = {}, _defineProperty(_newObject18, namedProps.ifcClass, getName(ifcTypes.IfcCovering)), _defineProperty(_newObject18, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject18, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject18, "Name", ifcDataTypes.text), _defineProperty(_newObject18, "Description", ifcDataTypes.text), _defineProperty(_newObject18, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject18, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject18, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject18, "Tag", ifcDataTypes.text), _defineProperty(_newObject18, "PredefinedType", ifcDataTypes["enum"]), _newObject18));
-  newObject((_newObject19 = {}, _defineProperty(_newObject19, namedProps.ifcClass, getName(ifcTypes.IfcBuildingElementProxy)), _defineProperty(_newObject19, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject19, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject19, "Name", ifcDataTypes.text), _defineProperty(_newObject19, "Description", ifcDataTypes.text), _defineProperty(_newObject19, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject19, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject19, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject19, "Tag", ifcDataTypes.text), _defineProperty(_newObject19, "CompositionType", ifcDataTypes["enum"]), _newObject19));
-  newObject((_newObject20 = {}, _defineProperty(_newObject20, namedProps.ifcClass, getName(ifcTypes.IfcEquipmentElement)), _defineProperty(_newObject20, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject20, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject20, "Name", ifcDataTypes.text), _defineProperty(_newObject20, "Description", ifcDataTypes.text), _defineProperty(_newObject20, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject20, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject20, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject20, "Tag", ifcDataTypes.text), _newObject20));
+  newObject((_newObject3 = {}, _defineProperty(_newObject3, namedProps.ifcClass, getName(ifcTypes.IfcBeam)), _defineProperty(_newObject3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject3, "Name", ifcDataTypes.text), _defineProperty(_newObject3, "Description", ifcDataTypes.text), _defineProperty(_newObject3, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject3, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject3, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject3, "Tag", ifcDataTypes.text), _newObject3));
+  newObject((_newObject4 = {}, _defineProperty(_newObject4, namedProps.ifcClass, getName(ifcTypes.IfcFooting)), _defineProperty(_newObject4, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject4, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject4, "Name", ifcDataTypes.text), _defineProperty(_newObject4, "Description", ifcDataTypes.text), _defineProperty(_newObject4, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject4, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject4, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject4, "Tag", ifcDataTypes.text), _defineProperty(_newObject4, "PredefinedType", ifcDataTypes["enum"]), _newObject4));
+  newObject((_newObject5 = {}, _defineProperty(_newObject5, namedProps.ifcClass, getName(ifcTypes.IfcWallStandardCase)), _defineProperty(_newObject5, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject5, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject5, "Name", ifcDataTypes.text), _defineProperty(_newObject5, "Description", ifcDataTypes.text), _defineProperty(_newObject5, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject5, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject5, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject5, "Tag", ifcDataTypes.text), _newObject5));
+  newObject((_newObject6 = {}, _defineProperty(_newObject6, namedProps.ifcClass, getName(ifcTypes.IfcCurtainWall)), _defineProperty(_newObject6, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject6, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject6, "Name", ifcDataTypes.text), _defineProperty(_newObject6, "Description", ifcDataTypes.text), _defineProperty(_newObject6, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject6, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject6, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject6, "Tag", ifcDataTypes.text), _newObject6));
+  newObject((_newObject7 = {}, _defineProperty(_newObject7, namedProps.ifcClass, getName(ifcTypes.IfcDoor)), _defineProperty(_newObject7, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject7, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject7, "Name", ifcDataTypes.text), _defineProperty(_newObject7, "Description", ifcDataTypes.text), _defineProperty(_newObject7, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject7, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject7, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject7, "Tag", ifcDataTypes.text), _defineProperty(_newObject7, "OverallHeight", ifcDataTypes.number), _defineProperty(_newObject7, "OverallWidth", ifcDataTypes.number), _newObject7));
+  newObject((_newObject8 = {}, _defineProperty(_newObject8, namedProps.ifcClass, getName(ifcTypes.IfcRailing)), _defineProperty(_newObject8, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject8, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject8, "Name", ifcDataTypes.text), _defineProperty(_newObject8, "Description", ifcDataTypes.text), _defineProperty(_newObject8, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject8, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject8, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject8, "Tag", ifcDataTypes.text), _defineProperty(_newObject8, "PredefinedType", ifcDataTypes["enum"]), _newObject8));
+  newObject((_newObject9 = {}, _defineProperty(_newObject9, namedProps.ifcClass, getName(ifcTypes.IfcPlate)), _defineProperty(_newObject9, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject9, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject9, "Name", ifcDataTypes.text), _defineProperty(_newObject9, "Description", ifcDataTypes.text), _defineProperty(_newObject9, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject9, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject9, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject9, "Tag", ifcDataTypes.text), _newObject9));
+  newObject((_newObject10 = {}, _defineProperty(_newObject10, namedProps.ifcClass, getName(ifcTypes.IfcMember)), _defineProperty(_newObject10, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject10, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject10, "Name", ifcDataTypes.text), _defineProperty(_newObject10, "Description", ifcDataTypes.text), _defineProperty(_newObject10, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject10, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject10, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject10, "Tag", ifcDataTypes.text), _newObject10));
+  newObject((_newObject11 = {}, _defineProperty(_newObject11, namedProps.ifcClass, getName(ifcTypes.IfcSlab)), _defineProperty(_newObject11, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject11, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject11, "Name", ifcDataTypes.text), _defineProperty(_newObject11, "Description", ifcDataTypes.text), _defineProperty(_newObject11, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject11, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject11, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject11, "Tag", ifcDataTypes.text), _defineProperty(_newObject11, "PredefinedType", ifcDataTypes["enum"]), _newObject11));
+  newObject((_newObject12 = {}, _defineProperty(_newObject12, namedProps.ifcClass, getName(ifcTypes.IfcOpeningElement)), _defineProperty(_newObject12, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject12, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject12, "Name", ifcDataTypes.text), _defineProperty(_newObject12, "Description", ifcDataTypes.text), _defineProperty(_newObject12, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject12, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject12, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject12, "Tag", ifcDataTypes.text), _newObject12));
+  newObject((_newObject13 = {}, _defineProperty(_newObject13, namedProps.ifcClass, getName(ifcTypes.IfcWindow)), _defineProperty(_newObject13, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject13, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject13, "Name", ifcDataTypes.text), _defineProperty(_newObject13, "Description", ifcDataTypes.text), _defineProperty(_newObject13, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject13, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject13, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject13, "Tag", ifcDataTypes.text), _defineProperty(_newObject13, "OverallHeight", ifcDataTypes.number), _defineProperty(_newObject13, "OverallWidth", ifcDataTypes.number), _newObject13));
+  newObject((_newObject14 = {}, _defineProperty(_newObject14, namedProps.ifcClass, getName(ifcTypes.IfcStair)), _defineProperty(_newObject14, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject14, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject14, "Name", ifcDataTypes.text), _defineProperty(_newObject14, "Description", ifcDataTypes.text), _defineProperty(_newObject14, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject14, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject14, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject14, "Tag", ifcDataTypes.text), _defineProperty(_newObject14, "ShapeType", ifcDataTypes["enum"]), _newObject14));
+  newObject((_newObject15 = {}, _defineProperty(_newObject15, namedProps.ifcClass, getName(ifcTypes.IfcRoof)), _defineProperty(_newObject15, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject15, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject15, "Name", ifcDataTypes.text), _defineProperty(_newObject15, "Description", ifcDataTypes.text), _defineProperty(_newObject15, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject15, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject15, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject15, "Tag", ifcDataTypes.text), _defineProperty(_newObject15, "ShapeType", ifcDataTypes["enum"]), _newObject15));
+  newObject((_newObject16 = {}, _defineProperty(_newObject16, namedProps.ifcClass, getName(ifcTypes.IfcColumn)), _defineProperty(_newObject16, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject16, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject16, "Name", ifcDataTypes.text), _defineProperty(_newObject16, "Description", ifcDataTypes.text), _defineProperty(_newObject16, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject16, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject16, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject16, "Tag", ifcDataTypes.text), _newObject16));
+  newObject((_newObject17 = {}, _defineProperty(_newObject17, namedProps.ifcClass, getName(ifcTypes.IfcStairFlight)), _defineProperty(_newObject17, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject17, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject17, "Name", ifcDataTypes.text), _defineProperty(_newObject17, "Description", ifcDataTypes.text), _defineProperty(_newObject17, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject17, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject17, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject17, "Tag", ifcDataTypes.text), _defineProperty(_newObject17, "NumberOfRiser", ifcDataTypes.number), _defineProperty(_newObject17, "NumberOfThreads", ifcDataTypes.number), _defineProperty(_newObject17, "RiserHeight", ifcDataTypes.number), _defineProperty(_newObject17, "TreadLength", ifcDataTypes.number), _newObject17));
+  newObject((_newObject18 = {}, _defineProperty(_newObject18, namedProps.ifcClass, getName(ifcTypes.IfcFlowTerminal)), _defineProperty(_newObject18, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject18, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject18, "Name", ifcDataTypes.text), _defineProperty(_newObject18, "Description", ifcDataTypes.text), _defineProperty(_newObject18, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject18, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject18, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject18, "Tag", ifcDataTypes.text), _newObject18));
+  newObject((_newObject19 = {}, _defineProperty(_newObject19, namedProps.ifcClass, getName(ifcTypes.IfcFurnishingElement)), _defineProperty(_newObject19, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject19, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject19, "Name", ifcDataTypes.text), _defineProperty(_newObject19, "Description", ifcDataTypes.text), _defineProperty(_newObject19, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject19, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject19, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject19, "Tag", ifcDataTypes.text), _newObject19));
+  newObject((_newObject20 = {}, _defineProperty(_newObject20, namedProps.ifcClass, getName(ifcTypes.IfcCovering)), _defineProperty(_newObject20, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject20, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject20, "Name", ifcDataTypes.text), _defineProperty(_newObject20, "Description", ifcDataTypes.text), _defineProperty(_newObject20, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject20, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject20, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject20, "Tag", ifcDataTypes.text), _defineProperty(_newObject20, "PredefinedType", ifcDataTypes["enum"]), _newObject20));
+  newObject((_newObject21 = {}, _defineProperty(_newObject21, namedProps.ifcClass, getName(ifcTypes.IfcBuildingElementProxy)), _defineProperty(_newObject21, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject21, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject21, "Name", ifcDataTypes.text), _defineProperty(_newObject21, "Description", ifcDataTypes.text), _defineProperty(_newObject21, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject21, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject21, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject21, "Tag", ifcDataTypes.text), _defineProperty(_newObject21, "CompositionType", ifcDataTypes["enum"]), _newObject21));
+  newObject((_newObject22 = {}, _defineProperty(_newObject22, namedProps.ifcClass, getName(ifcTypes.IfcEquipmentElement)), _defineProperty(_newObject22, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject22, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject22, "Name", ifcDataTypes.text), _defineProperty(_newObject22, "Description", ifcDataTypes.text), _defineProperty(_newObject22, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject22, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject22, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject22, "Tag", ifcDataTypes.text), _newObject22));
+  newObject((_newObject23 = {}, _defineProperty(_newObject23, namedProps.ifcClass, getName(ifcTypes.IfcAnnotation)), _defineProperty(_newObject23, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject23, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject23, "Name", ifcDataTypes.text), _defineProperty(_newObject23, "Description", ifcDataTypes.text), _defineProperty(_newObject23, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject23, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject23, namedProps.representation, ifcDataTypes.id), _newObject23));
 
   var _newObject$1, _newObject2$1;
   newObject((_newObject$1 = {}, _defineProperty(_newObject$1, namedProps.ifcClass, getName(ifcTypes.IfcClassification)), _defineProperty(_newObject$1, "Source", ifcDataTypes.text), _defineProperty(_newObject$1, "Edition", ifcDataTypes.text), _defineProperty(_newObject$1, "EditionDate", ifcDataTypes.id), _defineProperty(_newObject$1, "Name", ifcDataTypes.text), _newObject$1));
@@ -532,42 +475,47 @@ var IFCjs = (function (exports) {
   newObject((_newObject4$1 = {}, _defineProperty(_newObject4$1, namedProps.ifcClass, getName(ifcTypes.IfcLinearPlacement)), _defineProperty(_newObject4$1, "PlacementRelTo", ifcDataTypes.id), _defineProperty(_newObject4$1, "PlacementMeasuredAlong", ifcDataTypes.id), _defineProperty(_newObject4$1, "Distance", ifcDataTypes.id), _defineProperty(_newObject4$1, "Orientation", ifcDataTypes.id), _defineProperty(_newObject4$1, "CartesianPosition", ifcDataTypes.id), _newObject4$1));
   newObject((_newObject5$1 = {}, _defineProperty(_newObject5$1, namedProps.ifcClass, getName(ifcTypes.IfcLocalPlacement)), _defineProperty(_newObject5$1, "PlacementRelTo", ifcDataTypes.id), _defineProperty(_newObject5$1, "RelativePlacement", ifcDataTypes.id), _newObject5$1));
 
-  var _newObject$3, _newObject2$3, _newObject3$2, _newObject4$2, _newObject5$2, _newObject6$1, _newObject7$1, _newObject8$1, _newObject9$1, _newObject10$1, _newObject11$1, _newObject12$1, _newObject13$1, _newObject14$1, _newObject15$1, _newObject16$1, _newObject17$1, _newObject18$1, _newObject19$1, _newObject20$1, _newObject21, _newObject22, _newObject23, _newObject24, _newObject25, _newObject26, _newObject27, _newObject28, _newObject29, _newObject30, _newObject31, _newObject32, _newObject33, _newObject34, _newObject35;
+  var _newObject$3, _newObject2$3, _newObject3$2, _newObject4$2, _newObject5$2, _newObject6$1, _newObject7$1, _newObject8$1, _newObject9$1, _newObject10$1, _newObject11$1, _newObject12$1, _newObject13$1, _newObject14$1, _newObject15$1, _newObject16$1, _newObject17$1, _newObject18$1, _newObject19$1, _newObject20$1, _newObject21$1, _newObject22$1, _newObject23$1, _newObject24, _newObject25, _newObject26, _newObject27, _newObject28, _newObject29, _newObject30, _newObject31, _newObject32, _newObject33, _newObject34, _newObject35, _newObject36, _newObject37, _newObject38, _newObject39, _newObject40;
   newObject((_newObject$3 = {}, _defineProperty(_newObject$3, namedProps.ifcClass, getName(ifcTypes.IfcAxis2Placement2D)), _defineProperty(_newObject$3, namedProps.location, ifcDataTypes.id), _defineProperty(_newObject$3, namedProps.refDirection, ifcDataTypes.id), _newObject$3));
   newObject((_newObject2$3 = {}, _defineProperty(_newObject2$3, namedProps.ifcClass, getName(ifcTypes.IfcAxis2Placement3D)), _defineProperty(_newObject2$3, namedProps.location, ifcDataTypes.id), _defineProperty(_newObject2$3, namedProps.axis, ifcDataTypes.id), _defineProperty(_newObject2$3, namedProps.refDirection, ifcDataTypes.id), _newObject2$3));
   newObject((_newObject3$2 = {}, _defineProperty(_newObject3$2, namedProps.ifcClass, getName(ifcTypes.IfcBooleanClippingResult)), _defineProperty(_newObject3$2, namedProps.operator, ifcDataTypes["enum"]), _defineProperty(_newObject3$2, namedProps.firstOperand, ifcDataTypes.id), _defineProperty(_newObject3$2, namedProps.secondOperand, ifcDataTypes.id), _newObject3$2));
   newObject((_newObject4$2 = {}, _defineProperty(_newObject4$2, namedProps.ifcClass, getName(ifcTypes.IfcEllipse)), _defineProperty(_newObject4$2, namedProps.position, ifcDataTypes.id), _defineProperty(_newObject4$2, namedProps.semiAxis1, ifcDataTypes.number), _defineProperty(_newObject4$2, namedProps.semiAxis2, ifcDataTypes.number), _newObject4$2));
-  newObject((_newObject5$2 = {}, _defineProperty(_newObject5$2, namedProps.ifcClass, getName(ifcTypes.IfcCartesianPoint)), _defineProperty(_newObject5$2, namedProps.coordinates, ifcDataTypes.numSet), _newObject5$2));
-  newObject((_newObject6$1 = {}, _defineProperty(_newObject6$1, namedProps.ifcClass, getName(ifcTypes.IfcConnectionSurfaceGeometry)), _defineProperty(_newObject6$1, "SurfaceOnRelatingElement", ifcDataTypes.id), _defineProperty(_newObject6$1, "SurfaceOnRelatedElement", ifcDataTypes.id), _newObject6$1));
-  newObject((_newObject7$1 = {}, _defineProperty(_newObject7$1, namedProps.ifcClass, getName(ifcTypes.IfcCurveBoundedPlane)), _defineProperty(_newObject7$1, "BasisSurface", ifcDataTypes.id), _defineProperty(_newObject7$1, "OuterBoundary", ifcDataTypes.id), _defineProperty(_newObject7$1, "InnerBoundaries", ifcDataTypes.idSet), _newObject7$1));
-  newObject((_newObject8$1 = {}, _defineProperty(_newObject8$1, namedProps.ifcClass, getName(ifcTypes.IfcDirection)), _defineProperty(_newObject8$1, namedProps.dirRatios, ifcDataTypes.numSet), _newObject8$1));
-  newObject((_newObject9$1 = {}, _defineProperty(_newObject9$1, namedProps.ifcClass, getName(ifcTypes.IfcExtrudedAreaSolid)), _defineProperty(_newObject9$1, namedProps.sweptArea, ifcDataTypes.id), _defineProperty(_newObject9$1, namedProps.position, ifcDataTypes.id), _defineProperty(_newObject9$1, namedProps.extDirection, ifcDataTypes.id), _defineProperty(_newObject9$1, namedProps.depth, ifcDataTypes.number), _newObject9$1));
-  newObject((_newObject10$1 = {}, _defineProperty(_newObject10$1, namedProps.ifcClass, getName(ifcTypes.IfcPlane)), _defineProperty(_newObject10$1, "Position", ifcDataTypes.id), _newObject10$1));
-  newObject((_newObject11$1 = {}, _defineProperty(_newObject11$1, namedProps.ifcClass, getName(ifcTypes.IfcPolygonalBoundedHalfSpace)), _defineProperty(_newObject11$1, namedProps.baseSurface, ifcDataTypes.id), _defineProperty(_newObject11$1, namedProps.agreementFlag, ifcDataTypes.bool), _defineProperty(_newObject11$1, namedProps.position, ifcDataTypes.id), _defineProperty(_newObject11$1, namedProps.polygonalBoundary, ifcDataTypes.id), _newObject11$1));
-  newObject((_newObject12$1 = {}, _defineProperty(_newObject12$1, namedProps.ifcClass, getName(ifcTypes.IfcPolyline)), _defineProperty(_newObject12$1, namedProps.points, ifcDataTypes.idSet), _newObject12$1));
-  newObject((_newObject13$1 = {}, _defineProperty(_newObject13$1, namedProps.ifcClass, getName(ifcTypes.IfcProductDefinitionShape)), _defineProperty(_newObject13$1, "Description", ifcDataTypes.text), _defineProperty(_newObject13$1, namedProps.representationType, ifcDataTypes.text), _defineProperty(_newObject13$1, namedProps.representations, ifcDataTypes.idSet), _newObject13$1));
-  newObject((_newObject14$1 = {}, _defineProperty(_newObject14$1, namedProps.ifcClass, getName(ifcTypes.IfcRectangleProfileDef)), _defineProperty(_newObject14$1, "ProfileType", ifcDataTypes["enum"]), _defineProperty(_newObject14$1, "ProfileName", ifcDataTypes.text), _defineProperty(_newObject14$1, namedProps.position, ifcDataTypes.id), _defineProperty(_newObject14$1, namedProps.xDim, ifcDataTypes.number), _defineProperty(_newObject14$1, namedProps.yDim, ifcDataTypes.number), _newObject14$1));
-  newObject((_newObject15$1 = {}, _defineProperty(_newObject15$1, namedProps.ifcClass, getName(ifcTypes.IfcCircleProfileDef)), _defineProperty(_newObject15$1, "ProfileType", ifcDataTypes["enum"]), _defineProperty(_newObject15$1, "ProfileName", ifcDataTypes.text), _defineProperty(_newObject15$1, namedProps.position, ifcDataTypes.id), _defineProperty(_newObject15$1, namedProps.radius, ifcDataTypes.number), _newObject15$1));
-  newObject((_newObject16$1 = {}, _defineProperty(_newObject16$1, namedProps.ifcClass, getName(ifcTypes.IfcCircleHollowProfileDef)), _defineProperty(_newObject16$1, "ProfileType", ifcDataTypes["enum"]), _defineProperty(_newObject16$1, "ProfileName", ifcDataTypes.text), _defineProperty(_newObject16$1, namedProps.position, ifcDataTypes.id), _defineProperty(_newObject16$1, namedProps.radius, ifcDataTypes.number), _defineProperty(_newObject16$1, "WallThickness", ifcDataTypes.number), _newObject16$1));
-  newObject((_newObject17$1 = {}, _defineProperty(_newObject17$1, namedProps.ifcClass, getName(ifcTypes.IfcArbitraryProfileDefWithVoids)), _defineProperty(_newObject17$1, "ProfileType", ifcDataTypes["enum"]), _defineProperty(_newObject17$1, "ProfileName", ifcDataTypes.text), _defineProperty(_newObject17$1, namedProps.outerCurve, ifcDataTypes.id), _defineProperty(_newObject17$1, namedProps.innerCurves, ifcDataTypes.idSet), _newObject17$1));
-  newObject((_newObject18$1 = {}, _defineProperty(_newObject18$1, namedProps.ifcClass, getName(ifcTypes.IfcArbitraryClosedProfileDef)), _defineProperty(_newObject18$1, "ProfileType", ifcDataTypes["enum"]), _defineProperty(_newObject18$1, "ProfileName", ifcDataTypes.text), _defineProperty(_newObject18$1, namedProps.outerCurve, ifcDataTypes.id), _newObject18$1));
-  newObject((_newObject19$1 = {}, _defineProperty(_newObject19$1, namedProps.ifcClass, getName(ifcTypes.IfcShapeRepresentation)), _defineProperty(_newObject19$1, "ContextOfItems", ifcDataTypes.id), _defineProperty(_newObject19$1, "RepresentationIdentifier", ifcDataTypes.text), _defineProperty(_newObject19$1, namedProps.representationType, ifcDataTypes.text), _defineProperty(_newObject19$1, namedProps.items, ifcDataTypes.idSet), _newObject19$1));
-  newObject((_newObject20$1 = {}, _defineProperty(_newObject20$1, namedProps.ifcClass, getName(ifcTypes.IfcFaceOuterBound)), _defineProperty(_newObject20$1, namedProps.bound, ifcDataTypes.id), _defineProperty(_newObject20$1, namedProps.orientation, ifcDataTypes.bool), _newObject20$1));
-  newObject((_newObject21 = {}, _defineProperty(_newObject21, namedProps.ifcClass, getName(ifcTypes.IfcFaceBound)), _defineProperty(_newObject21, namedProps.bound, ifcDataTypes.id), _defineProperty(_newObject21, namedProps.orientation, ifcDataTypes.bool), _newObject21));
-  newObject((_newObject22 = {}, _defineProperty(_newObject22, namedProps.ifcClass, getName(ifcTypes.IfcFace)), _defineProperty(_newObject22, namedProps.bounds, ifcDataTypes.idSet), _newObject22));
-  newObject((_newObject23 = {}, _defineProperty(_newObject23, namedProps.ifcClass, getName(ifcTypes.IfcPolyLoop)), _defineProperty(_newObject23, namedProps.polygon, ifcDataTypes.idSet), _newObject23));
-  newObject((_newObject24 = {}, _defineProperty(_newObject24, namedProps.ifcClass, getName(ifcTypes.IfcClosedShell)), _defineProperty(_newObject24, namedProps.cfsFaces, ifcDataTypes.idSet), _newObject24));
-  newObject((_newObject25 = {}, _defineProperty(_newObject25, namedProps.ifcClass, getName(ifcTypes.IfcFacetedBrep)), _defineProperty(_newObject25, namedProps.outer, ifcDataTypes.id), _newObject25));
-  newObject((_newObject26 = {}, _defineProperty(_newObject26, namedProps.ifcClass, getName(ifcTypes.IfcCartesianTransformationOperator3D)), _defineProperty(_newObject26, namedProps.axis1, ifcDataTypes.id), _defineProperty(_newObject26, namedProps.axis2, ifcDataTypes.id), _defineProperty(_newObject26, namedProps.localOrigin, ifcDataTypes.id), _defineProperty(_newObject26, namedProps.scale, ifcDataTypes.number), _defineProperty(_newObject26, namedProps.axis3, ifcDataTypes.id), _newObject26));
-  newObject((_newObject27 = {}, _defineProperty(_newObject27, namedProps.ifcClass, getName(ifcTypes.IfcGeometricCurveSet)), _defineProperty(_newObject27, namedProps.elements, ifcDataTypes.idSet), _newObject27));
-  newObject((_newObject28 = {}, _defineProperty(_newObject28, namedProps.ifcClass, getName(ifcTypes.IfcConnectedFaceSet)), _defineProperty(_newObject28, "CfsFaces", ifcDataTypes.idSet), _newObject28));
-  newObject((_newObject29 = {}, _defineProperty(_newObject29, namedProps.ifcClass, getName(ifcTypes.IfcFaceBasedSurfaceModel)), _defineProperty(_newObject29, "FbsmFaces", ifcDataTypes.idSet), _newObject29));
-  newObject((_newObject30 = {}, _defineProperty(_newObject30, namedProps.ifcClass, getName(ifcTypes.IfcHalfSpaceSolid)), _defineProperty(_newObject30, namedProps.baseSurface, ifcDataTypes.id), _defineProperty(_newObject30, namedProps.agreementFlag, ifcDataTypes.bool), _newObject30));
-  newObject((_newObject31 = {}, _defineProperty(_newObject31, namedProps.ifcClass, getName(ifcTypes.IfcCompositeCurveSegment)), _defineProperty(_newObject31, "Transition", ifcDataTypes["enum"]), _defineProperty(_newObject31, "SameSense", ifcDataTypes.bool), _defineProperty(_newObject31, "ParentCurve", ifcDataTypes.id), _newObject31));
-  newObject((_newObject32 = {}, _defineProperty(_newObject32, namedProps.ifcClass, getName(ifcTypes.IfcCircle)), _defineProperty(_newObject32, "Position", ifcDataTypes.id), _defineProperty(_newObject32, "Radius", ifcDataTypes.number), _newObject32));
-  newObject((_newObject33 = {}, _defineProperty(_newObject33, namedProps.ifcClass, getName(ifcTypes.IfcTrimmedCurve)), _defineProperty(_newObject33, "BasisCurve", ifcDataTypes.id), _defineProperty(_newObject33, "Trim1", ifcDataTypes.valueSet), _defineProperty(_newObject33, "Trim2", ifcDataTypes.valueSet), _defineProperty(_newObject33, "SenseAgreement", ifcDataTypes.bool), _defineProperty(_newObject33, "MasterRepresentation", ifcDataTypes["enum"]), _newObject33));
-  newObject((_newObject34 = {}, _defineProperty(_newObject34, namedProps.ifcClass, getName(ifcTypes.IfcCompositeCurve)), _defineProperty(_newObject34, "Segments", ifcDataTypes.idSet), _defineProperty(_newObject34, "SelfIntersect", ifcDataTypes.bool), _newObject34));
-  newObject((_newObject35 = {}, _defineProperty(_newObject35, namedProps.ifcClass, getName(ifcTypes.IfcBoundingBox)), _defineProperty(_newObject35, "Corner", ifcDataTypes.id), _defineProperty(_newObject35, "XDim", ifcDataTypes.number), _defineProperty(_newObject35, "YDim", ifcDataTypes.number), _defineProperty(_newObject35, "ZDim", ifcDataTypes.number), _newObject35));
+  newObject((_newObject5$2 = {}, _defineProperty(_newObject5$2, namedProps.ifcClass, getName(ifcTypes.IfcIShapeProfileDef)), _defineProperty(_newObject5$2, "ProfileType", ifcDataTypes["enum"]), _defineProperty(_newObject5$2, "ProfileName", ifcDataTypes.text), _defineProperty(_newObject5$2, "Position", ifcDataTypes.id), _defineProperty(_newObject5$2, "OverallWidth", ifcDataTypes.number), _defineProperty(_newObject5$2, "OverallDepth", ifcDataTypes.number), _defineProperty(_newObject5$2, "WebThickness", ifcDataTypes.number), _defineProperty(_newObject5$2, "FlangeThickness", ifcDataTypes.number), _defineProperty(_newObject5$2, "FilletRadius", ifcDataTypes.number), _newObject5$2));
+  newObject((_newObject6$1 = {}, _defineProperty(_newObject6$1, namedProps.ifcClass, getName(ifcTypes.IfcCartesianPoint)), _defineProperty(_newObject6$1, namedProps.coordinates, ifcDataTypes.numSet), _newObject6$1));
+  newObject((_newObject7$1 = {}, _defineProperty(_newObject7$1, namedProps.ifcClass, getName(ifcTypes.IfcConnectionSurfaceGeometry)), _defineProperty(_newObject7$1, "SurfaceOnRelatingElement", ifcDataTypes.id), _defineProperty(_newObject7$1, "SurfaceOnRelatedElement", ifcDataTypes.id), _newObject7$1));
+  newObject((_newObject8$1 = {}, _defineProperty(_newObject8$1, namedProps.ifcClass, getName(ifcTypes.IfcCurveBoundedPlane)), _defineProperty(_newObject8$1, "BasisSurface", ifcDataTypes.id), _defineProperty(_newObject8$1, "OuterBoundary", ifcDataTypes.id), _defineProperty(_newObject8$1, "InnerBoundaries", ifcDataTypes.idSet), _newObject8$1));
+  newObject((_newObject9$1 = {}, _defineProperty(_newObject9$1, namedProps.ifcClass, getName(ifcTypes.IfcDirection)), _defineProperty(_newObject9$1, namedProps.dirRatios, ifcDataTypes.numSet), _newObject9$1));
+  newObject((_newObject10$1 = {}, _defineProperty(_newObject10$1, namedProps.ifcClass, getName(ifcTypes.IfcExtrudedAreaSolid)), _defineProperty(_newObject10$1, namedProps.sweptArea, ifcDataTypes.id), _defineProperty(_newObject10$1, namedProps.position, ifcDataTypes.id), _defineProperty(_newObject10$1, namedProps.extDirection, ifcDataTypes.id), _defineProperty(_newObject10$1, namedProps.depth, ifcDataTypes.number), _newObject10$1));
+  newObject((_newObject11$1 = {}, _defineProperty(_newObject11$1, namedProps.ifcClass, getName(ifcTypes.IfcPlane)), _defineProperty(_newObject11$1, "Position", ifcDataTypes.id), _newObject11$1));
+  newObject((_newObject12$1 = {}, _defineProperty(_newObject12$1, namedProps.ifcClass, getName(ifcTypes.IfcPolygonalBoundedHalfSpace)), _defineProperty(_newObject12$1, namedProps.baseSurface, ifcDataTypes.id), _defineProperty(_newObject12$1, namedProps.agreementFlag, ifcDataTypes.bool), _defineProperty(_newObject12$1, namedProps.position, ifcDataTypes.id), _defineProperty(_newObject12$1, namedProps.polygonalBoundary, ifcDataTypes.id), _newObject12$1));
+  newObject((_newObject13$1 = {}, _defineProperty(_newObject13$1, namedProps.ifcClass, getName(ifcTypes.IfcPolyline)), _defineProperty(_newObject13$1, namedProps.points, ifcDataTypes.idSet), _newObject13$1));
+  newObject((_newObject14$1 = {}, _defineProperty(_newObject14$1, namedProps.ifcClass, getName(ifcTypes.IfcProductDefinitionShape)), _defineProperty(_newObject14$1, "Description", ifcDataTypes.text), _defineProperty(_newObject14$1, namedProps.representationType, ifcDataTypes.text), _defineProperty(_newObject14$1, namedProps.representations, ifcDataTypes.idSet), _newObject14$1));
+  newObject((_newObject15$1 = {}, _defineProperty(_newObject15$1, namedProps.ifcClass, getName(ifcTypes.IfcRectangleProfileDef)), _defineProperty(_newObject15$1, "ProfileType", ifcDataTypes["enum"]), _defineProperty(_newObject15$1, "ProfileName", ifcDataTypes.text), _defineProperty(_newObject15$1, namedProps.position, ifcDataTypes.id), _defineProperty(_newObject15$1, namedProps.xDim, ifcDataTypes.number), _defineProperty(_newObject15$1, namedProps.yDim, ifcDataTypes.number), _newObject15$1));
+  newObject((_newObject16$1 = {}, _defineProperty(_newObject16$1, namedProps.ifcClass, getName(ifcTypes.IfcCircleProfileDef)), _defineProperty(_newObject16$1, "ProfileType", ifcDataTypes["enum"]), _defineProperty(_newObject16$1, "ProfileName", ifcDataTypes.text), _defineProperty(_newObject16$1, namedProps.position, ifcDataTypes.id), _defineProperty(_newObject16$1, namedProps.radius, ifcDataTypes.number), _newObject16$1));
+  newObject((_newObject17$1 = {}, _defineProperty(_newObject17$1, namedProps.ifcClass, getName(ifcTypes.IfcCircleHollowProfileDef)), _defineProperty(_newObject17$1, "ProfileType", ifcDataTypes["enum"]), _defineProperty(_newObject17$1, "ProfileName", ifcDataTypes.text), _defineProperty(_newObject17$1, namedProps.position, ifcDataTypes.id), _defineProperty(_newObject17$1, namedProps.radius, ifcDataTypes.number), _defineProperty(_newObject17$1, namedProps.wallThickness, ifcDataTypes.number), _newObject17$1));
+  newObject((_newObject18$1 = {}, _defineProperty(_newObject18$1, namedProps.ifcClass, getName(ifcTypes.IfcArbitraryProfileDefWithVoids)), _defineProperty(_newObject18$1, "ProfileType", ifcDataTypes["enum"]), _defineProperty(_newObject18$1, "ProfileName", ifcDataTypes.text), _defineProperty(_newObject18$1, namedProps.outerCurve, ifcDataTypes.id), _defineProperty(_newObject18$1, namedProps.innerCurves, ifcDataTypes.idSet), _newObject18$1));
+  newObject((_newObject19$1 = {}, _defineProperty(_newObject19$1, namedProps.ifcClass, getName(ifcTypes.IfcArbitraryClosedProfileDef)), _defineProperty(_newObject19$1, "ProfileType", ifcDataTypes["enum"]), _defineProperty(_newObject19$1, "ProfileName", ifcDataTypes.text), _defineProperty(_newObject19$1, namedProps.outerCurve, ifcDataTypes.id), _newObject19$1));
+  newObject((_newObject20$1 = {}, _defineProperty(_newObject20$1, namedProps.ifcClass, getName(ifcTypes.IfcShapeRepresentation)), _defineProperty(_newObject20$1, "ContextOfItems", ifcDataTypes.id), _defineProperty(_newObject20$1, "RepresentationIdentifier", ifcDataTypes.text), _defineProperty(_newObject20$1, namedProps.representationType, ifcDataTypes.text), _defineProperty(_newObject20$1, namedProps.items, ifcDataTypes.idSet), _newObject20$1));
+  newObject((_newObject21$1 = {}, _defineProperty(_newObject21$1, namedProps.ifcClass, getName(ifcTypes.IfcFaceOuterBound)), _defineProperty(_newObject21$1, namedProps.bound, ifcDataTypes.id), _defineProperty(_newObject21$1, namedProps.orientation, ifcDataTypes.bool), _newObject21$1));
+  newObject((_newObject22$1 = {}, _defineProperty(_newObject22$1, namedProps.ifcClass, getName(ifcTypes.IfcFaceBound)), _defineProperty(_newObject22$1, namedProps.bound, ifcDataTypes.id), _defineProperty(_newObject22$1, namedProps.orientation, ifcDataTypes.bool), _newObject22$1));
+  newObject((_newObject23$1 = {}, _defineProperty(_newObject23$1, namedProps.ifcClass, getName(ifcTypes.IfcFace)), _defineProperty(_newObject23$1, namedProps.bounds, ifcDataTypes.idSet), _newObject23$1));
+  newObject((_newObject24 = {}, _defineProperty(_newObject24, namedProps.ifcClass, getName(ifcTypes.IfcPolyLoop)), _defineProperty(_newObject24, namedProps.polygon, ifcDataTypes.idSet), _newObject24));
+  newObject((_newObject25 = {}, _defineProperty(_newObject25, namedProps.ifcClass, getName(ifcTypes.IfcClosedShell)), _defineProperty(_newObject25, namedProps.cfsFaces, ifcDataTypes.idSet), _newObject25));
+  newObject((_newObject26 = {}, _defineProperty(_newObject26, namedProps.ifcClass, getName(ifcTypes.IfcFacetedBrep)), _defineProperty(_newObject26, namedProps.outer, ifcDataTypes.id), _newObject26));
+  newObject((_newObject27 = {}, _defineProperty(_newObject27, namedProps.ifcClass, getName(ifcTypes.IfcCartesianTransformationOperator3D)), _defineProperty(_newObject27, namedProps.axis1, ifcDataTypes.id), _defineProperty(_newObject27, namedProps.axis2, ifcDataTypes.id), _defineProperty(_newObject27, namedProps.localOrigin, ifcDataTypes.id), _defineProperty(_newObject27, namedProps.scale, ifcDataTypes.number), _defineProperty(_newObject27, namedProps.axis3, ifcDataTypes.id), _newObject27));
+  newObject((_newObject28 = {}, _defineProperty(_newObject28, namedProps.ifcClass, getName(ifcTypes.IfcSurfaceOfLinearExtrusion)), _defineProperty(_newObject28, "SweptCurve", ifcDataTypes.id), _defineProperty(_newObject28, "Position", ifcDataTypes.id), _defineProperty(_newObject28, "ExtrudedDirection", ifcDataTypes.id), _defineProperty(_newObject28, "Depth", ifcDataTypes.number), _newObject28));
+  newObject((_newObject29 = {}, _defineProperty(_newObject29, namedProps.ifcClass, getName(ifcTypes.IfcArbitraryOpenProfileDef)), _defineProperty(_newObject29, "ProfileType", ifcDataTypes["enum"]), _defineProperty(_newObject29, "ProfileName", ifcDataTypes.text), _defineProperty(_newObject29, "Curve", ifcDataTypes.id), _newObject29));
+  newObject((_newObject30 = {}, _defineProperty(_newObject30, namedProps.ifcClass, getName(ifcTypes.IfcGeometricSet)), _defineProperty(_newObject30, "Elements", ifcDataTypes.idSet), _newObject30));
+  newObject((_newObject31 = {}, _defineProperty(_newObject31, namedProps.ifcClass, getName(ifcTypes.IfcGeometricCurveSet)), _defineProperty(_newObject31, namedProps.elements, ifcDataTypes.idSet), _newObject31));
+  newObject((_newObject32 = {}, _defineProperty(_newObject32, namedProps.ifcClass, getName(ifcTypes.IfcConnectedFaceSet)), _defineProperty(_newObject32, "CfsFaces", ifcDataTypes.idSet), _newObject32));
+  newObject((_newObject33 = {}, _defineProperty(_newObject33, namedProps.ifcClass, getName(ifcTypes.IfcFaceBasedSurfaceModel)), _defineProperty(_newObject33, "FbsmFaces", ifcDataTypes.idSet), _newObject33));
+  newObject((_newObject34 = {}, _defineProperty(_newObject34, namedProps.ifcClass, getName(ifcTypes.IfcHalfSpaceSolid)), _defineProperty(_newObject34, namedProps.baseSurface, ifcDataTypes.id), _defineProperty(_newObject34, namedProps.agreementFlag, ifcDataTypes.bool), _newObject34));
+  newObject((_newObject35 = {}, _defineProperty(_newObject35, namedProps.ifcClass, getName(ifcTypes.IfcCompositeCurveSegment)), _defineProperty(_newObject35, "Transition", ifcDataTypes["enum"]), _defineProperty(_newObject35, "SameSense", ifcDataTypes.bool), _defineProperty(_newObject35, namedProps.parentCurve, ifcDataTypes.id), _newObject35));
+  newObject((_newObject36 = {}, _defineProperty(_newObject36, namedProps.ifcClass, getName(ifcTypes.IfcCircle)), _defineProperty(_newObject36, "Position", ifcDataTypes.id), _defineProperty(_newObject36, "Radius", ifcDataTypes.number), _newObject36));
+  newObject((_newObject37 = {}, _defineProperty(_newObject37, namedProps.ifcClass, getName(ifcTypes.IfcTrimmedCurve)), _defineProperty(_newObject37, namedProps.basisCurve, ifcDataTypes.id), _defineProperty(_newObject37, namedProps.trim1, ifcDataTypes.valueSet), _defineProperty(_newObject37, namedProps.trim2, ifcDataTypes.valueSet), _defineProperty(_newObject37, namedProps.senseAgreement, ifcDataTypes.bool), _defineProperty(_newObject37, "MasterRepresentation", ifcDataTypes["enum"]), _newObject37));
+  newObject((_newObject38 = {}, _defineProperty(_newObject38, namedProps.ifcClass, getName(ifcTypes.IfcCompositeCurve)), _defineProperty(_newObject38, namedProps.segments, ifcDataTypes.idSet), _defineProperty(_newObject38, "SelfIntersect", ifcDataTypes.bool), _newObject38));
+  newObject((_newObject39 = {}, _defineProperty(_newObject39, namedProps.ifcClass, getName(ifcTypes.IfcBoundingBox)), _defineProperty(_newObject39, namedProps.corner, ifcDataTypes.id), _defineProperty(_newObject39, namedProps.xDim, ifcDataTypes.number), _defineProperty(_newObject39, namedProps.yDim, ifcDataTypes.number), _defineProperty(_newObject39, namedProps.zDim, ifcDataTypes.number), _newObject39));
+  newObject((_newObject40 = {}, _defineProperty(_newObject40, namedProps.ifcClass, getName(ifcTypes.IfcPlanarExtent)), _defineProperty(_newObject40, "SizeInX", ifcDataTypes.number), _defineProperty(_newObject40, "SizeInY", ifcDataTypes.number), _newObject40));
 
   var _newObject$4, _newObject2$4, _newObject3$3, _newObject4$3, _newObject5$3, _newObject6$2;
   newObject((_newObject$4 = {}, _defineProperty(_newObject$4, namedProps.ifcClass, getName(ifcTypes.IfcApplication)), _defineProperty(_newObject$4, "ApplicationDeveloper", ifcDataTypes.id), _defineProperty(_newObject$4, "Version", ifcDataTypes.text), _defineProperty(_newObject$4, "ApplicationFullName", ifcDataTypes.text), _defineProperty(_newObject$4, "ApplicationIdentifier", ifcDataTypes.text), _newObject$4));
@@ -584,19 +532,30 @@ var IFCjs = (function (exports) {
   newObject((_newObject4$4 = {}, _defineProperty(_newObject4$4, namedProps.ifcClass, getName(ifcTypes.IfcMaterialLayerSetUsage)), _defineProperty(_newObject4$4, "ForLayerSet", ifcDataTypes.id), _defineProperty(_newObject4$4, "LayerSetDirection", ifcDataTypes["enum"]), _defineProperty(_newObject4$4, "DirectionSense", ifcDataTypes["enum"]), _defineProperty(_newObject4$4, "OffsetFromReferenceLine", ifcDataTypes.number), _newObject4$4));
   newObject((_newObject5$4 = {}, _defineProperty(_newObject5$4, namedProps.ifcClass, getName(ifcTypes.IfcMaterialList)), _defineProperty(_newObject5$4, "Materials", ifcDataTypes.idSet), _newObject5$4));
 
-  var _newObject$6, _newObject2$6, _newObject3$5, _newObject4$5, _newObject5$5, _newObject6$3, _newObject7$2, _newObject8$2, _newObject9$2, _newObject10$2;
+  var _newObject$6, _newObject2$6, _newObject3$5, _newObject4$5, _newObject5$5, _newObject6$3, _newObject7$2, _newObject8$2, _newObject9$2, _newObject10$2, _newObject11$2, _newObject12$2, _newObject13$2, _newObject14$2, _newObject15$2, _newObject16$2, _newObject17$2, _newObject18$2, _newObject19$2, _newObject20$2, _newObject21$2;
   newObject((_newObject$6 = {}, _defineProperty(_newObject$6, namedProps.ifcClass, getName(ifcTypes.IfcColourRgb)), _defineProperty(_newObject$6, "Name", ifcDataTypes.text), _defineProperty(_newObject$6, "Red", ifcDataTypes.number), _defineProperty(_newObject$6, "Green", ifcDataTypes.number), _defineProperty(_newObject$6, "Blue", ifcDataTypes.number), _newObject$6));
-  newObject((_newObject2$6 = {}, _defineProperty(_newObject2$6, namedProps.ifcClass, getName(ifcTypes.IfcMaterialDefinitionRepresentation)), _defineProperty(_newObject2$6, "Name", ifcDataTypes.text), _defineProperty(_newObject2$6, "Description", ifcDataTypes.text), _defineProperty(_newObject2$6, namedProps.representations, ifcDataTypes.idSet), _defineProperty(_newObject2$6, "RepresentedMaterial", ifcDataTypes.id), _newObject2$6));
-  newObject((_newObject3$5 = {}, _defineProperty(_newObject3$5, namedProps.ifcClass, getName(ifcTypes.IfcPresentationStyleAssignment)), _defineProperty(_newObject3$5, "Styles", ifcDataTypes.idSet), _newObject3$5));
-  newObject((_newObject4$5 = {}, _defineProperty(_newObject4$5, namedProps.ifcClass, getName(ifcTypes.IfcStyledItem)), _defineProperty(_newObject4$5, "Item", ifcDataTypes.id), _defineProperty(_newObject4$5, "Styles", ifcDataTypes.idSet), _defineProperty(_newObject4$5, "Name", ifcDataTypes.id), _newObject4$5));
-  newObject((_newObject5$5 = {}, _defineProperty(_newObject5$5, namedProps.ifcClass, getName(ifcTypes.IfcStyledRepresentation)), _defineProperty(_newObject5$5, "ContextOfItems", ifcDataTypes.id), _defineProperty(_newObject5$5, "RepresentationIdentifier", ifcDataTypes.text), _defineProperty(_newObject5$5, namedProps.representationType, ifcDataTypes.text), _defineProperty(_newObject5$5, namedProps.items, ifcDataTypes.idSet), _newObject5$5));
-  newObject((_newObject6$3 = {}, _defineProperty(_newObject6$3, namedProps.ifcClass, getName(ifcTypes.IfcSurfaceStyle)), _defineProperty(_newObject6$3, "Name", ifcDataTypes.text), _defineProperty(_newObject6$3, "Side", ifcDataTypes["enum"]), _defineProperty(_newObject6$3, "Styles", ifcDataTypes.idSet), _newObject6$3));
-  newObject((_newObject7$2 = {}, _defineProperty(_newObject7$2, namedProps.ifcClass, getName(ifcTypes.IfcSurfaceStyleRendering)), _defineProperty(_newObject7$2, "SurfaceColour", ifcDataTypes.id), _defineProperty(_newObject7$2, "Transparency", ifcDataTypes.value), _defineProperty(_newObject7$2, "DiffuseColour", ifcDataTypes.value), _defineProperty(_newObject7$2, "TransmissionColour", ifcDataTypes.value), _defineProperty(_newObject7$2, "DiffuseTransmissionColour", ifcDataTypes.value), _defineProperty(_newObject7$2, "ReflectionColour", ifcDataTypes.value), _defineProperty(_newObject7$2, "SpecularColour", ifcDataTypes.value), _defineProperty(_newObject7$2, "SpecularHighlight", ifcDataTypes.value), _defineProperty(_newObject7$2, "ReflectanceMethod", ifcDataTypes["enum"]), _newObject7$2));
-  newObject((_newObject8$2 = {}, _defineProperty(_newObject8$2, namedProps.ifcClass, getName(ifcTypes.IfcRepresentationMap)), _defineProperty(_newObject8$2, namedProps.mappingOrigin, ifcDataTypes.id), _defineProperty(_newObject8$2, namedProps.mappedRepresentation, ifcDataTypes.id), _newObject8$2));
-  newObject((_newObject9$2 = {}, _defineProperty(_newObject9$2, namedProps.ifcClass, getName(ifcTypes.IfcPresentationLayerAssignment)), _defineProperty(_newObject9$2, "Name", ifcDataTypes.text), _defineProperty(_newObject9$2, "Description", ifcDataTypes.text), _defineProperty(_newObject9$2, "AssignedItems", ifcDataTypes.idSet), _defineProperty(_newObject9$2, "Identifier", ifcDataTypes.text), _newObject9$2));
-  newObject((_newObject10$2 = {}, _defineProperty(_newObject10$2, namedProps.ifcClass, getName(ifcTypes.IfcSurfaceStyleShading)), _defineProperty(_newObject10$2, "SurfaceColour", ifcDataTypes.id), _newObject10$2));
+  newObject((_newObject2$6 = {}, _defineProperty(_newObject2$6, namedProps.ifcClass, getName(ifcTypes.IfcCurveStyleFontPattern)), _defineProperty(_newObject2$6, "VisibleSegmentLength", ifcDataTypes.number), _defineProperty(_newObject2$6, "InvisibleSegmentLength", ifcDataTypes.number), _newObject2$6));
+  newObject((_newObject3$5 = {}, _defineProperty(_newObject3$5, namedProps.ifcClass, getName(ifcTypes.IfcCurveStyle)), _defineProperty(_newObject3$5, "Name", ifcDataTypes.text), _defineProperty(_newObject3$5, "CurveFont", ifcDataTypes.id), _defineProperty(_newObject3$5, "CurveWidth", ifcDataTypes.value), _defineProperty(_newObject3$5, "CurveColour", ifcDataTypes.id), _newObject3$5));
+  newObject((_newObject4$5 = {}, _defineProperty(_newObject4$5, namedProps.ifcClass, getName(ifcTypes.IfcFillAreaStyle)), _defineProperty(_newObject4$5, "Name", ifcDataTypes.text), _defineProperty(_newObject4$5, "FillStyles", ifcDataTypes.idSet), _newObject4$5));
+  newObject((_newObject5$5 = {}, _defineProperty(_newObject5$5, namedProps.ifcClass, getName(ifcTypes.IfcFillAreaStyleHatching)), _defineProperty(_newObject5$5, "HatchLineAppearance", ifcDataTypes.id), _defineProperty(_newObject5$5, "StartOfNextHatchLine", ifcDataTypes.value), _defineProperty(_newObject5$5, "PointOfReferenceHatchLine", ifcDataTypes.id), _defineProperty(_newObject5$5, "PatternStart", ifcDataTypes.id), _defineProperty(_newObject5$5, "HatchLineAngle", ifcDataTypes.number), _newObject5$5));
+  newObject((_newObject6$3 = {}, _defineProperty(_newObject6$3, namedProps.ifcClass, getName(ifcTypes.IfcCurveStyleFont)), _defineProperty(_newObject6$3, "Name", ifcDataTypes.text), _defineProperty(_newObject6$3, "PatternList", ifcDataTypes.idSet), _newObject6$3));
+  newObject((_newObject7$2 = {}, _defineProperty(_newObject7$2, namedProps.ifcClass, getName(ifcTypes.IfcDraughtingPreDefinedCurveFont)), _defineProperty(_newObject7$2, "Name", ifcDataTypes.text), _newObject7$2));
+  newObject((_newObject8$2 = {}, _defineProperty(_newObject8$2, namedProps.ifcClass, getName(ifcTypes.IfcMaterialDefinitionRepresentation)), _defineProperty(_newObject8$2, "Name", ifcDataTypes.text), _defineProperty(_newObject8$2, "Description", ifcDataTypes.text), _defineProperty(_newObject8$2, namedProps.representations, ifcDataTypes.idSet), _defineProperty(_newObject8$2, "RepresentedMaterial", ifcDataTypes.id), _newObject8$2));
+  newObject((_newObject9$2 = {}, _defineProperty(_newObject9$2, namedProps.ifcClass, getName(ifcTypes.IfcPresentationStyleAssignment)), _defineProperty(_newObject9$2, "Styles", ifcDataTypes.idSet), _newObject9$2));
+  newObject((_newObject10$2 = {}, _defineProperty(_newObject10$2, namedProps.ifcClass, getName(ifcTypes.IfcStyledItem)), _defineProperty(_newObject10$2, "Item", ifcDataTypes.id), _defineProperty(_newObject10$2, "Styles", ifcDataTypes.idSet), _defineProperty(_newObject10$2, "Name", ifcDataTypes.id), _newObject10$2));
+  newObject((_newObject11$2 = {}, _defineProperty(_newObject11$2, namedProps.ifcClass, getName(ifcTypes.IfcStyledRepresentation)), _defineProperty(_newObject11$2, "ContextOfItems", ifcDataTypes.id), _defineProperty(_newObject11$2, "RepresentationIdentifier", ifcDataTypes.text), _defineProperty(_newObject11$2, namedProps.representationType, ifcDataTypes.text), _defineProperty(_newObject11$2, namedProps.items, ifcDataTypes.idSet), _newObject11$2));
+  newObject((_newObject12$2 = {}, _defineProperty(_newObject12$2, namedProps.ifcClass, getName(ifcTypes.IfcSurfaceStyle)), _defineProperty(_newObject12$2, "Name", ifcDataTypes.text), _defineProperty(_newObject12$2, "Side", ifcDataTypes["enum"]), _defineProperty(_newObject12$2, "Styles", ifcDataTypes.idSet), _newObject12$2));
+  newObject((_newObject13$2 = {}, _defineProperty(_newObject13$2, namedProps.ifcClass, getName(ifcTypes.IfcSurfaceStyleRendering)), _defineProperty(_newObject13$2, "SurfaceColour", ifcDataTypes.id), _defineProperty(_newObject13$2, "Transparency", ifcDataTypes.value), _defineProperty(_newObject13$2, "DiffuseColour", ifcDataTypes.value), _defineProperty(_newObject13$2, "TransmissionColour", ifcDataTypes.value), _defineProperty(_newObject13$2, "DiffuseTransmissionColour", ifcDataTypes.value), _defineProperty(_newObject13$2, "ReflectionColour", ifcDataTypes.value), _defineProperty(_newObject13$2, "SpecularColour", ifcDataTypes.value), _defineProperty(_newObject13$2, "SpecularHighlight", ifcDataTypes.value), _defineProperty(_newObject13$2, "ReflectanceMethod", ifcDataTypes["enum"]), _newObject13$2));
+  newObject((_newObject14$2 = {}, _defineProperty(_newObject14$2, namedProps.ifcClass, getName(ifcTypes.IfcRepresentationMap)), _defineProperty(_newObject14$2, namedProps.mappingOrigin, ifcDataTypes.id), _defineProperty(_newObject14$2, namedProps.mappedRepresentation, ifcDataTypes.id), _newObject14$2));
+  newObject((_newObject15$2 = {}, _defineProperty(_newObject15$2, namedProps.ifcClass, getName(ifcTypes.IfcPresentationLayerAssignment)), _defineProperty(_newObject15$2, "Name", ifcDataTypes.text), _defineProperty(_newObject15$2, "Description", ifcDataTypes.text), _defineProperty(_newObject15$2, "AssignedItems", ifcDataTypes.idSet), _defineProperty(_newObject15$2, "Identifier", ifcDataTypes.text), _newObject15$2));
+  newObject((_newObject16$2 = {}, _defineProperty(_newObject16$2, namedProps.ifcClass, getName(ifcTypes.IfcSurfaceStyleShading)), _defineProperty(_newObject16$2, "SurfaceColour", ifcDataTypes.id), _newObject16$2));
+  newObject((_newObject17$2 = {}, _defineProperty(_newObject17$2, namedProps.ifcClass, getName(ifcTypes.IfcTextStyleFontModel)), _defineProperty(_newObject17$2, "Name", ifcDataTypes.text), _defineProperty(_newObject17$2, "FontFamily", ifcDataTypes.textSet), _defineProperty(_newObject17$2, "FontStyle", ifcDataTypes.text), _defineProperty(_newObject17$2, "FontVariant", ifcDataTypes.text), _defineProperty(_newObject17$2, "FontWeight", ifcDataTypes.number), _defineProperty(_newObject17$2, "FontSize", ifcDataTypes.value), _newObject17$2));
+  newObject((_newObject18$2 = {}, _defineProperty(_newObject18$2, namedProps.ifcClass, getName(ifcTypes.IfcTextStyleForDefinedFont)), _defineProperty(_newObject18$2, "Colour", ifcDataTypes.id), _defineProperty(_newObject18$2, "BackgroundColour", ifcDataTypes.id), _newObject18$2));
+  newObject((_newObject19$2 = {}, _defineProperty(_newObject19$2, namedProps.ifcClass, getName(ifcTypes.IfcTextStyle)), _defineProperty(_newObject19$2, "Name", ifcDataTypes.text), _defineProperty(_newObject19$2, "TextCharacterAppearance", ifcDataTypes.id), _defineProperty(_newObject19$2, "TextStyle", ifcDataTypes.id), _defineProperty(_newObject19$2, "TextFontStyle", ifcDataTypes.id), _newObject19$2));
+  newObject((_newObject20$2 = {}, _defineProperty(_newObject20$2, namedProps.ifcClass, getName(ifcTypes.IfcTextLiteralWithExtent)), _defineProperty(_newObject20$2, "Literal", ifcDataTypes.text), _defineProperty(_newObject20$2, "Placement", ifcDataTypes.id), _defineProperty(_newObject20$2, "Path", ifcDataTypes["enum"]), _defineProperty(_newObject20$2, "Extent", ifcDataTypes.id), _defineProperty(_newObject20$2, "BoxAlignment", ifcDataTypes.text), _newObject20$2));
+  newObject((_newObject21$2 = {}, _defineProperty(_newObject21$2, namedProps.ifcClass, getName(ifcTypes.IfcAnnotationFillArea)), _defineProperty(_newObject21$2, "OuterBoundary", ifcDataTypes.id), _defineProperty(_newObject21$2, "InnerBoundaries", ifcDataTypes.idSet), _newObject21$2));
 
-  var _newObject$7, _newObject2$7, _newObject3$6, _newObject4$6, _newObject5$6, _newObject6$4, _newObject7$3, _newObject8$3, _newObject9$3, _newObject10$3, _newObject11$2, _newObject12$2, _newObject13$2, _newObject14$2, _newObject15$2, _newObject16$2, _newObject17$2, _newObject18$2, _newObject19$2, _newObject20$2;
+  var _newObject$7, _newObject2$7, _newObject3$6, _newObject4$6, _newObject5$6, _newObject6$4, _newObject7$3, _newObject8$3, _newObject9$3, _newObject10$3, _newObject11$3, _newObject12$3, _newObject13$3, _newObject14$3, _newObject15$3, _newObject16$3, _newObject17$3, _newObject18$3, _newObject19$3, _newObject20$3, _newObject21$3, _newObject22$2, _newObject23$2, _newObject24$1;
   newObject((_newObject$7 = {}, _defineProperty(_newObject$7, namedProps.ifcClass, getName(ifcTypes.IfcPropertySet)), _defineProperty(_newObject$7, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject$7, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject$7, "Name", ifcDataTypes.text), _defineProperty(_newObject$7, "Description", ifcDataTypes.text), _defineProperty(_newObject$7, "HasProperties", ifcDataTypes.idSet), _newObject$7));
   newObject((_newObject2$7 = {}, _defineProperty(_newObject2$7, namedProps.ifcClass, getName(ifcTypes.IfcPropertySingleValue)), _defineProperty(_newObject2$7, "Name", ifcDataTypes.text), _defineProperty(_newObject2$7, "Description", ifcDataTypes.text), _defineProperty(_newObject2$7, "NominalValue", ifcDataTypes.value), _defineProperty(_newObject2$7, "Unit", ifcDataTypes.id), _newObject2$7));
   newObject((_newObject3$6 = {}, _defineProperty(_newObject3$6, namedProps.ifcClass, getName(ifcTypes.IfcSpaceType)), _defineProperty(_newObject3$6, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject3$6, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject3$6, "Name", ifcDataTypes.text), _defineProperty(_newObject3$6, "Description", ifcDataTypes.text), _defineProperty(_newObject3$6, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject3$6, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject3$6, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject3$6, "Tag", ifcDataTypes.text), _defineProperty(_newObject3$6, "ElementType", ifcDataTypes.text), _defineProperty(_newObject3$6, "PredefinedType", ifcDataTypes["enum"]), _newObject3$6));
@@ -607,19 +566,26 @@ var IFCjs = (function (exports) {
   newObject((_newObject8$3 = {}, _defineProperty(_newObject8$3, namedProps.ifcClass, getName(ifcTypes.IfcStairFlightType)), _defineProperty(_newObject8$3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject8$3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject8$3, "Name", ifcDataTypes.text), _defineProperty(_newObject8$3, "Description", ifcDataTypes.text), _defineProperty(_newObject8$3, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject8$3, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject8$3, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject8$3, "Tag", ifcDataTypes.text), _defineProperty(_newObject8$3, "ElementType", ifcDataTypes.text), _defineProperty(_newObject8$3, "PredefinedType", ifcDataTypes["enum"]), _newObject8$3));
   newObject((_newObject9$3 = {}, _defineProperty(_newObject9$3, namedProps.ifcClass, getName(ifcTypes.IfcCoveringType)), _defineProperty(_newObject9$3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject9$3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject9$3, "Name", ifcDataTypes.text), _defineProperty(_newObject9$3, "Description", ifcDataTypes.text), _defineProperty(_newObject9$3, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject9$3, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject9$3, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject9$3, "Tag", ifcDataTypes.text), _defineProperty(_newObject9$3, "ElementType", ifcDataTypes.text), _defineProperty(_newObject9$3, "PredefinedType", ifcDataTypes["enum"]), _newObject9$3));
   newObject((_newObject10$3 = {}, _defineProperty(_newObject10$3, namedProps.ifcClass, getName(ifcTypes.IfcCurtainWallType)), _defineProperty(_newObject10$3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject10$3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject10$3, "Name", ifcDataTypes.text), _defineProperty(_newObject10$3, "Description", ifcDataTypes.text), _defineProperty(_newObject10$3, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject10$3, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject10$3, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject10$3, "Tag", ifcDataTypes.text), _defineProperty(_newObject10$3, "ElementType", ifcDataTypes.text), _defineProperty(_newObject10$3, "PredefinedType", ifcDataTypes["enum"]), _newObject10$3));
-  newObject((_newObject11$2 = {}, _defineProperty(_newObject11$2, namedProps.ifcClass, getName(ifcTypes.IfcFurnitureType)), _defineProperty(_newObject11$2, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject11$2, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject11$2, "Name", ifcDataTypes.text), _defineProperty(_newObject11$2, "Description", ifcDataTypes.text), _defineProperty(_newObject11$2, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject11$2, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject11$2, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject11$2, "Tag", ifcDataTypes.text), _defineProperty(_newObject11$2, "ElementType", ifcDataTypes.text), _defineProperty(_newObject11$2, "AssemblyPlace", ifcDataTypes["enum"]), _newObject11$2));
-  newObject((_newObject12$2 = {}, _defineProperty(_newObject12$2, namedProps.ifcClass, getName(ifcTypes.IfcDoorType)), _defineProperty(_newObject12$2, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject12$2, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject12$2, "Name", ifcDataTypes.text), _defineProperty(_newObject12$2, "Description", ifcDataTypes.text), _defineProperty(_newObject12$2, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject12$2, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject12$2, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject12$2, "Tag", ifcDataTypes.text), _defineProperty(_newObject12$2, "ElementType", ifcDataTypes.text), _defineProperty(_newObject12$2, "PredefinedType", ifcDataTypes["enum"]), _defineProperty(_newObject12$2, "OperationType", ifcDataTypes["enum"]), _defineProperty(_newObject12$2, "ParameterTakesPrecedence", ifcDataTypes.bool), _defineProperty(_newObject12$2, "UserDefinedOperationType", ifcDataTypes.text), _newObject12$2));
-  newObject((_newObject13$2 = {}, _defineProperty(_newObject13$2, namedProps.ifcClass, getName(ifcTypes.IfcSlabType)), _defineProperty(_newObject13$2, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject13$2, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject13$2, "Name", ifcDataTypes.text), _defineProperty(_newObject13$2, "Description", ifcDataTypes.text), _defineProperty(_newObject13$2, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject13$2, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject13$2, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject13$2, "Tag", ifcDataTypes.text), _defineProperty(_newObject13$2, "ElementType", ifcDataTypes.text), _defineProperty(_newObject13$2, "PredefinedType", ifcDataTypes["enum"]), _newObject13$2));
-  newObject((_newObject14$2 = {}, _defineProperty(_newObject14$2, namedProps.ifcClass, getName(ifcTypes.IfcBuildingElementProxyType)), _defineProperty(_newObject14$2, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject14$2, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject14$2, "Name", ifcDataTypes.text), _defineProperty(_newObject14$2, "Description", ifcDataTypes.text), _defineProperty(_newObject14$2, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject14$2, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject14$2, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject14$2, "Tag", ifcDataTypes.text), _defineProperty(_newObject14$2, "ElementType", ifcDataTypes.text), _defineProperty(_newObject14$2, "PredefinedType", ifcDataTypes["enum"]), _newObject14$2));
-  newObject((_newObject15$2 = {}, _defineProperty(_newObject15$2, namedProps.ifcClass, getName(ifcTypes.IfcSanitaryTerminalType)), _defineProperty(_newObject15$2, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject15$2, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject15$2, "Name", ifcDataTypes.text), _defineProperty(_newObject15$2, "Description", ifcDataTypes.text), _defineProperty(_newObject15$2, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject15$2, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject15$2, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject15$2, "Tag", ifcDataTypes.text), _defineProperty(_newObject15$2, "ElementType", ifcDataTypes.text), _defineProperty(_newObject15$2, "PredefinedType", ifcDataTypes["enum"]), _newObject15$2));
-  newObject((_newObject16$2 = {}, _defineProperty(_newObject16$2, namedProps.ifcClass, getName(ifcTypes.IfcDoorLiningProperties)), _defineProperty(_newObject16$2, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject16$2, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject16$2, "Name", ifcDataTypes.text), _defineProperty(_newObject16$2, "Description", ifcDataTypes.text), _defineProperty(_newObject16$2, "LiningDepth", ifcDataTypes.number), _defineProperty(_newObject16$2, "LiningThickness", ifcDataTypes.number), _defineProperty(_newObject16$2, "ThresholdDepth", ifcDataTypes.number), _defineProperty(_newObject16$2, "ThresholdThickness", ifcDataTypes.number), _defineProperty(_newObject16$2, "TransomThickness", ifcDataTypes.number), _defineProperty(_newObject16$2, "TransomOffset", ifcDataTypes.number), _defineProperty(_newObject16$2, "LiningOffset", ifcDataTypes.number), _defineProperty(_newObject16$2, "ThresholdOffset", ifcDataTypes.number), _defineProperty(_newObject16$2, "CasingThickness", ifcDataTypes.number), _defineProperty(_newObject16$2, "CasingDepth", ifcDataTypes.number), _defineProperty(_newObject16$2, "ShapeAspectStyle", ifcDataTypes.id), _newObject16$2));
-  newObject((_newObject17$2 = {}, _defineProperty(_newObject17$2, namedProps.ifcClass, getName(ifcTypes.IfcDoorPanelProperties)), _defineProperty(_newObject17$2, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject17$2, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject17$2, "Name", ifcDataTypes.text), _defineProperty(_newObject17$2, "Description", ifcDataTypes.text), _defineProperty(_newObject17$2, "PanelDepth", ifcDataTypes.number), _defineProperty(_newObject17$2, "PanelOperation", ifcDataTypes["enum"]), _defineProperty(_newObject17$2, "PanelWidth", ifcDataTypes.value), _defineProperty(_newObject17$2, "PanelPosition", ifcDataTypes["enum"]), _defineProperty(_newObject17$2, "ShapeAspectStyle", ifcDataTypes.id), _newObject17$2));
-  newObject((_newObject18$2 = {}, _defineProperty(_newObject18$2, namedProps.ifcClass, getName(ifcTypes.IfcDoorStyle)), _defineProperty(_newObject18$2, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject18$2, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject18$2, "Name", ifcDataTypes.text), _defineProperty(_newObject18$2, "Description", ifcDataTypes.text), _defineProperty(_newObject18$2, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject18$2, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject18$2, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject18$2, "Tag", ifcDataTypes.text), _defineProperty(_newObject18$2, "OperationType", ifcDataTypes["enum"]), _defineProperty(_newObject18$2, "ConstructionType", ifcDataTypes["enum"]), _defineProperty(_newObject18$2, "ParameterTakesPrecedence", ifcDataTypes.bool), _defineProperty(_newObject18$2, "Sizeable", ifcDataTypes.bool), _newObject18$2));
-  newObject((_newObject19$2 = {}, _defineProperty(_newObject19$2, namedProps.ifcClass, getName(ifcTypes.IfcWindowStyle)), _defineProperty(_newObject19$2, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject19$2, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject19$2, "Name", ifcDataTypes.text), _defineProperty(_newObject19$2, "Description", ifcDataTypes.text), _defineProperty(_newObject19$2, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject19$2, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject19$2, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject19$2, "Tag", ifcDataTypes.text), _defineProperty(_newObject19$2, "ConstructionType", ifcDataTypes["enum"]), _defineProperty(_newObject19$2, "OperationType", ifcDataTypes["enum"]), _defineProperty(_newObject19$2, "ParameterTakesPrecedence", ifcDataTypes.bool), _defineProperty(_newObject19$2, "Sizeable", ifcDataTypes.bool), _newObject19$2));
-  newObject((_newObject20$2 = {}, _defineProperty(_newObject20$2, namedProps.ifcClass, getName(ifcTypes.IfcWindowLiningProperties)), _defineProperty(_newObject20$2, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject20$2, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject20$2, "Name", ifcDataTypes.text), _defineProperty(_newObject20$2, "Description", ifcDataTypes.text), _defineProperty(_newObject20$2, "LiningDepth", ifcDataTypes.number), _defineProperty(_newObject20$2, "LiningThickness", ifcDataTypes.number), _defineProperty(_newObject20$2, "TransomThickness", ifcDataTypes.number), _defineProperty(_newObject20$2, "MullionThickness", ifcDataTypes.number), _defineProperty(_newObject20$2, "FirstTransomOffset", ifcDataTypes.number), _defineProperty(_newObject20$2, "SecondTransomOffset", ifcDataTypes.number), _defineProperty(_newObject20$2, "FirstMullionOffset", ifcDataTypes.number), _defineProperty(_newObject20$2, "SecondMullionOffset", ifcDataTypes.number), _defineProperty(_newObject20$2, "ShapeAspectStyle", ifcDataTypes.number), _newObject20$2));
+  newObject((_newObject11$3 = {}, _defineProperty(_newObject11$3, namedProps.ifcClass, getName(ifcTypes.IfcFurnitureType)), _defineProperty(_newObject11$3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject11$3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject11$3, "Name", ifcDataTypes.text), _defineProperty(_newObject11$3, "Description", ifcDataTypes.text), _defineProperty(_newObject11$3, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject11$3, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject11$3, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject11$3, "Tag", ifcDataTypes.text), _defineProperty(_newObject11$3, "ElementType", ifcDataTypes.text), _defineProperty(_newObject11$3, "AssemblyPlace", ifcDataTypes["enum"]), _newObject11$3));
+  newObject((_newObject12$3 = {}, _defineProperty(_newObject12$3, namedProps.ifcClass, getName(ifcTypes.IfcDoorType)), _defineProperty(_newObject12$3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject12$3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject12$3, "Name", ifcDataTypes.text), _defineProperty(_newObject12$3, "Description", ifcDataTypes.text), _defineProperty(_newObject12$3, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject12$3, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject12$3, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject12$3, "Tag", ifcDataTypes.text), _defineProperty(_newObject12$3, "ElementType", ifcDataTypes.text), _defineProperty(_newObject12$3, "PredefinedType", ifcDataTypes["enum"]), _defineProperty(_newObject12$3, "OperationType", ifcDataTypes["enum"]), _defineProperty(_newObject12$3, "ParameterTakesPrecedence", ifcDataTypes.bool), _defineProperty(_newObject12$3, "UserDefinedOperationType", ifcDataTypes.text), _newObject12$3));
+  newObject((_newObject13$3 = {}, _defineProperty(_newObject13$3, namedProps.ifcClass, getName(ifcTypes.IfcSlabType)), _defineProperty(_newObject13$3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject13$3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject13$3, "Name", ifcDataTypes.text), _defineProperty(_newObject13$3, "Description", ifcDataTypes.text), _defineProperty(_newObject13$3, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject13$3, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject13$3, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject13$3, "Tag", ifcDataTypes.text), _defineProperty(_newObject13$3, "ElementType", ifcDataTypes.text), _defineProperty(_newObject13$3, "PredefinedType", ifcDataTypes["enum"]), _newObject13$3));
+  newObject((_newObject14$3 = {}, _defineProperty(_newObject14$3, namedProps.ifcClass, getName(ifcTypes.IfcBuildingElementProxyType)), _defineProperty(_newObject14$3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject14$3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject14$3, "Name", ifcDataTypes.text), _defineProperty(_newObject14$3, "Description", ifcDataTypes.text), _defineProperty(_newObject14$3, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject14$3, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject14$3, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject14$3, "Tag", ifcDataTypes.text), _defineProperty(_newObject14$3, "ElementType", ifcDataTypes.text), _defineProperty(_newObject14$3, "PredefinedType", ifcDataTypes["enum"]), _newObject14$3));
+  newObject((_newObject15$3 = {}, _defineProperty(_newObject15$3, namedProps.ifcClass, getName(ifcTypes.IfcSanitaryTerminalType)), _defineProperty(_newObject15$3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject15$3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject15$3, "Name", ifcDataTypes.text), _defineProperty(_newObject15$3, "Description", ifcDataTypes.text), _defineProperty(_newObject15$3, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject15$3, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject15$3, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject15$3, "Tag", ifcDataTypes.text), _defineProperty(_newObject15$3, "ElementType", ifcDataTypes.text), _defineProperty(_newObject15$3, "PredefinedType", ifcDataTypes["enum"]), _newObject15$3));
+  newObject((_newObject16$3 = {}, _defineProperty(_newObject16$3, namedProps.ifcClass, getName(ifcTypes.IfcAirTerminalType)), _defineProperty(_newObject16$3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject16$3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject16$3, "Name", ifcDataTypes.text), _defineProperty(_newObject16$3, "Description", ifcDataTypes.text), _defineProperty(_newObject16$3, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject16$3, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject16$3, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject16$3, "Tag", ifcDataTypes.text), _defineProperty(_newObject16$3, "ElementType", ifcDataTypes.text), _defineProperty(_newObject16$3, "PredefinedType", ifcDataTypes["enum"]), _newObject16$3));
+  newObject((_newObject17$3 = {}, _defineProperty(_newObject17$3, namedProps.ifcClass, getName(ifcTypes.IfcLightFixtureType)), _defineProperty(_newObject17$3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject17$3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject17$3, "Name", ifcDataTypes.text), _defineProperty(_newObject17$3, "Description", ifcDataTypes.text), _defineProperty(_newObject17$3, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject17$3, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject17$3, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject17$3, "Tag", ifcDataTypes.text), _defineProperty(_newObject17$3, "ElementType", ifcDataTypes.text), _defineProperty(_newObject17$3, "PredefinedType", ifcDataTypes["enum"]), _newObject17$3));
+  newObject((_newObject18$3 = {}, _defineProperty(_newObject18$3, namedProps.ifcClass, getName(ifcTypes.IfcSystemFurnitureElementType)), _defineProperty(_newObject18$3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject18$3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject18$3, "Name", ifcDataTypes.text), _defineProperty(_newObject18$3, "Description", ifcDataTypes.text), _defineProperty(_newObject18$3, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject18$3, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject18$3, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject18$3, "Tag", ifcDataTypes.text), _defineProperty(_newObject18$3, "ElementType", ifcDataTypes.text), _newObject18$3));
+  newObject((_newObject19$3 = {}, _defineProperty(_newObject19$3, namedProps.ifcClass, getName(ifcTypes.IfcDistributionElementType)), _defineProperty(_newObject19$3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject19$3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject19$3, "Name", ifcDataTypes.text), _defineProperty(_newObject19$3, "Description", ifcDataTypes.text), _defineProperty(_newObject19$3, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject19$3, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject19$3, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject19$3, "Tag", ifcDataTypes.text), _defineProperty(_newObject19$3, "ElementType", ifcDataTypes.text), _newObject19$3));
+  newObject((_newObject20$3 = {}, _defineProperty(_newObject20$3, namedProps.ifcClass, getName(ifcTypes.IfcDoorLiningProperties)), _defineProperty(_newObject20$3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject20$3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject20$3, "Name", ifcDataTypes.text), _defineProperty(_newObject20$3, "Description", ifcDataTypes.text), _defineProperty(_newObject20$3, "LiningDepth", ifcDataTypes.number), _defineProperty(_newObject20$3, "LiningThickness", ifcDataTypes.number), _defineProperty(_newObject20$3, "ThresholdDepth", ifcDataTypes.number), _defineProperty(_newObject20$3, "ThresholdThickness", ifcDataTypes.number), _defineProperty(_newObject20$3, "TransomThickness", ifcDataTypes.number), _defineProperty(_newObject20$3, "TransomOffset", ifcDataTypes.number), _defineProperty(_newObject20$3, "LiningOffset", ifcDataTypes.number), _defineProperty(_newObject20$3, "ThresholdOffset", ifcDataTypes.number), _defineProperty(_newObject20$3, "CasingThickness", ifcDataTypes.number), _defineProperty(_newObject20$3, "CasingDepth", ifcDataTypes.number), _defineProperty(_newObject20$3, "ShapeAspectStyle", ifcDataTypes.id), _newObject20$3));
+  newObject((_newObject21$3 = {}, _defineProperty(_newObject21$3, namedProps.ifcClass, getName(ifcTypes.IfcDoorPanelProperties)), _defineProperty(_newObject21$3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject21$3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject21$3, "Name", ifcDataTypes.text), _defineProperty(_newObject21$3, "Description", ifcDataTypes.text), _defineProperty(_newObject21$3, "PanelDepth", ifcDataTypes.number), _defineProperty(_newObject21$3, "PanelOperation", ifcDataTypes["enum"]), _defineProperty(_newObject21$3, "PanelWidth", ifcDataTypes.value), _defineProperty(_newObject21$3, "PanelPosition", ifcDataTypes["enum"]), _defineProperty(_newObject21$3, "ShapeAspectStyle", ifcDataTypes.id), _newObject21$3));
+  newObject((_newObject22$2 = {}, _defineProperty(_newObject22$2, namedProps.ifcClass, getName(ifcTypes.IfcDoorStyle)), _defineProperty(_newObject22$2, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject22$2, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject22$2, "Name", ifcDataTypes.text), _defineProperty(_newObject22$2, "Description", ifcDataTypes.text), _defineProperty(_newObject22$2, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject22$2, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject22$2, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject22$2, "Tag", ifcDataTypes.text), _defineProperty(_newObject22$2, "OperationType", ifcDataTypes["enum"]), _defineProperty(_newObject22$2, "ConstructionType", ifcDataTypes["enum"]), _defineProperty(_newObject22$2, "ParameterTakesPrecedence", ifcDataTypes.bool), _defineProperty(_newObject22$2, "Sizeable", ifcDataTypes.bool), _newObject22$2));
+  newObject((_newObject23$2 = {}, _defineProperty(_newObject23$2, namedProps.ifcClass, getName(ifcTypes.IfcWindowStyle)), _defineProperty(_newObject23$2, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject23$2, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject23$2, "Name", ifcDataTypes.text), _defineProperty(_newObject23$2, "Description", ifcDataTypes.text), _defineProperty(_newObject23$2, "ApplicableOccurrence", ifcDataTypes.text), _defineProperty(_newObject23$2, "HasPropertySets", ifcDataTypes.idSet), _defineProperty(_newObject23$2, "RepresentationMaps", ifcDataTypes.idSet), _defineProperty(_newObject23$2, "Tag", ifcDataTypes.text), _defineProperty(_newObject23$2, "ConstructionType", ifcDataTypes["enum"]), _defineProperty(_newObject23$2, "OperationType", ifcDataTypes["enum"]), _defineProperty(_newObject23$2, "ParameterTakesPrecedence", ifcDataTypes.bool), _defineProperty(_newObject23$2, "Sizeable", ifcDataTypes.bool), _newObject23$2));
+  newObject((_newObject24$1 = {}, _defineProperty(_newObject24$1, namedProps.ifcClass, getName(ifcTypes.IfcWindowLiningProperties)), _defineProperty(_newObject24$1, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject24$1, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject24$1, "Name", ifcDataTypes.text), _defineProperty(_newObject24$1, "Description", ifcDataTypes.text), _defineProperty(_newObject24$1, "LiningDepth", ifcDataTypes.number), _defineProperty(_newObject24$1, "LiningThickness", ifcDataTypes.number), _defineProperty(_newObject24$1, "TransomThickness", ifcDataTypes.number), _defineProperty(_newObject24$1, "MullionThickness", ifcDataTypes.number), _defineProperty(_newObject24$1, "FirstTransomOffset", ifcDataTypes.number), _defineProperty(_newObject24$1, "SecondTransomOffset", ifcDataTypes.number), _defineProperty(_newObject24$1, "FirstMullionOffset", ifcDataTypes.number), _defineProperty(_newObject24$1, "SecondMullionOffset", ifcDataTypes.number), _defineProperty(_newObject24$1, "ShapeAspectStyle", ifcDataTypes.number), _newObject24$1));
 
-  var _newObject$8, _newObject2$8, _newObject3$7, _newObject4$7, _newObject5$7, _newObject6$5, _newObject7$4, _newObject8$4, _newObject9$4, _newObject10$4, _newObject11$3, _newObject12$3, _newObject13$3, _newObject14$3;
-  newObject((_newObject$8 = {}, _defineProperty(_newObject$8, namedProps.ifcClass, getName(ifcTypes.IfcRelAggregates)), _defineProperty(_newObject$8, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject$8, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject$8, "Name", ifcDataTypes.text), _defineProperty(_newObject$8, "Description", ifcDataTypes.text), _defineProperty(_newObject$8, namedProps.relatingObject, ifcDataTypes.id), _defineProperty(_newObject$8, namedProps.relatedObjects, ifcDataTypes.idSet), _newObject$8));
+  var _newObject$8;
+  newObject((_newObject$8 = {}, _defineProperty(_newObject$8, namedProps.ifcClass, getName(ifcTypes.IfcActor)), _defineProperty(_newObject$8, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject$8, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject$8, "Name", ifcDataTypes.text), _defineProperty(_newObject$8, "Description", ifcDataTypes.text), _defineProperty(_newObject$8, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject$8, "TheActor", ifcDataTypes.id), _newObject$8));
+
+  var _newObject$9, _newObject2$8, _newObject3$7, _newObject4$7, _newObject5$7, _newObject6$5, _newObject7$4, _newObject8$4, _newObject9$4, _newObject10$4, _newObject11$4, _newObject12$4, _newObject13$4, _newObject14$4, _newObject15$4;
+  newObject((_newObject$9 = {}, _defineProperty(_newObject$9, namedProps.ifcClass, getName(ifcTypes.IfcRelAggregates)), _defineProperty(_newObject$9, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject$9, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject$9, "Name", ifcDataTypes.text), _defineProperty(_newObject$9, "Description", ifcDataTypes.text), _defineProperty(_newObject$9, namedProps.relatingObject, ifcDataTypes.id), _defineProperty(_newObject$9, namedProps.relatedObjects, ifcDataTypes.idSet), _newObject$9));
   newObject((_newObject2$8 = {}, _defineProperty(_newObject2$8, namedProps.ifcClass, getName(ifcTypes.IfcRelContainedInSpatialStructure)), _defineProperty(_newObject2$8, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject2$8, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject2$8, "Name", ifcDataTypes.text), _defineProperty(_newObject2$8, "Description", ifcDataTypes.text), _defineProperty(_newObject2$8, namedProps.relatedElements, ifcDataTypes.idSet), _defineProperty(_newObject2$8, namedProps.relatingStructure, ifcDataTypes.id), _newObject2$8));
   newObject((_newObject3$7 = {}, _defineProperty(_newObject3$7, namedProps.ifcClass, getName(ifcTypes.IfcRelDefinesByProperties)), _defineProperty(_newObject3$7, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject3$7, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject3$7, "Name", ifcDataTypes.text), _defineProperty(_newObject3$7, "Description", ifcDataTypes.text), _defineProperty(_newObject3$7, "RelatedObjects", ifcDataTypes.idSet), _defineProperty(_newObject3$7, "RelatingPropertyDefinition", ifcDataTypes.id), _newObject3$7));
   newObject((_newObject4$7 = {}, _defineProperty(_newObject4$7, namedProps.ifcClass, getName(ifcTypes.IfcRelAssociatesMaterial)), _defineProperty(_newObject4$7, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject4$7, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject4$7, "Name", ifcDataTypes.text), _defineProperty(_newObject4$7, "Description", ifcDataTypes.text), _defineProperty(_newObject4$7, "RelatedObjects", ifcDataTypes.idSet), _defineProperty(_newObject4$7, "RelatingMaterial", ifcDataTypes.id), _newObject4$7));
@@ -629,30 +595,34 @@ var IFCjs = (function (exports) {
   newObject((_newObject8$4 = {}, _defineProperty(_newObject8$4, namedProps.ifcClass, getName(ifcTypes.IfcRelConnectsPathElements)), _defineProperty(_newObject8$4, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject8$4, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject8$4, "Name", ifcDataTypes.text), _defineProperty(_newObject8$4, "Description", ifcDataTypes.text), _defineProperty(_newObject8$4, "ConnectionGeometry", ifcDataTypes.id), _defineProperty(_newObject8$4, "RelatingElement", ifcDataTypes.id), _defineProperty(_newObject8$4, "RelatedElement", ifcDataTypes.id), _defineProperty(_newObject8$4, "RelatingPriorities", ifcDataTypes.numSet), _defineProperty(_newObject8$4, "RelatedPriorities", ifcDataTypes.numSet), _defineProperty(_newObject8$4, "RelatedConnectionType", ifcDataTypes["enum"]), _defineProperty(_newObject8$4, "RelatingConnectionType", ifcDataTypes["enum"]), _newObject8$4));
   newObject((_newObject9$4 = {}, _defineProperty(_newObject9$4, namedProps.ifcClass, getName(ifcTypes.IfcRelVoidsElement)), _defineProperty(_newObject9$4, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject9$4, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject9$4, "Name", ifcDataTypes.text), _defineProperty(_newObject9$4, "Description", ifcDataTypes.text), _defineProperty(_newObject9$4, namedProps.relatingBuildingElement, ifcDataTypes.id), _defineProperty(_newObject9$4, namedProps.relatedOpeningElement, ifcDataTypes.id), _newObject9$4));
   newObject((_newObject10$4 = {}, _defineProperty(_newObject10$4, namedProps.ifcClass, getName(ifcTypes.IfcRelFillsElement)), _defineProperty(_newObject10$4, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject10$4, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject10$4, "Name", ifcDataTypes.text), _defineProperty(_newObject10$4, "Description", ifcDataTypes.text), _defineProperty(_newObject10$4, namedProps.relatingOpeningElement, ifcDataTypes.id), _defineProperty(_newObject10$4, namedProps.relatedBuildingElement, ifcDataTypes.id), _newObject10$4));
-  newObject((_newObject11$3 = {}, _defineProperty(_newObject11$3, namedProps.ifcClass, getName(ifcTypes.IfcRelConnectsPortToElement)), _defineProperty(_newObject11$3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject11$3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject11$3, "Name", ifcDataTypes.text), _defineProperty(_newObject11$3, "Description", ifcDataTypes.text), _defineProperty(_newObject11$3, "RelatingPort", ifcDataTypes.id), _defineProperty(_newObject11$3, "RelatedElement", ifcDataTypes.id), _newObject11$3));
-  newObject((_newObject12$3 = {}, _defineProperty(_newObject12$3, namedProps.ifcClass, getName(ifcTypes.IfcRelAssignsToGroup)), _defineProperty(_newObject12$3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject12$3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject12$3, "Name", ifcDataTypes.text), _defineProperty(_newObject12$3, "Description", ifcDataTypes.text), _defineProperty(_newObject12$3, "RelatedObjects", ifcDataTypes.idSet), _defineProperty(_newObject12$3, "RelatedObjectsType", ifcDataTypes["enum"]), _defineProperty(_newObject12$3, "RelatingGroup", ifcDataTypes.id), _newObject12$3));
-  newObject((_newObject13$3 = {}, _defineProperty(_newObject13$3, namedProps.ifcClass, getName(ifcTypes.IfcRelServicesBuildings)), _defineProperty(_newObject13$3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject13$3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject13$3, "Name", ifcDataTypes.text), _defineProperty(_newObject13$3, "Description", ifcDataTypes.text), _defineProperty(_newObject13$3, "RelatingSystem", ifcDataTypes.id), _defineProperty(_newObject13$3, "RelatedBuildings", ifcDataTypes.idSet), _newObject13$3));
-  newObject((_newObject14$3 = {}, _defineProperty(_newObject14$3, namedProps.ifcClass, getName(ifcTypes.IfcGroup)), _defineProperty(_newObject14$3, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject14$3, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject14$3, "Name", ifcDataTypes.text), _defineProperty(_newObject14$3, "Description", ifcDataTypes.text), _defineProperty(_newObject14$3, "ObjectType", ifcDataTypes.text), _newObject14$3));
+  newObject((_newObject11$4 = {}, _defineProperty(_newObject11$4, namedProps.ifcClass, getName(ifcTypes.IfcRelConnectsPortToElement)), _defineProperty(_newObject11$4, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject11$4, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject11$4, "Name", ifcDataTypes.text), _defineProperty(_newObject11$4, "Description", ifcDataTypes.text), _defineProperty(_newObject11$4, "RelatingPort", ifcDataTypes.id), _defineProperty(_newObject11$4, "RelatedElement", ifcDataTypes.id), _newObject11$4));
+  newObject((_newObject12$4 = {}, _defineProperty(_newObject12$4, namedProps.ifcClass, getName(ifcTypes.IfcRelAssignsToGroup)), _defineProperty(_newObject12$4, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject12$4, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject12$4, "Name", ifcDataTypes.text), _defineProperty(_newObject12$4, "Description", ifcDataTypes.text), _defineProperty(_newObject12$4, "RelatedObjects", ifcDataTypes.idSet), _defineProperty(_newObject12$4, "RelatedObjectsType", ifcDataTypes["enum"]), _defineProperty(_newObject12$4, "RelatingGroup", ifcDataTypes.id), _newObject12$4));
+  newObject((_newObject13$4 = {}, _defineProperty(_newObject13$4, namedProps.ifcClass, getName(ifcTypes.IfcRelServicesBuildings)), _defineProperty(_newObject13$4, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject13$4, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject13$4, "Name", ifcDataTypes.text), _defineProperty(_newObject13$4, "Description", ifcDataTypes.text), _defineProperty(_newObject13$4, "RelatingSystem", ifcDataTypes.id), _defineProperty(_newObject13$4, "RelatedBuildings", ifcDataTypes.idSet), _newObject13$4));
+  newObject((_newObject14$4 = {}, _defineProperty(_newObject14$4, namedProps.ifcClass, getName(ifcTypes.IfcGroup)), _defineProperty(_newObject14$4, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject14$4, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject14$4, "Name", ifcDataTypes.text), _defineProperty(_newObject14$4, "Description", ifcDataTypes.text), _defineProperty(_newObject14$4, "ObjectType", ifcDataTypes.text), _newObject14$4));
+  newObject((_newObject15$4 = {}, _defineProperty(_newObject15$4, namedProps.ifcClass, getName(ifcTypes.IfcRelAssignsToActor)), _defineProperty(_newObject15$4, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject15$4, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject15$4, "Name", ifcDataTypes.text), _defineProperty(_newObject15$4, "Description", ifcDataTypes.text), _defineProperty(_newObject15$4, "RelatedObjects", ifcDataTypes.idSet), _defineProperty(_newObject15$4, "RelatedObjectsType", ifcDataTypes["enum"]), _defineProperty(_newObject15$4, "RelatingActor", ifcDataTypes.id), _defineProperty(_newObject15$4, "ActingRole", ifcDataTypes.id), _newObject15$4));
 
-  var _newObject$9;
-  newObject((_newObject$9 = {}, _defineProperty(_newObject$9, namedProps.ifcClass, getName(ifcTypes.IfcQuantityArea)), _defineProperty(_newObject$9, "Name", ifcDataTypes.text), _defineProperty(_newObject$9, "Description", ifcDataTypes.text), _defineProperty(_newObject$9, "Unit", ifcDataTypes.id), _defineProperty(_newObject$9, "AreaValue", ifcDataTypes.number), _newObject$9));
+  var _newObject$a, _newObject2$9, _newObject3$8, _newObject4$8;
+  newObject((_newObject$a = {}, _defineProperty(_newObject$a, namedProps.ifcClass, getName(ifcTypes.IfcQuantityArea)), _defineProperty(_newObject$a, "Name", ifcDataTypes.text), _defineProperty(_newObject$a, "Description", ifcDataTypes.text), _defineProperty(_newObject$a, "Unit", ifcDataTypes.id), _defineProperty(_newObject$a, "AreaValue", ifcDataTypes.number), _newObject$a));
+  newObject((_newObject2$9 = {}, _defineProperty(_newObject2$9, namedProps.ifcClass, getName(ifcTypes.IfcQuantityLength)), _defineProperty(_newObject2$9, "Name", ifcDataTypes.text), _defineProperty(_newObject2$9, "Description", ifcDataTypes.text), _defineProperty(_newObject2$9, "Unit", ifcDataTypes.id), _defineProperty(_newObject2$9, "LengthValue", ifcDataTypes.number), _newObject2$9));
+  newObject((_newObject3$8 = {}, _defineProperty(_newObject3$8, namedProps.ifcClass, getName(ifcTypes.IfcQuantityVolume)), _defineProperty(_newObject3$8, "Name", ifcDataTypes.text), _defineProperty(_newObject3$8, "Description", ifcDataTypes.text), _defineProperty(_newObject3$8, "Unit", ifcDataTypes.id), _defineProperty(_newObject3$8, "VolumeValue", ifcDataTypes.number), _newObject3$8));
+  newObject((_newObject4$8 = {}, _defineProperty(_newObject4$8, namedProps.ifcClass, getName(ifcTypes.IfcElementQuantity)), _defineProperty(_newObject4$8, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject4$8, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject4$8, "Name", ifcDataTypes.text), _defineProperty(_newObject4$8, "Description", ifcDataTypes.text), _defineProperty(_newObject4$8, "MethodOfMeasurement", ifcDataTypes.text), _defineProperty(_newObject4$8, "Quantities", ifcDataTypes.idSet), _newObject4$8));
 
-  var _newObject$a, _newObject2$9;
-  newObject((_newObject$a = {}, _defineProperty(_newObject$a, namedProps.ifcClass, getName(ifcTypes.IfcDistributionPort)), _defineProperty(_newObject$a, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject$a, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject$a, "Name", ifcDataTypes.text), _defineProperty(_newObject$a, "Description", ifcDataTypes.text), _defineProperty(_newObject$a, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject$a, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject$a, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject$a, "FlowDirection", ifcDataTypes["enum"]), _newObject$a));
-  newObject((_newObject2$9 = {}, _defineProperty(_newObject2$9, namedProps.ifcClass, getName(ifcTypes.IfcSystem)), _defineProperty(_newObject2$9, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject2$9, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject2$9, "Name", ifcDataTypes.text), _defineProperty(_newObject2$9, "Description", ifcDataTypes.text), _defineProperty(_newObject2$9, "ObjectType", ifcDataTypes.text), _newObject2$9));
+  var _newObject$b, _newObject2$a;
+  newObject((_newObject$b = {}, _defineProperty(_newObject$b, namedProps.ifcClass, getName(ifcTypes.IfcDistributionPort)), _defineProperty(_newObject$b, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject$b, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject$b, "Name", ifcDataTypes.text), _defineProperty(_newObject$b, "Description", ifcDataTypes.text), _defineProperty(_newObject$b, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject$b, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject$b, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject$b, "FlowDirection", ifcDataTypes["enum"]), _newObject$b));
+  newObject((_newObject2$a = {}, _defineProperty(_newObject2$a, namedProps.ifcClass, getName(ifcTypes.IfcSystem)), _defineProperty(_newObject2$a, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject2$a, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject2$a, "Name", ifcDataTypes.text), _defineProperty(_newObject2$a, "Description", ifcDataTypes.text), _defineProperty(_newObject2$a, "ObjectType", ifcDataTypes.text), _newObject2$a));
 
-  var _newObject$b, _newObject2$a, _newObject3$8, _newObject4$8, _newObject5$8;
-  newObject((_newObject$b = {}, _defineProperty(_newObject$b, namedProps.ifcClass, getName(ifcTypes.IfcProject)), _defineProperty(_newObject$b, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject$b, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject$b, "Name", ifcDataTypes.text), _defineProperty(_newObject$b, "Description", ifcDataTypes.text), _defineProperty(_newObject$b, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject$b, "LongName", ifcDataTypes.text), _defineProperty(_newObject$b, "Phase", ifcDataTypes.text), _defineProperty(_newObject$b, "RepresentationContexts", ifcDataTypes.idSet), _defineProperty(_newObject$b, "UnitsInContext", ifcDataTypes.id), _newObject$b));
-  newObject((_newObject2$a = {}, _defineProperty(_newObject2$a, namedProps.ifcClass, getName(ifcTypes.IfcSite)), _defineProperty(_newObject2$a, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject2$a, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject2$a, "Name", ifcDataTypes.text), _defineProperty(_newObject2$a, "Description", ifcDataTypes.text), _defineProperty(_newObject2$a, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject2$a, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject2$a, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject2$a, "LongName", ifcDataTypes.text), _defineProperty(_newObject2$a, "CompositionType", ifcDataTypes["enum"]), _defineProperty(_newObject2$a, "RefLatitude", ifcDataTypes.numSet), _defineProperty(_newObject2$a, "RefLongitude", ifcDataTypes.numSet), _defineProperty(_newObject2$a, "RefElevation", ifcDataTypes.number), _defineProperty(_newObject2$a, "LandTitleNumber", ifcDataTypes.text), _defineProperty(_newObject2$a, "SiteAddress", ifcDataTypes.id), _newObject2$a));
-  newObject((_newObject3$8 = {}, _defineProperty(_newObject3$8, namedProps.ifcClass, getName(ifcTypes.IfcBuilding)), _defineProperty(_newObject3$8, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject3$8, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject3$8, "Name", ifcDataTypes.text), _defineProperty(_newObject3$8, "Description", ifcDataTypes.text), _defineProperty(_newObject3$8, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject3$8, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject3$8, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject3$8, "LongName", ifcDataTypes.text), _defineProperty(_newObject3$8, "CompositionType", ifcDataTypes["enum"]), _defineProperty(_newObject3$8, "ElevationOfRefHeight", ifcDataTypes.number), _defineProperty(_newObject3$8, "ElevationOfTerrain", ifcDataTypes.number), _defineProperty(_newObject3$8, "BuildingAddress", ifcDataTypes.id), _newObject3$8));
-  newObject((_newObject4$8 = {}, _defineProperty(_newObject4$8, namedProps.ifcClass, getName(ifcTypes.IfcBuildingStorey)), _defineProperty(_newObject4$8, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject4$8, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject4$8, "Name", ifcDataTypes.text), _defineProperty(_newObject4$8, "Description", ifcDataTypes.text), _defineProperty(_newObject4$8, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject4$8, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject4$8, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject4$8, "LongName", ifcDataTypes.text), _defineProperty(_newObject4$8, "CompositionType", ifcDataTypes["enum"]), _defineProperty(_newObject4$8, "Elevation", ifcDataTypes.number), _newObject4$8));
+  var _newObject$c, _newObject2$b, _newObject3$9, _newObject4$9, _newObject5$8;
+  newObject((_newObject$c = {}, _defineProperty(_newObject$c, namedProps.ifcClass, getName(ifcTypes.IfcProject)), _defineProperty(_newObject$c, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject$c, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject$c, "Name", ifcDataTypes.text), _defineProperty(_newObject$c, "Description", ifcDataTypes.text), _defineProperty(_newObject$c, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject$c, "LongName", ifcDataTypes.text), _defineProperty(_newObject$c, "Phase", ifcDataTypes.text), _defineProperty(_newObject$c, "RepresentationContexts", ifcDataTypes.idSet), _defineProperty(_newObject$c, "UnitsInContext", ifcDataTypes.id), _newObject$c));
+  newObject((_newObject2$b = {}, _defineProperty(_newObject2$b, namedProps.ifcClass, getName(ifcTypes.IfcSite)), _defineProperty(_newObject2$b, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject2$b, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject2$b, "Name", ifcDataTypes.text), _defineProperty(_newObject2$b, "Description", ifcDataTypes.text), _defineProperty(_newObject2$b, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject2$b, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject2$b, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject2$b, "LongName", ifcDataTypes.text), _defineProperty(_newObject2$b, "CompositionType", ifcDataTypes["enum"]), _defineProperty(_newObject2$b, "RefLatitude", ifcDataTypes.numSet), _defineProperty(_newObject2$b, "RefLongitude", ifcDataTypes.numSet), _defineProperty(_newObject2$b, "RefElevation", ifcDataTypes.number), _defineProperty(_newObject2$b, "LandTitleNumber", ifcDataTypes.text), _defineProperty(_newObject2$b, "SiteAddress", ifcDataTypes.id), _newObject2$b));
+  newObject((_newObject3$9 = {}, _defineProperty(_newObject3$9, namedProps.ifcClass, getName(ifcTypes.IfcBuilding)), _defineProperty(_newObject3$9, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject3$9, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject3$9, "Name", ifcDataTypes.text), _defineProperty(_newObject3$9, "Description", ifcDataTypes.text), _defineProperty(_newObject3$9, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject3$9, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject3$9, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject3$9, "LongName", ifcDataTypes.text), _defineProperty(_newObject3$9, "CompositionType", ifcDataTypes["enum"]), _defineProperty(_newObject3$9, "ElevationOfRefHeight", ifcDataTypes.number), _defineProperty(_newObject3$9, "ElevationOfTerrain", ifcDataTypes.number), _defineProperty(_newObject3$9, "BuildingAddress", ifcDataTypes.id), _newObject3$9));
+  newObject((_newObject4$9 = {}, _defineProperty(_newObject4$9, namedProps.ifcClass, getName(ifcTypes.IfcBuildingStorey)), _defineProperty(_newObject4$9, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject4$9, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject4$9, "Name", ifcDataTypes.text), _defineProperty(_newObject4$9, "Description", ifcDataTypes.text), _defineProperty(_newObject4$9, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject4$9, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject4$9, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject4$9, "LongName", ifcDataTypes.text), _defineProperty(_newObject4$9, "CompositionType", ifcDataTypes["enum"]), _defineProperty(_newObject4$9, "Elevation", ifcDataTypes.number), _newObject4$9));
   newObject((_newObject5$8 = {}, _defineProperty(_newObject5$8, namedProps.ifcClass, getName(ifcTypes.IfcSpace)), _defineProperty(_newObject5$8, "GlobalId", ifcDataTypes.text), _defineProperty(_newObject5$8, "OwnerHistory", ifcDataTypes.id), _defineProperty(_newObject5$8, "Name", ifcDataTypes.text), _defineProperty(_newObject5$8, "Description", ifcDataTypes.text), _defineProperty(_newObject5$8, "ObjectType", ifcDataTypes.text), _defineProperty(_newObject5$8, namedProps.objectPlacement, ifcDataTypes.id), _defineProperty(_newObject5$8, namedProps.representation, ifcDataTypes.id), _defineProperty(_newObject5$8, "LongName", ifcDataTypes.text), _defineProperty(_newObject5$8, "CompositionType", ifcDataTypes["enum"]), _defineProperty(_newObject5$8, "InteriorOrExteriorSpace", ifcDataTypes["enum"]), _defineProperty(_newObject5$8, "ElevationWithFlooring", ifcDataTypes.number), _newObject5$8));
 
-  var _newObject$c, _newObject2$b, _newObject3$9, _newObject4$9, _newObject5$9, _newObject6$6, _newObject7$5;
-  newObject((_newObject$c = {}, _defineProperty(_newObject$c, namedProps.ifcClass, getName(ifcTypes.IfcConversionBasedUnit)), _defineProperty(_newObject$c, "Dimensions", ifcDataTypes.id), _defineProperty(_newObject$c, namedProps.unitType, ifcDataTypes["enum"]), _defineProperty(_newObject$c, "Name", ifcDataTypes.text), _defineProperty(_newObject$c, "ConversionFactor", ifcDataTypes.id), _newObject$c));
-  newObject((_newObject2$b = {}, _defineProperty(_newObject2$b, namedProps.ifcClass, getName(ifcTypes.IfcDerivedUnit)), _defineProperty(_newObject2$b, "Elements", ifcDataTypes.idSet), _defineProperty(_newObject2$b, namedProps.unitType, ifcDataTypes["enum"]), _defineProperty(_newObject2$b, "UserDefinedType", ifcDataTypes.text), _newObject2$b));
-  newObject((_newObject3$9 = {}, _defineProperty(_newObject3$9, namedProps.ifcClass, getName(ifcTypes.IfcDerivedUnitElement)), _defineProperty(_newObject3$9, "Unit", ifcDataTypes.id), _defineProperty(_newObject3$9, "Exponent", ifcDataTypes.number), _newObject3$9));
-  newObject((_newObject4$9 = {}, _defineProperty(_newObject4$9, namedProps.ifcClass, getName(ifcTypes.IfcDimensionalExponents)), _defineProperty(_newObject4$9, "LengthExponent", ifcDataTypes.number), _defineProperty(_newObject4$9, "MassExponent", ifcDataTypes.number), _defineProperty(_newObject4$9, "TimeExponent", ifcDataTypes.number), _defineProperty(_newObject4$9, "ElectricCurrentExponent", ifcDataTypes.number), _defineProperty(_newObject4$9, "ThermodynamicTemperatureExponent", ifcDataTypes.number), _defineProperty(_newObject4$9, "AmountOfSubstanceExponent", ifcDataTypes.number), _defineProperty(_newObject4$9, "LuminousIntensityExponent", ifcDataTypes.number), _newObject4$9));
+  var _newObject$d, _newObject2$c, _newObject3$a, _newObject4$a, _newObject5$9, _newObject6$6, _newObject7$5;
+  newObject((_newObject$d = {}, _defineProperty(_newObject$d, namedProps.ifcClass, getName(ifcTypes.IfcConversionBasedUnit)), _defineProperty(_newObject$d, "Dimensions", ifcDataTypes.id), _defineProperty(_newObject$d, namedProps.unitType, ifcDataTypes["enum"]), _defineProperty(_newObject$d, "Name", ifcDataTypes.text), _defineProperty(_newObject$d, "ConversionFactor", ifcDataTypes.id), _newObject$d));
+  newObject((_newObject2$c = {}, _defineProperty(_newObject2$c, namedProps.ifcClass, getName(ifcTypes.IfcDerivedUnit)), _defineProperty(_newObject2$c, "Elements", ifcDataTypes.idSet), _defineProperty(_newObject2$c, namedProps.unitType, ifcDataTypes["enum"]), _defineProperty(_newObject2$c, "UserDefinedType", ifcDataTypes.text), _newObject2$c));
+  newObject((_newObject3$a = {}, _defineProperty(_newObject3$a, namedProps.ifcClass, getName(ifcTypes.IfcDerivedUnitElement)), _defineProperty(_newObject3$a, "Unit", ifcDataTypes.id), _defineProperty(_newObject3$a, "Exponent", ifcDataTypes.number), _newObject3$a));
+  newObject((_newObject4$a = {}, _defineProperty(_newObject4$a, namedProps.ifcClass, getName(ifcTypes.IfcDimensionalExponents)), _defineProperty(_newObject4$a, "LengthExponent", ifcDataTypes.number), _defineProperty(_newObject4$a, "MassExponent", ifcDataTypes.number), _defineProperty(_newObject4$a, "TimeExponent", ifcDataTypes.number), _defineProperty(_newObject4$a, "ElectricCurrentExponent", ifcDataTypes.number), _defineProperty(_newObject4$a, "ThermodynamicTemperatureExponent", ifcDataTypes.number), _defineProperty(_newObject4$a, "AmountOfSubstanceExponent", ifcDataTypes.number), _defineProperty(_newObject4$a, "LuminousIntensityExponent", ifcDataTypes.number), _newObject4$a));
   newObject((_newObject5$9 = {}, _defineProperty(_newObject5$9, namedProps.ifcClass, getName(ifcTypes.IfcMeasureWithUnit)), _defineProperty(_newObject5$9, "ValueComponent", ifcDataTypes.value), _defineProperty(_newObject5$9, "UnitComponent", ifcDataTypes.id), _newObject5$9));
   newObject((_newObject6$6 = {}, _defineProperty(_newObject6$6, namedProps.ifcClass, getName(ifcTypes.IfcSIUnit)), _defineProperty(_newObject6$6, namedProps.undefined, ifcDataTypes.asterisk), _defineProperty(_newObject6$6, namedProps.unitType, ifcDataTypes["enum"]), _defineProperty(_newObject6$6, namedProps.prefix, ifcDataTypes["enum"]), _defineProperty(_newObject6$6, "Name", ifcDataTypes["enum"]), _newObject6$6));
   newObject((_newObject7$5 = {}, _defineProperty(_newObject7$5, namedProps.ifcClass, getName(ifcTypes.IfcUnitAssignment)), _defineProperty(_newObject7$5, namedProps.units, ifcDataTypes.idSet), _newObject7$5));
@@ -1111,15 +1081,14 @@ var IFCjs = (function (exports) {
     var valueSet = parsed[getParser(ifcDataTypes.valueSet)][counter$1[ifcDataTypes.valueSet]++];
     var values = valueSet.children[getParser(ifcDataTypes.value)];
     return values.map(function (ifcValue) {
+      var _ref;
+
       var valueProps = ifcValue.children;
       var type = getIfcValueType(valueProps);
       var value = valueProps[type][0].image;
       var formattedValue = formatIfcValue(type, value);
       var unit = valueProps[ifcDataTypes.value] ? valueProps[ifcDataTypes.value][0].image : "";
-      return {
-        Value: formattedValue,
-        IfcUnit: unit
-      };
+      return _ref = {}, _defineProperty(_ref, ifcUnitsValue.value, formattedValue), _defineProperty(_ref, ifcUnitsValue.unit, unit), _ref;
     });
   }
 
@@ -1320,7 +1289,7 @@ var IFCjs = (function (exports) {
 
   function showErrors(text, ifcType, parser) {
     console.warn(parser.errors);
-    console.warn("Error with item: ".concat(text, " of type ").concat(ifcType));
+    console.warn("Error while parsing item: ".concat(text, " of type ").concat(ifcType));
   }
 
   var regexp = {
@@ -1589,12 +1558,6 @@ var IFCjs = (function (exports) {
     bindElements(finder, ifcTypes.IfcRelDefinesByType, namedProps.relatedObjects, namedProps.relatingType, namedProps.hasType);
   }
 
-  function resetTransformData(product, property) {
-    var _product$property;
-
-    product[property] = (_product$property = {}, _defineProperty(_product$property, pivots.locat, []), _defineProperty(_product$property, pivots.xAxis, []), _defineProperty(_product$property, pivots.yAxis, []), _defineProperty(_product$property, pivots.zAxis, []), _product$property);
-  }
-
   function trackLocalTransform(product, placement, property) {
     var transform = initializeTransform(product, property);
 
@@ -1611,7 +1574,9 @@ var IFCjs = (function (exports) {
   }
 
   function initializeTransform(product, property) {
-    if (!product[property]) resetTransformData(product, property);
+    var _product$property;
+
+    if (!product[property]) product[property] = (_product$property = {}, _defineProperty(_product$property, pivots.locat, []), _defineProperty(_product$property, pivots.xAxis, []), _defineProperty(_product$property, pivots.yAxis, []), _defineProperty(_product$property, pivots.zAxis, []), _product$property);
     return product[property];
   }
 
@@ -1626,6 +1591,18 @@ var IFCjs = (function (exports) {
       yAxis: yAxis,
       zAxis: zAxis
     };
+  }
+
+  function getTransformOfGeometry(placement) {
+    var _ref;
+
+    var _getTransform2 = getTransform(placement),
+        locat = _getTransform2.locat,
+        xAxis = _getTransform2.xAxis,
+        yAxis = _getTransform2.yAxis,
+        zAxis = _getTransform2.zAxis;
+
+    return _ref = {}, _defineProperty(_ref, pivots.locat, [locat]), _defineProperty(_ref, pivots.xAxis, [xAxis]), _defineProperty(_ref, pivots.yAxis, [yAxis]), _defineProperty(_ref, pivots.zAxis, [zAxis]), _ref;
   }
 
   function getLocat(placement) {
@@ -1666,10 +1643,10 @@ var IFCjs = (function (exports) {
     });
   }
 
-  function applyTransformsTo(product, geometry, property) {
-    var pivots = getPivots(product[property]);
+  function applyTransformsToGeometry(geometry, placement) {
+    var transform = getTransformOfGeometry(placement);
+    var pivots = getPivots(transform);
     applyTransform(geometry, pivots);
-    resetTransformData(product, property);
   }
 
   function applyTransform(geometry, pivots) {
@@ -1751,27 +1728,25 @@ var IFCjs = (function (exports) {
   }
 
   function applyTransform$1(product) {
-    getTransform$1(product, getPlacement(product));
+    getTransforms$1(product, getPlacement(product));
     applyTransforms(product, namedProps.transform);
-    if (product[namedProps.hasOpenings]) product[namedProps.hasOpenings].forEach(function (opening) {
-      getTransform$1(opening, getPlacement(opening));
-      applyTransforms(opening, namedProps.transform);
-    });
-    if (product[namedProps.hasSpatial]) product[namedProps.hasSpatial].forEach(function (spatial) {
-      getTransform$1(spatial, getPlacement(spatial));
-      applyTransforms(spatial, namedProps.transform);
+    applyTransformToItems(product[namedProps.hasOpenings]);
+    applyTransformToItems(product[namedProps.hasSpatial]);
+  }
+
+  function applyTransformToItems(items) {
+    if (items) items.forEach(function (item) {
+      getTransforms$1(item, getPlacement(item));
+      applyTransforms(item, namedProps.transform);
     });
   } //Gets all the transforms (local origins) recursively
 
 
-  function getTransform$1(product, objPlacement) {
+  function getTransforms$1(product, objPlacement) {
     try {
       var placement = objPlacement[namedProps.relativePlacement];
       trackLocalTransform(product, placement, namedProps.transform);
-
-      if (objPlacement[namedProps.placementRelTo] != defaultValue) {
-        getTransform$1(product, objPlacement[namedProps.placementRelTo]);
-      }
+      if (objPlacement[namedProps.placementRelTo] != defaultValue) getTransforms$1(product, objPlacement[namedProps.placementRelTo]);
     } catch (e) {
       console.warn(e);
     }
@@ -1801,6 +1776,10 @@ var IFCjs = (function (exports) {
 
   var _curve2DMap;
 
+  function mapCurve2D(shape) {
+    return mapCurve(shape[namedProps.items][0]);
+  }
+
   function mapCurve(shape) {
     var ifcClass = shape[namedProps.ifcClass].toUpperCase();
     return curve2DMap[ifcClass](shape);
@@ -1818,31 +1797,63 @@ var IFCjs = (function (exports) {
 
   function mapTrimmedCurve(shape) {
     //TODO
-    console.log(shape);
-  }
-
-  function mapCurve2D(shape) {
-    return mapCurve(shape[namedProps.items][0]);
+    console.log("TODO:", shape);
+    return new THREE.Object3D();
   }
 
   function createExtrusionsByPoints(points, depth) {
     var dir = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [0, 0, 1];
-    //Profile
+    var holes = arguments.length > 3 ? arguments[3] : undefined;
     var shapePoints = [];
     points.forEach(function (e) {
       return shapePoints.push(new THREE.Vector3(e[1], -e[0]));
     });
     var shape = new THREE.Shape(shapePoints);
+    if (holes) holes.forEach(function (hole) {
+      return shape.holes.push(hole);
+    });
     return createExtrusion(shape, depth, dir);
   }
 
   function createCircularExtrusion(radius, depth) {
-    var geometry = new THREE.CylinderGeometry(radius, radius, depth, 64);
-    var mesh = new THREE.Mesh(geometry);
-    mesh.rotation.x = Math.PI / 2;
-    mesh.position.z = depth / 2;
-    mesh.updateMatrix();
-    return mesh;
+    var dir = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [0, 0, 1];
+    var thickness = arguments.length > 3 ? arguments[3] : undefined;
+    var segments = 36;
+    var outerShape = createCircularShape(radius, segments);
+
+    if (thickness) {
+      var innerShape = createCircularShape(radius - thickness, segments);
+      outerShape.holes.push(innerShape);
+    }
+
+    return createExtrusion(outerShape, depth, dir = [0, 0, 1]);
+  }
+
+  function createTubularExtrusion(radius, depth) {
+    var dir = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [0, 0, 1];
+    var thickness = arguments.length > 3 ? arguments[3] : undefined;
+    return createCircularExtrusion(radius, depth, dir, thickness);
+  }
+
+  function createCircularShape(radius, segments) {
+    var coordinates = getCircleCoordinates(radius, segments);
+    var shape = new THREE.Shape();
+    shape.moveTo.apply(shape, _toConsumableArray(coordinates[0]));
+    coordinates.forEach(function (point) {
+      return shape.lineTo.apply(shape, _toConsumableArray(point));
+    });
+    return shape;
+  }
+
+  function getCircleCoordinates(radius, steps) {
+    var coords = [];
+
+    for (var i = 0; i < steps; i++) {
+      coords.push([radius * Math.cos(2 * Math.PI * (i / steps)), radius * Math.sin(2 * Math.PI * (i / steps))]);
+    }
+
+    coords.push(_toConsumableArray(coords[0]));
+    return coords;
   }
 
   function createExtrusion(shape, depth) {
@@ -1850,7 +1861,7 @@ var IFCjs = (function (exports) {
     var material = new THREE.MeshPhongMaterial({
       color: 0xffffff
     });
-    var extrudeSettings = getExtrudeSettings(depth);
+    var extrudeSettings = getExtrudeSettings(depth, dir);
     var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
     applyExtrusionDirection(dir, geometry);
     var mesh = new THREE.Mesh(geometry, material);
@@ -1858,14 +1869,17 @@ var IFCjs = (function (exports) {
     return mesh;
   }
 
-  function getExtrudeSettings(depth) {
-    var path = getVerticalDirection(depth);
+  function getExtrudeSettings(depth, dir) {
+    var path = getVerticalDirection(depth, dir);
     return {
       bevelEnabled: false,
       steps: 1,
       extrudePath: path
     };
-  }
+  } //To define the direction of the extrusion:
+  // x and y are applied as a skew operation (transform matrix)
+  // z is applied in the vertical direction
+
 
   function applyExtrusionDirection(dir, geometry) {
     var matrix = getTransformMatrix(dir);
@@ -1884,18 +1898,19 @@ var IFCjs = (function (exports) {
     return matrix.set(1, Syx, Szx, 0, Sxy, 1, Szy, 0, Sxz, Syz, 1, 0, 0, 0, 0, 1);
   }
 
-  function getVerticalDirection(depth) {
+  function getVerticalDirection(depth, dir) {
     var v1 = new THREE.Vector3(0, 0, 0);
-    var v2 = new THREE.Vector3(0, 0, depth);
+    var v2 = new THREE.Vector3(0, 0, depth * dir[2]);
     return new THREE.LineCurve3(v1, v2);
   }
 
   function mapRectangleProfileExtrusion(extruded, product) {
     getRectProfileDimensions(extruded);
     var position = extruded.profile[namedProps.position];
-    trackLocalTransform(product, position, namedProps.transformOfExtrusion);
     var points = getRectProfilePoints(extruded);
-    return createExtrusionsByPoints(points, extruded.depth, extruded.direction);
+    var geometry = createExtrusionsByPoints(points, extruded.depth, extruded.direction);
+    applyTransformsToGeometry(geometry, position);
+    return geometry;
   }
 
   function getRectProfilePoints(extruded) {
@@ -1909,58 +1924,396 @@ var IFCjs = (function (exports) {
     extruded[namedProps.yDim] = extruded.profile[namedProps.yDim];
   }
 
-  function mapArbitraryProfileExtrusion(extruded, product) {
-    if (isCurveDefinedByPoints(extruded)) {
-      var points = getArbitraryProfilePoints(extruded);
-      return createExtrusionsByPoints(points, extruded.depth);
+  //source: https://threejsfundamentals.org/threejs/lessons/threejs-picking.html
+  var canvas = document.querySelector('#c');
+  var raycaster = new THREE.Raycaster();
+  var pickedObject = null;
+  var pickedObjectMaterial = new THREE.MeshPhongMaterial({
+    color: 0xff0000,
+    side: 2
+  });
+  var pickedObjectSavedMaterial = 0;
+  var canUserPick = true;
+  var pickPosition = {
+    x: 0,
+    y: 0
+  };
+  clearPickPosition();
+
+  function pick(camera) {
+    if (canUserPick) {
+      if (pickedObject) {
+        pickedObject.material = pickedObjectSavedMaterial;
+        pickedObject = undefined;
+      }
+
+      raycaster.setFromCamera(pickPosition, camera);
+      var intersectedObjects = raycaster.intersectObjects(mainObject.children);
+
+      if (intersectedObjects.length) {
+        pickedObject = intersectedObjects[0].object;
+        pickedObjectSavedMaterial = pickedObject.material;
+        pickedObject.material = pickedObjectMaterial;
+        console.log(pickedObject._Data);
+      }
     }
 
-    return mapCurveDefinedBySegments(extruded);
+    canUserPick = false;
   }
 
-  function isCurveDefinedByPoints(extruded) {
-    return extruded.profile[namedProps.outerCurve][namedProps.points] ? true : false;
+  function getCanvasRelativePosition(event) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: (event.clientX - rect.left) * canvas.width / rect.width,
+      y: (event.clientY - rect.top) * canvas.height / rect.height
+    };
   }
 
-  function mapCurveDefinedBySegments(extruded, product) {
-    console.log(extruded);
-    return new THREE.Mesh(new THREE.BoxGeometry());
+  function setPickPosition(event) {
+    if (event.button === 0) {
+      var pos = getCanvasRelativePosition(event);
+      pickPosition.x = pos.x / canvas.width * 2 - 1;
+      pickPosition.y = pos.y / canvas.height * -2 + 1; // note we flip Y
+
+      allowPickSelection();
+    }
   }
 
-  function getArbitraryProfilePoints(extruded) {
-    var profile = extruded.profile;
-    var points = profile[namedProps.outerCurve][namedProps.points];
-    return points.map(function (point) {
+  function clearPickPosition() {
+    pickPosition.x = -100000;
+    pickPosition.y = -100000;
+  }
+
+  function preventPickSelection() {
+    canUserPick = false;
+    clearPickPosition();
+  }
+
+  function allowPickSelection() {
+    canUserPick = true;
+  }
+
+  window.addEventListener('mousedown', setPickPosition);
+  window.addEventListener('mousemove', preventPickSelection);
+  window.addEventListener('touchstart', function (event) {
+    // prevent the window from scrolling
+    // event.preventDefault();
+    setPickPosition(event.touches[0]);
+  });
+  window.addEventListener('touchmove', function (event) {
+    setPickPosition(event.touches[0]);
+  });
+  window.addEventListener('touchend', clearPickPosition);
+
+  var scene = new THREE.Scene(); //Camera
+
+  var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 5;
+  camera.position.y = 5;
+  camera.position.x = 5;
+  camera.up = new THREE.Vector3(0, 0, 1);
+  camera.lookAt(new THREE.Vector3(0, 0, 0));
+  scene.add(camera); //Renderer
+
+  var canvas$1 = document.querySelector('#c');
+  var width = window.innerWidth;
+  var height = window.innerHeight;
+  var pixelRatio = window.devicePixelRatio;
+  var heightHD = height * pixelRatio | 0;
+  var widthHD = width * pixelRatio | 0;
+  var renderer = new THREE.WebGLRenderer({
+    canvas: canvas$1
+  });
+  renderer.setSize(widthHD, heightHD, false);
+  renderer.setClearColor(0xa9a9a9, 1); //Axes and grids
+
+  function createAxes() {
+    var axes = new THREE.AxesHelper();
+    axes.material.depthTest = false;
+    axes.renderOrder = 2; // after the grid
+
+    return axes;
+  }
+
+  scene.add(createAxes());
+  var grid = new THREE.GridHelper(100, 100);
+  grid.material.depthTest = true;
+  grid.renderOrder = 1;
+  grid.rotation.x = Math.PI / 2;
+  scene.add(grid); //Light
+
+  var color = 0xffffff;
+  var highIntensity = 1;
+  var light = new THREE.DirectionalLight(color, highIntensity);
+  var light4 = new THREE.AmbientLight(0x707070);
+  light.position.set(2, 0, 4);
+  camera.add(light);
+  scene.add(light4); // smooth Zoom
+
+  var onMobile = isMobile();
+  var controls = {};
+
+  if (onMobile) {
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+  } else {
+    controls = new THREE.OOrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.25;
+    controls.constraint.smoothZoom = true;
+    controls.constraint.zoomDampingFactor = 0.2;
+    controls.constraint.smoothZoomSpeed = 5.0;
+    controls.rotateSpeed = 0.5;
+    controls.target.set = new THREE.Vector3(0, 0, 0);
+  } //Autoadjust camera to window size
+
+
+  function resizeRendererToDisplaySize(renderer) {
+    var canvas = renderer.domElement;
+    var width = canvas.clientWidth;
+    var height = canvas.clientHeight;
+
+    if (canvas.width !== width || canvas.height !== height) {
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    }
+  } //Update
+
+
+  var animate = function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    resizeRendererToDisplaySize(renderer);
+    pick(camera);
+    renderer.render(scene, camera);
+  };
+
+  function isMobile() {
+    return 'ontouchstart' in document.documentElement;
+  }
+
+  animate();
+  // const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+  // const cube = new THREE.Mesh( geometry, material );
+  // scene.add( cube );
+
+  var _extrusionCurvesMap, _compositeCurvesMap;
+
+  function mapArbitraryProfileExtrusion(props) {
+    return mapExtrusionByTypeOfProfile(props);
+  }
+
+  function mapArbitraryProfileWithVoidsExtrusion(props) {
+    props.holes = getInnerVoids(props);
+    return mapExtrusionByTypeOfProfile(props);
+  }
+
+  function getInnerVoids(props) {
+    var shapes = [];
+    var innerCurvesRep = props.profile[namedProps.innerCurves];
+    innerCurvesRep.forEach(function (curveRep) {
+      var typeOfProfile = curveRep[namedProps.ifcClass].toUpperCase();
+      shapes.push(extrusionCurvesMap[typeOfProfile].shape(curveRep));
+    });
+    return shapes;
+  }
+
+  function mapExtrusionByTypeOfProfile(props) {
+    var typeOfProfile = props.profile[namedProps.outerCurve][namedProps.ifcClass].toUpperCase();
+    return extrusionCurvesMap[typeOfProfile].extrusion(props);
+  }
+
+  var extrusionCurvesMap = (_extrusionCurvesMap = {}, _defineProperty(_extrusionCurvesMap, ifcTypes.IfcPolyline, {
+    extrusion: mapPolylineExtrusion,
+    shape: mapPolylineShape
+  }), _defineProperty(_extrusionCurvesMap, ifcTypes.IfcCompositeCurve, {
+    extrusion: mapCompositeCurveExtrusion,
+    shape: mapCompositeCurveShape
+  }), _extrusionCurvesMap);
+
+  function mapPolylineShape(shapeRepresentation) {
+    var points = getShapePoints(shapeRepresentation[namedProps.points]);
+    var shape = new THREE.Shape();
+    shape.moveTo.apply(shape, _toConsumableArray(points[0]));
+    points.shift();
+    points.forEach(function (point) {
+      return shape.lineTo.apply(shape, _toConsumableArray(point));
+    });
+    return shape;
+  }
+
+  function getShapePoints(pointsRepresentation) {
+    return pointsRepresentation.map(function (point) {
       var coords = point[namedProps.coordinates];
-      return [-coords[0], -coords[1]];
+      return [-coords[1], coords[0]];
     });
   }
 
-  function mapArbitraryProfileWithVoidsExtrusion(extruded) {
-    getInnerVoids(extruded);
-    var points = getArbitraryProfilePoints$1(extruded);
-    return createExtrusionsByPoints(points, extruded.depth);
+  function mapPolylineExtrusion(props) {
+    var profileRepresentation = props.profile;
+    var pointsRepresentation = profileRepresentation[namedProps.outerCurve][namedProps.points];
+    var points = getExtrusionPoints(pointsRepresentation);
+    return createExtrusionsByPoints(points, props.depth, props.direction, props.holes);
   }
 
-  function getArbitraryProfilePoints$1(extruded) {
-    var profile = extruded.profile;
-    var points = profile[namedProps.outerCurve][namedProps.points];
-    return points.map(function (point) {
-      var coords = point[namedProps.coordinates];
-      return [-coords[0], -coords[1]];
+  function mapCompositeCurveShape(shapeRepresentation) {
+    var shape = new THREE.Shape();
+    var segmentsRepresentation = shapeRepresentation[namedProps.segments];
+    segmentsRepresentation.forEach(function (curve) {
+      return mapCompositeCurveSegment(shape, curve);
+    });
+    resetFirstCompositeCurve();
+    return shape;
+  }
+
+  function mapCompositeCurveExtrusion(props) {
+    var shape = new THREE.Shape();
+    var segmentsRepresentation = props.profile[namedProps.outerCurve][namedProps.segments];
+    segmentsRepresentation.forEach(function (curve) {
+      return mapCompositeCurveSegment(shape, curve);
+    });
+    resetFirstCompositeCurve();
+    if (props.holes) props.holes.forEach(function (hole) {
+      return shape.holes.push(hole);
+    });
+    var extrusion = createExtrusion(shape, props.depth, props.direction);
+    extrusion.rotation.z += Math.PI / 2;
+    extrusion.updateMatrix();
+    return extrusion;
+  }
+
+  function mapCompositeCurveSegment(shape, segmentRepresentation) {
+    var curve = segmentRepresentation[namedProps.parentCurve];
+    var typeOfCurve = curve[namedProps.ifcClass].toUpperCase();
+    compositeCurvesMap[typeOfCurve](shape, curve);
+  }
+
+  var compositeCurvesMap = (_compositeCurvesMap = {}, _defineProperty(_compositeCurvesMap, ifcTypes.IfcPolyline, mapPolylineSegment), _defineProperty(_compositeCurvesMap, ifcTypes.IfcTrimmedCurve, mapTrimmedCurveSegment), _compositeCurvesMap);
+
+  function mapPolylineSegment(shape, curve) {
+    var points = curve[namedProps.points];
+
+    if (isFirstSegmentOfCompositeCurve) {
+      shape.moveTo.apply(shape, _toConsumableArray(points[0][namedProps.coordinates]));
+      points.shift();
+      isFirstSegmentOfCompositeCurve = false;
+    }
+
+    points.forEach(function (point) {
+      return shape.lineTo.apply(shape, _toConsumableArray(point[namedProps.coordinates]));
     });
   }
 
-  function getInnerVoids(extruded) {
-    //TODO
-    console.log(extruded);
+  function mapTrimmedCurveSegment(shape, curve) {
+    var typeOfTrimmedCurve = curve[namedProps.basisCurve][namedProps.ifcClass].toUpperCase();
+    trimmedCurvesMap[typeOfTrimmedCurve](shape, curve);
   }
 
-  function mapCircleProfileExtrusion(extruded, product) {
-    var position = extruded.profile[namedProps.position];
-    trackLocalTransform(product, position, namedProps.transformOfExtrusion);
-    var radius = extruded.profile[namedProps.radius];
-    return createCircularExtrusion(radius, extruded.depth);
+  var trimmedCurvesMap = _defineProperty({}, ifcTypes.IfcCircle, mapTrimmedCircleCurve); //Three.js draw shapes continuously
+  //(the last point of the current curve is the closest to the first point of the next curve)
+  //But circles in IFC doesn't follow this pattern necessarily
+  //This function computes the closest point of the next arc
+  //To determine wether to draw the circle clockwise or counter-clockwise
+
+
+  function mapTrimmedCircleCurve(shape, curve) {
+    var _getCircleInfo = getCircleInfo(curve),
+        x = _getCircleInfo.x,
+        y = _getCircleInfo.y,
+        radius = _getCircleInfo.radius,
+        trims = _getCircleInfo.trims,
+        ends = _getCircleInfo.ends;
+
+    var currentPoint = [shape.currentPoint.x, shape.currentPoint.y];
+    var distancesToNextPoints = getDistancesToNextPoints(currentPoint, ends);
+    distancesToNextPoints[0] < distancesToNextPoints[1] ? shape.absarc(x, y, radius, trims[0], trims[1], false) : shape.absarc(x, y, radius, trims[1], trims[0], true);
+  }
+
+  function getDistancesToNextPoints(currentPoint, ends) {
+    return [getDistanceBetweenPoints(currentPoint, ends[0]), getDistanceBetweenPoints(currentPoint, ends[1])];
+  }
+
+  function getCircleInfo(curve) {
+    var location = curve[namedProps.basisCurve][namedProps.position][namedProps.location][namedProps.coordinates];
+    var radius = curve[namedProps.basisCurve][namedProps.radius];
+    var x = location[0];
+    var y = location[1];
+    var trims = getTrimmedCircleTrims(curve);
+    var ends = getTrimmedCircleEnds(x, y, radius, trims);
+    return {
+      x: x,
+      y: y,
+      radius: radius,
+      trims: trims,
+      ends: ends
+    };
+  }
+
+  function getTrimmedCircleTrims(curve) {
+    return [getTrimmedCircleTrim(curve, [namedProps.trim1]), getTrimmedCircleTrim(curve, [namedProps.trim2])];
+  }
+
+  function getTrimmedCircleTrim(curve, trim) {
+    var rotation = curve[namedProps.basisCurve][namedProps.position][namedProps.refDirection][namedProps.dirRatios];
+    var offsetAngle = Math.acos(rotation[0]);
+    return curve[trim][0][ifcUnitsValue.value] * Math.PI / 180 + offsetAngle;
+  }
+
+  function getTrimmedCircleEnds(x, y, radius, trims) {
+    return [getCirclePoint(x, y, radius, trims[0]), getCirclePoint(x, y, radius, trims[1])];
+  }
+
+  function getCirclePoint(x, y, radius, angle) {
+    return [Math.cos(angle) * radius + x, Math.sin(angle) * radius + y];
+  }
+
+  function getDistanceBetweenPoints(point1, point2) {
+    var a = point1[0] - point2[0];
+    var b = point1[1] - point2[1];
+    return Math.sqrt(a * a + b * b);
+  }
+
+  function getExtrusionPoints(pointsRepresentation) {
+    return pointsRepresentation.map(function (point) {
+      var coords = point[namedProps.coordinates];
+      return [-coords[0], -coords[1]];
+    });
+  } //Three.js needs to know the first point of the first curve to create a shape
+
+
+  var isFirstSegmentOfCompositeCurve = true;
+
+  function resetFirstCompositeCurve() {
+    isFirstSegmentOfCompositeCurve = true;
+  }
+
+  function mapCircleProfileExtrusion(extruded) {
+    var _getProperties = getProperties(extruded),
+        position = _getProperties.position,
+        radius = _getProperties.radius;
+
+    var cylinder = createCircularExtrusion(radius, extruded.depth);
+    applyTransformsToGeometry(cylinder, position);
+    return cylinder;
+  }
+
+  function mapCircleHollowProfileExtrusion(extruded) {
+    var _getProperties2 = getProperties(extruded),
+        position = _getProperties2.position,
+        radius = _getProperties2.radius,
+        thickness = _getProperties2.thickness;
+
+    var tube = createTubularExtrusion(radius, extruded.depth, extruded.direction, thickness);
+    applyTransformsToGeometry(tube, position);
+    return tube;
+  }
+
+  function getProperties(extruded) {
+    return {
+      position: extruded.profile[namedProps.position],
+      radius: extruded.profile[namedProps.radius],
+      thickness: extruded.profile[namedProps.wallThickness]
+    };
   }
 
   var _extrusionTypes;
@@ -1989,8 +2342,7 @@ var IFCjs = (function (exports) {
     var extrudedProps = getExtrusionProps(extruded);
     var solid = getExtrusionByType(extrudedProps, product);
     var position = extruded[namedProps.position];
-    trackLocalTransform(product, position, namedProps.transformOfExtrusion);
-    applyTransformsTo(product, solid, namedProps.transformOfExtrusion);
+    applyTransformsToGeometry(solid, position);
     return solid;
   }
 
@@ -2003,7 +2355,7 @@ var IFCjs = (function (exports) {
     };
   }
 
-  var extrusionTypes = (_extrusionTypes = {}, _defineProperty(_extrusionTypes, ifcTypes.IfcRectangleProfileDef, mapRectangleProfileExtrusion), _defineProperty(_extrusionTypes, ifcTypes.IfcCircleProfileDef, mapCircleProfileExtrusion), _defineProperty(_extrusionTypes, ifcTypes.IfcArbitraryClosedProfileDef, mapArbitraryProfileExtrusion), _defineProperty(_extrusionTypes, ifcTypes.IfcArbitraryProfileDefWithVoids, mapArbitraryProfileWithVoidsExtrusion), _extrusionTypes);
+  var extrusionTypes = (_extrusionTypes = {}, _defineProperty(_extrusionTypes, ifcTypes.IfcRectangleProfileDef, mapRectangleProfileExtrusion), _defineProperty(_extrusionTypes, ifcTypes.IfcCircleProfileDef, mapCircleProfileExtrusion), _defineProperty(_extrusionTypes, ifcTypes.IfcCircleHollowProfileDef, mapCircleHollowProfileExtrusion), _defineProperty(_extrusionTypes, ifcTypes.IfcArbitraryClosedProfileDef, mapArbitraryProfileExtrusion), _defineProperty(_extrusionTypes, ifcTypes.IfcArbitraryProfileDefWithVoids, mapArbitraryProfileWithVoidsExtrusion), _extrusionTypes);
 
   function getExtrusionByType(extruded, product) {
     return extrusionTypes[extruded.ifcClass.toUpperCase()](extruded, product);
@@ -2013,7 +2365,7 @@ var IFCjs = (function (exports) {
     var representation = shape[namedProps.items][0];
     var target = getMappingTarget(representation);
     var mapped = getMappingSource(product, representation);
-    applyTransformation(product, target, mapped);
+    applyTransformsToGeometry(mapped, target);
     return mapped;
   } //The concept of mapped representation is that there are several instances
   //of the same geometry. Storing the geometries allows to generate them
@@ -2026,7 +2378,7 @@ var IFCjs = (function (exports) {
     var source = representation[namedProps.mappingSource];
     var origin = source[namedProps.mappingOrigin];
     var geometry = isGeometryGenerated(source) ? getGeneratedGeometry(source) : generateGeometry(source, product);
-    applyTransformation(product, origin, geometry);
+    applyTransformsToGeometry(geometry, origin);
     return geometry;
   }
 
@@ -2044,11 +2396,6 @@ var IFCjs = (function (exports) {
 
   function getGeneratedGeometry(source) {
     return mappingSources[source[namedProps.expressId]].clone();
-  }
-
-  function applyTransformation(product, origin, geometry) {
-    trackLocalTransform(product, origin, namedProps.transformOfMappedItem);
-    applyTransformsTo(product, geometry, namedProps.transformOfMappedItem);
   } //The mapping target defines the transformation of the mapped items
   //Generally, in IFC the transformation is read from IfcAxis2Placement instances
   //This is an exception: data needs to be structured like an IfcAxis2Placement
@@ -2212,13 +2559,26 @@ var IFCjs = (function (exports) {
     };
   }
 
-  function mapBrep(shape, product) {
+  function mapBrep(shape) {
     var representations = shape[namedProps.items];
     var definitions = [];
-    var faces = [];
     representations.forEach(function (r) {
-      return definitions.push.apply(definitions, _toConsumableArray(getBrepGeometry(r)));
+      return definitions.push.apply(definitions, _toConsumableArray(getGeometry(r[namedProps.outer][namedProps.cfsFaces])));
     });
+    return createAndJoinFaces(definitions);
+  }
+
+  function mapSurfaceModel(shape) {
+    var faceSets = shape[namedProps.items][0][namedProps.fbsmFaces];
+    var definitions = [];
+    faceSets.forEach(function (faceSet) {
+      return definitions.push.apply(definitions, _toConsumableArray(getGeometry(faceSet[namedProps.cfsFaces])));
+    });
+    return createAndJoinFaces(definitions);
+  }
+
+  function createAndJoinFaces(definitions) {
+    var faces = [];
     definitions.forEach(function (definition) {
       return faces.push(createFace(definition));
     });
@@ -2240,10 +2600,9 @@ var IFCjs = (function (exports) {
     return mesh;
   }
 
-  function getBrepGeometry(representation) {
+  function getGeometry(faceSet) {
     var faces = [];
-    var ifcFaces = representation[namedProps.outer][namedProps.cfsFaces];
-    ifcFaces.forEach(function (face) {
+    faceSet.forEach(function (face) {
       return faces.push(getAllBounds(face));
     });
     return faces;
@@ -2299,10 +2658,10 @@ var IFCjs = (function (exports) {
   }
 
   function createClippingBox(orientation) {
-    var geometry = new THREE.BoxBufferGeometry(100, 100, 100);
+    var geometry = new THREE.BoxBufferGeometry(100000, 100000, 100000);
     var mesh = new THREE.Mesh(geometry);
     var direction = orientation ? -1 : 1;
-    mesh.position.z += 50 * direction;
+    mesh.position.z += 50000 * direction;
     mesh.updateMatrix();
     return mesh;
   }
@@ -2861,18 +3220,46 @@ var IFCjs = (function (exports) {
   //          +-------+
   //
 
-  function applyBoolDifferences(baseMesh, subtractedMeshes) {
-    baseMesh.updateMatrix();
+  function applyBoolDifferences(baseMesh, clipMeshes) {
+    preventCoplanarSurfaces(baseMesh);
     var operand1 = CSG.fromMesh(baseMesh);
 
-    for (var i = 0; i < subtractedMeshes.length; i++) {
-      var clippingMesh = subtractedMeshes[i];
-      clippingMesh.updateMatrix();
-      var operand2 = CSG.fromMesh(clippingMesh);
-      operand1 = operand1.subtract(operand2);
+    for (var i = 0; i < clipMeshes.length; i++) {
+      var clipMesh = clipMeshes[i];
+      clipMesh.updateMatrix();
+      var operand2 = CSG.fromMesh(clipMesh);
+      operand1 = subtractVolume(operand1, operand2, baseMesh, clipMesh);
     }
 
     return operand1;
+  } //Ugly, but avoids crashes of CSG operations due to face superpositions
+
+
+  function preventCoplanarSurfaces(baseMesh) {
+    var factor = 0.99999;
+    baseMesh.scale.x *= factor;
+    baseMesh.scale.y *= factor;
+    baseMesh.scale.z *= factor;
+    baseMesh.updateMatrix();
+  } //Sometimes (uncommon) the CSG library fails and swaps the functionality of subtract and intersects
+  //This rectifies the result if it is an intersection instead of a subtraction
+
+
+  function subtractVolume(operand1, operand2, baseMesh, clippingMesh) {
+    var result = operand1.subtract(operand2);
+    var resultMesh = CSG.toMesh(result, baseMesh.matrix);
+    var boundingBox1 = new THREE.Box3().setFromObject(resultMesh);
+    var boundingBox2 = new THREE.Box3().setFromObject(clippingMesh);
+    if (areBoundingBoxesEqual(boundingBox1, boundingBox2)) return operand1.intersect(operand2);
+    return result;
+  }
+
+  function areBoundingBoxesEqual(boundingBox1, boundingBox2) {
+    return isPointEqual(boundingBox1.max, boundingBox2.max, 2) && isPointEqual(boundingBox1.min, boundingBox2.min, 2);
+  }
+
+  function isPointEqual(point1, point2, precission) {
+    return point1.x.toFixed(precission) == point2.x.toFixed(precission) && point1.y.toFixed(precission) == point2.y.toFixed(precission) && point1.z.toFixed(precission) == point2.z.toFixed(precission);
   }
 
   function mapClipping(shape, product) {
@@ -2881,7 +3268,7 @@ var IFCjs = (function (exports) {
         bodyRep = _getClippingRepresent.bodyRep;
 
     var mainGeometry = getMappedGeometry(bodyRep, product);
-    var clippingGeometries = createClippingPlanes(clippingReps, product);
+    var clippingGeometries = createClippingVolumes(clippingReps);
     var booleanResult = applyBoolDifferences(mainGeometry, clippingGeometries);
     return generateResultMesh(booleanResult, mainGeometry, clippingGeometries);
   }
@@ -2912,36 +3299,37 @@ var IFCjs = (function (exports) {
     };
   }
 
-  function createClippingPlanes(clippingRepresentations, product) {
+  function createClippingVolumes(clippingRepresentations) {
     var clippingGeometries = [];
     clippingRepresentations.forEach(function (clippingRep) {
-      return clippingGeometries.push(createClippingPlane(clippingRep, product));
+      return clippingGeometries.push(createClippingVolume(clippingRep));
     });
     return clippingGeometries;
   }
 
-  function createClippingPlane(clippingRep, product) {
-    if (clippingRep[namedProps.ifcClass].toUpperCase() === ifcTypes.IfcHalfSpaceSolid) return mapIfcHalfSpaceSolid(clippingRep, product);
-    return mapIfcPolygonalBoundedHalfSpace(clippingRep, product);
+  function createClippingVolume(clippingRep) {
+    if (clippingRep[namedProps.ifcClass].toUpperCase() === ifcTypes.IfcHalfSpaceSolid) return mapIfcHalfSpaceSolid(clippingRep);
+    return mapIfcPolygonalBoundedHalfSpace(clippingRep);
   }
 
-  function mapIfcHalfSpaceSolid(clippingRep, product) {
-    var orientation = clippingRep[namedProps.agreementFlag][typeValue.value];
+  function mapIfcHalfSpaceSolid(clippingRep) {
+    var orientation = clippingRep[namedProps.agreementFlag];
+    if (typeof orientation != 'boolean') orientation = orientation.value;
     var clippingGeom = createClippingBox(orientation);
     var position = clippingRep[namedProps.baseSurface][namedProps.position];
-    trackLocalTransform(product, position, namedProps.transformOfClippingVolume);
-    applyTransformsTo(product, clippingGeom, namedProps.transformOfClippingVolume);
+    applyTransformsToGeometry(clippingGeom, position);
     return clippingGeom;
   }
 
-  function mapIfcPolygonalBoundedHalfSpace(clippingRep, product) {
-    var clippingGeom = getClippingGeometry(clippingRep, product);
-    var boundingGeom = getBoundingGeometry(clippingRep, product);
+  function mapIfcPolygonalBoundedHalfSpace(clippingRep) {
+    var clippingGeom = mapIfcHalfSpaceSolid(clippingRep);
+    var boundingGeom = getBoundingGeometry(clippingRep);
     var result = applyBoundingToGeometry(clippingGeom, boundingGeom);
     result.geometry = new THREE.BufferGeometry().fromGeometry(result.geometry);
     result.material = new THREE.MeshPhongMaterial();
     mainObject.remove(clippingGeom);
     mainObject.remove(boundingGeom);
+    result.add(clippingGeom);
     return result;
   }
 
@@ -2952,25 +3340,12 @@ var IFCjs = (function (exports) {
     return CSG.toMesh(geomResult, clippingGeom.matrix);
   }
 
-  function getClippingGeometry(clippingRep, product) {
-    var orientation = clippingRep[namedProps.agreementFlag];
-    if (typeof orientation != 'boolean') orientation = orientation.value;
-    var clippingGeom = createClippingBox(orientation);
-    var position = clippingRep[namedProps.baseSurface][namedProps.position];
-    trackLocalTransform(product, position, namedProps.transformOfClippingVolume);
-    applyTransformsTo(product, clippingGeom, namedProps.transformOfClippingVolume);
-    clippingGeom.geometry.computeFaceNormals();
-    clippingGeom.updateMatrix();
-    return clippingGeom;
-  }
-
-  function getBoundingGeometry(clippingRep, product) {
+  function getBoundingGeometry(clippingRep) {
     var points = getBoundingPoints(clippingRep);
-    var boundingGeom = createExtrusionsByPoints(points, 1000);
+    var boundingGeom = createExtrusionsByPoints(points, 1000000);
     var boundPosition = clippingRep[namedProps.position];
-    trackLocalTransform(product, boundPosition, namedProps.transformOfClippingVolumeBound);
-    applyTransformsTo(product, boundingGeom, namedProps.transformOfClippingVolumeBound);
-    boundingGeom.position.z -= 500;
+    applyTransformsToGeometry(boundingGeom, boundPosition);
+    boundingGeom.position.z -= 500000;
     boundingGeom.updateMatrix();
     return boundingGeom;
   }
@@ -2982,8 +3357,39 @@ var IFCjs = (function (exports) {
     });
   }
 
+  function mapBoundingBox(shape) {
+    var representation = shape[namedProps.items][0];
+    var dims = getBoundingBoxDimensions(representation);
+    var boundingBox = new THREE.BoxGeometry(dims.x, dims.y, dims.z);
+    var mesh = new THREE.Mesh(boundingBox);
+    setBoundingBoxPosition(mesh, representation, dims);
+    return new THREE.Object3D();
+  }
+
+  function setBoundingBoxPosition(mesh, representation, dims) {
+    var bottomLeftCorner = representation[namedProps.corner][namedProps.coordinates];
+    mesh.position.set(bottomLeftCorner[0], bottomLeftCorner[1], bottomLeftCorner[2]);
+    mesh.position.x += dims.x / 2;
+    mesh.position.y += dims.y / 2;
+    mesh.position.z += dims.z / 2;
+  }
+
+  function getBoundingBoxDimensions(representation) {
+    return {
+      x: representation[namedProps.xDim],
+      y: representation[namedProps.yDim],
+      z: representation[namedProps.zDim]
+    };
+  }
+
+  function mapAnnotation(shape) {
+    //TODO
+    console.log("TODO:", shape);
+    return new THREE.Object3D();
+  }
+
   var _geometryMap;
-  var geometryMap = (_geometryMap = {}, _defineProperty(_geometryMap, geometryTypes.curve2D, mapCurve2D), _defineProperty(_geometryMap, geometryTypes.sweptSolid, mapSweptSolid), _defineProperty(_geometryMap, geometryTypes.mappedRepresentation, mapMappedRepresentation), _defineProperty(_geometryMap, geometryTypes.brep, mapBrep), _defineProperty(_geometryMap, geometryTypes.geometricSet, mapGeometricSet), _defineProperty(_geometryMap, geometryTypes.clipping, mapClipping), _defineProperty(_geometryMap, geometryTypes.extrudedAreaSolid, mapExtrudedAreaSolid), _geometryMap);
+  var geometryMap = (_geometryMap = {}, _defineProperty(_geometryMap, geometryTypes.curve2D, mapCurve2D), _defineProperty(_geometryMap, geometryTypes.sweptSolid, mapSweptSolid), _defineProperty(_geometryMap, geometryTypes.mappedRepresentation, mapMappedRepresentation), _defineProperty(_geometryMap, geometryTypes.brep, mapBrep), _defineProperty(_geometryMap, geometryTypes.geometricSet, mapGeometricSet), _defineProperty(_geometryMap, geometryTypes.clipping, mapClipping), _defineProperty(_geometryMap, geometryTypes.extrudedAreaSolid, mapExtrudedAreaSolid), _defineProperty(_geometryMap, geometryTypes.surfaceModel, mapSurfaceModel), _defineProperty(_geometryMap, geometryTypes.boundingBox, mapBoundingBox), _defineProperty(_geometryMap, geometryTypes.annotation2D, mapAnnotation), _geometryMap);
 
   function getMappedGeometry(representation, product) {
     var type = getType(representation);
@@ -3054,7 +3460,9 @@ var IFCjs = (function (exports) {
   function mapProductRepresentations(product) {
     product[namedProps.geometry] = [];
     product[namedProps.geomRepresentations].forEach(function (representation) {
-      return product[namedProps.geometry].push(getMappedGeometry(representation, product));
+      var generatedGeometry = getMappedGeometry(representation, product);
+      generatedGeometry._Data = product;
+      product[namedProps.geometry].push(generatedGeometry);
     });
   }
 
@@ -3086,6 +3494,8 @@ var IFCjs = (function (exports) {
   }
 
   function addResultToScene(geometryItem, openings, result) {
+    result._Data = geometryItem._Data; //Reference to parsed IFC information
+
     result.attach.apply(result, _toConsumableArray(openings));
     result.attach.apply(result, _toConsumableArray(geometryItem.children));
     mainObject.add(result);
@@ -3114,7 +3524,11 @@ var IFCjs = (function (exports) {
   }
 
   function getLineColor(ifcType) {
-    return materialsMap[ifcTypes[ifcType]].lineColor;
+    try {
+      return materialsMap[ifcTypes[ifcType]].lineColor;
+    } catch (_unused) {
+      return materialsMap[ifcTypes.IfcWall];
+    }
   }
 
   function getDiffuseMat(color) {
@@ -3143,6 +3557,7 @@ var IFCjs = (function (exports) {
   var colors = {
     black: 0x000000,
     brown: 0xc2893a,
+    red: 0xff0000,
     grey: 0x606060,
     darkBrown: 0x5c3d1e,
     darkBlue: 0x23395d,
@@ -3155,7 +3570,19 @@ var IFCjs = (function (exports) {
   }), _defineProperty(_materialsMap, ifcTypes.IfcWallStandardCase, {
     material: getDiffuseMat(colors.white),
     lineColor: colors.grey
+  }), _defineProperty(_materialsMap, ifcTypes.IfcSite, {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.grey
   }), _defineProperty(_materialsMap, ifcTypes.IfcSlab, {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.grey
+  }), _defineProperty(_materialsMap, ifcTypes.IfcCovering, {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.grey
+  }), _defineProperty(_materialsMap, ifcTypes.IfcRoof, {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.grey
+  }), _defineProperty(_materialsMap, ifcTypes.IfcEquipmentElement, {
     material: getDiffuseMat(colors.white),
     lineColor: colors.grey
   }), _defineProperty(_materialsMap, ifcTypes.IfcFurnishingElement, {
@@ -3182,6 +3609,9 @@ var IFCjs = (function (exports) {
   }), _defineProperty(_materialsMap, ifcTypes.IfcMember, {
     material: getDiffuseMat(colors.white),
     lineColor: colors.darkBrown
+  }), _defineProperty(_materialsMap, ifcTypes.IfcFlowTerminal, {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.grey
   }), _defineProperty(_materialsMap, ifcTypes.IfcWindow, {
     material: getTransparentMat(colors.lightBlue, 0.2),
     lineColor: colors.darkBlue
@@ -3190,7 +3620,7 @@ var IFCjs = (function (exports) {
     lineColor: colors.black
   }), _defineProperty(_materialsMap, ifcTypes.IfcOpeningElement, {
     material: getTransparentMat(colors.lightBlue, 0),
-    lineColor: colors.grey
+    lineColor: colors.black
   }), _defineProperty(_materialsMap, ifcTypes.IfcBuildingElementProxy, {
     material: getDiffuseMat(colors.white),
     lineColor: colors.darkBrown
@@ -3215,7 +3645,7 @@ var IFCjs = (function (exports) {
 
   function applyMaterialOnMesh(product) {
     product[namedProps.geometry].forEach(function (item) {
-      return getMeshMaterial(item, product[namedProps.ifcClass]);
+      getMeshMaterial(item, product[namedProps.ifcClass]);
     });
   }
 
@@ -3294,15 +3724,15 @@ var IFCjs = (function (exports) {
   function getALlGeometries(structured) {
     var allGeometry = [];
     structured[structuredData.products].forEach(function (product) {
-      return getGeometry(product, allGeometry);
+      return getGeometry$1(product, allGeometry);
     });
     return allGeometry;
   }
 
-  function getGeometry(product, allGeometry) {
+  function getGeometry$1(product, allGeometry) {
     allGeometry.push.apply(allGeometry, _toConsumableArray(product[namedProps.geometry]));
     if (product[namedProps.hasSpatial]) product[namedProps.hasSpatial].forEach(function (spatial) {
-      return getGeometry(spatial, allGeometry);
+      return getGeometry$1(spatial, allGeometry);
     });
   }
 
