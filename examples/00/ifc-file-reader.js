@@ -1,5 +1,6 @@
-import { loadIfc } from "../../src/IFC.js"
+import { loadIfc } from '../../src/IFC.js';
 import { scene } from './three-scene.js';
+import { enablePicking } from './scene-picker.js';
 
 export function readIfcFile() {
   const input = document.querySelector('input[type="file"]');
@@ -17,6 +18,7 @@ function readFile(input) {
   const reader = new FileReader();
   reader.onload = () => {
     const loaded = loadIfc(reader.result);
+    enablePicking(loaded.MainObject);
     scene.add(loaded.MainObject);
   };
   reader.readAsText(input.files[0]);

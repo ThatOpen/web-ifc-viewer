@@ -1,6 +1,4 @@
 //source: https://threejsfundamentals.org/threejs/lessons/threejs-picking.html
-import { mainObject } from '../../src/ifc-to-three.js/scene/mainObject.js';
-
 const canvas = document.querySelector('#c');
 const raycaster = new THREE.Raycaster();
 let pickedObject = null;
@@ -10,6 +8,12 @@ let canUserPick = true;
 const pickPosition = { x: 0, y: 0 };
 clearPickPosition();
 
+let importedIFC = {};
+
+function enablePicking(mainObject){
+  importedIFC = mainObject 
+}
+
 function pick(camera) {
   if (canUserPick) {
     if (pickedObject) {
@@ -18,7 +22,7 @@ function pick(camera) {
     }
 
     raycaster.setFromCamera(pickPosition, camera);
-    const intersectedObjects = raycaster.intersectObjects(mainObject.children);
+    const intersectedObjects = raycaster.intersectObjects(importedIFC.children);
     if (intersectedObjects.length) {
       pickedObject = intersectedObjects[0].object;
       pickedObjectSavedMaterial = pickedObject.material;
@@ -76,4 +80,4 @@ window.addEventListener('touchmove', (event) => {
 
 window.addEventListener('touchend', clearPickPosition);
 
-export { pick };
+export { pick, enablePicking };

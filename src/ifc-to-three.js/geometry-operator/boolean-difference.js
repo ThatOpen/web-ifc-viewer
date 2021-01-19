@@ -1,4 +1,3 @@
-import { scene } from '../../../examples/00/three-scene.js';
 import CSG from '../../../libs/CSGMesh.js';
 
 function applyBoolDifferences(baseMesh, clipMeshes) {
