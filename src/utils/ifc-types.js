@@ -70,7 +70,6 @@ const ifcTypes = {
   IfcRectangleProfileDef: "IFCRECTANGLEPROFILEDEF",
   IfcShapeRepresentation: "IFCSHAPEREPRESENTATION",
   IfcTrimmedCurve: "IFCTRIMMEDCURVE",
-  IfcGeometricSet: "IFCGEOMETRICSET",
   IfcArbitraryOpenProfileDef: "IFCARBITRARYOPENPROFILEDEF",
   IfcSurfaceOfLinearExtrusion: "IFCSURFACEOFLINEAREXTRUSION",
   //Identities

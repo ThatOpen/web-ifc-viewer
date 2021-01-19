@@ -1,6 +1,6 @@
-import { createLine } from "./three-lines.js";
-import { namedProps as n } from "../../utils/global-constants.js";
-import { ifcTypes as t } from "../../utils/ifc-types.js";
+import { createLine } from "../three-geometry/three-line.js";
+import { namedProps as n } from "../../../utils/global-constants.js";
+import { ifcTypes as t } from "../../../utils/ifc-types.js";
 
 function mapCurve2D(shape) {
   return mapCurve(shape[n.items][0]);

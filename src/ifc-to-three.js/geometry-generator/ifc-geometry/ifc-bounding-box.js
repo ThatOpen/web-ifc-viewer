@@ -1,4 +1,4 @@
-import { namedProps as n } from '../../utils/global-constants.js';
+import { namedProps as n } from '../../../utils/global-constants.js';
 
 function mapBoundingBox(shape) {
   const representation = shape[n.items][0];

@@ -1,12 +1,65 @@
-import { geometryTypes as g, namedProps as n } from '../../utils/global-constants.js';
-import { mapCurve2D } from './ifc-curves.js';
-import { mapExtrudedAreaSolid, mapSweptSolid } from './ifc-sweptSolid.js';
-import { mapMappedRepresentation } from './ifc-mappedRepresentation.js';
-import { mapBrep, mapSurfaceModel } from './ifc-brep.js';
-import { mapGeometricSet } from './ifc-geometricSet.js';
-import { mapClipping } from './ifc-clipping.js';
-import { mapBoundingBox } from './ifc-boundingBox.js';
-import { mapAnnotation } from './ifc-annotation.js';
+import { namedProps as n, geometryTypes as g, structuredData as s } from '../../utils/global-constants.js';
+import { mapCurve2D } from './curves/curve.js';
+import { mapExtrudedAreaSolid, mapSweptSolid } from './ifc-geometry/ifc-swept-solid.js';
+import { mapMappedRepresentation } from './ifc-geometry/ifc-mapped-representation.js';
+import { mapBrep, mapSurfaceModel } from './ifc-geometry/ifc-brep.js';
+import { mapGeometricSet } from './ifc-geometry/ifc-geometric-set.js';
+import { mapClipping } from './ifc-geometry/ifc-clipping.js';
+import { mapBoundingBox } from './ifc-geometry/ifc-bounding-box.js';
+import { mapAnnotation } from './ifc-geometry/ifc-annotation.js';
+
+function constructGeometries(structured) {
+  structured[s.products].forEach((product) => constructGeometry(product));
+  structured[s.spaces].forEach((space) => constructGeometry(space));
+}
+
+function constructGeometry(item) {
+  try {
+    getRepresentations(item);
+    mapRepresentations(item);
+  } catch (e) {
+    console.warn(e);
+  }
+}
+
+function getRepresentations(product) {
+  getRepresentationValue(product);
+  getRepresentationOfItem(product[n.hasOpenings]);
+  getRepresentationOfItem(product[n.hasSpatial]);
+}
+
+function getRepresentationOfItem(items) {
+  if (items) items.forEach((item) => getRepresentationValue(item));
+}
+
+function getRepresentationValue(product) {
+  try {
+    const representations = product[n.representation][n.representations];
+    product[n.geomRepresentations] = representations ? representations : [];
+  } catch (e) {
+    console.warn(e);
+  }
+}
+
+function mapRepresentations(product) {
+  mapProductRepresentations(product);
+  mapRepresentationsOfItems(product[n.hasOpenings]);
+  mapRepresentationsOfItems(product[n.hasSpatial]);
+}
+
+function mapRepresentationsOfItems(items) {
+  if (items) items.forEach((item) => mapProductRepresentations(item));
+}
+
+function mapProductRepresentations(product) {
+  product[n.geometry] = [];
+  product[n.geomRepresentations].forEach((representation) =>{
+    const generatedGeometry = getMappedGeometry(representation, product);
+    generatedGeometry._Data = product;
+    product[n.geometry].push(generatedGeometry);
+  }
+  );
+}
 
 const geometryMap = {
   [g.curve2D]: mapCurve2D,
@@ -35,4 +88,5 @@ function getType(representation) {
   return type ? type : representation[n.ifcClass];
 }
 
-export { getMappedGeometry };
+
+export { constructGeometries, getMappedGeometry };

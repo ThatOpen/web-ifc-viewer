@@ -15,7 +15,7 @@ function enablePicking(mainObject){
 }
 
 function pick(camera) {
-  if (canUserPick) {
+  if (canUserPick && importedIFC.children) {
     if (pickedObject) {
       pickedObject.material = pickedObjectSavedMaterial;
       pickedObject = undefined;

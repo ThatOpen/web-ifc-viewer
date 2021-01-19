@@ -78,11 +78,8 @@ var animate = function () {
   requestAnimationFrame(animate);
   controls.update();
   resizeRendererToDisplaySize(renderer);
-
   pick(camera);
-
   renderer.render(scene, camera);
-
 };
 
 function isMobile() {
@@ -92,8 +89,3 @@ function isMobile() {
 animate();
 
 export { scene };
-
-// const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-// const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-// const cube = new THREE.Mesh( geometry, material );
-// scene.add( cube );

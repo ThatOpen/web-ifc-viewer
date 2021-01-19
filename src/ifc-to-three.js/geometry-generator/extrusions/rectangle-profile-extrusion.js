@@ -1,4 +1,4 @@
-import { createExtrusionsByPoints } from "../three-extrusion.js";
+import { createExtrusionsByPoints } from "../three-geometry/three-extrusion.js";
 import { namedProps as n } from "../../../utils/global-constants.js";
 import { applyTransformsToGeometry } from "../../geometry-transformer/local-transform-applier.js";
 

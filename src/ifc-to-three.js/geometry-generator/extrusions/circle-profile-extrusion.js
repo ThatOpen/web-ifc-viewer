@@ -1,4 +1,4 @@
-import { createCircularExtrusion, createTubularExtrusion } from '../three-extrusion.js';
+import { createCircularExtrusion, createTubularExtrusion } from '../three-geometry/three-extrusion.js';
 import { namedProps as n } from '../../../utils/global-constants.js';
 import { applyTransformsToGeometry } from '../../geometry-transformer/local-transform-applier.js';
 

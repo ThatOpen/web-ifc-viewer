@@ -1,4 +1,4 @@
-import { namedProps as n } from '../../utils/global-constants.js';
+import { namedProps as n } from '../../../utils/global-constants.js';
 
 function mapAnnotation(shape) {
     //TODO

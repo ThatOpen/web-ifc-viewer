@@ -1,12 +1,12 @@
-import { applyTransformsToGeometry } from '../geometry-transformer/local-transform-applier.js';
-import { getMappedGeometry } from './geometry-map.js';
-import { createClippingBox } from './three-clipping.js';
-import { mainObject } from '../scene/mainObject.js';
-import CSG from '../../../libs/CSGMesh.js';
-import { createExtrusionsByPoints } from './three-extrusion.js';
-import { ifcTypes } from '../../utils/ifc-types.js';
-import { namedProps as n, typeValue as t } from '../../utils/global-constants.js';
-import { applyBoolDifferences } from '../geometry-operator/boolean-difference.js';
+import { applyTransformsToGeometry } from '../../geometry-transformer/local-transform-applier.js';
+import { getMappedGeometry } from '../geometry-map.js';
+import { createClippingBox } from '../three-geometry/three-clipping.js';
+import { mainObject } from '../../scene/mainObject.js';
+import CSG from '../../../../libs/CSGMesh.js';
+import { createExtrusionsByPoints } from '../three-geometry/three-extrusion.js';
+import { ifcTypes } from '../../../utils/ifc-types.js';
+import { namedProps as n, typeValue as t } from '../../../utils/global-constants.js';
+import { applyBoolDifferences } from '../../geometry-operator/boolean-difference.js';
 
 function mapClipping(shape, product) {
   const { clippingReps, bodyRep } = getClippingRepresentations(shape);

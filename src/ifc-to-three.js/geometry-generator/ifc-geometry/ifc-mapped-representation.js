@@ -1,7 +1,7 @@
-import { defaultValue, namedProps as n } from '../../utils/global-constants.js';
-import { applyTransformsToGeometry } from '../geometry-transformer/local-transform-applier.js';
-import { mainObject } from '../scene/mainObject.js';
-import { getMappedGeometry } from './geometry-map.js';
+import { defaultValue, namedProps as n } from '../../../utils/global-constants.js';
+import { applyTransformsToGeometry } from '../../geometry-transformer/local-transform-applier.js';
+import { mainObject } from '../../scene/mainObject.js';
+import { getMappedGeometry } from '../geometry-map.js';
 
 function mapMappedRepresentation(shape, product) {
   const representation = shape[n.items][0];

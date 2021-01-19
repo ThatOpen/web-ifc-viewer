@@ -1,4 +1,4 @@
-import { createExtrusion, createExtrusionsByPoints } from '../three-extrusion.js';
+import { createExtrusion, createExtrusionsByPoints } from '../three-geometry/three-extrusion.js';
 import { ifcTypes as t } from '../../../utils/ifc-types.js';
 import { namedProps as n, ifcUnitsValue as i } from '../../../utils/global-constants.js';
 
