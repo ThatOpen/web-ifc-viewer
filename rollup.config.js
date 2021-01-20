@@ -7,6 +7,7 @@ export default {
     {
       file: './build/IFC.module.js',
       format: 'es',
+      sourcemap: true,
       globals: {
         three: 'THREE',
         chevrotain: 'chevrotain'
@@ -16,6 +17,7 @@ export default {
       file: './build/IFC.js',
       format: 'iife',
       name: 'IFCjs',
+      sourcemap: true,
       globals: {
         three: 'THREE',
         chevrotain: 'chevrotain'
