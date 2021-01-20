@@ -5,11 +5,14 @@
   "main": "build/IFC.js",
   "module": "build/IFC.module.js",
   "browser": "build/IFC.min.js",
+  "typings": "build/dts/IFC.d.ts",
   "scripts": {
     "dev": "live-server",
     "build": "rollup -c",
     "watch": "rollup -c -w",
-    "test": "node typecheck"
+    "build:watch": "node typecheck devServer",
+    "test": "node typecheck test",
+    "test:watch": "node typecheck test watch"
   },
   "repository": {
     "type": "git",
@@ -29,17 +32,14 @@
   },
   "homepage": "https://github.com/agviegas/IFC.js#readme",
   "dependencies": {
-    "chevrotain": "^7.0.3",
-    "three": "^0.123.0"
+    "chevrotain": "^7.1.0",
+    "three": "^0.124.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.9",
-    "@babel/preset-env": "^7.12.7",
-    "@rollup/plugin-babel": "^5.2.2",
-    "@rollup/plugin-commonjs": "^17.0.0",
-    "@rollup/plugin-node-resolve": "^11.0.0",
+    "@rollup/plugin-typescript": "^8.1.0",
     "esbuild-helpers": "0.0.1-next.7",
     "live-server": "^1.2.1",
-    "rollup": "^2.34.2"
+    "rollup": "^2.37.1",
+    "tslib": "^2.1.0"
   }
 }
