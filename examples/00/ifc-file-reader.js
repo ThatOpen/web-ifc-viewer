@@ -1,4 +1,4 @@
-import { loadIfc } from '../../src/IFC.js';
+import { loadIfc } from '../../devBuild/IFC.js';
 import { scene } from './three-scene.js';
 import { enablePicking } from './scene-picker.js';
 

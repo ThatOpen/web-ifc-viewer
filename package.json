@@ -11,8 +11,9 @@
     "build": "rollup -c",
     "watch": "rollup -c -w",
     "build:watch": "node typecheck devServer",
-    "test": "node typecheck test",
-    "test:watch": "node typecheck test watch"
+    "start": "node devConfig",
+    "test": "node devConfig test",
+    "test:watch": "node devConfig test watch"
   },
   "repository": {
     "type": "git",

@@ -30,8 +30,8 @@ You can find the IFC files for testing [here](https://drive.google.com/drive/fol
 
 Development:
 
-`npm run watch` for generating the build files with watch.
-`npm run dev` for running examples.
+`npm start` for generating the build files with watch & runnning sample
+
 
 Build:
 
