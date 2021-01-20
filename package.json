@@ -5,7 +5,7 @@
   "main": "build/IFC.js",
   "module": "build/IFC.module.js",
   "browser": "build/IFC.min.js",
-  "typings": "build/dts/IFC.d.ts",
+  "typings": "src/IFC.ts",
   "scripts": {
     "dev": "live-server",
     "build": "rollup -c",
