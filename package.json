@@ -9,7 +9,7 @@
     "dev": "live-server",
     "build": "rollup -c",
     "watch": "rollup -c -w",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node typecheck"
   },
   "repository": {
     "type": "git",
@@ -38,6 +38,7 @@
     "@rollup/plugin-babel": "^5.2.2",
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
+    "esbuild-helpers": "0.0.1-next.7",
     "live-server": "^1.2.1",
     "rollup": "^2.34.2"
   }
