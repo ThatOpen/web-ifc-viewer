@@ -119,8 +119,13 @@ function getAsterisk() {
 }
 
 function getValue(parsed, type, formatFunction) {
-  if (isDefaultValue(parsed, type)) return getDefault(parsed, type);
-  return formatFunction(extract(parsed, type));
+  try{
+
+    if (isDefaultValue(parsed, type)) return getDefault(parsed, type);
+    return formatFunction(extract(parsed, type));
+  }catch(e){
+    return getAsterisk();
+  }
 }
 
 function getSet(parsed, type, subtype, mapFunction) {

@@ -3,7 +3,7 @@ import { itemsReaderValues as i } from "../../utils/global-constants.js";
 const regexp = {
   allNewLines: /\r?\n|\r/g,
   headerSection: /HEADER;.+?(?=ENDSEC;)/,
-  dataSection: /DATA;\s+.+(?=ENDSEC;)/,
+  dataSection: /DATA;.+(?=ENDSEC;)/,
   singleIfcItems: /#\d+\s*=\s*IFC.+?\)(;\s*(?=#\d*)|;\s*$)/g,
   expressId: /^#\d+/,
   rawIfcType: /IFC\w+/,
@@ -47,7 +47,7 @@ function readDataSection(ifcLine) {
 }
 
 function removeAllNewLines(ifcFile) {
-  return ifcFile.replace(regexp.allNewLines, " ");
+  return ifcFile.replace(regexp.allNewLines, "");
 }
 
 function getId(rawIfcLine) {

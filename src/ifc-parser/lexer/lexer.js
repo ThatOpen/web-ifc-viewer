@@ -8,8 +8,8 @@ const tokens = [];
 
 const patterns = {
   [d.id]: /#\d+/,
-  [d.asterisk]: /\*/,
   [d.default]: /\$/,
+  [d.asterisk]: /\*/,
   [d.value]: /IFC[A-Z]+?(?=\()/,
   [d.bool]: /\.T\.|\.F\./,
   [d.enum]: /\.[A-Z0-9_]+?\./,

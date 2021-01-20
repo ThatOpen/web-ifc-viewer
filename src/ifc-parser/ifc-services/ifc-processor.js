@@ -1,6 +1,7 @@
 import "../ifc-models/building-elements.js";
 import "../ifc-models/classification.js";
 import "../ifc-models/context.js";
+import "../ifc-models/document.js";
 import "../ifc-models/geometry.js";
 import "../ifc-models/identities.js";
 import "../ifc-models/materials.js";
