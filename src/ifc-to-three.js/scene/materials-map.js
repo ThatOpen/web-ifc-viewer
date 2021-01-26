@@ -104,6 +104,14 @@ const materialsMap = {
     material: getDiffuseMat(colors.white),
     lineColor: colors.darkBrown
   },
+  [t.IfcFooting]: {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.darkBrown
+  },
+  [t.IfcBeam]: {
+    material: getDiffuseMat(colors.white),
+    lineColor: colors.darkBrown
+  },
   [t.IfcStair]: {
     material: getDiffuseMat(colors.white),
     lineColor: colors.darkBrown
