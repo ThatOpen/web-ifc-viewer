@@ -162,3 +162,13 @@ newObject({
   RelatingActor: d.id,
   ActingRole: d.id,
 });
+
+newObject({
+  [n.ifcClass]: getName(t.IfcRelAssociatesDocument),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  RelatedObjects : d.idSet,
+  RelatingDocument: d.id,
+});

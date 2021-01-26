@@ -1,6 +1,6 @@
-import { namedProps as n } from '../../utils/global-constants.js';
-import { getName, ifcTypes as t } from '../../utils/ifc-types.js';
-import { createFace } from './three-shapeGeometry.js';
+import { namedProps as n } from '../../../utils/global-constants.js';
+import { getName, ifcTypes as t } from '../../../utils/ifc-types.js';
+import { createFace } from '../three-geometry/three-brep.js';
 
 function mapBrep(shape) {
   const representations = shape[n.items];

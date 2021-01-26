@@ -1,6 +1,6 @@
-import { isDataTypeValid } from "../../utils/ifc-data-types.js";
-import { typeValue, namedProps as n } from "../../utils/global-constants.js";
-import { getProperty, resetSemanticFactory } from "./semantic-primitives.js";
+import { isDataTypeValid } from '../../utils/ifc-data-types.js';
+import { typeValue, namedProps as n } from '../../utils/global-constants.js';
+import { getProperty, resetSemanticFactory } from './semantic-primitives.js';
 
 //Uses semantic primitives according to the data type of each property
 
@@ -15,8 +15,7 @@ function newSemantic(parsed, ifcItem) {
 function retrieveIfcObjectProperties(parsed, ifcItem) {
   const result = {};
   Object.keys(ifcItem).forEach((e) => {
-    if (isDataTypeValid(ifcItem[e]))
-      result[e] = newSemanticUnit(parsed, ifcItem[e]);
+    if (isDataTypeValid(ifcItem[e])) result[e] = newSemanticUnit(parsed, ifcItem[e]);
   });
   return result;
 }
@@ -24,7 +23,7 @@ function retrieveIfcObjectProperties(parsed, ifcItem) {
 function newSemanticUnit(parsed, dataType) {
   return {
     [typeValue.value]: getProperty(parsed, dataType),
-    [typeValue.type]: dataType,
+    [typeValue.type]: dataType
   };
 }
 
@@ -33,7 +32,11 @@ function addClassName(result, ifcItem) {
 }
 
 function cleanUndefinedProperties(ifcItem) {
-  if (ifcItem.hasOwnProperty([n.undefined])) delete ifcItem[n.undefined];
+  Object.keys(ifcItem).forEach((prop) => {
+    if (prop.includes(n.undefined)){
+      delete ifcItem[prop];
+    } 
+  });
 }
 
 export { newSemantic };

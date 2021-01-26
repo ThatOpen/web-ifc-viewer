@@ -67,6 +67,7 @@ const namedProps = {
   scale: "Scale",
   secondOperand: "SecondOperand",
   segments: "Segments",
+  senseAgreement: "SenseAgreement",
   semiAxis1: "SemiAxis1",
   semiAxis2: "SemiAxis2",
   sweptArea: "SweptArea",
@@ -77,6 +78,7 @@ const namedProps = {
   undefined: "undefined",
   units: "Units",
   unitType: "UnitType",
+  wallThickness: "WallThickness",
   xDim: "XDim",
   yDim: "YDim",
   zDim: "ZDim",
@@ -92,6 +94,11 @@ const typeValue = {
   type: "type",
   value: "value",
 };
+
+const ifcUnitsValue = {
+  value: "Value",
+  unit: "IfcUnit"
+}
 
 const ifcValueType = {
   number: "Number",
@@ -147,4 +154,5 @@ export {
   structuredData,
   defaultValue,
   itemsReaderValues,
+  ifcUnitsValue
 };

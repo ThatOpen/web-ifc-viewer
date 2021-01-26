@@ -1,17 +1,17 @@
-import { applyTransformsToGeometry } from '../geometry-transformer/local-transform-applier.js';
-import { getMappedGeometry } from './geometry-map.js';
-import { createClippingBox } from './three-clipping.js';
-import { mainObject } from '../scene/mainObject.js';
-import CSG from '../../../libs/CSGMesh.js';
-import { createExtrusionsByPoints } from './three-extrusion.js';
-import { ifcTypes } from '../../utils/ifc-types.js';
-import { namedProps as n, typeValue as t } from '../../utils/global-constants.js';
-import { applyBoolDifferences } from '../geometry-operator/boolean-difference.js';
+import { applyTransformsToGeometry } from '../../geometry-transformer/local-transform-applier.js';
+import { getMappedGeometry } from '../geometry-map.js';
+import { createClippingBox } from '../three-geometry/three-clipping.js';
+import { mainObject } from '../../scene/mainObject.js';
+import CSG from '../../../../libs/CSGMesh.js';
+import { createExtrusionsByPoints } from '../three-geometry/three-extrusion.js';
+import { ifcTypes } from '../../../utils/ifc-types.js';
+import { namedProps as n, typeValue as t } from '../../../utils/global-constants.js';
+import { applyBoolDifferences } from '../../geometry-operator/boolean-difference.js';
 
 function mapClipping(shape, product) {
   const { clippingReps, bodyRep } = getClippingRepresentations(shape);
   const mainGeometry = getMappedGeometry(bodyRep, product);
-  const clippingGeometries = createClippingPlanes(clippingReps, product);
+  const clippingGeometries = createClippingVolumes(clippingReps);
   const booleanResult = applyBoolDifferences(mainGeometry, clippingGeometries);
   return generateResultMesh(booleanResult, mainGeometry, clippingGeometries);
 }
@@ -35,36 +35,38 @@ function getClippingRepresentations(shape) {
   return { clippingReps, bodyRep };
 }
 
-function createClippingPlanes(clippingRepresentations, product) {
+function createClippingVolumes(clippingRepresentations) {
   const clippingGeometries = [];
   clippingRepresentations.forEach((clippingRep) =>
-    clippingGeometries.push(createClippingPlane(clippingRep, product))
+    clippingGeometries.push(createClippingVolume(clippingRep))
   );
   return clippingGeometries;
 }
 
-function createClippingPlane(clippingRep, product) {
+function createClippingVolume(clippingRep) {
   if (clippingRep[n.ifcClass].toUpperCase() === ifcTypes.IfcHalfSpaceSolid)
-    return mapIfcHalfSpaceSolid(clippingRep, product);
-  return mapIfcPolygonalBoundedHalfSpace(clippingRep, product);
+    return mapIfcHalfSpaceSolid(clippingRep);
+  return mapIfcPolygonalBoundedHalfSpace(clippingRep);
 }
 
 function mapIfcHalfSpaceSolid(clippingRep) {
-  const orientation = clippingRep[n.agreementFlag][t.value];
+  let orientation = clippingRep[n.agreementFlag];
+  if (typeof orientation != 'boolean') orientation = orientation.value;
   const clippingGeom = createClippingBox(orientation);
   const position = clippingRep[n.baseSurface][n.position];
   applyTransformsToGeometry(clippingGeom, position);
   return clippingGeom;
 }
 
-function mapIfcPolygonalBoundedHalfSpace(clippingRep, product) {
-  const clippingGeom = getClippingGeometry(clippingRep, product);
-  const boundingGeom = getBoundingGeometry(clippingRep, product);
+function mapIfcPolygonalBoundedHalfSpace(clippingRep) {
+  const clippingGeom = mapIfcHalfSpaceSolid(clippingRep);
+  const boundingGeom = getBoundingGeometry(clippingRep);
   const result = applyBoundingToGeometry(clippingGeom, boundingGeom);
   result.geometry = new THREE.BufferGeometry().fromGeometry(result.geometry);
   result.material = new THREE.MeshPhongMaterial();
   mainObject.remove(clippingGeom);
   mainObject.remove(boundingGeom);
+  result.add(clippingGeom);
   return result;
 }
 
@@ -75,23 +77,12 @@ function applyBoundingToGeometry(clippingGeom, boundingGeom) {
   return CSG.toMesh(geomResult, clippingGeom.matrix);
 }
 
-function getClippingGeometry(clippingRep) {
-  let orientation = clippingRep[n.agreementFlag];
-  if (typeof orientation != 'boolean') orientation = orientation.value;
-  const clippingGeom = createClippingBox(orientation);
-  const position = clippingRep[n.baseSurface][n.position];
-  applyTransformsToGeometry(clippingGeom, position);
-  clippingGeom.geometry.computeFaceNormals();
-  clippingGeom.updateMatrix();
-  return clippingGeom;
-}
-
 function getBoundingGeometry(clippingRep) {
   const points = getBoundingPoints(clippingRep);
-  const boundingGeom = createExtrusionsByPoints(points, 1000);
+  const boundingGeom = createExtrusionsByPoints(points, 1000000);
   const boundPosition = clippingRep[n.position];
   applyTransformsToGeometry(boundingGeom, boundPosition);
-  boundingGeom.position.z -= 500;
+  boundingGeom.position.z -= 500000;
   boundingGeom.updateMatrix();
   return boundingGeom;
 }

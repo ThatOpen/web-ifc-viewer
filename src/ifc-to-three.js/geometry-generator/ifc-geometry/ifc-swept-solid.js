@@ -1,10 +1,10 @@
-import { mapRectangleProfileExtrusion } from "./extrusions/rectangle-profile-extrusion.js";
-import { ifcTypes as t } from "../../utils/ifc-types.js";
-import { applyTransformsToGeometry } from "../geometry-transformer/local-transform-applier.js";
-import { namedProps as n } from "../../utils/global-constants.js";
-import { mainObject } from "../scene/mainObject.js";
-import { mapArbitraryProfileExtrusion, mapArbitraryProfileWithVoidsExtrusion } from "./extrusions/arbitrary-profile-extrusion.js";
-import { mapCircleHollowProfileExtrusion, mapCircleProfileExtrusion } from "./extrusions/circle-profile-extrusion.js";
+import { mapRectangleProfileExtrusion } from "../extrusions/rectangle-profile-extrusion.js";
+import { ifcTypes as t } from "../../../utils/ifc-types.js";
+import { applyTransformsToGeometry } from "../../geometry-transformer/local-transform-applier.js";
+import { namedProps as n } from "../../../utils/global-constants.js";
+import { mainObject } from "../../scene/mainObject.js";
+import { mapArbitraryProfileExtrusion, mapArbitraryProfileWithVoidsExtrusion } from "../extrusions/arbitrary-profile-extrusion.js";
+import { mapCircleHollowProfileExtrusion, mapCircleProfileExtrusion } from "../extrusions/circle-profile-extrusion.js";
 
 function mapSweptSolid(shape, product) {
   const items = [];

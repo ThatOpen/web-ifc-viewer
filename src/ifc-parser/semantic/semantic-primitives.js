@@ -1,10 +1,11 @@
 import { getParser } from "../parser/parser-primitives.js";
 import { formatDate, unicode } from "./format.js";
+import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 import {
   ifcBoolValues,
   ifcValueType as v,
+  ifcUnitsValue as i 
 } from "../../utils/global-constants.js";
-import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
 
 //Each method retrieves information from a given parsed data type
 
@@ -95,7 +96,7 @@ function getValueSet(parsed) {
     const value = valueProps[type][0].image;
     const formattedValue = formatIfcValue(type, value);
     const unit = valueProps[d.value] ? valueProps[d.value][0].image : "";
-    return { Value: formattedValue, IfcUnit: unit };
+    return { [i.value]: formattedValue, [i.unit]: unit };
   });
 }
 
@@ -118,8 +119,13 @@ function getAsterisk() {
 }
 
 function getValue(parsed, type, formatFunction) {
-  if (isDefaultValue(parsed, type)) return getDefault(parsed, type);
-  return formatFunction(extract(parsed, type));
+  try{
+
+    if (isDefaultValue(parsed, type)) return getDefault(parsed, type);
+    return formatFunction(extract(parsed, type));
+  }catch(e){
+    return getAsterisk();
+  }
 }
 
 function getSet(parsed, type, subtype, mapFunction) {

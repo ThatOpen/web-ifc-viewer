@@ -24,11 +24,15 @@ function generateEdgesOnItems(items) {
 }
 
 function createEdgesOfItem(ifcClass, item) {
-  const lineColor = getLineColor(ifcClass);
-  const geometry = new THREE.EdgesGeometry(item.geometry);
-  const material = new THREE.LineBasicMaterial({ color: lineColor });
-  const wireframe = new THREE.LineSegments(geometry, material);
-  item.add(wireframe);
+  try{
+    const lineColor = getLineColor(ifcClass);
+    const geometry = new THREE.EdgesGeometry(item.geometry);
+    const material = new THREE.LineBasicMaterial({ color: lineColor });
+    const wireframe = new THREE.LineSegments(geometry, material);
+    item.add(wireframe);
+  }catch(e){
+  
+  }
 }
 
 export { drawEdges };
