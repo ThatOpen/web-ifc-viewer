@@ -172,3 +172,16 @@ newObject({
   RelatedObjects : d.idSet,
   RelatingDocument: d.id,
 });
+
+newObject({
+  [n.ifcClass]: getName(t.IfcRelConnectsWithRealizingElements),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ConnectionGeometry : d.idSet,
+  RelatingElement: d.id,
+  RelatedElement: d.id,
+  RealizingElements: d.idSet,
+  ConnectionType: d.text,
+});

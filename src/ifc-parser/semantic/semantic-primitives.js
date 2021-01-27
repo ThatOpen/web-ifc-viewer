@@ -1,11 +1,11 @@
-import { getParser } from "../parser/parser-primitives.js";
-import { formatDate, unicode } from "./format.js";
-import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
+import { getParser } from '../parser/parser-primitives.js';
+import { formatDate, unicode } from './format.js';
+import { ifcDataTypes as d } from '../../utils/ifc-data-types.js';
 import {
   ifcBoolValues,
   ifcValueType as v,
-  ifcUnitsValue as i 
-} from "../../utils/global-constants.js";
+  ifcUnitsValue as i
+} from '../../utils/global-constants.js';
 
 //Each method retrieves information from a given parsed data type
 
@@ -21,7 +21,7 @@ const semanticUnits = {
   [d.bool]: getBool,
   [d.enum]: getEnum,
   [d.asterisk]: getAsterisk,
-  [d.valueSet]: getValueSet,
+  [d.valueSet]: getValueSet
 };
 
 function getProperty(parsed, type) {
@@ -45,7 +45,7 @@ function resetSemanticFactory() {
     [d.value]: 0,
     [d.textSet]: 0,
     [d.bool]: 0,
-    [d.valueSet]: 0,
+    [d.valueSet]: 0
   };
 }
 
@@ -74,9 +74,7 @@ function getIfcText(parsed) {
 }
 
 function getTextSet(parsed) {
-  return getSet(parsed, d.textSet, d.text, (e) =>
-    unicode(e.image.slice(1, -1))
-  );
+  return getSet(parsed, d.textSet, d.text, (e) => unicode(e.image.slice(1, -1)));
 }
 
 function getIdSet(parsed) {
@@ -95,7 +93,7 @@ function getValueSet(parsed) {
     let type = getIfcValueType(valueProps);
     const value = valueProps[type][0].image;
     const formattedValue = formatIfcValue(type, value);
-    const unit = valueProps[d.value] ? valueProps[d.value][0].image : "";
+    const unit = valueProps[d.value] ? valueProps[d.value][0].image : '';
     return { [i.value]: formattedValue, [i.unit]: unit };
   });
 }
@@ -115,15 +113,14 @@ function getEmptySet(type) {
 }
 
 function getAsterisk() {
-  return "*";
+  return '*';
 }
 
 function getValue(parsed, type, formatFunction) {
-  try{
-
+  try {
     if (isDefaultValue(parsed, type)) return getDefault(parsed, type);
     return formatFunction(extract(parsed, type));
-  }catch(e){
+  } catch (e) {
     return getAsterisk();
   }
 }
@@ -131,9 +128,7 @@ function getValue(parsed, type, formatFunction) {
 function getSet(parsed, type, subtype, mapFunction) {
   if (isDefaultValue(parsed, type)) return getDefault(parsed, type);
   if (isEmptySet(parsed, type, subtype)) return getEmptySet(type);
-  return parsed[getParser(type)][counter[type]++].children[subtype].map(
-    mapFunction
-  );
+  return parsed[getParser(type)][counter[type]++].children[subtype].map(mapFunction);
 }
 
 function extract(parsed, type) {
@@ -165,15 +160,11 @@ function formatEnum(enumValue) {
 }
 
 function isDefaultValue(parsed, type) {
-  return parsed[getParser(type)][counter[type]].children[d.default]
-    ? true
-    : false;
+  return parsed[getParser(type)][counter[type]].children[d.default] ? true : false;
 }
 
 function isEmptySet(parsed, type, subtype) {
-  return parsed[getParser(type)][counter[type]].children[subtype]
-    ? false
-    : true;
+  return parsed[getParser(type)][counter[type]].children[subtype] ? false : true;
 }
 
 function getDefault(parsed, type) {
@@ -185,8 +176,7 @@ function isExpressId(parsed, type) {
 }
 
 function getIfcValueId(parsed, type) {
-  const rawId =
-    parsed[getParser(type)][counter[type]++].children[d.id][0].image;
+  const rawId = parsed[getParser(type)][counter[type]++].children[d.id][0].image;
   return Number(rawId.slice(1));
 }
 
@@ -199,6 +189,7 @@ function formatIfcValue(type, value) {
   if (type === v.text) return formatText(value);
   if (type === v.bool) return formatBool(value);
   if (type === v.enum) return formatEnum(value);
+  if (type === v.id) return formatId(value);
   return value;
 }
 
@@ -206,13 +197,14 @@ function getIfcValueType(data) {
   if (data[d.number]) return v.number;
   if (data[d.text]) return v.text;
   if (data[d.bool]) return v.bool;
+  if (data[d.id]) return v.id;
   return v.enum;
 }
 
 function getIfcUnit(parsed) {
   const ifcUnit = parsed[getParser(d.value)][counter[d.value]].children[d.value]
     ? parsed[getParser(d.value)][counter[d.value]].children[d.value][0].image
-    : "";
+    : '';
   counter[d.value]++;
   return ifcUnit;
 }

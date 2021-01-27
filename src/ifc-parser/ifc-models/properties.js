@@ -200,6 +200,34 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcPipeSegmentType),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ApplicableOccurrence: d.text,
+  HasPropertySets: d.idSet,
+  RepresentationMaps: d.idSet,
+  Tag: d.text,
+  ElementType: d.text,
+  PredefinedType: d.enum,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcBeamType),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ApplicableOccurrence: d.text,
+  HasPropertySets: d.idSet,
+  RepresentationMaps: d.idSet,
+  Tag: d.text,
+  ElementType: d.text,
+  PredefinedType: d.enum,
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcSlabType),
   GlobalId: d.text,
   OwnerHistory: d.id,

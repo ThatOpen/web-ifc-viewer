@@ -43,6 +43,21 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcLShapeProfileDef),
+  ProfileType: d.enum,
+  ProfileName: d.text,
+  Position: d.id,
+  Depth: d.number,
+  Width: d.number,
+  Thickness: d.number,
+  FilletRadius: d.number,
+  EdgeRadius: d.number,
+  LegSlope: d.number,
+  CentreOfGravityInX: d.number,
+  CentreOfGravityInY: d.number
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcCartesianPoint),
   [n.coordinates]: d.numSet
 });
@@ -71,6 +86,15 @@ newObject({
   [n.position]: d.id,
   [n.extDirection]: d.id,
   [n.depth]: d.number
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcSweptDiskSolid),
+  Directrix: d.id,
+  Radius: d.number,
+  InnerRadius: d.number,
+  StartParam: d.number,
+  EndParam: d.number
 });
 
 newObject({
@@ -122,6 +146,18 @@ newObject({
   [n.position]: d.id,
   [n.radius]: d.number,
   [n.wallThickness]: d.number
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcRectangleHollowProfileDef),
+  ProfileType: d.enum,
+  ProfileName: d.text,
+  [n.position]: d.id,
+  [n.xDim]: d.number,
+  [n.yDim]: d.number,
+  [n.wallThickness]: d.number,
+  [n.innerFilletRadius]: d.number,
+  [n.outerFilletRadius]: d.number
 });
 
 newObject({
@@ -269,4 +305,16 @@ newObject({
   [n.ifcClass]: getName(t.IfcPlanarExtent),
   SizeInX: d.number,
   SizeInY: d.number
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcVector),
+  Orientation: d.id,
+  Magnitude: d.number
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcLine),
+  Pnt: d.id,
+  Dir: d.id
 });
