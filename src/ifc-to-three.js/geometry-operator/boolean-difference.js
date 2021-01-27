@@ -7,7 +7,7 @@ function applyBoolDifferences(baseMesh, clipMeshes) {
     const clipMesh = clipMeshes[i];
     clipMesh.updateMatrix();
     const operand2 = CSG.fromMesh(clipMesh);
-    operand1 = subtractVolume(operand1, operand2, baseMesh, clipMesh);
+    operand1 = (operand2.polygons.length > 0) ? subtractVolume(operand1, operand2, baseMesh, clipMesh) : operand1;
   }
   return operand1;
 }
