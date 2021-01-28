@@ -7,6 +7,10 @@ function mapCurve2D(shape) {
   return mapCurve(shape[n.items][0]);
 }
 
+function mapCurve3D(shape) {
+  return mapCurve(shape[n.items][0]);
+}
+
 function mapCurve(shape){
   const ifcClass = shape[n.ifcClass].toUpperCase();
   return curve2DMap[ifcClass](shape);
@@ -17,4 +21,4 @@ const curve2DMap = {
   [t.IfcTrimmedCurve]: mapTrimmedCurve,
 }
 
-export { mapCurve, mapCurve2D };
+export { mapCurve, mapCurve2D, mapCurve3D };

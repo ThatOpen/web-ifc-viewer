@@ -296,5 +296,97 @@ newObject({
   Description: d.text,
   ObjectType: d.text,
   [n.objectPlacement]: d.id,
+  [n.representation]: d.id
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcRamp),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ObjectType: d.text,
+  [n.objectPlacement]: d.id,
   [n.representation]: d.id,
+  Tag: d.text,
+  ShapeType: d.enum
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcReinforcingBar),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ObjectType: d.text,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
+  Tag: d.text,
+  SteelGrade: d.text,
+  NominalDiameter: d.number,
+  CrossSectionArea: d.number,
+  BarLength: d.number,
+  BarRole: d.enum,
+  BarSurface: d.enum
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcReinforcingMesh),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ObjectType: d.text,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
+  Tag: d.text,
+  SteelGrade: d.text,
+  MeshLength: d.number,
+  MeshWidth: d.number,
+  LongitudinalBarNominalDiameter: d.number,
+  TransverseBarNominalDiameter: d.number,
+  LongitudinalBarCrossSectionArea: d.number,
+  TransverseBarCrossSectionArea: d.number,
+  LongitudinalBarSpacing: d.number,
+  TransverseBarSpacing: d.number
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcElementAssembly),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ObjectType: d.text,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
+  Tag: d.text,
+  AssemblyPlace: d.enum,
+  PredefinedType: d.enum,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcMechanicalFastener),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ObjectType: d.text,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
+  Tag: d.text,
+  NominalDiameter: d.number,
+  NominalLength: d.number,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcFastener),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ObjectType: d.text,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
+  Tag: d.text,
 });

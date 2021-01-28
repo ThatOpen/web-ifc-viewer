@@ -1,5 +1,9 @@
-import { namedProps as n, geometryTypes as g, structuredData as s } from '../../utils/global-constants.js';
-import { mapCurve2D } from './curves/curves-map.js';
+import {
+  namedProps as n,
+  geometryTypes as g,
+  structuredData as s
+} from '../../utils/global-constants.js';
+import { mapCurve2D, mapCurve3D } from './curves/curves-map.js';
 import { mapExtrudedAreaSolid, mapSweptSolid } from './ifc-geometry/ifc-swept-solid.js';
 import { mapMappedRepresentation } from './ifc-geometry/ifc-mapped-representation.js';
 import { mapBrep, mapSurfaceModel } from './ifc-geometry/ifc-brep.js';
@@ -53,16 +57,16 @@ function mapRepresentationsOfItems(items) {
 
 function mapProductRepresentations(product) {
   product[n.geometry] = [];
-  product[n.geomRepresentations].forEach((representation) =>{
+  product[n.geomRepresentations].forEach((representation) => {
     const generatedGeometry = getMappedGeometry(representation, product);
     generatedGeometry._Data = product;
     product[n.geometry].push(generatedGeometry);
-  }
-  );
+  });
 }
 
 const geometryMap = {
   [g.curve2D]: mapCurve2D,
+  [g.curve3D]: mapCurve3D,
   [g.sweptSolid]: mapSweptSolid,
   [g.mappedRepresentation]: mapMappedRepresentation,
   [g.brep]: mapBrep,
@@ -80,6 +84,7 @@ function getMappedGeometry(representation, product) {
     return geometryMap[type](representation, product);
   } catch (e) {
     console.warn(`Error with item ${product[n.ifcClass]} of type ${type}: ${e}`);
+    return geometryMap[type](representation, product);
   }
 }
 
@@ -87,6 +92,5 @@ function getType(representation) {
   const type = representation[n.representationType];
   return type ? type : representation[n.ifcClass];
 }
-
 
 export { constructGeometries, getMappedGeometry };

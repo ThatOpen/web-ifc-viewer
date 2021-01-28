@@ -27,6 +27,7 @@ const namedProps = {
   hasType: "_HasType",
   ifcClass: "_IfcClass",
   innerCurves: "InnerCurves",
+  innerFilletRadius: "InnerFilletRadius",
   isBrep: "_IsBrep",
   items: "Items",
   location: "Location",
@@ -40,6 +41,7 @@ const namedProps = {
   orientation: "Orientation",
   outer: "Outer",
   outerCurve: "OuterCurve",
+  outerFilletRadius: "OuterFilletRadius",
   parentCurve: "ParentCurve",
   pivots: "Pivots",
   placementRelTo: "PlacementRelTo",
@@ -105,12 +107,14 @@ const ifcValueType = {
   text: "Text",
   enum: "Enum",
   bool: "Boolean",
+  id: "ExpressId",
   singleNumber: "SingleNumber",
 };
 
 const geometryTypes = {
   annotation2D: "Annotation2D",
   curve2D: "Curve2D",
+  curve3D: "Curve3D",
   sweptSolid: "SweptSolid",
   mappedRepresentation: "MappedRepresentation",
   brep: "Brep",

@@ -18,7 +18,7 @@ function applyMaterialOnSpaces(structured) {
 
 function applyMaterialOnMesh(product) {
   product[n.geometry].forEach((item) => {
-      getMeshMaterial(item, product[n.ifcClass]);
+    getMeshMaterial(item, product[n.ifcClass]);
   });
 }
 
@@ -38,8 +38,9 @@ function getMeshMaterial(item, ifcType) {
 function applyMaterialOnItem(items) {
   if (items)
     items.forEach((prop) => {
-      const mesh = prop[n.geometry][0];
-      mesh.material = getMaterial(prop[n.ifcClass]);
+      prop[n.geometry].forEach((geometry) => {
+        if (geometry.type === 'Mesh') geometry.material = getMaterial(prop[n.ifcClass]);
+      });
     });
 }
 
