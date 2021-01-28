@@ -9,6 +9,7 @@ export function readIfcFile() {
     'change',
     (e) => {
       readFile(input);
+      document.getElementById('exportFile').removeAttribute("disabled");
     },
     false
   );
