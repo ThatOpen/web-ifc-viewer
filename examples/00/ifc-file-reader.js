@@ -9,7 +9,7 @@ export function readIfcFile() {
     'change',
     (e) => {
       readFile(input);
-      document.getElementById('exportFile').removeAttribute("disabled");
+      enableExportButtons();
     },
     false
   );
@@ -23,6 +23,13 @@ function readFile(input) {
     scene.add(loaded.MainObject);
   };
   reader.readAsText(input.files[0]);
+}
+
+function enableExportButtons() {
+  const export_btns = document.querySelectorAll('.exportButton');
+  export_btns.forEach(btn => {
+    btn.removeAttribute("disabled");
+  });
 }
 
 readIfcFile();

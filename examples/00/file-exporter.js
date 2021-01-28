@@ -1,6 +1,6 @@
 import { exportGeometryAsObj } from '../../src/IFC.js';
 
-function exportFile() {
+function exportFileAsObj() {
   const result = exportGeometryAsObj();
   saveArrayBuffer(result, 'ifcjsExport.obj');
 }
@@ -19,5 +19,7 @@ function saveArrayBuffer(buffer, filename) {
   save(new Blob([buffer], {type: 'application/octet-stream'}), filename);
 }
 
-const exportButton = document.getElementById('exportFile');
-exportButton.addEventListener('click', exportFile);
+if (document.getElementById('exportFileAsObj')) {
+  const exportButton = document.getElementById('exportFileAsObj');
+  exportButton.addEventListener('click', exportFileAsObj);
+}
