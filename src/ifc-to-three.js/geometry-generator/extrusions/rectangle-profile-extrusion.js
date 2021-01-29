@@ -2,11 +2,11 @@ import { createExtrusionsByPoints } from "../three-geometry/three-extrusion.js";
 import { namedProps as n } from "../../../utils/global-constants.js";
 import { applyTransformsToGeometry } from "../../geometry-transformer/local-transform-applier.js";
 
-function mapRectangleProfileExtrusion(extruded, product) {
+function mapRectangleProfileExtrusion(extruded) {
   getRectProfileDimensions(extruded);
   const position = extruded.profile[n.position];
   const points = getRectProfilePoints(extruded);
-  const geometry = createExtrusionsByPoints(points, extruded.depth, extruded.direction);
+  const geometry = createExtrusionsByPoints(points, extruded.depth, extruded.direction, undefined, position);
   applyTransformsToGeometry(geometry, position);
   return geometry;
 }

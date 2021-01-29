@@ -33,8 +33,8 @@ function applyBooleanOperationOnMesh(product, geometry) {
 
 function addResultToScene(geometryItem, openings, result) {
   result._Data = geometryItem._Data; //Reference to parsed IFC information
-  result.attach(...openings);
-  result.attach(...geometryItem.children);
+  openings.forEach((opening) => result.attach(opening));
+  geometryItem.children.forEach((child) => result.attach(child));
   mainObject.add(result);
   mainObject.remove(geometryItem);
 }
