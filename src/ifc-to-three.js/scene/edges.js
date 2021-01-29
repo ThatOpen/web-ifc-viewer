@@ -1,4 +1,4 @@
-import { getLineColor } from './materials-map.js';
+import { getLineMaterial } from './materials-map.js';
 import { namedProps as n, structuredData as s } from '../../utils/global-constants.js';
 
 function drawEdges(structured) {
@@ -26,9 +26,8 @@ function generateEdgesOnItems(items) {
 function createEdgesOfItem(ifcClass, item) {
   try{
     if (item.type === 'Mesh'){
-      const lineColor = getLineColor(ifcClass);
       const geometry = new THREE.EdgesGeometry(item.geometry);
-      const material = new THREE.LineBasicMaterial({ color: lineColor });
+      const material = getLineMaterial(ifcClass);
       const wireframe = new THREE.LineSegments(geometry, material);
       item.add(wireframe);
     }

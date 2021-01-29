@@ -1,4 +1,4 @@
-import { getMaterial, getLineColor } from './materials-map.js';
+import { getMaterial } from './materials-map.js';
 import { namedProps as n, structuredData as s } from '../../utils/global-constants.js';
 
 function applyMaterials(structured) {
@@ -44,4 +44,4 @@ function applyMaterialOnItem(items) {
     });
 }
 
-export { applyMaterials, getLineColor };
+export { applyMaterials };

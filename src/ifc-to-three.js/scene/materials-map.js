@@ -1,6 +1,31 @@
 import { ifcTypes as t } from '../../utils/ifc-types.js';
 import { getTransformOfGeometry } from '../geometry-transformer/local-transform-tracker.js';
 
+const colors = {
+  black: 0x000000,
+  brown: 0xc2893a,
+  red: 0xff0000,
+  grey: 0x606060,
+  darkBrown: 0x5c3d1e,
+  darkBlue: 0x23395d,
+  lightBlue: 0xadd8e6,
+  white: 0xffffff
+};
+
+const materials = {
+  whiteDiffuse: getDiffuseMat(colors.white),
+  brownDiffuse: getDiffuseMat(colors.brown),
+  transparent: getTransparentMat(colors.white, 0),
+  translucentBlue: getTransparentMat(colors.lightBlue, 0.2),
+}
+
+const lineMaterials = {
+  grey: newLineMaterial(colors.grey),
+  brown: newLineMaterial(colors.darkBrown),
+  blue: newLineMaterial(colors.darkBlue),
+  black: newLineMaterial(colors.black),
+}
+
 function getMaterial(ifcType) {
   try {
     return materialsMap[t[ifcType]].material;
@@ -9,11 +34,11 @@ function getMaterial(ifcType) {
   }
 }
 
-function getLineColor(ifcType) {
+function getLineMaterial(ifcType) {
   try{
-    return materialsMap[t[ifcType]].lineColor;
+    return materialsMap[t[ifcType]].lineMaterial;
   } catch {
-    return materialsMap[t.IfcWall];
+    return newLineMaterial(colors.grey);
   }
 }
 
@@ -48,106 +73,99 @@ function getBaseSettings(color) {
   };
 }
 
-const colors = {
-  black: 0x000000,
-  brown: 0xc2893a,
-  red: 0xff0000,
-  grey: 0x606060,
-  darkBrown: 0x5c3d1e,
-  darkBlue: 0x23395d,
-  lightBlue: 0xadd8e6,
-  white: 0xffffff
-};
+function newLineMaterial(lineColor){
+  return new THREE.LineBasicMaterial({ color: lineColor });
+}
 
 const materialsMap = {
   [t.IfcWall]: {
-    material: getDiffuseMat(colors.white),
-    lineColor: colors.grey
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.grey
   },
   [t.IfcWallStandardCase]: {
-    material: getDiffuseMat(colors.white),
-    lineColor: colors.grey
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.grey
   },
   [t.IfcSite]: {
-    material: getDiffuseMat(colors.white),
-    lineColor: colors.grey
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.grey
   },
   [t.IfcSlab]: {
-    material: getDiffuseMat(colors.white),
-    lineColor: colors.grey
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.grey
   },
   [t.IfcCovering]: {
-    material: getDiffuseMat(colors.white),
-    lineColor: colors.grey
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.grey
   },
   [t.IfcRoof]: {
-    material: getDiffuseMat(colors.white),
-    lineColor: colors.grey
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.grey
   },
   [t.IfcEquipmentElement]: {
-    material: getDiffuseMat(colors.white),
-    lineColor: colors.grey
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.grey
   },
   [t.IfcFurnishingElement]: {
-    material: getDiffuseMat(colors.white, 0),
-    lineColor: colors.darkBrown
-  },
-  [t.IfcDoor]: {
-    material: getDiffuseMat(colors.brown),
-    lineColor: colors.darkBrown
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.brown
   },
   [t.IfcRailing]: {
-    material: getDiffuseMat(colors.white),
-    lineColor: colors.darkBrown
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.brown
   },
   [t.IfcColumn]: {
-    material: getDiffuseMat(colors.white),
-    lineColor: colors.darkBrown
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.brown
   },
   [t.IfcFooting]: {
-    material: getDiffuseMat(colors.white),
-    lineColor: colors.darkBrown
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.brown
   },
   [t.IfcBeam]: {
-    material: getDiffuseMat(colors.white),
-    lineColor: colors.darkBrown
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.brown
   },
   [t.IfcStair]: {
-    material: getDiffuseMat(colors.white),
-    lineColor: colors.darkBrown
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.brown
   },
   [t.IfcStairFlight]: {
-    material: getDiffuseMat(colors.white),
-    lineColor: colors.darkBrown
-  },
-  [t.IfcPlate]: {
-    material: getTransparentMat(colors.lightBlue, 0.2),
-    lineColor: colors.darkBlue
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.brown
   },
   [t.IfcMember]: {
-    material: getDiffuseMat(colors.white),
-    lineColor: colors.darkBrown
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.brown
   },
   [t.IfcFlowTerminal]: {
-    material: getDiffuseMat(colors.white),
-    lineColor: colors.grey
-  },
-  [t.IfcWindow]: {
-    material: getTransparentMat(colors.lightBlue, 0.2),
-    lineColor: colors.darkBlue
-  },
-  [t.IfcSpace]: {
-    material: getTransparentMat(colors.lightBlue, 0),
-    lineColor: colors.black
-  },
-  [t.IfcOpeningElement]: {
-    material: getTransparentMat(colors.lightBlue, 0),
-    lineColor: colors.black
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.grey
   },
   [t.IfcBuildingElementProxy]: {
-    material: getDiffuseMat(colors.white),
-    lineColor: colors.darkBrown
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.brown
+  },
+  [t.IfcDoor]: {
+    material: materials.brownDiffuse,
+    lineMaterial: lineMaterials.brown
+  },
+  [t.IfcPlate]: {
+    material: materials.translucentBlue,
+    lineMaterial: lineMaterials.blue
+  },
+  [t.IfcWindow]: {
+    material: materials.translucentBlue,
+    lineMaterial: lineMaterials.blue
+  },
+  [t.IfcSpace]: {
+    material: materials.transparent,
+    lineMaterial: lineMaterials.grey
+  },
+  [t.IfcOpeningElement]: {
+    material: materials.transparent,
+    lineMaterial: lineMaterials.grey
   },
 };
 
-export { getMaterial, getLineColor };
+export { getMaterial, getLineMaterial };
