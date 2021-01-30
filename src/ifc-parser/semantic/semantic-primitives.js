@@ -93,7 +93,7 @@ function getValueSet(parsed) {
     let type = getIfcValueType(valueProps);
     const value = valueProps[type][0].image;
     const formattedValue = formatIfcValue(type, value);
-    const unit = valueProps[d.value] ? valueProps[d.value][0].image : '';
+    const unit = valueProps[d.value] ? valueProps[d.value][0].image : getTypeName(type);
     return { [i.value]: formattedValue, [i.unit]: unit };
   });
 }
@@ -104,7 +104,12 @@ function getIfcValue(parsed) {
   const data = parsed[getParser(d.value)][counter[d.value]].children;
   let type = getIfcValueType(data);
   const value = formatIfcValue(type, getIfcValueValue(parsed, type));
-  return { Value: value, IfcUnit: getIfcUnit(parsed) };
+  const unit = getIfcUnit(parsed) || getTypeName(type);
+  return { [i.value]: value, [i.unit]: unit };
+}
+
+function getTypeName(type){
+  return type.toString();
 }
 
 function getEmptySet(type) {

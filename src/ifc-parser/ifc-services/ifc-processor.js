@@ -16,7 +16,7 @@ import "../ifc-models/units.js";
 import { ifcTypes as t } from "../../utils/ifc-types.js";
 import { parse } from "../parser/parse-process.js";
 import { readIfcItems } from "./ifc-items-reader.js";
-import { referenceEntities } from "./ifc-items-referencer.js";
+import { bindEntities } from "./ifc-items-referencer.js";
 import { findRemainingTypes } from "../../dev/functions-for-development.js";
 import { itemsReaderValues as i, namedProps as n } from "../../utils/global-constants.js";
 
@@ -32,7 +32,7 @@ function loadItems(ifcData) {
     if (isTypeSupported(ifcItem))
       loadedItems[ifcItem[i.expressId]] = parseAndLoadItem(ifcItem);
   });
-  referenceEntities(loadedItems);
+  bindEntities(loadedItems);
   return loadedItems;
 }
 

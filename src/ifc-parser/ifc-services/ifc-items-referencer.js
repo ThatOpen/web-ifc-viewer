@@ -1,45 +1,44 @@
-import { typeValue as v } from "../../utils/global-constants.js";
-import { ifcDataTypes as d } from "../../utils/ifc-data-types.js";
+import { ifcUnitsValue as i, typeValue as v } from '../../utils/global-constants.js';
+import { ifcDataTypes as d } from '../../utils/ifc-data-types.js';
 
-function referenceEntities(items) {
-  let key;
-  for (key in items) {
-    const ifcLine = items[key];
-    for (key in ifcLine) {
-      const ifcProperty = ifcLine[key];
-      referenceSingleItem(ifcProperty, items);
-      referenceMultipleItems(ifcProperty, items);
-      trimExplicitTypes(ifcLine, key);
+//This module substitutes the IDs of the loaded entities by the actual entity with that ID
+
+function bindEntities(items) {
+  for (let item in items) {
+    const ifcItem = items[item];
+    for (let property in ifcItem) {
+      bindProperty(ifcItem[property], items);
+      trimExplicitTypes(ifcItem, property);
     }
   }
 }
 
-function referenceSingleItem(ifcProperty, items) {
-  if (isSingleItemValid(ifcProperty, items))
-    ifcProperty[v.value] = items[ifcProperty[v.value]];
+function bindProperty(ifcProperty, items) {
+  bindIdProperty(ifcProperty, items);
+  bindIdSetProperty(ifcProperty, items);
+  bindValueSetProperty(ifcProperty, items);
 }
 
-function isSingleItemValid(ifcProperty, items) {
-  return (
-    isItemWithReference(ifcProperty) &&
-    items.hasOwnProperty(ifcProperty[v.value])
-  );
+function bindIdProperty(ifcProperty, items) {
+  const id = ifcProperty[v.value];
+  if (ifcProperty[v.type] === d.id && items.hasOwnProperty(id)) ifcProperty[v.value] = items[id];
 }
 
-function referenceMultipleItems(ifcProperty, items) {
+function bindIdSetProperty(ifcProperty, items) {
   if (ifcProperty[v.type] === d.idSet) {
-    const property = ifcProperty;
-    const values = [...property[v.value]];
-    property[v.value] = values.map((e) => {
-      return items.hasOwnProperty(e) ? items[e] : e;
-    });
+    const values = [...ifcProperty[v.value]];
+    ifcProperty[v.value] = values.map((e) => (items.hasOwnProperty(e) ? items[e] : e));
   }
 }
 
-function isItemWithReference(item) {
-  if (item[v.value] === d[v.value] && !isNaN(item[v.value])) return true;
-  if (item[v.type] === d.id) return true;
-  return false;
+//IfcValues can also contains IDs (not always)
+
+function bindValueSetProperty(ifcProperty, items) {
+  if (ifcProperty[v.type] === d.valueSet && ifcProperty[v.value][0][i.unit] === d.id)
+    ifcProperty[v.value] = ifcProperty[v.value].map((e) => {
+      if (items.hasOwnProperty(e[i.value])) e[i.value] = items[e[i.value]];
+      return e;
+    });
 }
 
 function trimExplicitTypes(ifcLine, key) {
@@ -47,4 +46,4 @@ function trimExplicitTypes(ifcLine, key) {
   if (value) ifcLine[key] = value;
 }
 
-export { referenceEntities };
+export { bindEntities };
