@@ -13,9 +13,20 @@ function mapTrimmedCurveAsShape(shape, curve) {
 }
 
 const trimmedCurvesMap = {
+  [t.IfcLine]: { line: mapTrimmedLine },
   [t.IfcCircle]: { shape: mapTrimmedCircleShape, line: mapTrimmedCircleLine },
   [t.IfcEllipse]: { shape: mapTrimmedEllipseShape, line: mapTrimmedCircleLine }
 };
+
+function mapTrimmedLine(curve) {
+  const point1 = getTrimmedCurvePoint(curve[n.trim1]);
+  const point2 = getTrimmedCurvePoint(curve[n.trim2]);
+  return createLine([point1, point2]);
+}
+
+function getTrimmedCurvePoint(trim) {
+  return trim[0][i.value][n.coordinates];
+}
 
 function mapTrimmedCircleLine(curve) {
   const { x, y, radius, trims } = getCircleInfo(curve);
@@ -24,7 +35,7 @@ function mapTrimmedCircleLine(curve) {
   return createLine(points);
 }
 
-function mapTrimmedEllipseLine(curve){
+function mapTrimmedEllipseLine(curve) {
   //TODO
 }
 
@@ -47,8 +58,8 @@ function mapTrimmedEllipseShape(shape, curve) {
   const currentPoint = [shape.currentPoint.x, shape.currentPoint.y];
   const distancesToNextPoints = getDistancesToNextPoints(currentPoint, ends);
   distancesToNextPoints[0] < distancesToNextPoints[1]
-    ? shape.absellipse(x, y, a, b, trims[0], trims[1], false)
-    : shape.absellipse(x, y, a, b, trims[1], trims[0], true);
+    ? shape.absellipse(x, y, a, b, trims[1], trims[0], true)
+    : shape.absellipse(x, y, a, b, trims[0], trims[1], false);
 }
 
 function getCircleInfo(curve) {
@@ -64,7 +75,7 @@ function getEllipseInfo(curve) {
   const a = curve[n.basisCurve][n.semiAxis1];
   const b = curve[n.basisCurve][n.semiAxis2];
   const trims = getCurveTrims(curve);
-  const ends = getEllipseEnds(x, y, a, b, trims);
+  const ends = getEllipseEnds(x, a, b, trims);
   return { x, y, a, b, trims, ends };
 }
 
@@ -78,9 +89,8 @@ function getCurveTrims(curve) {
 }
 
 function getCurveTrim(curve, trim) {
-  const rotation = curve[n.basisCurve][n.position][n.refDirection][n.dirRatios];
-  const offsetAngle = Math.acos(rotation[0]);
-  return (curve[trim][0][i.value] * Math.PI) / 180 + offsetAngle;
+  const offsetAngle = getTrimmedCurveAngle(curve);
+  return (curve[trim][0][i.value] * Math.PI) / 180 - offsetAngle;
 }
 
 function getCircleEnds(x, y, radius, trims) {
@@ -91,19 +101,16 @@ function getCircleEnd(x, y, radius, angle) {
   return [Math.cos(angle) * radius + x, Math.sin(angle) * radius + y];
 }
 
-function getEllipseEnds(x, y, a, b, trims) {
-  return [
-    getEllipseEnd(x, y, a, b, trims[0]),
-    getEllipseEnd(x, y, a, b, trims[1])
-  ];
+function getEllipseEnds(x, a, b, trims) {
+  return [getEllipseEnd(x, a, b, trims[0]), getEllipseEnd(x, a, b, trims[1])];
 }
 
-function getEllipseEnd(x, y, a, b, trim) {
-  const radiansAngle = trim * Math.PI / 180;
-  const factor = trim > 3*Math.PI/2 || trim < Math.PI/2 ? -1 : 1;
-  const endX = (a * b) / Math.sqrt(b*b + a*a*Math.tan(radiansAngle)) * factor;
-  const endY = x * Math.tan(radiansAngle);
-  return {endX, endY}
+function getEllipseEnd(x, a, b, trim) {
+  const angle = trim % (Math.PI * 2);
+  const factor = angle > (3 * Math.PI) / 2 || angle < Math.PI / 2 ? -1 : 1;
+  const endX = ((a * b) / Math.sqrt(b * b + a * a * Math.pow(Math.tan(angle), 2))) * factor;
+  const endY = x * Math.tan(angle);
+  return [endX, endY];
 }
 
 function getDistancesToNextPoints(currentPoint, ends) {
@@ -117,6 +124,11 @@ function getDistanceBetweenPoints(point1, point2) {
   const a = point1[0] - point2[0];
   const b = point1[1] - point2[1];
   return Math.sqrt(a * a + b * b);
+}
+
+function getTrimmedCurveAngle(curve) {
+  const angle = curve[n.basisCurve][n.position][n.refDirection][n.dirRatios];
+  return Math.acos(angle[0]);
 }
 
 export { mapTrimmedCurve, mapTrimmedCurveAsShape };

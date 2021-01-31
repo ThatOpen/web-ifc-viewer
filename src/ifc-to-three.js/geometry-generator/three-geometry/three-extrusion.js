@@ -44,6 +44,40 @@ function getCircleCoordinates(radius, steps) {
   return coords;
 }
 
+function createIShapeExtrusion(profile, depth, dir = [0, 0, 1]) {
+  const overallWidth = profile[n.overallWidth];
+  const overallDepth = profile[n.overallDepth];
+  const webThickness = profile[n.webThickness];
+  const flangeThickness = profile[n.flangeThickness];
+  const filletRadius = profile[n.filletRadius];
+  const shape = new THREE.Shape();
+  const halfWidth = overallWidth / 2;
+  const halfDepth = overallDepth / 2;
+  const halfWebThickness = webThickness / 2;
+  shape.moveTo(halfWidth, halfDepth);
+  shape.lineTo(-halfWidth, halfDepth);
+  shape.lineTo(-halfWidth, halfDepth - flangeThickness);
+  shape.lineTo(-halfWebThickness - filletRadius, halfDepth - flangeThickness);
+  shape.lineTo(-halfWebThickness - filletRadius, halfDepth - flangeThickness);
+  shape.arc(0, -filletRadius, filletRadius, Math.PI / 2, 0, true);
+  shape.lineTo(-halfWebThickness, -halfDepth + flangeThickness + filletRadius);
+  shape.arc(-filletRadius, 0, filletRadius, 0, (3 * Math.PI) / 2, true);
+  shape.lineTo(-halfWidth, -halfDepth + flangeThickness);
+  shape.lineTo(-halfWidth, -halfDepth);
+  shape.lineTo(halfWidth, -halfDepth);
+  shape.lineTo(halfWidth, -halfDepth + flangeThickness);
+  shape.lineTo(halfWebThickness + filletRadius, -halfDepth + flangeThickness);
+  shape.lineTo(halfWebThickness + filletRadius, -halfDepth + flangeThickness);
+  shape.arc(0, filletRadius, filletRadius, (3 * Math.PI) / 2, Math.PI, true);
+  shape.lineTo(halfWebThickness, halfDepth - flangeThickness - filletRadius);
+  shape.arc(filletRadius, 0, filletRadius, Math.PI, Math.PI / 2, true);
+  shape.lineTo(halfWidth, halfDepth - flangeThickness);
+  const extrusion = createExtrusion(shape, depth, dir);
+  extrusion.rotation.z += Math.PI / 2;
+  extrusion.updateMatrix();
+  return extrusion;
+}
+
 function createExtrusion(shape, depth, dir = [0, 0, 1]) {
   const material = new THREE.MeshPhongMaterial({ color: 0xffffff });
   const extrudeSettings = getExtrudeSettings(depth, dir);
@@ -110,5 +144,6 @@ export {
   createExtrusionsByPoints,
   createCircularExtrusion,
   createTubularExtrusion,
+  createIShapeExtrusion,
   createExtrusion
 };

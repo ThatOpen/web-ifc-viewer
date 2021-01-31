@@ -34,12 +34,12 @@ newObject({
   [n.ifcClass]: getName(t.IfcIShapeProfileDef),
   ProfileType: d.enum,
   ProfileName: d.text,
-  Position: d.id,
-  OverallWidth: d.number,
-  OverallDepth: d.number,
-  WebThickness: d.number,
-  FlangeThickness: d.number,
-  FilletRadius: d.number
+  [n.position]: d.id,
+  [n.overallWidth]: d.number,
+  [n.overallDepth]: d.number,
+  [n.webThickness]: d.number,
+  [n.flangeThickness]: d.number,
+  [n.filletRadius]: d.number
 });
 
 newObject({
