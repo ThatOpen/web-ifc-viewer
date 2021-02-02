@@ -58,8 +58,8 @@ function mapTrimmedEllipseShape(shape, curve) {
   const currentPoint = [shape.currentPoint.x, shape.currentPoint.y];
   const distancesToNextPoints = getDistancesToNextPoints(currentPoint, ends);
   distancesToNextPoints[0] < distancesToNextPoints[1]
-    ? shape.absellipse(x, y, a, b, trims[1], trims[0], true)
-    : shape.absellipse(x, y, a, b, trims[0], trims[1], false);
+    ? shape.absellipse(x, y, a, b, trims[0], trims[1], false)
+    : shape.absellipse(x, y, a, b, trims[1], trims[0], true);
 }
 
 function getCircleInfo(curve) {
@@ -90,7 +90,7 @@ function getCurveTrims(curve) {
 
 function getCurveTrim(curve, trim) {
   const offsetAngle = getTrimmedCurveAngle(curve);
-  return (curve[trim][0][i.value] * Math.PI) / 180 - offsetAngle;
+  return (curve[trim][0][i.value] * Math.PI) / 180 + offsetAngle;
 }
 
 function getCircleEnds(x, y, radius, trims) {

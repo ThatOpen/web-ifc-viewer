@@ -1,8 +1,3 @@
-import {
-  namedProps as n,
-  geometryTypes as g,
-  structuredData as s
-} from '../../utils/global-constants.js';
 import { mapCurve2D, mapCurve3D } from './curves/curves-map.js';
 import { mapExtrudedAreaSolid, mapSweptSolid } from './ifc-geometry/ifc-swept-solid.js';
 import { mapMappedRepresentation } from './ifc-geometry/ifc-mapped-representation.js';
@@ -11,6 +6,12 @@ import { mapGeometricSet } from './ifc-geometry/ifc-geometric-set.js';
 import { mapClipping } from './ifc-geometry/ifc-clipping.js';
 import { mapBoundingBox } from './ifc-geometry/ifc-bounding-box.js';
 import { mapAnnotation } from './ifc-geometry/ifc-annotation.js';
+import { mapAdvancedSweptSolid } from './ifc-geometry/ifc-swept-solid-advanced.js';
+import {
+  namedProps as n,
+  geometryTypes as g,
+  structuredData as s
+} from '../../utils/global-constants.js';
 
 function constructGeometries(structured) {
   structured[s.products].forEach((product) => constructGeometry(product));
@@ -75,7 +76,9 @@ const geometryMap = {
   [g.extrudedAreaSolid]: mapExtrudedAreaSolid,
   [g.surfaceModel]: mapSurfaceModel,
   [g.boundingBox]: mapBoundingBox,
-  [g.annotation2D]: mapAnnotation
+  [g.annotation2D]: mapAnnotation,
+  [g.advancedSweptSolid]: mapAdvancedSweptSolid,
+  [g.solidModel]: mapBrep
 };
 
 function getMappedGeometry(representation, product) {
@@ -84,7 +87,8 @@ function getMappedGeometry(representation, product) {
     return geometryMap[type](representation, product);
   } catch (e) {
     console.warn(`Error with item ${product[n.ifcClass]} of type ${type}: ${e}`);
-    return geometryMap[type](representation, product);
+    // return geometryMap[type](representation, product);
+    return new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.01, 0.01));
   }
 }
 

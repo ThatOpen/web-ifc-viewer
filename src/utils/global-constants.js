@@ -117,17 +117,19 @@ const ifcValueType = {
 };
 
 const geometryTypes = {
+  advancedSweptSolid: "AdvancedSweptSolid",
   annotation2D: "Annotation2D",
+  boundingBox: "BoundingBox",
+  brep: "Brep",
+  clipping: "Clipping",
   curve2D: "Curve2D",
   curve3D: "Curve3D",
-  sweptSolid: "SweptSolid",
-  mappedRepresentation: "MappedRepresentation",
-  brep: "Brep",
-  geometricSet: "GeometricSet",
-  clipping: "Clipping",
   extrudedAreaSolid: "IfcExtrudedAreaSolid",
+  geometricSet: "GeometricSet",
+  mappedRepresentation: "MappedRepresentation",
+  solidModel: "SolidModel",
   surfaceModel: "SurfaceModel",
-  boundingBox: "BoundingBox",
+  sweptSolid: "SweptSolid",
 };
 
 const ifcBoolValues = {

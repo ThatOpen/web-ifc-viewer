@@ -239,6 +239,18 @@ newObject({
 });
 
 newObject({
+  [n.ifcClass]: getName(t.IfcFlowFitting),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  ObjectType: d.text,
+  [n.objectPlacement]: d.id,
+  [n.representation]: d.id,
+  Tag: d.text
+});
+
+newObject({
   [n.ifcClass]: getName(t.IfcFurnishingElement),
   GlobalId: d.text,
   OwnerHistory: d.id,

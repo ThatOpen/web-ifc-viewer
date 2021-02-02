@@ -6,6 +6,7 @@ const colors = {
   brown: 0xc2893a,
   red: 0xff0000,
   grey: 0x606060,
+  lightGrey: 0x858585,
   darkBrown: 0x5c3d1e,
   darkBlue: 0x23395d,
   lightBlue: 0xadd8e6,
@@ -17,10 +18,12 @@ const materials = {
   brownDiffuse: getDiffuseMat(colors.brown),
   transparent: getTransparentMat(colors.white, 0),
   translucentBlue: getTransparentMat(colors.lightBlue, 0.2),
+  translucentWhite: getTransparentMat(colors.white, 0.2),
 }
 
 const lineMaterials = {
   grey: newLineMaterial(colors.grey),
+  lightGrey: newLineMaterial(colors.lightGrey),
   brown: newLineMaterial(colors.darkBrown),
   blue: newLineMaterial(colors.darkBlue),
   black: newLineMaterial(colors.black),
@@ -31,6 +34,7 @@ function getMaterial(ifcType) {
     return materialsMap[t[ifcType]].material;
   } catch (e) {
     console.warn(`The type ${ifcType} doesn't have a material implemented.`);
+    return materials.whiteDiffuse;
   }
 }
 
@@ -108,41 +112,69 @@ const materialsMap = {
   },
   [t.IfcFurnishingElement]: {
     material: materials.whiteDiffuse,
-    lineMaterial: lineMaterials.brown
+    lineMaterial: lineMaterials.grey
   },
   [t.IfcRailing]: {
     material: materials.whiteDiffuse,
-    lineMaterial: lineMaterials.brown
+    lineMaterial: lineMaterials.grey
   },
   [t.IfcColumn]: {
     material: materials.whiteDiffuse,
-    lineMaterial: lineMaterials.brown
+    lineMaterial: lineMaterials.grey
   },
   [t.IfcFooting]: {
     material: materials.whiteDiffuse,
-    lineMaterial: lineMaterials.brown
+    lineMaterial: lineMaterials.grey
   },
   [t.IfcBeam]: {
     material: materials.whiteDiffuse,
-    lineMaterial: lineMaterials.brown
+    lineMaterial: lineMaterials.grey
   },
   [t.IfcStair]: {
     material: materials.whiteDiffuse,
-    lineMaterial: lineMaterials.brown
+    lineMaterial: lineMaterials.grey
   },
   [t.IfcStairFlight]: {
     material: materials.whiteDiffuse,
-    lineMaterial: lineMaterials.brown
+    lineMaterial: lineMaterials.grey
   },
   [t.IfcMember]: {
     material: materials.whiteDiffuse,
-    lineMaterial: lineMaterials.brown
+    lineMaterial: lineMaterials.grey
   },
   [t.IfcFlowTerminal]: {
     material: materials.whiteDiffuse,
     lineMaterial: lineMaterials.grey
   },
   [t.IfcBuildingElementProxy]: {
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.grey
+  },
+  [t.IfcReinforcingBar]: {
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.brown
+  },
+  [t.IfcReinforcingMesh]: {
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.brown
+  },
+  [t.IfcMechanicalFastener]: {
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.brown
+  },
+  [t.IfcFastener]: {
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.brown
+  },
+  [t.IfcRamp]: {
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.brown
+  },
+  [t.IfcFlowSegment]: {
+    material: materials.whiteDiffuse,
+    lineMaterial: lineMaterials.brown
+  },
+  [t.IfcFlowFitting]: {
     material: materials.whiteDiffuse,
     lineMaterial: lineMaterials.brown
   },
@@ -152,11 +184,11 @@ const materialsMap = {
   },
   [t.IfcPlate]: {
     material: materials.translucentBlue,
-    lineMaterial: lineMaterials.blue
+    lineMaterial: lineMaterials.grey
   },
   [t.IfcWindow]: {
     material: materials.translucentBlue,
-    lineMaterial: lineMaterials.blue
+    lineMaterial: lineMaterials.grey
   },
   [t.IfcSpace]: {
     material: materials.transparent,

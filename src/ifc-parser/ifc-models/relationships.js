@@ -185,3 +185,14 @@ newObject({
   RealizingElements: d.idSet,
   ConnectionType: d.text,
 });
+
+newObject({
+  [n.ifcClass]: getName(t.IfcRelConnectsPorts),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  RelatingPort : d.id,
+  RelatedPort: d.id,
+  RealizingElement: d.id,
+});

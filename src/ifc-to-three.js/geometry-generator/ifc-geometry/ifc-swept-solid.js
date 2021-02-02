@@ -7,9 +7,9 @@ import { mapArbitraryProfileExtrusion, mapArbitraryProfileWithVoidsExtrusion } f
 import { mapCircleHollowProfileExtrusion, mapCircleProfileExtrusion } from "../extrusions/circle-profile-extrusion.js";
 import { mapIShapeProfileExtrusion } from "../extrusions/i-shape-profile-extrusion.js";
 
-function mapSweptSolid(shape, product) {
+function mapSweptSolid(shape) {
   const items = [];
-  shape[n.items].forEach((extruded) => items.push(mapExtrudedAreaSolid(extruded, product)));
+  shape[n.items].forEach((extruded) => items.push(mapExtrudedAreaSolid(extruded)));
   return joinAllExtrusions(items);
 }
 
@@ -25,9 +25,9 @@ function joinAllExtrusions(items){
   return result;
 }
 
-function mapExtrudedAreaSolid(extruded, product) {
+function mapExtrudedAreaSolid(extruded) {
   const extrudedProps = getExtrusionProps(extruded);
-  const solid = getExtrusionByType(extrudedProps, product);
+  const solid = getExtrusionByType(extrudedProps);
   const position = extruded[n.position];
   applyTransformsToGeometry(solid, position);
   return solid;
