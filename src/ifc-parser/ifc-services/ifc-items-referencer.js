@@ -43,7 +43,7 @@ function bindValueSetProperty(ifcProperty, items) {
 
 function trimExplicitTypes(ifcLine, key) {
   const value = ifcLine[key][v.value];
-  if (value) ifcLine[key] = value;
+  if (typeof value !== 'undefined') ifcLine[key] = value;
 }
 
 export { bindEntities };
