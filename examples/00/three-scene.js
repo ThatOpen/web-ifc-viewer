@@ -1,4 +1,4 @@
-import { pick } from "./scene-picker.js";
+import { pick } from './scene-picker.js';
 
 //Scene
 var scene = new THREE.Scene();
@@ -58,7 +58,6 @@ if (onMobile) {
   controls.constraint.zoomDampingFactor = 0.2;
   controls.constraint.smoothZoomSpeed = 5.0;
   controls.rotateSpeed = 0.5;
-  controls.target.set = new THREE.Vector3(0, 0, 0);
 }
 
 //Autoadjust camera to window size
