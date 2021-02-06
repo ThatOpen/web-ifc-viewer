@@ -13,7 +13,7 @@ import "../ifc-models/quantities.js";
 import "../ifc-models/systems.js";
 import "../ifc-models/spatial-structure.js";
 import "../ifc-models/units.js";
-import { ifcTypes as t } from "../../utils/ifc-types.js";
+import { haveIfcType } from "../../utils/ifc-types.js";
 import { parse } from "../parser/parse-process.js";
 import { readIfcItems } from "./ifc-items-reader.js";
 import { bindEntities } from "./ifc-items-referencer.js";
@@ -43,7 +43,7 @@ function parseAndLoadItem(ifcItem) {
 }
 
 function isTypeSupported(ifcItem) {
-  return Object.values(t).indexOf(ifcItem[i.type]) > -1;
+  return haveIfcType(ifcItem[i.type]);
 }
 
 export { loadIfcFileItems };
