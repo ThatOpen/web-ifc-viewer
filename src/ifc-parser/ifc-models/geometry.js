@@ -90,11 +90,11 @@ newObject({
 
 newObject({
   [n.ifcClass]: getName(t.IfcSweptDiskSolid),
-  Directrix: d.id,
-  Radius: d.number,
-  InnerRadius: d.number,
-  StartParam: d.number,
-  EndParam: d.number
+  [n.directrix]: d.id,
+  [n.radius]: d.number,
+  [n.innerRadius]: d.number,
+  [n.startParam]: d.number,
+  [n.endParam]: d.number
 });
 
 newObject({
@@ -317,4 +317,14 @@ newObject({
   [n.ifcClass]: getName(t.IfcLine),
   Pnt: d.id,
   Dir: d.id
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcOpenShell),
+  CfsFaces: d.idSet,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcShellBasedSurfaceModel),
+  SbsmBoundary: d.idSet,
 });

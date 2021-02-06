@@ -12,7 +12,7 @@ newObject({
   [n.ifcClass]: getName(t.IfcMaterialLayer),
   Material: d.id,
   LayerThickness: d.number,
-  IsVentilated: d.value,
+  IsVentilated: d.enum,
 });
 
 newObject({

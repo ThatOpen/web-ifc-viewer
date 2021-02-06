@@ -473,3 +473,16 @@ newObject({
   SecondMullionOffset: d.number,
   ShapeAspectStyle: d.number,
 });
+
+newObject({
+  [n.ifcClass]: getName(t.IfcWindowPanelProperties),
+  GlobalId: d.text,
+  OwnerHistory: d.id,
+  Name: d.text,
+  Description: d.text,
+  OperationType: d.enum,
+  PanelPosition: d.enum,
+  FrameDepth: d.number,
+  FrameThickness: d.number,
+  ShapeAspectStyle: d.id,
+});

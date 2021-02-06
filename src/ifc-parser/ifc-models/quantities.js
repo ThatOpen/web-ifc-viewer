@@ -36,3 +36,16 @@ newObject({
   MethodOfMeasurement: d.text,
   Quantities: d.idSet,
 });
+
+newObject({
+  [n.ifcClass]: getName(t.IfcMonetaryUnit),
+  Currency: d.enum,
+});
+
+newObject({
+  [n.ifcClass]: getName(t.IfcQuantityCount),
+  Name: d.text,
+  Description: d.text,
+  Unit: d.id,
+  CountValue: d.number,
+});
