@@ -1,16 +1,16 @@
-import { getName, ifcTypes } from '../utils/ifc-types.js';
+import { getName, haveIfcType } from '../utils/ifc-types.js';
 import { itemsReaderValues as i, namedProps as n } from '../utils/global-constants.js';
 
 function findRemainingTypes(items) {
-  const remainingTypes = [];
+  const remainingTypes = new Set();
   items.forEach((element) => {
-    if (Object.values(ifcTypes).indexOf(element[i.type]) < 0) {
-      if (!remainingTypes.includes(element[i.type])) {
-        remainingTypes.push(element[i.type]);
+    if (haveIfcType(element[i.type]) < 0) {
+      if (!remainingTypes.has(element[i.type])) {
+        remainingTypes.add(element[i.type]);
       }
     }
   });
-  if (remainingTypes.length > 0)
+  if (remainingTypes.size > 0)
     console.log('Error: the following classes are not implemented: ', remainingTypes);
 }
 

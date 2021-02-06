@@ -211,8 +211,19 @@ const ifcTypes = {
   IfcUnitAssignment: "IFCUNITASSIGNMENT",
 };
 
+
+const ifcTypesSet = new Set();
+Object.values(ifcTypes).forEach((e) => ifcTypesSet.add(e));
+
+const ifcTypesMap = new Map();
+Object.keys(ifcTypes).forEach((e) => ifcTypesMap.set(ifcTypes[e], e));
+
 function getName(ifcType) {
-  return Object.keys(ifcTypes).find((key) => ifcTypes[key] === ifcType);
+  return ifcTypesMap.get(ifcType);
 }
 
-export { ifcTypes, getName };
+function haveIfcType(type) {
+  return ifcTypesSet.has(type);
+}
+
+export { ifcTypes, getName, haveIfcType };
