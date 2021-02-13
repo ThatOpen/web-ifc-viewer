@@ -1,11 +1,11 @@
 //https://stackoverflow.com/questions/50272399/three-js-2d-object-in-3d-space-by-vertices/50274103#50274103
 
 function createBufferGeometry(faces) {
-  const { triangles, normals, uvs } = triangulate(faces);
+  const result = triangulate(faces);
   const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', getAttribute(triangles, 3));
-  geometry.setAttribute('normal', getAttribute(normals, 3));
-  geometry.setAttribute('uv', getAttribute(uvs, 2));
+  geometry.setAttribute('position', getAttribute(result.triangles, 3));
+  geometry.setAttribute('normal', getAttribute(result.normals, 3));
+  geometry.setAttribute('uv', getAttribute(result.uvs, 2));
   geometry.computeVertexNormals();
   return new THREE.Mesh(geometry);
 }
@@ -15,32 +15,31 @@ function getAttribute(attribute, attributeCount) {
 }
 
 function triangulate(faces) {
-  const triangles = [];
-  const normals = [];
-  const uvs = [];
-  faces.forEach((face) => {
-    const outerFace = face.outerBounds.bounds[0];
-    const innerBounds = face.innerBounds.bounds;
+  const result = { triangles: [], normals: [], uvs: [] };
+  faces.forEach((face) => triangulateFace(face, result));
+  return result;
+}
 
-    const outerPoints = getPoints(outerFace);
-    const innerBoundsPoints = [];
-    innerBounds.forEach((bound) => innerBoundsPoints.push(getPoints(bound)));
-    const allPoints = [];
-    allPoints.push(...outerPoints);
-    innerBoundsPoints.forEach(boundPoints => allPoints.push(...boundPoints));
+function triangulateFace(face, result) {
+  const points = getAllPoints(face);
+  const flatCoords = getFlatCoordinates(points.all);
+  const indices = getTriangleIndices(points);
+  for (const index of indices) {
+    result.triangles.push(...getTriangle(flatCoords, index));
+    result.normals.push(...[0, 0, 0]);
+    result.uvs.push(...[0, 0]);
+  }
+}
 
-    const flatCoords = getFlatCoordinates(allPoints);
-
-    const indices = getTriangleIndices(outerPoints.length, innerBoundsPoints, allPoints);
-
-    for (const index of indices) {
-      let triangle = getTriangle(flatCoords, index);
-      triangles.push(...triangle);
-      normals.push(...[0, 0, 0]);
-      uvs.push(...[0, 0]);
-    }
-  });
-  return { triangles, normals, uvs };
+function getAllPoints(face) {
+  const points = { outer: [], inner: [], all: [] };
+  const outerFace = face.outerBounds.bounds[0];
+  const innerBounds = face.innerBounds.bounds;
+  points.outer = getThreePoints(outerFace);
+  innerBounds.forEach((bound) => points.inner.push(getThreePoints(bound)));
+  points.all.push(...points.outer);
+  points.inner.forEach((boundPoints) => points.all.push(...boundPoints));
+  return points;
 }
 
 function getFlatCoordinates(face) {
@@ -49,27 +48,30 @@ function getFlatCoordinates(face) {
   return flatCoords;
 }
 
-function getTriangleIndices(outPointsCount, innerBoundsPoints, allPoints) {
-  const { tempCoords, holeIndices } = getTempCoordinates(outPointsCount, innerBoundsPoints, allPoints);
+function getTriangleIndices(points) {
+  const tempCoords = getTempCoordinates(points);
+  const holeIndices = getHolesIndices(points);
   return earcut(tempCoords, holeIndices);
 }
 
-function getTempCoordinates(outPointsCount, innerBoundsPoints, allPoints) {
+function getTempCoordinates(points) {
   const tempPoints = [];
   const tempCoords = [];
-  const q = getQuaternion(allPoints);
-  allPoints.forEach((p) => tempPoints.push(p.clone().applyQuaternion(q)));
-  let baseIndex = outPointsCount;
+  const q = getQuaternion(points.all);
+  points.all.forEach((p) => tempPoints.push(p.clone().applyQuaternion(q)));
+  tempPoints.forEach((coord) => tempCoords.push(...[coord.x, coord.y]));
+  return  tempCoords;
+}
+
+function getHolesIndices(points){
+  let baseIndex = points.outer.length;
   let holeIndices = [];
-  innerBoundsPoints.forEach((boundPoints) => {
+  points.inner.forEach((boundPoints) => {
     holeIndices.push(baseIndex);
     baseIndex += boundPoints.length;
   });
-
-  tempPoints.forEach((coord) => tempCoords.push(...[coord.x, coord.y]));
-  return { tempCoords, holeIndices };
+  return holeIndices;
 }
-
 
 function getQuaternion(points) {
   const normal = getNormal(points);
@@ -79,21 +81,18 @@ function getQuaternion(points) {
 
 function getNormal(points) {
   const length = points.length;
-  const tri = new THREE.Triangle(
-    points[0],
-    points[Math.ceil(length / 3)],
-    points[Math.ceil((2 * length) / 3)]
-  );
+  const p1 = points[0];
+  const p2 = points[Math.ceil(length / 3)];
+  const p3 = points[Math.ceil((2 * length) / 3)];
+  const tri = new THREE.Triangle(p1, p2, p3);
   const normal = new THREE.Vector3();
   tri.getNormal(normal);
   return normal;
 }
 
-function getPoints(coordinates) {
+function getThreePoints(coordinates) {
   const points = [];
-  coordinates.forEach((c) => {
-    points.push(new THREE.Vector3(c[0], c[1], c[2]));
-  });
+  coordinates.forEach((c) => points.push(new THREE.Vector3(c[0], c[1], c[2])));
   return points;
 }
 
