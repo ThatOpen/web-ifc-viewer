@@ -16,14 +16,14 @@ function subtractOpenings(structured) {
 function applyBooleanOperation(product) {
   for (let i = 0; i < product[n.geometry].length; i++) {
     const geometryItem = product[n.geometry][i];
-    if (geometryItem.type === 'Mesh' && !geometryItem[n.isBrep])
+    if (geometryItem.type === 'Mesh')
       product[n.geometry][i] = applyBooleanOperationOnMesh(product, geometryItem);
   }
 }
 
 function applyBooleanOperationOnMesh(product, geometry) {
   const openings = getOpenings(product);
-  const resultGeom = applyBoolDifferences(geometry, openings);
+  const resultGeom = applyBoolDifferences(geometry, openings, false);
   const result = CSG.toMesh(resultGeom, geometry.matrix);
   result.geometry = new THREE.BufferGeometry().fromGeometry(result.geometry);
   result.material = new THREE.MeshPhongMaterial();

@@ -30,6 +30,7 @@
   "homepage": "https://github.com/agviegas/IFC.js#readme",
   "dependencies": {
     "chevrotain": "^7.0.3",
+    "earcut": "^2.2.2",
     "three": "^0.123.0"
   },
   "devDependencies": {

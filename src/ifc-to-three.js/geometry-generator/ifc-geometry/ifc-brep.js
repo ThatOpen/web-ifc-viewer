@@ -1,38 +1,22 @@
 import { namedProps as n } from '../../../utils/global-constants.js';
 import { getName, ifcTypes as t } from '../../../utils/ifc-types.js';
-import { createFace } from '../three-geometry/three-brep.js';
+import { createBufferGeometry } from '../three-geometry/buffer-geometry.js';
 
 function mapBrep(shape) {
   const representations = shape[n.items];
   const definitions = [];
   representations.forEach((r) => definitions.push(...getGeometry(r[n.outer][n.cfsFaces])));
-
-  return createAndJoinFaces(definitions);
+  console.time('buffer');
+  const asdf = createBufferGeometry(definitions);
+  console.timeEnd('buffer');
+  return asdf;
 }
 
 function mapSurfaceModel(shape) {
   const faceSets = shape[n.items][0][n.fbsmFaces];
   const definitions = [];
   faceSets.forEach((faceSet) => definitions.push(...getGeometry(faceSet[n.cfsFaces])));
-
-  return createAndJoinFaces(definitions);
-}
-
-function createAndJoinFaces(definitions) {
-  const faces = [];
-  definitions.forEach((definition) => faces.push(createFace(definition)));
-  return joinAllFaces(faces);
-}
-
-function joinAllFaces(faces) {
-  const joined = new THREE.Geometry();
-  faces.forEach((face) => joined.merge(face.geometry, face.matrix));
-  const material = new THREE.MeshPhongMaterial({ side: 2 });
-  const mesh = new THREE.Mesh(joined, material);
-  mesh.geometry.computeVertexNormals();
-  mesh.geometry.computeFaceNormals();
-  mesh[n.isBrep] = true;
-  return mesh;
+  return createBufferGeometry(definitions);
 }
 
 function getGeometry(faceSet) {

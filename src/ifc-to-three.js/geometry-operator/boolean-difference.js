@@ -1,7 +1,7 @@
 import CSG from '../../../libs/CSGMesh.js';
 
-function applyBoolDifferences(baseMesh, clipMeshes) {
-  preventCoplanarSurfaces(baseMesh);
+function applyBoolDifferences(baseMesh, clipMeshes, preventCoplanar = true) {
+  if(preventCoplanar) preventCoplanarSurfaces(baseMesh, 0.99999);
   let operand1 = CSG.fromMesh(baseMesh);
   for (let i = 0; i < clipMeshes.length; i++) {
     const clipMesh = clipMeshes[i];
@@ -13,8 +13,7 @@ function applyBoolDifferences(baseMesh, clipMeshes) {
 }
 
 //Ugly, but avoids crashes of CSG operations due to face superpositions
-function preventCoplanarSurfaces(baseMesh) {
-  const factor = 0.99999;
+function preventCoplanarSurfaces(baseMesh, factor) {
   baseMesh.scale.x *= factor;
   baseMesh.scale.y *= factor;
   baseMesh.scale.z *= factor;
