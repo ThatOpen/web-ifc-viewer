@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../resources/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="./styles.css" />
+    <title>IFC.js</title>
+  </head>
+  <body>
+    <div id="generalContainer">
+      <div id="GUI">
+        <input readonly type="file" id="openFileDialog" />
+        <button class="normalButton" onclick="document.getElementById('openFileDialog').click();">
+          Open
+        </button>
+      </div>
+      <canvas id="c"></canvas>
+    </div>
+    <script src="bundle.js"></script>
+  </body>
+</html>
