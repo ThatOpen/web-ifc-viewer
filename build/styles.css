@@ -1,0 +1,22 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+html, body {
+    overflow: hidden;
+}
+
+#threeCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    outline: none;
+}
+
+#openFileDialog {
+    z-index: 1;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+}

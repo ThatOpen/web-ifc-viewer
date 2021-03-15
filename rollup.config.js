@@ -5,8 +5,8 @@ export default {
   input: 'src/scene.js',
   output: [
     {
-      format: 'iife',
-      file: 'src/bundle.js'
+      format: 'cjs',
+      file: 'build/bundle.js'
     },
   ],
   plugins: [

@@ -1,94 +1,81 @@
-// import { pick } from './scene-picker.js';
+import { IfcLoader } from '../lib/IfcLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import readIfcFile from "./ifc-file-reader"
-import {
-  Scene,
-  AxesHelper,
-  GridHelper,
-  WebGLRenderer,
-  PerspectiveCamera,
-  Vector3,
-  DirectionalLight,
-  AmbientLight
-} from 'three';
+import * as THREE from 'three'
 
 //Scene
-var scene = new Scene();
-
-//Camera
-var camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 5;
-camera.position.y = 5;
-camera.position.x = 5;
-// camera.up = new Vector3(0, 0, 1);
-camera.lookAt(new Vector3(0, 0, 0));
-scene.add(camera);
-
-//Setup IFC file reader
-readIfcFile(scene);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xa9a9a9);
 
 //Renderer
-const canvas = document.querySelector('#c');
-const width = window.innerWidth;
-const height = window.innerHeight;
-const pixelRatio = window.devicePixelRatio;
-const heightHD = (height * pixelRatio) | 0;
-const widthHD = (width * pixelRatio) | 0;
-var renderer = new WebGLRenderer({ canvas });
-renderer.setSize(widthHD, heightHD, false);
-renderer.setClearColor(0xa9a9a9, 1);
+const threeCanvas = document.getElementById("threeCanvas");
+const renderer = new THREE.WebGLRenderer({ antialias: true, canvas: threeCanvas });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-//Axes and grids
+//Camera
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = 8;
+camera.position.y = 8;
+camera.position.x = 8;
+// camera.up = new Vector3(0, 0, 1);
+camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+//Controls
+let controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor *= 2;
+
+//Axes and grid
 function createAxes() {
-  const axes = new AxesHelper();
+  const axes = new THREE.AxesHelper();
   axes.material.depthTest = false;
   axes.renderOrder = 2; // after the grid
   return axes;
 }
 scene.add(createAxes());
-const grid = new GridHelper(100, 100);
+const grid = new THREE.GridHelper(100, 100);
 grid.material.depthTest = true;
 grid.renderOrder = 1;
 // grid.rotation.x = Math.PI / 2;
 scene.add(grid);
 
-//Light
-const color = 0xffffff;
-const highIntensity = 1;
-const light = new DirectionalLight(color, highIntensity);
-const light4 = new AmbientLight(0x707070);
-light.position.set(2, 0, 4);
-camera.add(light);
-scene.add(light4);
+//Lights
+const light1 = new THREE.DirectionalLight(0xffeeff, 0.8);
+light1.position.set(1, 1, 1);
+scene.add(light1);
+const light2 = new THREE.DirectionalLight(0xffffff, 0.8);
+light2.position.set(-1, 0.5, -1);
+scene.add(light2);
+const ambientLight = new THREE.AmbientLight(0xffffee, 0.25);
+scene.add(ambientLight);
 
-//Controls
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.zoomSpeed *= 2;
-controls.enableDamping = true;
-controls.dampingFactor *= 1.5;
+//Window resize support
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+})
 
-
-//Autoadjust camera to window size
-function resizeRendererToDisplaySize(renderer) {
-  const canvas = renderer.domElement;
-  const width = canvas.clientWidth;
-  const height = canvas.clientHeight;
-  if (canvas.width !== width || canvas.height !== height) {
-    renderer.setSize(width, height, false);
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-  }
+//Animation
+function AnimationLoop() {
+  requestAnimationFrame(AnimationLoop);
+  controls.update();
+  renderer.render(scene, camera);
 }
 
-//Update
-var animate = function () {
-  requestAnimationFrame(animate);
-  controls.update();
-  resizeRendererToDisplaySize(renderer);
-  // pick(camera);
-  renderer.render(scene, camera);
-};
+AnimationLoop();
 
-animate();
-
-export { scene };
+//Setup IFC Loader
+(function readIfcFile() {
+  const input = document.querySelector('input[type="file"]');
+  if (!input) return;
+  input.addEventListener(
+    'change',
+    (changed) => {
+      var ifcURL = URL.createObjectURL(changed.target.files[0]);
+      const ifcLoader = new IfcLoader();
+      ifcLoader.load(ifcURL, (geometry) => scene.add(geometry));
+    },
+    false
+  );
+})();

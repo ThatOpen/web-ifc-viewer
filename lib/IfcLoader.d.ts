@@ -4,7 +4,7 @@ import {
 	LoadingManager
 } from 'three';
 
-export class IFCLoader extends Loader {
+export class IfcLoader extends Loader {
 
 	constructor( manager?: LoadingManager );
 
