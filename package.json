@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "description": "IFC viewer",
   "scripts": {
-    "build": "rollup -c && cpy node_modules/web-ifc/web-ifc.wasm build"
+    "build": "rollup -c && cpy node_modules/web-ifc/web-ifc.wasm ./"
   },
   "repository": {
     "type": "git",
