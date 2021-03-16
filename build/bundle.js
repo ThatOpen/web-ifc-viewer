@@ -39125,6 +39125,9 @@ var MapControls = function ( object, domElement ) {
 MapControls.prototype = Object.create( EventDispatcher.prototype );
 MapControls.prototype.constructor = MapControls;
 
+new LineBasicMaterial({ color: 0x555555 });
+new MeshBasicMaterial({ color: 0xffffff });
+
 //Scene
 const scene = new Scene();
 scene.background = new Color(0xa9a9a9);
@@ -39188,7 +39191,9 @@ function AnimationLoop() {
 
 AnimationLoop();
 
+
 //Setup IFC Loader
+let loadedObject;
 (function readIfcFile() {
   const input = document.querySelector('input[type="file"]');
   if (!input) return;
@@ -39197,7 +39202,11 @@ AnimationLoop();
     (changed) => {
       var ifcURL = URL.createObjectURL(changed.target.files[0]);
       const ifcLoader = new IfcLoader();
-      ifcLoader.load(ifcURL, (geometry) => scene.add(geometry));
+      ifcLoader.load(ifcURL, (geometry) => {
+        loadedObject = geometry;
+        scene.add(loadedObject);
+        // drawAsWireframe(loadedObject);
+      } );
     },
     false
   );
