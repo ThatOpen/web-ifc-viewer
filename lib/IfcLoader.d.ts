@@ -10,5 +10,5 @@ export class IfcLoader extends Loader {
 
 	load( url: string, onLoad: ( geometry: BufferGeometry ) => void, onProgress?: ( event: ProgressEvent ) => void, onError?: ( event: ErrorEvent ) => void ): void;
 	parse( data: ArrayBuffer ): BufferGeometry;
-
+	getPropertiesById(expressID: number): object;
 }

@@ -24,7 +24,7 @@
   "homepage": "https://github.com/agviegas/IFC.js#readme",
   "dependencies": {
     "three": "^0.126.0",
-    "web-ifc": "0.0.16"
+    "web-ifc": "0.0.17"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^11.2.0",

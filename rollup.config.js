@@ -2,7 +2,7 @@ import resolve from '@rollup/plugin-node-resolve'; // locate and bundle dependen
 // import { terser } from "rollup-plugin-terser"; // code minification (optional)
 
 export default {
-  input: 'src/scene.js',
+  input: 'src/main.js',
   output: [
     {
       format: 'cjs',
