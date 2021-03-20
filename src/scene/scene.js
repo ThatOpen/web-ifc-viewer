@@ -4,6 +4,7 @@ import { IfcLoader } from '../../lib/IfcLoader';
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ antialias: true, canvas: document.getElementById('three-canvas') });
 const ifcLoader = new IfcLoader();
 const updatableObjects = [];
 
@@ -12,8 +13,6 @@ export function setupThreeScene() {
   scene.background = new THREE.Color(0xa9a9a9);
 
   //Renderer
-  const threeCanvas = document.getElementById('three-canvas');
-  const renderer = new THREE.WebGLRenderer({ antialias: true, canvas: threeCanvas });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -71,4 +70,4 @@ export function setupThreeScene() {
   AnimationLoop();
 }
 
-export { scene, camera, ifcLoader, updatableObjects };
+export { scene, camera, renderer, ifcLoader, updatableObjects };

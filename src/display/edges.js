@@ -4,7 +4,11 @@ import { scene } from '../scene/scene';
 
 const lineMaterial = new THREE.LineBasicMaterial({ color: 0x555555 });
 const whiteMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
-const invisibleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
+const invisibleMaterial = new THREE.MeshBasicMaterial({
+  color: 0xffffff,
+  transparent: true,
+  opacity: 0
+});
 
 let edgesDisplayActive = false;
 
@@ -27,8 +31,7 @@ function activateEdgeDisplay() {
         if (!item.ifcMaterial) item.ifcMaterial = item.material;
         item.wireframe ? (item.wireframe.visible = true) : (item.wireframe = getEdges(item));
         item.add(item.wireframe);
-        item.currentMaterial = item.material.transparent ? invisibleMaterial : whiteMaterial;
-        if(!item.isSelected) item.material = item.currentMaterial;
+        if (!item.isSelected) item.material = item.material.transparent ? invisibleMaterial : whiteMaterial;
       }
     });
   });
@@ -40,8 +43,7 @@ function deactivateEdgeDisplay() {
     object.children.forEach((item) => {
       if (item.type === 'Mesh') {
         if (item.wireframe) item.wireframe.visible = false;
-        item.currentMaterial = item.ifcMaterial;
-        if(!item.isSelected) item.material = item.currentMaterial;
+        if (!item.isSelected) item.material = item.ifcMaterial;
       }
     });
   });
@@ -52,3 +54,5 @@ function getEdges(item) {
   const material = lineMaterial;
   return new THREE.LineSegments(geometry, material);
 }
+
+export { edgesDisplayActive, whiteMaterial };

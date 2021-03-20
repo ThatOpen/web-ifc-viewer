@@ -2,9 +2,13 @@
 import { camera, scene, ifcLoader } from '../scene/scene';
 import * as THREE from 'three';
 import {updatePropertiesMenu} from "../gui/ifc-properties-menu";
+import { edgesDisplayActive, whiteMaterial } from '../display/edges';
+
+//TODO: Use GPU picking to work toguether with clipping planes
+//Source: https://stackoverflow.com/questions/41002587/three-js-clipping-and-raycasting
 
 const selectedMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000, side: THREE.DoubleSide });
-let pickedItem = {};
+let pickedItem = undefined;
 
 export function setupScenePicking() {
   const canvas = document.getElementById('three-canvas');
@@ -30,13 +34,15 @@ function pick(event) {
 
   const intersected = raycaster.intersectObjects(ifcObjects)[0];
   if (intersected) {
-    pickedItem.material = pickedItem.currentMaterial;
-    pickedItem.isSelected = false;
+    if(pickedItem){
+      pickedItem.material = edgesDisplayActive ? whiteMaterial : pickedItem.ifcMaterial;
+      pickedItem.isSelected = false;
+    }
 
     pickedItem = intersected.object;
-    pickedItem.isSelected = true;
     if (!pickedItem.ifcMaterial) pickedItem.ifcMaterial = pickedItem.material;
     pickedItem.material = selectedMaterial;
+    pickedItem.isSelected = true;
 
     const props = ifcLoader.getPropertiesById(pickedItem.expressID);
     updatePropertiesMenu(props.arguments);

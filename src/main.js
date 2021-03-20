@@ -1,3 +1,4 @@
+import { setupClippingPlanes } from './display/clipping-planes';
 import { setupEdgesDisplay } from './display/edges';
 import { setupIfcReader } from './files/file-loader';
 import { setupIfcPropertiesMenu } from './gui/ifc-properties-menu';
@@ -10,3 +11,4 @@ setupIfcReader();
 setupEdgesDisplay();
 setupScenePicking();
 setupScenePicking();
+setupClippingPlanes();

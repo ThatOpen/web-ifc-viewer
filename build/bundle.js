@@ -39453,6 +39453,7 @@ IfcLoader.prototype = Object.assign(Object.create(Loader.prototype), {
 
 const scene = new Scene();
 const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new WebGLRenderer({ antialias: true, canvas: document.getElementById('three-canvas') });
 const ifcLoader = new IfcLoader();
 const updatableObjects = [];
 
@@ -39461,8 +39462,6 @@ function setupThreeScene() {
   scene.background = new Color(0xa9a9a9);
 
   //Renderer
-  const threeCanvas = document.getElementById('three-canvas');
-  const renderer = new WebGLRenderer({ antialias: true, canvas: threeCanvas });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -39520,9 +39519,76 @@ function setupThreeScene() {
   AnimationLoop();
 }
 
+function setupClippingPlanes() {
+  const button = createSideMenuButton('./resources/section-plane-down.svg');
+  button.addEventListener('click', () => {
+    button.blur();
+    activateSectionPlaneMode();
+  });
+}
+
+const sectionPlane = new Plane(new Vector3(-0, -1, 0), 0);
+sectionPlane.constant = 500;
+renderer.clippingPlanes = [sectionPlane];
+
+let sectionPlaneGeometry;
+let previousEvent;
+
+function activateSectionPlaneMode() {
+  const canvas = document.getElementById('three-canvas');
+
+  const geometry = new PlaneGeometry(100, 100);
+  const material = new MeshBasicMaterial({
+    color: 0xff0000,
+    transparent: true,
+    opacity: 0.2,
+    side: DoubleSide
+  });
+  sectionPlaneGeometry = new Mesh(geometry, material);
+  sectionPlaneGeometry.rotation.x += Math.PI / 2;
+  scene.add(sectionPlane);
+
+  canvas.onpointermove = locateSectionPlane;
+  previousEvent = canvas.onclick;
+  canvas.onclick = lockSectionPlanePosition;
+}
+
+function locateSectionPlane(event) {
+  const mouse = new Vector2();
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  const raycaster = new Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+
+  const ifcObjects = [];
+  scene.children.forEach((item) => {
+    if (item.isIFC && item.children) {
+      ifcObjects.push(...item.children);
+    }
+  });
+
+  const intersected = raycaster.intersectObjects(ifcObjects)[0];
+  if (intersected) {
+    console.log(intersected.point.z);
+    sectionPlane.constant = intersected.point.y;
+  } else {
+    sectionPlane.constant = 500;
+  }
+}
+
+function lockSectionPlanePosition(event) {
+  const canvas = document.getElementById('three-canvas');
+  canvas.onpointermove = {};
+  canvas.onclick = previousEvent;
+}
+
 const lineMaterial = new LineBasicMaterial({ color: 0x555555 });
 const whiteMaterial = new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide });
-const invisibleMaterial = new MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
+const invisibleMaterial = new MeshBasicMaterial({
+  color: 0xffffff,
+  transparent: true,
+  opacity: 0
+});
 
 let edgesDisplayActive = false;
 
@@ -39545,8 +39611,7 @@ function activateEdgeDisplay() {
         if (!item.ifcMaterial) item.ifcMaterial = item.material;
         item.wireframe ? (item.wireframe.visible = true) : (item.wireframe = getEdges(item));
         item.add(item.wireframe);
-        item.currentMaterial = item.material.transparent ? invisibleMaterial : whiteMaterial;
-        if(!item.isSelected) item.material = item.currentMaterial;
+        if (!item.isSelected) item.material = item.material.transparent ? invisibleMaterial : whiteMaterial;
       }
     });
   });
@@ -39558,8 +39623,7 @@ function deactivateEdgeDisplay() {
     object.children.forEach((item) => {
       if (item.type === 'Mesh') {
         if (item.wireframe) item.wireframe.visible = false;
-        item.currentMaterial = item.ifcMaterial;
-        if(!item.isSelected) item.material = item.currentMaterial;
+        if (!item.isSelected) item.material = item.ifcMaterial;
       }
     });
   });
@@ -39644,8 +39708,11 @@ function createPropertyEntry(info) {
 
 //source: https://threejsfundamentals.org/threejs/lessons/threejs-picking.html
 
+//TODO: Use GPU picking to work toguether with clipping planes
+//Source: https://stackoverflow.com/questions/41002587/three-js-clipping-and-raycasting
+
 const selectedMaterial = new MeshLambertMaterial({ color: 0xff0000, side: DoubleSide });
-let pickedItem = {};
+let pickedItem = undefined;
 
 function setupScenePicking() {
   const canvas = document.getElementById('three-canvas');
@@ -39671,13 +39738,15 @@ function pick(event) {
 
   const intersected = raycaster.intersectObjects(ifcObjects)[0];
   if (intersected) {
-    pickedItem.material = pickedItem.currentMaterial;
-    pickedItem.isSelected = false;
+    if(pickedItem){
+      pickedItem.material = edgesDisplayActive ? whiteMaterial : pickedItem.ifcMaterial;
+      pickedItem.isSelected = false;
+    }
 
     pickedItem = intersected.object;
-    pickedItem.isSelected = true;
     if (!pickedItem.ifcMaterial) pickedItem.ifcMaterial = pickedItem.material;
     pickedItem.material = selectedMaterial;
+    pickedItem.isSelected = true;
 
     const props = ifcLoader.getPropertiesById(pickedItem.expressID);
     updatePropertiesMenu(props.arguments);
@@ -39690,3 +39759,4 @@ setupIfcReader();
 setupEdgesDisplay();
 setupScenePicking();
 setupScenePicking();
+setupClippingPlanes();
