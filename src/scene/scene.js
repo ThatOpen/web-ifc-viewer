@@ -5,6 +5,7 @@ import { IfcLoader } from '../../lib/IfcLoader';
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true, canvas: document.getElementById('three-canvas') });
+const controls = new OrbitControls(camera, renderer.domElement);
 const ifcLoader = new IfcLoader();
 const updatableObjects = [];
 
@@ -15,6 +16,7 @@ export function setupThreeScene() {
   //Renderer
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.localClippingEnabled = true;
 
   //Camera
   camera.position.z = 8;
@@ -24,7 +26,6 @@ export function setupThreeScene() {
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   //Controls
-  let controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor *= 2;
 
@@ -70,4 +71,14 @@ export function setupThreeScene() {
   AnimationLoop();
 }
 
-export { scene, camera, renderer, ifcLoader, updatableObjects };
+export function getIfcObjects() {
+  const ifcObjects = [];
+  scene.children.forEach((item) => {
+    if (item.isIFC && item.children) {
+      ifcObjects.push(...item.children);
+    }
+  });
+  return ifcObjects;
+};
+
+export { scene, camera, renderer, controls as cameraControls, ifcLoader, updatableObjects };
