@@ -5,7 +5,11 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 
 class Plane {
 
-	constructor(scene, origin, normal) {
+	_visible = true;
+
+	constructor(scene, origin, normal, onStartDragging, onEndDragging) {
+
+		this.scene = scene;
 
 		const plane = new THREE.Plane();
 		const constant = plane.constant;
@@ -43,8 +47,10 @@ class Plane {
 		controls.addEventListener('dragging-changed', (event) => {
 			//Disable camera movement when dragging
 			cameraControls.enabled = !event.value;
-
 			this.visible = cameraControls.enabled;
+
+			// Invoke the start/end drag events
+			event.value ? onStartDragging() : onEndDragging();
 		});
 
 		this._plane = plane;
@@ -60,6 +66,10 @@ class Plane {
 		return this._plane;
 	}
 
+	get planeMesh(){
+		return this._planeMesh;
+	}
+
 	get visible() {
 		return this._visible;
 	}
@@ -67,47 +77,87 @@ class Plane {
 	set visible(visible) {
 		this._visible = visible;
 		this._control_object.visible = visible;
+		this._transform_controls.visible = visible;
+	}
+
+	removeFromScene = () => {
+		this.scene.remove(this._control_object);
+		this.scene.remove(this._transform_controls);
 	}
 }
 
 class ClippingComponent {
 
+	dragging = false;
+	enabled = false;
 	planes = [];
 
-	constructor(scene) {
+	constructor(scene, camera) {
 		this.scene = scene;
+		this.camera = camera;
 		this.raycaster = new THREE.Raycaster();
 		this.mouse = new THREE.Vector2();
 
-		window.addEventListener("mousemove", this.onMouseMove, false);
-		window.addEventListener("mouseup", this.createPlaneOnClick, false);
+		const canvas = document.getElementById('three-canvas');
+		canvas.onmousemove = this.handleMouseMove;
+		canvas.ondblclick = this.handleDblClick;
+
+		// This doesn't seem to work with canvas.onkeydown
+		window.onkeydown = this.handleKeyDown;
 	}
 
-	onMouseMove = (event) => {
+	set active(state){
+		console.log("Clipping Active: " + state);
+		this.enabled = state;
+		this.planes.forEach((plane) => {
+			plane.visible = state;
+		})
+		this.updateMaterials();
+	}
+
+	get active(){
+		return this.enabled;
+	}
+
+	handleMouseMove = (event) => {
 		this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
 		this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 	};
 
-	activateCreatePlaneFromRaycast = () => {
-		this.raycasting = true;
-	};
+	handleDblClick = () => {
+		if(!this.dragging && this.enabled){
+			this.createPlaneFromRaycaster();
+		}
+	}
 
-	createPlaneOnClick = () => {
-		if (this.raycasting) {
-			this.raycaster.setFromCamera(this.mouse, this.scene.camera);
+	handleKeyDown = (event) => {
+		if(!this.active) return;
 
-			const intersects = this.raycaster.intersectObjects(getIfcObjects(), true);
-
-			if (intersects.length > 0) {
-				this.createPlaneFromIntersection(intersects[0]);
-				this.raycasting = false;
-				this.intersection = undefined;
+		// Deleting a plane
+		if (event.code == 'Delete') {
+			this.raycaster.setFromCamera(this.mouse, this.camera);
+			const planeMeshes = this.planes.map((plane) => plane.planeMesh);
+			const intersects = this.raycaster.intersectObjects(planeMeshes, false);
+			if(intersects.length > 0){
+				const matchingPlane = this.planes.find((plane) => plane.planeMesh === intersects[0].object);
+				if(matchingPlane){
+					this.deletePlane(matchingPlane);
+				}
 			}
 		}
-	};
+	}
+
+	createPlaneFromRaycaster = () => {
+		this.raycaster.setFromCamera(this.mouse, this.camera);
+		const intersects = this.raycaster.intersectObjects(getIfcObjects(), true);
+
+		if (intersects.length > 0) {
+			this.createPlaneFromIntersection(intersects[0]);
+			this.intersection = undefined;
+		}
+	}
 
 	createPlaneFromIntersection = (intersection) => {
-
 		const constant = intersection.point.distanceTo(new THREE.Vector3(0, 0, 0));
 		const normal = intersection.face?.normal;
 
@@ -115,55 +165,49 @@ class ClippingComponent {
 			const normalMatrix = new THREE.Matrix3().getNormalMatrix(intersection.object.matrixWorld);
 			const worldNormal = normal.clone().applyMatrix3(normalMatrix).normalize();
 
-			const plane = new Plane(this.scene, intersection.point, worldNormal);
+			const handleStartDragging = () => this.dragging = true;
+			const handleEndDragging = () => this.dragging = false;
+
+			const plane = new Plane(this.scene, intersection.point, worldNormal, handleStartDragging, handleEndDragging);
 			plane.plane.setFromNormalAndCoplanarPoint(worldNormal.negate(), intersection.point);
 			this.planes.push(plane);
 
-			getIfcObjects().forEach(obj => {
-				if(obj.isMesh){
-					if(Array.isArray(obj.material)){
-						obj.material.forEach((m) => {
-							m.clippingPlanes = this.planes.map((e) => e.plane);
-						})
-					}else if(obj.material) {
-						obj.material.clippingPlanes = this.planes.map((e) => e.plane);
-					}
-				}
-			})
+			this.updateMaterials();
 		}
 	};
+
+	updateMaterials = () => {
+		// This could be improved.
+		// Applying clipping to IfcObjects only
+		const activePlanes = this.planes.filter((plane) => plane.visible);
+		getIfcObjects().forEach(obj => {
+			if(obj.isMesh){
+				if(Array.isArray(obj.material)){
+					obj.material.forEach((m) => {
+						m.clippingPlanes = activePlanes.map((e) => e.plane);
+					})
+				}else if(obj.material) {
+					obj.material.clippingPlanes = activePlanes.map((e) => e.plane);
+				}
+			}
+		})
+	}
+
+	deletePlane = (plane) => {
+		const index = this.planes.indexOf(plane);
+		if(index !== -1) {
+			plane.removeFromScene();
+			this.planes.splice(index, 1);
+			this.updateMaterials();
+		}
+	}
 }
 
-// Setup below
-const clippingComponent = new ClippingComponent(scene);
-
 export function setupClippingPlanes() {
+	const clippingComponent = new ClippingComponent(scene, camera);
 	const button = createSideMenuButton('./resources/section-plane-down.svg');
 	button.addEventListener('click', () => {
 		button.blur();
-		activateSectionPlaneMode();
+		clippingComponent.active = !clippingComponent.active;
 	});
-}
-
-function activateSectionPlaneMode() {
-	const canvas = document.getElementById('three-canvas');
-
-	canvas.onclick = (event) => {
-
-		// Temporary exit to prevent multiple planes
-		// Maybe adding some additional UI to help with creating/deleting planes.
-		if(clippingComponent.planes.length === 1) return;
-
-		const mouse = new THREE.Vector2();
-		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-		mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-		const raycaster = new THREE.Raycaster();
-		raycaster.setFromCamera(mouse, camera);
-
-		const objects = getIfcObjects();
-		const intersected = raycaster.intersectObjects(objects)[0];
-		if (intersected) {
-			clippingComponent.createPlaneFromIntersection(intersected)
-		}
-	};
 }
