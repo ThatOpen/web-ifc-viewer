@@ -9,6 +9,10 @@ It is based on [web-ifc-three](https://github.com/tomvandig/web-ifc-three), whic
 
 Take a look at the [documentation](https://agviegas.github.io/ifcjs-docs/#/) to see what this library is about, guides and more.
 
+## Community
+
+Join the [Discord channel](https://discord.gg/g7Uzn2KSwB) to meet other people interested in this project!
+
 ## Contribution
 
 Do you want to contribute to make this even better? Bear in mind that this project is split in three repositories, so you might want to contribute to the part that interests you most.
