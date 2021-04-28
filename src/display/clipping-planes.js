@@ -1,16 +1,18 @@
 import * as THREE from 'three';
-import { createSideMenuButton } from '../gui/gui-creator';
-import { renderer, scene, camera, getIfcObjects, cameraControls } from '../scene/scene';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
+import Component from '../components/component';
 
-class Plane {
+class Plane extends Component {
 
 	_visible = true;
 
-	constructor(scene, origin, normal, onStartDragging, onEndDragging) {
+	constructor(viewer, origin, normal, onStartDragging, onEndDragging) {
 
-		this.scene = scene;
+		super(viewer);
 
+		this.scene = viewer.scene;
+		this.camera = viewer.camera;
+		
 		const plane = new THREE.Plane();
 		const constant = plane.constant;
 
@@ -19,7 +21,7 @@ class Plane {
 		const controlObject = new THREE.Object3D();
 		controlObject.lookAt(normal);
 		controlObject.position.copy(origin);
-		scene.add(controlObject);
+		this.scene.add(controlObject);
 
 		// A visual helper for the user to see the plan
 		const planeGeometry = new THREE.PlaneGeometry(5, 5, 1);
@@ -33,12 +35,12 @@ class Plane {
 		controlObject.add(planeMesh);
 
 		//The transform controls to move the plane
-		const controls = new TransformControls(camera, renderer.domElement);
+		const controls = new TransformControls(this.camera, this.viewer.renderer.domElement);
 		controls.attach(controlObject);
 		controls.showX = false;
 		controls.showY = false;
 		controls.setSpace("local");
-		scene.add(controls);
+		this.scene.add(controls);
 
 		controls.addEventListener('change', () => {
 			plane.setFromNormalAndCoplanarPoint(normal, controlObject.position);
@@ -46,8 +48,8 @@ class Plane {
 
 		controls.addEventListener('dragging-changed', (event) => {
 			//Disable camera movement when dragging
-			cameraControls.enabled = !event.value;
-			this.visible = cameraControls.enabled;
+			this.viewer.controls.enabled = !event.value;
+			this.visible = this.viewer.controls.enabled;
 
 			// Invoke the start/end drag events
 			event.value ? onStartDragging() : onEndDragging();
@@ -86,15 +88,18 @@ class Plane {
 	}
 }
 
-class ClippingComponent {
+export default class ClippingComponent extends Component {
 
 	dragging = false;
 	enabled = false;
 	planes = [];
 
-	constructor(scene, camera) {
-		this.scene = scene;
-		this.camera = camera;
+	constructor(viewer) {
+
+		super(viewer);
+
+		this.scene = viewer.scene;
+		this.camera = viewer.camera;
 		this.raycaster = new THREE.Raycaster();
 		this.mouse = new THREE.Vector2();
 
@@ -149,7 +154,7 @@ class ClippingComponent {
 
 	createPlaneFromRaycaster = () => {
 		this.raycaster.setFromCamera(this.mouse, this.camera);
-		const intersects = this.raycaster.intersectObjects(getIfcObjects(), true);
+		const intersects = this.raycaster.intersectObjects(this.viewer.ifcObjects, true);
 
 		if (intersects.length > 0) {
 			this.createPlaneFromIntersection(intersects[0]);
@@ -168,7 +173,7 @@ class ClippingComponent {
 			const handleStartDragging = () => this.dragging = true;
 			const handleEndDragging = () => this.dragging = false;
 
-			const plane = new Plane(this.scene, intersection.point, worldNormal, handleStartDragging, handleEndDragging);
+			const plane = new Plane(this.viewer, intersection.point, worldNormal, handleStartDragging, handleEndDragging);
 			plane.plane.setFromNormalAndCoplanarPoint(worldNormal.negate(), intersection.point);
 			this.planes.push(plane);
 
@@ -180,7 +185,7 @@ class ClippingComponent {
 		// This could be improved.
 		// Applying clipping to IfcObjects only
 		const activePlanes = this.planes.filter((plane) => plane.visible);
-		getIfcObjects().forEach(obj => {
+		this.viewer.ifcObjects.forEach(obj => {
 			if(obj.isMesh){
 				if(Array.isArray(obj.material)){
 					obj.material.forEach((m) => {
@@ -201,13 +206,4 @@ class ClippingComponent {
 			this.updateMaterials();
 		}
 	}
-}
-
-export function setupClippingPlanes() {
-	const clippingComponent = new ClippingComponent(scene, camera);
-	const button = createSideMenuButton('./resources/section-plane-down.svg');
-	button.addEventListener('click', () => {
-		button.blur();
-		clippingComponent.active = !clippingComponent.active;
-	});
 }

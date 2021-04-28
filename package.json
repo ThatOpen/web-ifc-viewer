@@ -3,7 +3,8 @@
   "version": "1.0.1",
   "description": "IFC viewer",
   "scripts": {
-    "build": "rollup -c && cpy node_modules/web-ifc/web-ifc.wasm ./"
+    "start": "rollup -c -w",
+    "build": "rollup -c && cpy node_modules/web-ifc/web-ifc.wasm ./example"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
     "cpy-cli": "^3.1.1",
     "esbuild": "^0.8.53",
     "rollup": "^2.40.0",
+    "rollup-plugin-serve": "^1.1.0",
     "serve": "^11.3.2",
     "typescript": "^4.2.2"
   }
