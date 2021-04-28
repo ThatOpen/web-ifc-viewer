@@ -45,6 +45,6 @@ function pick(event) {
     pickedItem.isSelected = true;
 
     const props = ifcLoader.getPropertiesById(pickedItem.expressID);
-    updatePropertiesMenu(props.arguments);
+    // updatePropertiesMenu(props.arguments);
   }
 }

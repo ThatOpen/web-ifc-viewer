@@ -3,17 +3,15 @@
 This library converts any browser into an IFC viewer. It parses IFC entities to WebGL geometry through THREE.js.
 It is based on [web-ifc-three](https://github.com/tomvandig/web-ifc-three), which is the three adaptation of [web-ifc](https://github.com/tomvandig/web-ifc).
 
-[Try it here!](https://agviegas.github.io/IFC.js/)
+[Try it here!](https://agviegas.github.io/web-ifc-viewer/)
 
-## Why this library if THREE.js already has a loader in a separate repository?
+## Documentation
 
-Almost all IFC viewers and BIM tools have the same common tools for navigation, selection, menus, etc. This library contains all the boilerplate code that allows you to create BIM tools in Three in a few minutes and in a simple way. 
+Take a look at the [documentation](https://agviegas.github.io/ifcjs-docs/#/) to see what this library is about, guides and more.
 
-## Introduction
+## Community
 
-IFC (Industry Foundation Classes) is an open format developed by the [Building Smart](https://www.buildingsmart.org/) for the exchange of information between applications of different developers in the AEC sector. IFC files generally contain much of the relevant information about a building, including all its geometry and the information associated with each element, possibly including measurement, structural, thermal, acoustic, economic or fire resistance data.
-
-This project uses [web-ifc](https://github.com/tomvandig/web-ifc) to read IFC files, structure their data in memory and convert them to Three.js custom geometric entities for display in any browser. Even though there are many libraries capable of parsing IFC formats, almost all of them depend on communication with a server, with all the disadvantages that this entails. The development of the parser entirely in JavaScript and WASM in [web-ifc-three](https://github.com/tomvandig/web-ifc-three) makes it possible to decentralise parsing, so that each client is able to read an IFC file and display its geometry and parameters to the user on its own.
+Join the [Discord channel](https://discord.gg/g7Uzn2KSwB) to meet other people interested in this project!
 
 ## Contribution
 

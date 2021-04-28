@@ -6,7 +6,7 @@ import { setupThreeScene } from './scene/scene';
 import { setupScenePicking } from './select-edit/scene-picker';
 
 setupThreeScene();
-setupIfcPropertiesMenu();
+// setupIfcPropertiesMenu();
 setupIfcReader();
 setupEdgesDisplay();
 setupScenePicking();
