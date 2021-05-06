@@ -1,26 +1,21 @@
 {
-  "name": "web-ifc-viewer-example",
+  "name": "web-ifc-viewer-basic-example",
   "private": true,
   "type": "module",
   "version": "1.0.0",
   "description": "A basic html example for web-ifc-viewer",
   "main": "index.html",
   "scripts": {
-    "start": "node esbuild.config.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node esbuild.config.js && serve"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@esbuild-plugins/node-modules-polyfill": "^0.1.1",
-    "@rollup/plugin-node-resolve": "^11.2.1",
-    "esbuild-plugin-babel": "^0.2.3",
-    "rollup": "^2.46.0",
-    "serve": "^11.3.2"
+    "serve": "^11.3.2",
+    "esbuild": "^0.11.19"
   },
   "dependencies": {
-    "@esbuild-plugins/node-modules-polyfill": "^0.1.1",
-    "esbuild": "^0.11.19",
     "web-ifc-viewer": "1.0.1"
   }
 }

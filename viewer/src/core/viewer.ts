@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { IfcLoader } from '../../lib/IfcLoader';
-import { Component } from './component';
+import { Component } from '../components';
 
 export class Viewer {
     
@@ -121,6 +121,8 @@ export class Viewer {
     }
 }
 
-export class IfcObject3D extends THREE.Object3D {
+export interface IfcObject3D extends THREE.Object3D {
     isIFC?: boolean
+    isSelected?: boolean,
+
 }

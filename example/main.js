@@ -1,10 +1,12 @@
 
-import { Axes, ClippingComponent, Viewer, createSideMenuButton, Grid,  } from 'web-ifc-viewer';
+import { Axes, ClippingComponent, createSideMenuButton, Edges, Grid, Viewer } from 'web-ifc-viewer';
 
 const viewer = new Viewer("three-canvas");
 const grid = new Grid(viewer);
 const axes = new Axes(viewer);
 const clippingComponent = new ClippingComponent(viewer)
+
+const edges = new Edges(viewer);
 
 //Setup loader
 const loadIfc = (event) => {
@@ -31,3 +33,9 @@ sectionButton.addEventListener('click', () => {
     clippingComponent.active = !clippingComponent.active;
 });
 
+
+const edgesButton = createSideMenuButton('./resources/wireframe-cube.svg');
+edgesButton.addEventListener('click', () => {
+    edgesButton.blur();
+    edges.active ? edges.deactivateEdgeDisplay() : edges.activateEdgeDisplay();
+});

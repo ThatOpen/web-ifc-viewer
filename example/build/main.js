@@ -27,26 +27,6 @@ var __toModule = (module2) => {
   return __reExport(__markAsModule(__defProp(module2 != null ? __create(__getProtoOf(module2)) : {}, "default", module2 && module2.__esModule && "default" in module2 ? {get: () => module2.default, enumerable: true} : {value: module2, enumerable: true})), module2);
 };
 
-// ../viewer/dist/components/component.js
-var require_component = __commonJS({
-  "../viewer/dist/components/component.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", {value: true});
-    exports.Component = void 0;
-    var Component = function() {
-      function Component2(viewer2) {
-        viewer2.addComponent(this);
-        this.viewer = viewer2;
-      }
-      Component2.prototype.update = function(_delta) {
-      };
-      ;
-      return Component2;
-    }();
-    exports.Component = Component;
-  }
-});
-
 // ../node_modules/three/build/three.js
 var require_three = __commonJS({
   "../node_modules/three/build/three.js"(exports, module2) {
@@ -17862,7 +17842,7 @@ var require_three = __commonJS({
             return;
           }
           const vertices = [];
-          const edge = [0, 0], edges = {};
+          const edge = [0, 0], edges2 = {};
           const vertex = new Vector34();
           if (geometry.index !== null) {
             const position = geometry.attributes.position;
@@ -17886,8 +17866,8 @@ var require_three = __commonJS({
                   edge[0] = Math.min(edge1, edge2);
                   edge[1] = Math.max(edge1, edge2);
                   const key = edge[0] + "," + edge[1];
-                  if (edges[key] === void 0) {
-                    edges[key] = {
+                  if (edges2[key] === void 0) {
+                    edges2[key] = {
                       index1: edge[0],
                       index2: edge[1]
                     };
@@ -17895,8 +17875,8 @@ var require_three = __commonJS({
                 }
               }
             }
-            for (const key in edges) {
-              const e = edges[key];
+            for (const key in edges2) {
+              const e = edges2[key];
               vertex.fromBufferAttribute(position, e.index1);
               vertices.push(vertex.x, vertex.y, vertex.z);
               vertex.fromBufferAttribute(position, e.index2);
@@ -27958,96 +27938,6 @@ var require_three = __commonJS({
       exports2.sRGBEncoding = sRGBEncoding2;
       Object.defineProperty(exports2, "__esModule", {value: true});
     });
-  }
-});
-
-// ../viewer/dist/components/axes.js
-var require_axes = __commonJS({
-  "../viewer/dist/components/axes.js"(exports) {
-    "use strict";
-    var __extends = exports && exports.__extends || function() {
-      var extendStatics = function(d, b) {
-        extendStatics = Object.setPrototypeOf || {__proto__: []} instanceof Array && function(d2, b2) {
-          d2.__proto__ = b2;
-        } || function(d2, b2) {
-          for (var p in b2)
-            if (Object.prototype.hasOwnProperty.call(b2, p))
-              d2[p] = b2[p];
-        };
-        return extendStatics(d, b);
-      };
-      return function(d, b) {
-        if (typeof b !== "function" && b !== null)
-          throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() {
-          this.constructor = d;
-        }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-      };
-    }();
-    Object.defineProperty(exports, "__esModule", {value: true});
-    exports.Axes = void 0;
-    var THREE = require_three();
-    var component_1 = require_component();
-    var Axes2 = function(_super) {
-      __extends(Axes3, _super);
-      function Axes3(viewer2, size) {
-        var _this = _super.call(this, viewer2) || this;
-        _this.axes = new THREE.AxesHelper(size);
-        _this.axes.material.depthTest = false;
-        _this.axes.renderOrder = 2;
-        viewer2.scene.add(_this.axes);
-        return _this;
-      }
-      return Axes3;
-    }(component_1.Component);
-    exports.Axes = Axes2;
-  }
-});
-
-// ../viewer/dist/components/grid.js
-var require_grid = __commonJS({
-  "../viewer/dist/components/grid.js"(exports) {
-    "use strict";
-    var __extends = exports && exports.__extends || function() {
-      var extendStatics = function(d, b) {
-        extendStatics = Object.setPrototypeOf || {__proto__: []} instanceof Array && function(d2, b2) {
-          d2.__proto__ = b2;
-        } || function(d2, b2) {
-          for (var p in b2)
-            if (Object.prototype.hasOwnProperty.call(b2, p))
-              d2[p] = b2[p];
-        };
-        return extendStatics(d, b);
-      };
-      return function(d, b) {
-        if (typeof b !== "function" && b !== null)
-          throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() {
-          this.constructor = d;
-        }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-      };
-    }();
-    Object.defineProperty(exports, "__esModule", {value: true});
-    exports.Grid = void 0;
-    var THREE = require_three();
-    var component_1 = require_component();
-    var Grid2 = function(_super) {
-      __extends(Grid3, _super);
-      function Grid3(viewer2) {
-        var _this = _super.call(this, viewer2) || this;
-        _this.grid = new THREE.GridHelper();
-        _this.grid.material.depthTest = false;
-        _this.grid.renderOrder = 1;
-        viewer2.scene.add(_this.grid);
-        return _this;
-      }
-      return Grid3;
-    }(component_1.Component);
-    exports.Grid = Grid2;
   }
 });
 
@@ -56910,33 +56800,12 @@ var init_IfcLoader = __esm({
   }
 });
 
-// ../viewer/dist/components/viewer.js
+// ../viewer/dist/core/viewer.js
 var require_viewer = __commonJS({
-  "../viewer/dist/components/viewer.js"(exports) {
+  "../viewer/dist/core/viewer.js"(exports) {
     "use strict";
-    var __extends = exports && exports.__extends || function() {
-      var extendStatics = function(d, b) {
-        extendStatics = Object.setPrototypeOf || {__proto__: []} instanceof Array && function(d2, b2) {
-          d2.__proto__ = b2;
-        } || function(d2, b2) {
-          for (var p in b2)
-            if (Object.prototype.hasOwnProperty.call(b2, p))
-              d2[p] = b2[p];
-        };
-        return extendStatics(d, b);
-      };
-      return function(d, b) {
-        if (typeof b !== "function" && b !== null)
-          throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() {
-          this.constructor = d;
-        }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-      };
-    }();
     Object.defineProperty(exports, "__esModule", {value: true});
-    exports.IfcObject3D = exports.Viewer = void 0;
+    exports.Viewer = void 0;
     var THREE = require_three();
     var OrbitControls_js_1 = (init_OrbitControls(), OrbitControls_exports);
     var IfcLoader_1 = (init_IfcLoader(), IfcLoader_exports);
@@ -57026,14 +56895,141 @@ var require_viewer = __commonJS({
       return Viewer3;
     }();
     exports.Viewer = Viewer2;
-    var IfcObject3D = function(_super) {
-      __extends(IfcObject3D2, _super);
-      function IfcObject3D2() {
-        return _super !== null && _super.apply(this, arguments) || this;
+  }
+});
+
+// ../viewer/dist/core/index.js
+var require_core = __commonJS({
+  "../viewer/dist/core/index.js"(exports) {
+    "use strict";
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
+      if (k2 === void 0)
+        k2 = k;
+      Object.defineProperty(o, k2, {enumerable: true, get: function() {
+        return m[k];
+      }});
+    } : function(o, m, k, k2) {
+      if (k2 === void 0)
+        k2 = k;
+      o[k2] = m[k];
+    });
+    var __exportStar = exports && exports.__exportStar || function(m, exports2) {
+      for (var p in m)
+        if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p))
+          __createBinding(exports2, m, p);
+    };
+    Object.defineProperty(exports, "__esModule", {value: true});
+    __exportStar(require_viewer(), exports);
+  }
+});
+
+// ../viewer/dist/components/component.js
+var require_component = __commonJS({
+  "../viewer/dist/components/component.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", {value: true});
+    exports.Component = void 0;
+    var Component = function() {
+      function Component2(viewer2) {
+        viewer2.addComponent(this);
+        this.viewer = viewer2;
       }
-      return IfcObject3D2;
-    }(THREE.Object3D);
-    exports.IfcObject3D = IfcObject3D;
+      Component2.prototype.update = function(_delta) {
+      };
+      ;
+      return Component2;
+    }();
+    exports.Component = Component;
+  }
+});
+
+// ../viewer/dist/components/axes.js
+var require_axes = __commonJS({
+  "../viewer/dist/components/axes.js"(exports) {
+    "use strict";
+    var __extends = exports && exports.__extends || function() {
+      var extendStatics = function(d, b) {
+        extendStatics = Object.setPrototypeOf || {__proto__: []} instanceof Array && function(d2, b2) {
+          d2.__proto__ = b2;
+        } || function(d2, b2) {
+          for (var p in b2)
+            if (Object.prototype.hasOwnProperty.call(b2, p))
+              d2[p] = b2[p];
+        };
+        return extendStatics(d, b);
+      };
+      return function(d, b) {
+        if (typeof b !== "function" && b !== null)
+          throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() {
+          this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+      };
+    }();
+    Object.defineProperty(exports, "__esModule", {value: true});
+    exports.Axes = void 0;
+    var THREE = require_three();
+    var component_1 = require_component();
+    var Axes2 = function(_super) {
+      __extends(Axes3, _super);
+      function Axes3(viewer2, size) {
+        var _this = _super.call(this, viewer2) || this;
+        _this.axes = new THREE.AxesHelper(size);
+        _this.axes.material.depthTest = false;
+        _this.axes.renderOrder = 2;
+        viewer2.scene.add(_this.axes);
+        return _this;
+      }
+      return Axes3;
+    }(component_1.Component);
+    exports.Axes = Axes2;
+  }
+});
+
+// ../viewer/dist/components/grid.js
+var require_grid = __commonJS({
+  "../viewer/dist/components/grid.js"(exports) {
+    "use strict";
+    var __extends = exports && exports.__extends || function() {
+      var extendStatics = function(d, b) {
+        extendStatics = Object.setPrototypeOf || {__proto__: []} instanceof Array && function(d2, b2) {
+          d2.__proto__ = b2;
+        } || function(d2, b2) {
+          for (var p in b2)
+            if (Object.prototype.hasOwnProperty.call(b2, p))
+              d2[p] = b2[p];
+        };
+        return extendStatics(d, b);
+      };
+      return function(d, b) {
+        if (typeof b !== "function" && b !== null)
+          throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() {
+          this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+      };
+    }();
+    Object.defineProperty(exports, "__esModule", {value: true});
+    exports.Grid = void 0;
+    var THREE = require_three();
+    var component_1 = require_component();
+    var Grid2 = function(_super) {
+      __extends(Grid3, _super);
+      function Grid3(viewer2) {
+        var _this = _super.call(this, viewer2) || this;
+        _this.grid = new THREE.GridHelper();
+        _this.grid.material.depthTest = false;
+        _this.grid.renderOrder = 1;
+        viewer2.scene.add(_this.grid);
+        return _this;
+      }
+      return Grid3;
+    }(component_1.Component);
+    exports.Grid = Grid2;
   }
 });
 
@@ -57061,7 +57057,6 @@ var require_components = __commonJS({
     __exportStar(require_component(), exports);
     __exportStar(require_axes(), exports);
     __exportStar(require_grid(), exports);
-    __exportStar(require_viewer(), exports);
   }
 });
 
@@ -57072,15 +57067,15 @@ var require_gui_creator = __commonJS({
     Object.defineProperty(exports, "__esModule", {value: true});
     exports.createSideMenuButton = void 0;
     function createSideMenuButton2(iconSource) {
-      var button = document.createElement("button");
-      button.classList.add("basic-button");
+      var button2 = document.createElement("button");
+      button2.classList.add("basic-button");
       var image = document.createElement("img");
       image.setAttribute("src", iconSource);
       image.classList.add("icon");
-      button.appendChild(image);
+      button2.appendChild(image);
       var sideMenu = document.getElementById("side-menu-left");
-      sideMenu.appendChild(button);
-      return button;
+      sideMenu.appendChild(button2);
+      return button2;
     }
     exports.createSideMenuButton = createSideMenuButton2;
   }
@@ -58254,15 +58249,16 @@ var require_clipping_planes = __commonJS({
             return plane.visible;
           });
           _this.viewer.ifcObjects.forEach(function(obj) {
-            if (obj instanceof THREE.Mesh) {
-              if (Array.isArray(obj.material)) {
-                obj.material.forEach(function(m) {
+            var mesh = obj;
+            if (mesh.material) {
+              if (Array.isArray(mesh.material)) {
+                mesh.material.forEach(function(m) {
                   m.clippingPlanes = activePlanes.map(function(e) {
                     return e.plane;
                   });
                 });
-              } else if (obj.material) {
-                obj.material.clippingPlanes = activePlanes.map(function(e) {
+              } else if (mesh.material) {
+                mesh.material.clippingPlanes = activePlanes.map(function(e) {
                   return e.plane;
                 });
               }
@@ -58354,6 +58350,18 @@ var require_clipping_planes = __commonJS({
         _this._planeMesh = planeMesh;
         return _this;
       }
+      Object.defineProperty(Plane3.prototype, "visible", {
+        get: function() {
+          return this._visible;
+        },
+        set: function(visible) {
+          this._visible = visible;
+          this._control_object.visible = visible;
+          this._transform_controls.visible = visible;
+        },
+        enumerable: false,
+        configurable: true
+      });
       Object.defineProperty(Plane3.prototype, "plane", {
         get: function() {
           return this._plane;
@@ -58368,20 +58376,97 @@ var require_clipping_planes = __commonJS({
         enumerable: false,
         configurable: true
       });
-      Object.defineProperty(Plane3.prototype, "visible", {
-        get: function() {
-          return this._visible;
-        },
-        set: function(visible) {
-          this._visible = visible;
-          this._control_object.visible = visible;
-          this._transform_controls.visible = visible;
-        },
-        enumerable: false,
-        configurable: true
-      });
       return Plane3;
     }(components_1.Component);
+  }
+});
+
+// ../viewer/dist/display/edges.js
+var require_edges = __commonJS({
+  "../viewer/dist/display/edges.js"(exports) {
+    "use strict";
+    var __extends = exports && exports.__extends || function() {
+      var extendStatics = function(d, b) {
+        extendStatics = Object.setPrototypeOf || {__proto__: []} instanceof Array && function(d2, b2) {
+          d2.__proto__ = b2;
+        } || function(d2, b2) {
+          for (var p in b2)
+            if (Object.prototype.hasOwnProperty.call(b2, p))
+              d2[p] = b2[p];
+        };
+        return extendStatics(d, b);
+      };
+      return function(d, b) {
+        if (typeof b !== "function" && b !== null)
+          throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() {
+          this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+      };
+    }();
+    Object.defineProperty(exports, "__esModule", {value: true});
+    exports.Edges = exports.invisibleMaterial = exports.whiteMaterial = exports.lineMaterial = void 0;
+    var THREE = require_three();
+    var components_1 = require_components();
+    exports.lineMaterial = new THREE.LineBasicMaterial({
+      color: 5592405
+    });
+    exports.whiteMaterial = new THREE.MeshBasicMaterial({
+      color: 16777215,
+      side: THREE.DoubleSide
+    });
+    exports.invisibleMaterial = new THREE.MeshBasicMaterial({
+      color: 16777215,
+      transparent: true,
+      opacity: 0
+    });
+    var Edges2 = function(_super) {
+      __extends(Edges3, _super);
+      function Edges3(viewer2) {
+        var _this = _super.call(this, viewer2) || this;
+        _this.active = false;
+        _this.activateEdgeDisplay = function() {
+          _this.active = true;
+          _this.viewer.ifcObjects.forEach(function(object) {
+            object.traverse(function(item) {
+              if (item.type === "Mesh") {
+                var mesh = item;
+                if (!mesh.ifcMaterial)
+                  mesh.ifcMaterial = mesh.material;
+                mesh.wireframe ? mesh.wireframe.visible = true : mesh.wireframe = _this.getEdges(mesh);
+                mesh.add(mesh.wireframe);
+                if (!mesh.isSelected) {
+                  mesh.material = mesh.material.transparent ? exports.invisibleMaterial : exports.whiteMaterial;
+                }
+              }
+            });
+          });
+        };
+        _this.deactivateEdgeDisplay = function() {
+          _this.active = false;
+          _this.viewer.ifcObjects.forEach(function(object) {
+            object.traverse(function(item) {
+              if (item.type === "Mesh") {
+                var mesh = item;
+                if (mesh.wireframe)
+                  mesh.wireframe.visible = false;
+                if (!mesh.isSelected)
+                  mesh.material = mesh.ifcMaterial;
+              }
+            });
+          });
+        };
+        _this.getEdges = function(item) {
+          var geometry = new THREE.EdgesGeometry(item.geometry);
+          return new THREE.LineSegments(geometry, exports.lineMaterial);
+        };
+        return _this;
+      }
+      return Edges3;
+    }(components_1.Component);
+    exports.Edges = Edges2;
   }
 });
 
@@ -58407,6 +58492,7 @@ var require_display = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", {value: true});
     __exportStar(require_clipping_planes(), exports);
+    __exportStar(require_edges(), exports);
   }
 });
 
@@ -58431,6 +58517,7 @@ var require_dist = __commonJS({
           __createBinding(exports2, m, p);
     };
     Object.defineProperty(exports, "__esModule", {value: true});
+    __exportStar(require_core(), exports);
     __exportStar(require_components(), exports);
     __exportStar(require_gui(), exports);
     __exportStar(require_display(), exports);
@@ -58443,6 +58530,7 @@ var viewer = new import_web_ifc_viewer.Viewer("three-canvas");
 var grid = new import_web_ifc_viewer.Grid(viewer);
 var axes = new import_web_ifc_viewer.Axes(viewer);
 var clippingComponent = new import_web_ifc_viewer.ClippingComponent(viewer);
+var edges = new import_web_ifc_viewer.Edges(viewer);
 var loadIfc = (event) => {
   viewer.loadIfc(event.target.files[0]);
 };
@@ -58460,6 +58548,11 @@ var sectionButton = (0, import_web_ifc_viewer.createSideMenuButton)("./resources
 sectionButton.addEventListener("click", () => {
   sectionButton.blur();
   clippingComponent.active = !clippingComponent.active;
+});
+var button = (0, import_web_ifc_viewer.createSideMenuButton)("./resources/wireframe-cube.svg");
+button.addEventListener("click", () => {
+  button.blur();
+  edges.active ? edges.deactivateEdgeDisplay() : edges.activateEdgeDisplay();
 });
 /**
  * @license

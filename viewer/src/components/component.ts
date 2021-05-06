@@ -1,4 +1,4 @@
-import {Viewer} from './viewer';
+import {Viewer} from '../core';
 
 export abstract class Component {
 
