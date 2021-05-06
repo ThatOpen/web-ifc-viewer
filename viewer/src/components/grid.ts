@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import {Viewer} from '../core';
 import { Component } from "./component";
+import { Viewer } from './viewer';
 
 export class Grid extends Component {
 

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {Viewer} from '../core';
+import {Viewer} from './viewer';
 import { Component } from "./component";
 
 export class Axes extends Component {

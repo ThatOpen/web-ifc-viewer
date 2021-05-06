@@ -1,10 +1,10 @@
-import {Viewer} from '../core';
+import {Viewer} from './viewer';
 
 export abstract class Component {
 
     viewer: Viewer;
 
-    constructor(viewer: Viewer){
+    protected constructor(viewer: Viewer){
         viewer.addComponent(this);
         this.viewer = viewer;
     }

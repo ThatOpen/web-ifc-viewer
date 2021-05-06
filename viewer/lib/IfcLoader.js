@@ -15,7 +15,7 @@ import {
 } from 'three/build/three.module';
 
 var IfcLoader = function (manager) {
-  Loader.call(this, manager);
+  new Loader(manager)
 };
 
 var ifcAPI = new IfcAPI();

@@ -1,4 +1,5 @@
-import { Axes, ClippingComponent, createSideMenuButton, Grid, Viewer } from 'web-ifc-viewer';
+
+import { Axes, ClippingComponent, Viewer, createSideMenuButton, Grid,  } from 'web-ifc-viewer';
 
 const viewer = new Viewer("three-canvas");
 const grid = new Grid(viewer);

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 import { Component } from '../components';
-import { Viewer } from '../core';
+import { Viewer } from '../components';
 
 export class ClippingComponent extends Component {
 
