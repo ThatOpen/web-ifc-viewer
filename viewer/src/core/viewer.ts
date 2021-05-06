@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { IfcLoader } from '../../lib/IfcLoader';
+import { IFCLoader } from 'three/examples/jsm/loaders/IFCLoader.js';
 import { Component } from '../components';
 
 export class Viewer {
@@ -13,7 +13,7 @@ export class Viewer {
     renderer: THREE.Renderer;
     clock: THREE.Clock;
     controls: OrbitControls;
-    ifcLoader: IfcLoader;
+    ifcLoader: IFCLoader;
 
     constructor(canvasElementId: string) {
 
@@ -38,7 +38,7 @@ export class Viewer {
         const controls = new OrbitControls(camera, renderer.domElement);
         this.controls = controls;
 
-        const ifcLoader = new IfcLoader();
+        const ifcLoader = new IFCLoader();
         this.ifcLoader = ifcLoader;
 
         //Scene
@@ -94,9 +94,7 @@ export class Viewer {
         const url = URL.createObjectURL(file);
         try {
             this.ifcLoader.load(url, (object) => {
-                // @ts-expect-error
                 object.isIFC = true;
-                // @ts-expect-error
                 this.scene.add(object);
             });
         }catch(err){
