@@ -1,0 +1,25 @@
+{
+  "name": "web-ifc-viewer-example",
+  "private": true,
+  "version": "1.0.0",
+  "description": "A basic html example for web-ifc-viewer",
+  "main": "index.html",
+  "scripts": {
+    "start": "rollup -c && serve",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "snowpack build --polyfill-node"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^11.2.1",
+    "rollup": "^2.46.0",
+    "serve": "^11.3.2",
+    "snowpack": "^3.3.7"
+  },
+  "dependencies": {
+    "esbuild": "^0.11.17",
+    "three": "^0.128.0",
+    "web-ifc-viewer": "1.0.1"
+  }
+}

@@ -1,9 +1,4 @@
-import Axes from '../src/components/axes';
-import Grid from '../src/components/grid';
-import Viewer from '../src/viewer'
-import ClippingComponent from '../src/display/clipping-planes';
-
-import { createSideMenuButton } from '../src/gui/gui-creator'
+import { Axes, ClippingComponent, createSideMenuButton, Grid, Viewer } from 'web-ifc-viewer';
 
 const viewer = new Viewer("three-canvas");
 const grid = new Grid(viewer);
@@ -14,9 +9,6 @@ const clippingComponent = new ClippingComponent(viewer)
 const loadIfc = (event) => {
     viewer.loadIfc(event.target.files[0]);
 }
-
-console.error("Hola");
-
 
 const inputElement = document.createElement('input');
 inputElement.setAttribute('type', 'file');
