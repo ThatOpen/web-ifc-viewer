@@ -3,7 +3,7 @@ import { Axes, ClippingComponent, Edges, Grid, Viewer } from 'web-ifc-viewer';
 import { createSideMenuButton } from './utils/gui-creator';
 
 const viewer = new Viewer("three-canvas");
-const grid = new Grid(viewer);
+const grid = new Grid(viewer, 100, 100);
 const axes = new Axes(viewer);
 const clippingComponent = new ClippingComponent(viewer)
 

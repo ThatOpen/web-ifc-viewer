@@ -34002,11 +34002,11 @@ var require_grid = __commonJS({
     var component_1 = require_component();
     var Grid2 = function(_super) {
       __extends(Grid3, _super);
-      function Grid3(viewer2) {
+      function Grid3(viewer2, size, divisions, colorCenterLine, colorGrid) {
         var _this = _super.call(this, viewer2) || this;
-        _this.grid = new THREE.GridHelper();
+        _this.grid = new THREE.GridHelper(size, divisions, colorCenterLine, colorGrid);
         _this.grid.material.depthTest = false;
-        _this.grid.renderOrder = 1;
+        _this.grid.renderOrder = 0;
         viewer2.scene.add(_this.grid);
         return _this;
       }
@@ -35478,7 +35478,7 @@ function createSideMenuButton(iconSource) {
 
 // main.js
 var viewer = new import_web_ifc_viewer.Viewer("three-canvas");
-var grid = new import_web_ifc_viewer.Grid(viewer);
+var grid = new import_web_ifc_viewer.Grid(viewer, 100, 100);
 var axes = new import_web_ifc_viewer.Axes(viewer);
 var clippingComponent = new import_web_ifc_viewer.ClippingComponent(viewer);
 var edges = new import_web_ifc_viewer.Edges(viewer);
