@@ -1,5 +1,6 @@
 
-import { Axes, ClippingComponent, createSideMenuButton, Edges, Grid, Viewer } from 'web-ifc-viewer';
+import { Axes, ClippingComponent, Edges, Grid, Viewer } from 'web-ifc-viewer';
+import { createSideMenuButton } from './utils/gui-creator';
 
 const viewer = new Viewer("three-canvas");
 const grid = new Grid(viewer);
@@ -18,7 +19,6 @@ inputElement.setAttribute('type', 'file');
 inputElement.classList.add('hidden');
 inputElement.addEventListener('change', loadIfc, false);
 document.body.appendChild(inputElement);
-
 
 //Setup UI
 const loadButton = createSideMenuButton('./resources/folder-icon.svg');

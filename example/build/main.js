@@ -34043,52 +34043,6 @@ var require_components = __commonJS({
   }
 });
 
-// ../viewer/dist/gui/gui-creator.js
-var require_gui_creator = __commonJS({
-  "../viewer/dist/gui/gui-creator.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", {value: true});
-    exports.createSideMenuButton = void 0;
-    function createSideMenuButton2(iconSource) {
-      var button = document.createElement("button");
-      button.classList.add("basic-button");
-      var image = document.createElement("img");
-      image.setAttribute("src", iconSource);
-      image.classList.add("icon");
-      button.appendChild(image);
-      var sideMenu = document.getElementById("side-menu-left");
-      sideMenu.appendChild(button);
-      return button;
-    }
-    exports.createSideMenuButton = createSideMenuButton2;
-  }
-});
-
-// ../viewer/dist/gui/index.js
-var require_gui = __commonJS({
-  "../viewer/dist/gui/index.js"(exports) {
-    "use strict";
-    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
-      Object.defineProperty(o, k2, {enumerable: true, get: function() {
-        return m[k];
-      }});
-    } : function(o, m, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
-      o[k2] = m[k];
-    });
-    var __exportStar = exports && exports.__exportStar || function(m, exports2) {
-      for (var p in m)
-        if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p))
-          __createBinding(exports2, m, p);
-    };
-    Object.defineProperty(exports, "__esModule", {value: true});
-    __exportStar(require_gui_creator(), exports);
-  }
-});
-
 // ../viewer/node_modules/three/examples/jsm/controls/TransformControls.js
 var TransformControls_exports = {};
 __export(TransformControls_exports, {
@@ -35502,13 +35456,27 @@ var require_dist = __commonJS({
     Object.defineProperty(exports, "__esModule", {value: true});
     __exportStar(require_core(), exports);
     __exportStar(require_components(), exports);
-    __exportStar(require_gui(), exports);
     __exportStar(require_display(), exports);
   }
 });
 
 // main.js
 var import_web_ifc_viewer = __toModule(require_dist());
+
+// utils/gui-creator.js
+function createSideMenuButton(iconSource) {
+  const button = document.createElement("button");
+  button.classList.add("basic-button");
+  const image = document.createElement("img");
+  image.setAttribute("src", iconSource);
+  image.classList.add("icon");
+  button.appendChild(image);
+  const sideMenu = document.getElementById("side-menu-left");
+  sideMenu.appendChild(button);
+  return button;
+}
+
+// main.js
 var viewer = new import_web_ifc_viewer.Viewer("three-canvas");
 var grid = new import_web_ifc_viewer.Grid(viewer);
 var axes = new import_web_ifc_viewer.Axes(viewer);
@@ -35522,17 +35490,17 @@ inputElement.setAttribute("type", "file");
 inputElement.classList.add("hidden");
 inputElement.addEventListener("change", loadIfc, false);
 document.body.appendChild(inputElement);
-var loadButton = (0, import_web_ifc_viewer.createSideMenuButton)("./resources/folder-icon.svg");
+var loadButton = createSideMenuButton("./resources/folder-icon.svg");
 loadButton.addEventListener("click", () => {
   loadButton.blur();
   inputElement.click();
 });
-var sectionButton = (0, import_web_ifc_viewer.createSideMenuButton)("./resources/section-plane-down.svg");
+var sectionButton = createSideMenuButton("./resources/section-plane-down.svg");
 sectionButton.addEventListener("click", () => {
   sectionButton.blur();
   clippingComponent.active = !clippingComponent.active;
 });
-var edgesButton = (0, import_web_ifc_viewer.createSideMenuButton)("./resources/wireframe-cube.svg");
+var edgesButton = createSideMenuButton("./resources/wireframe-cube.svg");
 edgesButton.addEventListener("click", () => {
   edgesButton.blur();
   edges.active ? edges.deactivateEdgeDisplay() : edges.activateEdgeDisplay();
