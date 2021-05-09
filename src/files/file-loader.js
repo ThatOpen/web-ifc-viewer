@@ -38,8 +38,6 @@ function fitModelToFrame() {
     .normalize();
 
   camera.position.copy(direction.multiplyScalar(distance).add(boxCenter));
-  camera.near = 0.001;
-  camera.far = boxSize * 200;
   camera.updateProjectionMatrix();
   camera.lookAt(boxCenter.x, boxCenter.y, boxCenter.z);
 
