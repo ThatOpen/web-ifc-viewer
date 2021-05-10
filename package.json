@@ -1,12 +1,24 @@
 {
-  "name": "IFC.js",
-  "private": true,
-  "version": "1.0.1",
+  "name": "ifc.js",
   "description": "IFC viewer",
-  "main": "index.js",
-  "repository": "https://github.com/harrycollin/IFC.js.git",
-  "author": "Harry Collin <harry.archie.collin@gmail.com>",
+  "version": "1.0.1",
+  "private": true,
+  "author": "agviegas",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agviegas/IFC.js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/agviegas/IFC.js/issues"
+  },
+  "keywords": [
+    "ifc",
+    "geometry",
+    "threejs",
+    "bim",
+    "3d"
+  ],
   "workspaces": [
     "viewer",
     "example"
