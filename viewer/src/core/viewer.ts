@@ -9,8 +9,8 @@ export class Viewer {
     components: Component[] = [];
 
     scene: THREE.Scene;
-    camera: THREE.Camera;
-    renderer: THREE.Renderer;
+    camera: THREE.PerspectiveCamera;
+    renderer: THREE.WebGLRenderer;
     clock: THREE.Clock;
     controls: OrbitControls;
     ifcLoader: IFCLoader;
@@ -96,6 +96,7 @@ export class Viewer {
             this.ifcLoader.load(url, (object) => {
                 object.isIFC = true;
                 this.scene.add(object);
+                this.fitModelToFrame();
             });
         }catch(err){
             console.error("Error loading IFC.")
@@ -116,6 +117,29 @@ export class Viewer {
 
     addComponent = (component: Component) => {
         this.components.push(component);
+    }
+
+    fitModelToFrame() {
+        const box = new THREE.Box3().setFromObject(this.scene.children[this.scene.children.length - 1]);
+        const boxSize = box.getSize(new THREE.Vector3()).length();
+        const boxCenter = box.getCenter(new THREE.Vector3());
+
+        const halfSizeToFitOnScreen = boxSize * 0.5;
+        const halfFovY = THREE.MathUtils.degToRad(this.camera.fov * 0.5);
+        const distance = halfSizeToFitOnScreen / Math.tan(halfFovY);
+
+        const direction = new THREE.Vector3()
+            .subVectors(this.camera.position, boxCenter)
+            .multiply(new THREE.Vector3(1, 0, 1))
+            .normalize();
+
+        this.camera.position.copy(direction.multiplyScalar(distance).add(boxCenter));
+        this.camera.updateProjectionMatrix();
+        this.camera.lookAt(boxCenter.x, boxCenter.y, boxCenter.z);
+
+        // set target to newest loaded model
+        this.controls.target.copy(boxCenter);
+        this.controls.update();
     }
 }
 
