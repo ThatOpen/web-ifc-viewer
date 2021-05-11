@@ -1,4 +1,7 @@
 node_modules/
 .vscode/
-package-lock.json
+.idea/
+viewer/dist/
+example/build/
+
 debug.log
