@@ -6,8 +6,8 @@
   "description": "A basic html example for web-ifc-viewer",
   "main": "index.html",
   "scripts": {
-    "start-esbuild": "node esbuild.config.js && serve",
-    "start-rollup": "rollup -c && serve"
+    "build": "rollup -c",
+    "start": "serve"
   },
   "author": "",
   "license": "ISC",
