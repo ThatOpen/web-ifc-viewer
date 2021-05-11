@@ -1,17 +1,17 @@
-# IFC.js
+# web-ifc-viewer
 
-This library converts any browser into an IFC viewer. It parses IFC entities to WebGL geometry through THREE.js.
-It is based on [web-ifc-three](https://github.com/tomvandig/web-ifc-three), which is the three adaptation of [web-ifc](https://github.com/tomvandig/web-ifc).
+This library is part of the [IFC.js ecosystem](https://agviegas.github.io/ifcjs-docs/#/).
 
-[Try it here!](https://agviegas.github.io/web-ifc-viewer/)
-
-## Documentation
-
-Take a look at the [documentation](https://agviegas.github.io/ifcjs-docs/#/) to see what this library is about, guides and more.
+[Try it here!](https://agviegas.github.io/web-ifc-viewer/example)
 
 ## Community
 
 Join the [Discord channel](https://discord.gg/g7Uzn2KSwB) to meet other people interested in this project!
+
+## Getting started
+
+`npm run init-repo` to initialize the repository once you clone it to your local machine.
+`npm run start` to launch the example locally.
 
 ## Contribution
 
@@ -23,9 +23,10 @@ Do you want to contribute to make this even better? Bear in mind that this proje
 
 - This repository if you have ideas about cool tools that could help others develop BIM applications!
 
-- You can 
+- Try it and spread the word!
 
 ## Testing files
+
 You can find the IFC files for testing [here](https://github.com/agviegas/test-ifc-files).
 
 ## Issues
@@ -37,10 +38,6 @@ You can refer your issue to the specific repository:
 - [web-ifc-three](https://github.com/tomvandig/web-ifc-three) if you have any problem with the adaptation we did for Three.js (efficiency, Three geometry generation, etc).
 
 - This repository if you have any problem with the boilerplate code it offers to develop BIM viewers.
-
-## Build
-
-`npm run build` to generate a bundle with your changes in the code
 
 ## License
 

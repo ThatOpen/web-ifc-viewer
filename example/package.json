@@ -1,0 +1,25 @@
+{
+  "name": "web-ifc-viewer-basic-example",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "A basic html example for web-ifc-viewer",
+  "main": "index.html",
+  "scripts": {
+    "build": "rollup -c",
+    "start": "serve"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@esbuild-plugins/node-modules-polyfill": "^0.1.1",
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "esbuild": "^0.11.19",
+    "rollup": "^2.47.0",
+    "serve": "^11.3.2"
+  },
+  "dependencies": {
+    "web-ifc-viewer": "1.0.1"
+  }
+}

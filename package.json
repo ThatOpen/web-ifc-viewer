@@ -1,13 +1,22 @@
 {
   "name": "ifc.js",
-  "version": "1.0.1",
   "description": "IFC viewer",
-  "scripts": {
-    "build": "rollup -c && cpy node_modules/web-ifc/web-ifc.wasm ./"
-  },
+  "version": "1.0.1",
+  "private": true,
+  "author": "agviegas",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/agviegas/IFC.js.git"
+  },
+  "scripts": {
+    "init-repo": "npm run init-yarn && npm run build",
+    "start": "cd example && npm run start",
+    "init-yarn": "npm i yarn -g && yarn",
+    "build": "cd viewer && npm run build && cd .. && cd example && npm run build"
+  },
+  "bugs": {
+    "url": "https://github.com/agviegas/IFC.js/issues"
   },
   "keywords": [
     "ifc",
@@ -16,25 +25,8 @@
     "bim",
     "3d"
   ],
-  "author": "agviegas",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/agviegas/IFC.js/issues"
-  },
-  "homepage": "https://github.com/agviegas/IFC.js#readme",
-  "dependencies": {
-    "three": "^0.126.0",
-    "web-ifc": "0.0.17"
-  },
-  "devDependencies": {
-    "@rollup/plugin-node-resolve": "^11.2.0",
-    "@types/node": "^14.14.31",
-    "@types/three": "^0.125.3",
-    "cpy": "^8.1.2",
-    "cpy-cli": "^3.1.1",
-    "esbuild": "^0.8.53",
-    "rollup": "^2.40.0",
-    "serve": "^11.3.2",
-    "typescript": "^4.2.2"
-  }
+  "workspaces": [
+    "viewer",
+    "example"
+  ]
 }
