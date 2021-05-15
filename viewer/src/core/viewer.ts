@@ -90,13 +90,13 @@ export class Viewer {
         this.components.forEach((component) => component.update(delta));
     };
 
-    loadIfc = (file: File) => {
+    loadIfc = (file: File, fitToFrame: boolean = false) => {
         const url = URL.createObjectURL(file);
         try {
             this.ifcLoader.load(url, (object) => {
                 object.isIFC = true;
                 this.scene.add(object);
-                this.fitModelToFrame();
+                if(fitToFrame) this.fitModelToFrame();
             });
         }catch(err){
             console.error("Error loading IFC.")
