@@ -27,6 +27,7 @@
   ],
   "workspaces": [
     "viewer",
-    "example"
-  ]
+    "examples/simple-html",
+    "examples/simple-react"
+ ]
 }
