@@ -14,22 +14,25 @@ export class Viewer {
     clock: THREE.Clock;
     controls: OrbitControls;
     ifcLoader: IFCLoader;
+    mouse: THREE.Vector2 = new THREE.Vector2()
 
-    constructor(canvasElementId: string) {
+    constructor(container: HTMLElement) {
 
-        const canvas = document.getElementById(canvasElementId);
-        
-        if(!canvas){
-            throw new Error("Could not get canvas element!")
+        if(!container){
+            throw new Error("Could not get container element!")
         }
+
+        const width = container.clientWidth;
+        const height = container.clientHeight;
 
         const scene = new THREE.Scene();
         this.scene = scene;
 
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
         this.camera = camera;
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvas as HTMLCanvasElement });
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        container.appendChild(renderer.domElement);
         this.renderer = renderer;
 
         const clock = new THREE.Clock(true);
@@ -45,8 +48,7 @@ export class Viewer {
         scene.background = new THREE.Color(0xa9a9a9);
 
         //Renderer
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(width, height);
         renderer.localClippingEnabled = true;
 
         //Camera
@@ -72,11 +74,20 @@ export class Viewer {
         const ambientLight = new THREE.AmbientLight(0xffffee, 0.25);
         scene.add(ambientLight);
 
+        //Mouse position
+        renderer.domElement.onmousemove = (event: MouseEvent) => {
+            const rect = renderer.domElement.getBoundingClientRect();
+            this.mouse.x = ((event.clientX - rect.left) / renderer.domElement.clientWidth) * 2 - 1;
+            this.mouse.y = -((event.clientY - rect.top) / renderer.domElement.clientHeight) * 2 + 1;
+        };
+
         //Window resize support
         window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
+            const width = container.clientWidth;
+            const height = container.clientHeight
+            camera.aspect = width / height;
             camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setSize(width, height);
         });
 
         this.render();
