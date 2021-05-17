@@ -11,9 +11,9 @@
   },
   "scripts": {
     "init-repo": "npm run init-yarn && npm run build",
-    "start": "cd example && npm run start",
+    "start": "cd examples/simple-html && npm run start",
     "init-yarn": "npm i yarn -g && yarn",
-    "build": "cd viewer && npm run build && cd .. && cd example && npm run build"
+    "build": "cd viewer && npm run build && cd .. && cd examples/simple-html && npm run build"
   },
   "bugs": {
     "url": "https://github.com/agviegas/IFC.js/issues"
@@ -27,6 +27,7 @@
   ],
   "workspaces": [
     "viewer",
-    "example"
-  ]
+    "examples/simple-html",
+    "examples/simple-react"
+ ]
 }

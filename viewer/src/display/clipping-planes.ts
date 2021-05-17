@@ -12,7 +12,6 @@ export class ClippingComponent extends Component {
     scene: THREE.Scene;
     camera: THREE.Camera;
     raycaster: THREE.Raycaster;
-    mouse: THREE.Vector2;
     intersection: THREE.Intersection | undefined;
 
     constructor(viewer: Viewer) {
@@ -22,10 +21,8 @@ export class ClippingComponent extends Component {
         this.scene = viewer.scene;
         this.camera = viewer.camera;
         this.raycaster = new THREE.Raycaster();
-        this.mouse = new THREE.Vector2();
 
         const canvas = viewer.renderer.domElement;
-        canvas.onmousemove = this.handleMouseMove;
         canvas.ondblclick = this.handleDblClick;
 
         // This doesn't seem to work with canvas.onkeydown
@@ -45,11 +42,6 @@ export class ClippingComponent extends Component {
         this.updateMaterials();
     }
 
-    handleMouseMove = (event: MouseEvent) => {
-        this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    };
-
     handleDblClick = () => {
         if (!this.dragging && this.enabled) {
             this.createPlaneFromRaycaster();
@@ -61,7 +53,7 @@ export class ClippingComponent extends Component {
 
         // Deleting a plane
         if (event.code == 'Delete') {
-            this.raycaster.setFromCamera(this.mouse, this.camera);
+            this.raycaster.setFromCamera(this.viewer.mouse, this.camera);
             const planeMeshes = this.planes.map((plane) => plane.planeMesh);
             const intersects = this.raycaster.intersectObjects(planeMeshes, false);
             if (intersects.length > 0) {
@@ -74,7 +66,7 @@ export class ClippingComponent extends Component {
     };
 
     createPlaneFromRaycaster = () => {
-        this.raycaster.setFromCamera(this.mouse, this.camera);
+        this.raycaster.setFromCamera(this.viewer.mouse, this.camera);
         const intersects = this.raycaster.intersectObjects(this.viewer.ifcObjects, true);
 
         if (intersects.length > 0) {
