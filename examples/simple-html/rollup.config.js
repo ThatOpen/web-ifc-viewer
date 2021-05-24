@@ -1,5 +1,6 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import nodePolyfills from 'rollup-plugin-node-polyfills';
 
 export default {
   input: 'main.js',
@@ -7,5 +8,5 @@ export default {
     file: "build/main.js",
     format: 'iife'
   },
-  plugins: [ resolve(), commonjs() ]
+  plugins: [ resolve(),  nodePolyfills(), commonjs() ]
 };
