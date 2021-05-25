@@ -37,7 +37,7 @@ export default function BcfDialog(props) {
         setFile(acceptedFiles[0])
     }, []);
 
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: ".bcf" });
 
     const fitleredTopics = topics.filter((t) => t.viewpoints.length > 0);
 
