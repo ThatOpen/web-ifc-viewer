@@ -1,6 +1,5 @@
 import { Axes, ClippingComponent, DropboxAPI, Edges, Grid, Viewer } from 'web-ifc-viewer';
 import { createSideMenuButton } from './utils/gui-creator';
-import { BcfReader} from '@parametricos/bcf-js';
 
 const container = document.getElementById("viewer-container");
 const viewer = new Viewer(container);
@@ -13,14 +12,7 @@ const edges = new Edges(viewer);
 
 //Setup loader
 const loadIfc = (event) => {
-    viewer.loadIfc(event.target.files[0]);
-}
-
-const loadBcf = async (event) => {
-    const url = URL.createObjectURL(event.target.files[0]);
-    const reader = new BcfReader();
-    await reader.read(url);
-    console.log(reader.topics)
+    viewer.loadIfc(event.target.files[0], true);
 }
 
 const inputElement = document.createElement('input');
@@ -58,10 +50,4 @@ const dropBoxButton = createSideMenuButton('./resources/dropbox-icon.svg');
 dropBoxButton.addEventListener('click', () => {
     dropBoxButton.blur();
     dropBoxAPI.loadDropboxIfc();
-});
-
-const loadBcfButton = createSideMenuButton('./resources/dropbox-icon.svg');
-loadBcfButton.addEventListener('click', () => {
-    loadBcfButton.blur();
-    bcfInputElement.click();
 });

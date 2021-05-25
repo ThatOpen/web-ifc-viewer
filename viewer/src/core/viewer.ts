@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { IFCLoader } from 'three/examples/jsm/loaders/IFCLoader.js';
 import { Component } from '../components';
 import { getBasisTransform } from '../utils/ThreeUtils';
-import { VisualizationInfo } from '@parametricos/bcf-xml-parser';
+import { VisualizationInfo } from '@parametricos/bcf-js';
 
 export class Viewer {
     
@@ -169,12 +169,13 @@ export class Viewer {
             position.applyMatrix4(matrix);
             direction.applyMatrix4(matrix);
 
-            this.camera.position.set(position.x, position.y, position.z);
+            this.controls.object.position.set(position.x, position.y, position.z);
 
             const ray = new THREE.Ray(position, direction);
             const target = new THREE.Vector3();
             ray.at(5, target);
             this.controls.target = new THREE.Vector3(target.x, target.y, target.z);
+            this.controls.update();
             // this.camera.up.set(camera_up_vector.x, camera_up_vector.z, -camera_up_vector.y);
             this.camera.fov = field_of_view;
         }
@@ -189,5 +190,4 @@ export class Viewer {
 export interface IfcObject3D extends THREE.Object3D {
     isIFC?: boolean
     isSelected?: boolean,
-
 }

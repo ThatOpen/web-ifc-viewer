@@ -12,16 +12,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@esbuild-plugins/node-modules-polyfill": "^0.1.1",
     "@rollup/plugin-commonjs": "^19.0.0",
     "@rollup/plugin-node-resolve": "^13.0.0",
-    "esbuild": "^0.11.19",
     "rollup": "^2.47.0",
-    "rollup-plugin-node-polyfills": "^0.2.1",
     "serve": "^11.3.2"
   },
   "dependencies": {
-    "@parametricos/bcf-js": "^0.0.23",
     "web-ifc-viewer": "1.0.1"
   }
 }
