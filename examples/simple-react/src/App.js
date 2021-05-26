@@ -34,7 +34,7 @@ class App extends React.Component {
     }
 
     onDrop = (files) => {
-        this.viewer.loadIfc(files[0]);
+        this.viewer.loadIfc(files[0], true);
     };
 
     handleToggleClipping = () => {
