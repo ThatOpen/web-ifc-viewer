@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/agviegas/IFC.js#readme",
   "dependencies": {
+    "@parametricos/bcf-js": "^0.1.2",
     "three": "^0.128.0",
     "web-ifc": "0.0.17"
   },

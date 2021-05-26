@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { IFCLoader } from 'three/examples/jsm/loaders/IFCLoader.js';
 import { Component } from '../components';
+import { getBasisTransform } from '../utils/ThreeUtils';
+import { VisualizationInfo } from '@parametricos/bcf-js';
 
 export class Viewer {
     
@@ -152,10 +154,40 @@ export class Viewer {
         this.controls.target.copy(boxCenter);
         this.controls.update();
     }
+
+    set currentViewpoint(viewpoint: VisualizationInfo) {
+
+        if(viewpoint.perspective_camera) {
+            const { camera_view_point, camera_direction, field_of_view } = viewpoint.perspective_camera;
+
+            const matrix = new THREE.Matrix4();
+            getBasisTransform("+X+Z-Y", "+X+Y+Z", matrix);
+
+            //Left handed Z up => Right handed Y up
+            const position = new THREE.Vector3(camera_view_point.x, camera_view_point.y, camera_view_point.z);
+            const direction = new THREE.Vector3(camera_direction.x, camera_direction.y, camera_direction.z);
+            position.applyMatrix4(matrix);
+            direction.applyMatrix4(matrix);
+
+            this.controls.object.position.set(position.x, position.y, position.z);
+
+            const ray = new THREE.Ray(position, direction);
+            const target = new THREE.Vector3();
+            ray.at(5, target);
+            this.controls.target = new THREE.Vector3(target.x, target.y, target.z);
+            this.controls.update();
+            // this.camera.up.set(camera_up_vector.x, camera_up_vector.z, -camera_up_vector.y);
+            this.camera.fov = field_of_view;
+        }
+    }
+
+    takeScreenshot = () => {
+        this.render();
+        return this.renderer.domElement.toDataURL("image/png");
+    }
 }
 
 export interface IfcObject3D extends THREE.Object3D {
     isIFC?: boolean
     isSelected?: boolean,
-
 }
