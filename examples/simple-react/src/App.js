@@ -1,6 +1,6 @@
 import './App.css';
 import { Axes, ClippingComponent, Grid, Viewer } from 'web-ifc-viewer';
-import { IconButton } from '@material-ui/core';
+import { Backdrop, Box, CircularProgress, IconButton } from '@material-ui/core';
 import React from 'react';
 import Dropzone from 'react-dropzone';
 import BcfDialog from './components/BcfDialog';
@@ -9,11 +9,14 @@ import BcfDialog from './components/BcfDialog';
 import FolderOpenOutlinedIcon from '@material-ui/icons/FolderOpenOutlined';
 import CropIcon from '@material-ui/icons/Crop';
 import FeedbackOutlinedIcon from '@material-ui/icons/FeedbackOutlined';
+import { SpatialHierarchy } from './components/SpatialHierarchy';
 
 class App extends React.Component {
 
     state = {
-        bcfDialogOpen: false
+        bcfDialogOpen: false,
+        loaded: false,
+        loading_ifc: false
     };
 
     constructor(props) {
@@ -33,8 +36,10 @@ class App extends React.Component {
         this.viewer = viewer;
     }
 
-    onDrop = (files) => {
-        this.viewer.loadIfc(files[0], true);
+    onDrop = async (files) => {
+        this.setState({ loading_ifc: true })
+        await this.viewer.loadIfc(files[0], true);
+        this.setState({ loaded: true, loading_ifc: false })
     };
 
     handleToggleClipping = () => {
@@ -83,6 +88,9 @@ class App extends React.Component {
                           <FeedbackOutlinedIcon />
                       </IconButton>
                   </aside>
+                  {/*<Box width={400} p={2}>
+                      {this.state.loaded && <SpatialHierarchy viewer={this.viewer}/> }
+                  </Box>*/}
                   <Dropzone ref={this.dropzoneRef} onDrop={this.onDrop}>
                       {({ getRootProps, getInputProps }) => (
                         <div {...getRootProps({ className: 'dropzone' })}>
@@ -94,6 +102,17 @@ class App extends React.Component {
                       <div id='viewer-container' style={{ position: 'relative', height: '100%', width: '100%' }} />
                   </div>
               </div>
+              <Backdrop
+                style={{
+                    zIndex: 100,
+                    display: "flex",
+                    alignItems: "center",
+                    alignContent: "center"
+                }}
+                open={this.state.loading_ifc}
+              >
+                  <CircularProgress/>
+              </Backdrop>
           </>
         );
     }
