@@ -88,9 +88,9 @@ class App extends React.Component {
                           <FeedbackOutlinedIcon />
                       </IconButton>
                   </aside>
-                  {/*<Box width={400} p={2}>
+                  <Box width={400} p={2}>
                       {this.state.loaded && <SpatialHierarchy viewer={this.viewer}/> }
-                  </Box>*/}
+                  </Box>
                   <Dropzone ref={this.dropzoneRef} onDrop={this.onDrop}>
                       {({ getRootProps, getInputProps }) => (
                         <div {...getRootProps({ className: 'dropzone' })}>

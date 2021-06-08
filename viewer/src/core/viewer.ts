@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { Component } from '../components';
 import { getBasisTransform } from '../utils/ThreeUtils';
 import { VisualizationInfo } from '@parametricos/bcf-js';
-import { IFCLoader } from '../lib/IfcLoader';
+import { IFCLoader } from '../lib/IFCLoader';
 
 export class Viewer {
 

@@ -12306,10 +12306,10 @@ wbuf@^1.1.0, wbuf@^1.7.3:
   dependencies:
     minimalistic-assert "^1.0.0"
 
-web-ifc@0.0.18:
-  version "0.0.18"
-  resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.18.tgz#b6b5176d2f2f1f543ecc2428d630802558645a10"
-  integrity sha512-thpmn30VF0B1TgPh3cAjuaW00EQ4exwbjZB+YXxCpjkUPJdDP9ew42HTkxvoYS9f7DBY8RL508fw8u0s/WTohw==
+web-ifc@0.0.19:
+  version "0.0.19"
+  resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.19.tgz#314ceb45e2971aba7bf68deef02eb38189b6b8a7"
+  integrity sha512-nPovv6ZnhbuCPGntbJSIphyMEI+928ISKeedORJUz0mYsp3uqAN+ExLvPNCqU9o3jzpL+X1IsWa1UbFjGG7WFw==
 
 web-vitals@^1.0.1:
   version "1.1.2"
