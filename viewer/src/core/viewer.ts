@@ -1,12 +1,13 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { IFCLoader } from 'three/examples/jsm/loaders/IFCLoader.js';
 import { Component } from '../components';
 import { getBasisTransform } from '../utils/ThreeUtils';
 import { VisualizationInfo } from '@parametricos/bcf-js';
+import { IFCLoader } from '../lib/IFCLoader';
 
 export class Viewer {
-    
+
+
     // We keep track of components to update
     components: Component[] = [];
 
@@ -17,6 +18,8 @@ export class Viewer {
     controls: OrbitControls;
     ifcLoader: IFCLoader;
     mouse: THREE.Vector2 = new THREE.Vector2()
+
+    ifc_objects: THREE.Object3D[] = []
 
     constructor(container: HTMLElement) {
 
@@ -103,14 +106,14 @@ export class Viewer {
         this.components.forEach((component) => component.update(delta));
     };
 
-    loadIfc = (file: File, fitToFrame: boolean = false) => {
+    loadIfc = async (file: File, fitToFrame: boolean = false) => {
         const url = URL.createObjectURL(file);
         try {
-            this.ifcLoader.load(url, (object) => {
-                object.isIFC = true;
-                this.scene.add(object);
-                if(fitToFrame) this.fitModelToFrame();
-            });
+            const object = await this.ifcLoader.loadAsync(url);
+            this.ifc_objects.push(object);
+            // @ts-ignore
+            this.scene.add(object);
+            if(fitToFrame) this.fitModelToFrame();
         }catch(err){
             console.error("Error loading IFC.")
             console.error(err);
@@ -118,14 +121,7 @@ export class Viewer {
     }
 
     get ifcObjects() {
-        const ifcObjects: THREE.Object3D[] = [];
-        this.scene.children.forEach((item) => {
-            // @ts-expect-error
-            if (item.isIFC && item.children) {
-                ifcObjects.push(...item.children);
-            }
-        });
-        return ifcObjects;
+        return this.ifc_objects;
     };
 
     addComponent = (component: Component) => {

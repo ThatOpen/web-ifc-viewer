@@ -11,8 +11,8 @@ const dropBoxAPI = new DropboxAPI(viewer);
 const edges = new Edges(viewer);
 
 //Setup loader
-const loadIfc = (event) => {
-    viewer.loadIfc(event.target.files[0], true);
+const loadIfc = async (event) => {
+   await viewer.loadIfc(event.target.files[0], true);
 }
 
 const inputElement = document.createElement('input');
@@ -21,11 +21,6 @@ inputElement.classList.add('hidden');
 inputElement.addEventListener('change', loadIfc, false);
 document.body.appendChild(inputElement);
 
-const bcfInputElement = document.createElement('input');
-bcfInputElement.setAttribute('type', 'file');
-bcfInputElement.classList.add('hidden');
-bcfInputElement.addEventListener('change', loadBcf, false);
-document.body.appendChild(bcfInputElement);
 
 //Setup UI
 const loadButton = createSideMenuButton('./resources/folder-icon.svg');
