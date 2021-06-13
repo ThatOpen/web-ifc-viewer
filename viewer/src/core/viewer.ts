@@ -5,8 +5,12 @@ import { Component } from '../components';
 import { getBasisTransform } from '../utils/ThreeUtils';
 import { VisualizationInfo } from '@parametricos/bcf-js';
 
+export interface ViewerOptions {
+    backgroundColor?: THREE.Color
+}
+
 export class Viewer {
-    
+
     // We keep track of components to update
     components: Component[] = [];
 
@@ -18,7 +22,7 @@ export class Viewer {
     ifcLoader: IFCLoader;
     mouse: THREE.Vector2 = new THREE.Vector2()
 
-    constructor(container: HTMLElement) {
+    constructor(container: HTMLElement, options?: ViewerOptions) {
 
         if(!container){
             throw new Error("Could not get container element!")
@@ -47,7 +51,7 @@ export class Viewer {
         this.ifcLoader = ifcLoader;
 
         //Scene
-        scene.background = new THREE.Color(0xa9a9a9);
+        scene.background = options?.backgroundColor || new THREE.Color(0xa9a9a9);
 
         //Renderer
         renderer.setSize(width, height);
