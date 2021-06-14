@@ -13,7 +13,7 @@
     "init-repo": "npm run init-yarn && npm run build",
     "start": "cd examples/simple-html && npm run start",
     "init-yarn": "npm i yarn -g && yarn",
-    "build": "cd viewer && npm run build && cd .. && cd examples/simple-html && npm run build && cd .."
+    "build": "cd viewer && npm run build && cd .. && cd examples/simple-html && npm run build"
   },
   "bugs": {
     "url": "https://github.com/agviegas/IFC.js/issues"
