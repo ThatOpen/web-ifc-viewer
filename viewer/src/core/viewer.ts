@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { Component } from '../components';
 import { getBasisTransform } from '../utils/ThreeUtils';
 import { VisualizationInfo } from '@parametricos/bcf-js';
-import { IFCLoader } from '../lib/IFCLoader';
+import { IfcManager } from './IFC/ifc-manager';
 
 export interface ViewerOptions {
     backgroundColor?: THREE.Color
@@ -19,7 +19,7 @@ export class Viewer {
     renderer: THREE.WebGLRenderer;
     clock: THREE.Clock;
     controls: OrbitControls;
-    ifcLoader: IFCLoader;
+    ifcManager: IfcManager;
     mouse: THREE.Vector2 = new THREE.Vector2()
 
     ifc_objects: THREE.Object3D[] = []
@@ -48,9 +48,6 @@ export class Viewer {
 
         const controls = new OrbitControls(camera, renderer.domElement);
         this.controls = controls;
-
-        const ifcLoader = new IFCLoader();
-        this.ifcLoader = ifcLoader;
 
         //Scene
         scene.background = options?.backgroundColor || new THREE.Color(0xa9a9a9);
@@ -99,6 +96,9 @@ export class Viewer {
         });
 
         this.render();
+
+        //IFC management
+        this.ifcManager = new IfcManager(this.ifc_objects);
     }
 
     render = () => {
@@ -110,17 +110,8 @@ export class Viewer {
     };
 
     loadIfc = async (file: File, fitToFrame: boolean = false) => {
-        const url = URL.createObjectURL(file);
-        try {
-            const object = await this.ifcLoader.loadAsync(url);
-            this.ifc_objects.push(object);
-            // @ts-ignore
-            this.scene.add(object);
-            if(fitToFrame) this.fitModelToFrame();
-        }catch(err){
-            console.error("Error loading IFC.")
-            console.error(err);
-        }
+        await this.ifcManager.loadIfc(file, this.scene);
+        if(fitToFrame) this.fitModelToFrame();
     }
 
     get ifcObjects() {

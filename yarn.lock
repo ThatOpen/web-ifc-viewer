@@ -11306,6 +11306,11 @@ static-extend@^0.1.1:
     define-property "^0.2.5"
     object-copy "^0.1.0"
 
+stats.js@^0.17.0:
+  version "0.17.0"
+  resolved "https://registry.yarnpkg.com/stats.js/-/stats.js-0.17.0.tgz#b1c3dc46d94498b578b7fd3985b81ace7131cc7d"
+  integrity sha1-scPcRtlEmLV4t/05hbgaznExzH0=
+
 "statuses@>= 1.4.0 < 2", "statuses@>= 1.5.0 < 2", statuses@~1.5.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-1.5.0.tgz#161c7dac177659fd9811f43771fa99381478628c"
@@ -11723,6 +11728,11 @@ text-table@0.2.0, text-table@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=
+
+three-mesh-bvh@^0.3.7:
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.3.7.tgz#39a05d2d53f66b5df486d08622801a1850734934"
+  integrity sha512-veRJRj0mY2rBj9yRZVg/E98wd6e7AzqzTq/+6ispY6m50gYuGitUNih2dRQzbkMcwRECLURvuudb9BFW3/swAw==
 
 three@^0.128.0:
   version "0.128.0"
@@ -12305,6 +12315,16 @@ wbuf@^1.1.0, wbuf@^1.7.3:
   integrity sha512-O84QOnr0icsbFGLS0O3bI5FswxzRr8/gHwWkDlQFskhSPryQXvrTMxjxGP4+iWYoauLoBvfDpkrOauZ+0iZpDA==
   dependencies:
     minimalistic-assert "^1.0.0"
+
+web-ifc-three@^0.0.25:
+  version "0.0.25"
+  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.25.tgz#942100bee5d69c599815dd59b28b8808eec7352c"
+  integrity sha512-IjChraaCr6NjSoUQJApuJQQgbAVvVwyJbQYsF/EL6tia87KGcSYzCfQ6NN/oibTfQcnnQPFNdkke6x+pMqbLDA==
+  dependencies:
+    stats.js "^0.17.0"
+    three "^0.128.0"
+    three-mesh-bvh "^0.3.7"
+    web-ifc "0.0.19"
 
 web-ifc@0.0.19:
   version "0.0.19"
