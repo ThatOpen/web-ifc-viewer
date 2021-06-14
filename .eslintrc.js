@@ -1,4 +1,5 @@
 module.exports = {
+  ignorePatterns: ['examples/**/*'],
   env: {
     browser: true,
     es2021: true,
