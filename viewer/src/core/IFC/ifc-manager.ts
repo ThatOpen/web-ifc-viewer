@@ -1,21 +1,28 @@
 import { IFCLoader } from 'web-ifc-three/IFCLoader';
 import * as THREE from 'three';
-// import { IfcSelection } from './selection';
-// import { IFCRaycaster } from '../../components/raycaster';
+import { IFCRaycaster } from '../../components/raycaster';
+import { IfcSelection } from './selection';
 
 export class IfcManager {
   private loader: IFCLoader;
   private models: THREE.Object3D[];
-  // private caster: IFCRaycaster;
-  // private preselection: IfcSelection;
+  private caster: IFCRaycaster;
+  private scene: THREE.Scene;
+  private preselection: IfcSelection;
   // private selection: IfcSelection;
+  private preselectMat = new THREE.MeshLambertMaterial({
+    color: 0xffccff,
+    transparent: true,
+    opacity: 0.5,
+    depthTest: false
+});
 
-  constructor(ifc_objects: THREE.Object3D[]) {
+  constructor(ifc_objects: THREE.Object3D[], scene: THREE.Scene, camera: THREE.PerspectiveCamera, mouse: THREE.Vector2) {
     this.loader = new IFCLoader();
     this.models = ifc_objects;
-    // this.caster = new IFCRaycaster();
-
-    // this.preselection = new IfcSelection(this.loader, this.models);
+    this.scene = scene;
+    this.caster = new IFCRaycaster(this.models, camera, mouse);
+    this.preselection = new IfcSelection(this.loader, this.scene, this.preselectMat);
     // this.selection = new IfcSelection(this.loader, this.models);
   }
 
@@ -32,9 +39,10 @@ export class IfcManager {
     }
   }
 
-  select() {}
+  preselect(event: any) {
+    this.caster.castRay(event, this.preselection.select);
+  }
 
-  preselect() {}
 
   setModelDisplay() {}
 }

@@ -98,7 +98,7 @@ export class Viewer {
         this.render();
 
         //IFC management
-        this.ifcManager = new IfcManager(this.ifc_objects);
+        this.ifcManager = new IfcManager(this.ifc_objects, this.scene, this.camera, this.mouse);
     }
 
     render = () => {
@@ -112,6 +112,10 @@ export class Viewer {
     loadIfc = async (file: File, fitToFrame: boolean = false) => {
         await this.ifcManager.loadIfc(file, this.scene);
         if(fitToFrame) this.fitModelToFrame();
+    }
+
+    preselect = (event: any) => {
+        this.ifcManager.preselect(event);
     }
 
     get ifcObjects() {
