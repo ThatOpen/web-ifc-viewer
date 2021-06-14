@@ -22,10 +22,25 @@ export class IfcSelection {
     this.selected = item.faceIndex;
     const mesh = item.object as IfcMesh;
     const id = this.ifcLoader.getExpressId(mesh.geometry, item.faceIndex);
-    if (id == undefined) return;
+    if (id == undefined) return null;
     this.removePreviousSelection(mesh);
     this.modelID = mesh.modelID;
     this.newSelection(id);
+    return id;
+  }
+
+  selectProps = (event: any, item: THREE.Intersection) => {
+    const id = this.select(event, item);
+    if(id) return this.getProperties(id);
+    return null;
+  }
+  
+  getProperties(id: number){
+    const props = this.ifcLoader.getItemProperties(this.modelID, id);
+    props.psets = this.ifcLoader.getPropertySets(this.modelID, id, true);
+    props.type = this.ifcLoader.getTypeProperties(this.modelID, id);
+    console.log(props);
+    return props;
   }
 
   newSelection = (id: number) => {

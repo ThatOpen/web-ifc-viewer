@@ -118,6 +118,10 @@ export class Viewer {
         this.ifcManager.preselect(event);
     }
 
+    select = (event: any) => {
+        this.ifcManager.select(event);
+    }
+
     get ifcObjects() {
         return this.ifc_objects;
     };

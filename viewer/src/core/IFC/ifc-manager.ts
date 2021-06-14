@@ -9,21 +9,36 @@ export class IfcManager {
   private caster: IFCRaycaster;
   private scene: THREE.Scene;
   private preselection: IfcSelection;
-  // private selection: IfcSelection;
+  private selection: IfcSelection;
+
   private preselectMat = new THREE.MeshLambertMaterial({
     color: 0xffccff,
     transparent: true,
     opacity: 0.5,
-    depthTest: false
-});
+    depthTest: false,
+    side: THREE.DoubleSide
+  });
 
-  constructor(ifc_objects: THREE.Object3D[], scene: THREE.Scene, camera: THREE.PerspectiveCamera, mouse: THREE.Vector2) {
+  private selectMat = new THREE.MeshLambertMaterial({
+    color: 0xff33ff,
+    transparent: true,
+    opacity: 0.3,
+    depthTest: false,
+    side: THREE.DoubleSide
+  });
+
+  constructor(
+    ifc_objects: THREE.Object3D[],
+    scene: THREE.Scene,
+    camera: THREE.PerspectiveCamera,
+    mouse: THREE.Vector2
+  ) {
     this.loader = new IFCLoader();
     this.models = ifc_objects;
     this.scene = scene;
     this.caster = new IFCRaycaster(this.models, camera, mouse);
     this.preselection = new IfcSelection(this.loader, this.scene, this.preselectMat);
-    // this.selection = new IfcSelection(this.loader, this.models);
+    this.selection = new IfcSelection(this.loader, this.scene, this.selectMat);
   }
 
   async loadIfc(file: File, scene: THREE.Scene) {
@@ -43,6 +58,7 @@ export class IfcManager {
     this.caster.castRay(event, this.preselection.select);
   }
 
-
-  setModelDisplay() {}
+  select(event: any) {
+    this.caster.castRay(event, this.selection.selectProps);
+  }
 }

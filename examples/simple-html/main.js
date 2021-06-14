@@ -22,6 +22,7 @@ inputElement.addEventListener('change', loadIfc, false);
 document.body.appendChild(inputElement);
 
 window.onmousemove = viewer.preselect;
+window.ondblclick = viewer.select;
 
 //Setup UI
 const loadButton = createSideMenuButton('./resources/folder-icon.svg');
