@@ -9,7 +9,6 @@ const nameToIndex = { x: 0, y: 1, z: 2 };
 const orderedVectors = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
 
 export function stringToAxes(axesString: string) {
-
   if (!basesRegex.test(axesString)) {
     return null;
   }
@@ -19,7 +18,7 @@ export function stringToAxes(axesString: string) {
   return axesString
     .match(basesRegex)
     .splice(1, 3)
-    .map(str => {
+    .map((str) => {
       const negative = str[0] === '-';
       const name = str[1];
       return { negative, name };
@@ -27,7 +26,6 @@ export function stringToAxes(axesString: string) {
 }
 
 export function getBasisTransform(from: string, to: string, targetMatrix: THREE.Matrix4) {
-
   if (!basesRegex.test(from)) {
     return null;
   }
@@ -42,7 +40,6 @@ export function getBasisTransform(from: string, to: string, targetMatrix: THREE.
   if (!fromAxes || !toAxes) throw new Error();
 
   for (let i = 0; i < 3; i++) {
-
     const fromAxis = fromAxes[i];
     const toAxis = toAxes[i];
 

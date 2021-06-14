@@ -1,12 +1,12 @@
-import { BufferGeometry, Material, Mesh } from "three";
+import { BufferGeometry, Material, Mesh } from 'three';
 
 export const VertexProps = {
-    r: "red",
-    g: "green",
-    b: "blue",
-    a: "alfa",
-    h: "highlighted"
-}
+  r: 'red',
+  g: 'green',
+  b: 'blue',
+  a: 'alfa',
+  h: 'highlighted',
+};
 
 export interface Display {
     r: number;

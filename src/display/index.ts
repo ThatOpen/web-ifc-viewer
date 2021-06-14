@@ -1,2 +1,2 @@
-export * from "./clipping-planes"
-export * from "./edges"
+export * from './clipping-planes';
+export * from './edges';

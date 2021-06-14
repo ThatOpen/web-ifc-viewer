@@ -1,5 +1,7 @@
+import {
+  BufferGeometry, FileLoader, Intersection, Loader, LoadingManager, Mesh, Object3D, Scene,
+} from 'three';
 import { IFCManager } from './IFC/IFCManager';
-import { BufferGeometry, FileLoader, Intersection, Loader, LoadingManager, Mesh, Object3D, Scene } from 'three';
 import { Display } from './IFC/BaseDefinitions';
 
 // tslint:disable-next-line:interface-name
@@ -11,40 +13,40 @@ class IFCLoader extends Loader {
     private ifcManager;
 
     constructor(manager?: LoadingManager) {
-        super(manager);
-        this.ifcManager = new IFCManager();
+      super(manager);
+      this.ifcManager = new IFCManager();
     }
 
     load(url: any, onLoad: (ifc: IFC) => void, onProgress?: (event: ProgressEvent) => void, onError?: (event: ErrorEvent) => void) {
-        const scope = this;
+      const scope = this;
 
-        const loader = new FileLoader(scope.manager);
-        loader.setPath(scope.path);
-        loader.setResponseType('arraybuffer');
-        loader.setRequestHeader(scope.requestHeader);
-        loader.setWithCredentials(scope.withCredentials);
-        loader.load(
-            url,
-            async function (buffer) {
-                try {
-                    onLoad(await scope.parse(buffer));
-                } catch (e) {
-                    if (onError) {
-                        onError(e);
-                    } else {
-                        console.error(e);
-                    }
+      const loader = new FileLoader(scope.manager);
+      loader.setPath(scope.path);
+      loader.setResponseType('arraybuffer');
+      loader.setRequestHeader(scope.requestHeader);
+      loader.setWithCredentials(scope.withCredentials);
+      loader.load(
+        url,
+        async (buffer) => {
+          try {
+            onLoad(await scope.parse(buffer));
+          } catch (e) {
+            if (onError) {
+              onError(e);
+            } else {
+              console.error(e);
+            }
 
-                    scope.manager.itemError(url);
-                }
-            },
-            onProgress,
-            onError
-        );
+            scope.manager.itemError(url);
+          }
+        },
+        onProgress,
+        onError,
+      );
     }
 
     parse(buffer: any) {
-        return this.ifcManager.parse(buffer);
+      return this.ifcManager.parse(buffer);
     }
 
     /**
@@ -64,7 +66,7 @@ class IFCLoader extends Loader {
      * @path The relative path to web-ifc.wasm.
      */
     setWasmPath(path: string) {
-        this.ifcManager.setWasmPath(path);
+      this.ifcManager.setWasmPath(path);
     }
 
     /**
@@ -73,7 +75,7 @@ class IFCLoader extends Loader {
      * @faceIndex The index of the face of a geometry.You can easily get this index using the [Raycaster](https://threejs.org/docs/#api/en/core/Raycaster).
      */
     getExpressId(faceIndex: number) {
-        return this.ifcManager.getExpressId(faceIndex);
+      return this.ifcManager.getExpressId(faceIndex);
     }
 
     /**
@@ -89,7 +91,7 @@ class IFCLoader extends Loader {
      *
      */
     pickItem(items: Intersection[], geometry: BufferGeometry, transparent = true) {
-        return this.ifcManager.pickItem(items, geometry, transparent);
+      return this.ifcManager.pickItem(items, geometry, transparent);
     }
 
     /**
@@ -100,7 +102,7 @@ class IFCLoader extends Loader {
      * @scene The current Three scene.
      */
     setItemsDisplay(ids: number[], mesh: Mesh, state: Display, scene: Scene) {
-        this.ifcManager.setItemsDisplay(ids, mesh, state, scene);
+      this.ifcManager.setItemsDisplay(ids, mesh, state, scene);
     }
 
     /**
@@ -109,7 +111,7 @@ class IFCLoader extends Loader {
      * @recursive Wether you want to get the information of the referenced elements recursively.
      */
     getItemProperties(id: number, recursive = false) {
-        return this.ifcManager.getItemProperties(id, recursive);
+      return this.ifcManager.getItemProperties(id, recursive);
     }
 
     /**
@@ -119,7 +121,7 @@ class IFCLoader extends Loader {
      * @recursive Wether you want to get the information of the referenced elements recursively.
      */
     getPropertySets(id: number, recursive = false) {
-        return this.ifcManager.getPropertySets(id, recursive);
+      return this.ifcManager.getPropertySets(id, recursive);
     }
 
     /**
@@ -130,7 +132,7 @@ class IFCLoader extends Loader {
      * @recursive Wether you want to get the information of the referenced elements recursively.
      */
     getTypeProperties(id: number, recursive = false) {
-        return this.ifcManager.getTypeProperties(id, recursive);
+      return this.ifcManager.getTypeProperties(id, recursive);
     }
 
     /**
@@ -143,7 +145,7 @@ class IFCLoader extends Loader {
      * one or more IfcSpaces.
      */
     getSpatialStructure() {
-        return this.ifcManager.getSpatialStructure();
+      return this.ifcManager.getSpatialStructure();
     }
 }
 

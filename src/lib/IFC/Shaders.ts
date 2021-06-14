@@ -2,13 +2,13 @@ import { Shader } from 'three';
 import { VertexProps } from './BaseDefinitions';
 
 export function OpaqueShader(shader: Shader) {
-    shader.vertexShader = getVertexShader(shader);
-    shader.fragmentShader = getFragmentShader(shader, opaque);
+  shader.vertexShader = getVertexShader(shader);
+  shader.fragmentShader = getFragmentShader(shader, opaque);
 }
 
 export function TransparentShader(shader: Shader) {
-    shader.vertexShader = getVertexShader(shader);
-    shader.fragmentShader = getFragmentShader(shader, transparent);
+  shader.vertexShader = getVertexShader(shader);
+  shader.fragmentShader = getFragmentShader(shader, transparent);
 }
 
 interface ShaderConfig {
@@ -17,25 +17,25 @@ interface ShaderConfig {
 }
 
 const opaque: ShaderConfig = {
-    before: `vec4 diffuseColor = vec4( diffuse, opacity );`,
-    after: `vec4 diffuseColor = vec4( diffuse, opacity );
+  before: 'vec4 diffuseColor = vec4( diffuse, opacity );',
+  after: `vec4 diffuseColor = vec4( diffuse, opacity );
   if(vh > 0.){
     if (va <= 0.99) discard;
     else diffuseColor = vec4( vr, vg, vb, opacity );
-  }`
+  }`,
 };
 
 const transparent: ShaderConfig = {
-    before: `	vec4 diffuseColor = vec4( diffuse, opacity );`,
-    after: `vec4 diffuseColor = vec4( diffuse, opacity );
+  before: '	vec4 diffuseColor = vec4( diffuse, opacity );',
+  after: `vec4 diffuseColor = vec4( diffuse, opacity );
             if(vh > 0.0){
             if (va == 0.0) discard;
             diffuseColor = vec4( vr, vg, vb, va );
-            } else discard;`
+            } else discard;`,
 };
 
 function getFragmentShader(shader: Shader, config: ShaderConfig) {
-    return `
+  return `
   varying float vr;
   varying float vg;
   varying float vb;
@@ -45,7 +45,7 @@ ${shader.fragmentShader}`.replace(config.before, config.after);
 }
 
 function getVertexShader(shader: Shader) {
-    return `
+  return `
   attribute float sizes;
   attribute float ${VertexProps.r};
   attribute float ${VertexProps.g};
@@ -58,12 +58,12 @@ function getVertexShader(shader: Shader) {
   varying float va;
   varying float vh;
 ${shader.vertexShader}`.replace(
-    `#include <fog_vertex>`,
-    `#include <fog_vertex>
+  '#include <fog_vertex>',
+  `#include <fog_vertex>
     vr = ${VertexProps.r};
     vg = ${VertexProps.g};
     vb = ${VertexProps.b};
     va = ${VertexProps.a};
-    vh = ${VertexProps.h};`
-  );
+    vh = ${VertexProps.h};`,
+);
 }
