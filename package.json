@@ -1,20 +1,19 @@
 {
-  "name": "web-ifc-viewer",
+  "name": "ifc.js",
   "description": "IFC viewer",
   "version": "1.0.1",
+  "private": true,
   "author": "agviegas",
   "license": "MIT",
-  "main": "dist/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/agviegas/IFC.js.git"
   },
   "scripts": {
     "init-repo": "npm run init-yarn && npm run build",
-    "watch": "tsc -w",
     "start": "cd examples/simple-html && npm run start",
     "init-yarn": "npm i yarn -g && yarn",
-    "build": "tsc"
+    "build": "cd viewer && npm run build && cd .. && cd examples/simple-html && npm run build && cd .."
   },
   "bugs": {
     "url": "https://github.com/agviegas/IFC.js/issues"
@@ -26,21 +25,9 @@
     "bim",
     "3d"
   ],
-  "homepage": "https://github.com/agviegas/IFC.js#readme",
-  "dependencies": {
-    "@parametricos/bcf-js": "^0.1.2",
-    "three": "^0.128.0",
-    "web-ifc": "0.0.19"
-  },
-  "devDependencies": {
-    "@types/node": "^14.14.31",
-    "@types/three": "^0.127.1",
-    "@typescript-eslint/eslint-plugin": "^4.26.1",
-    "@typescript-eslint/parser": "^4.26.1",
-    "cpy-cli": "^3.1.1",
-    "eslint": "^7.28.0",
-    "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-plugin-import": "^2.22.1",
-    "typescript": "^4.2.4"
-  }
+  "workspaces": [
+    "viewer",
+    "examples/simple-html",
+    "examples/simple-react"
+ ]
 }
