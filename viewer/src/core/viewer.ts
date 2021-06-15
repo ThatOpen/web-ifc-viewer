@@ -119,6 +119,10 @@ export class Viewer {
         if(fitToFrame) this.fitModelToFrame();
     }
 
+    setWasmPath(path: string){
+        this.ifcManager.setWasmPath(path);
+    }
+
     preselect = (event: any) => {
         this.ifcManager.preselect(event);
     }

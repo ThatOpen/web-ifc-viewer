@@ -58,6 +58,10 @@ export class IfcManager {
     }
   }
 
+  setWasmPath(path: string){
+    this.loader.setWasmPath(path);
+  }
+
   getSpatialStructure(modelID: number, recursive = false) {
     return this.loader.getSpatialStructure(modelID, recursive);
   }

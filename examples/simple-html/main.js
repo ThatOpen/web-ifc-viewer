@@ -3,6 +3,7 @@ import { createSideMenuButton } from './utils/gui-creator';
 
 const container = document.getElementById("viewer-container");
 const viewer = new Viewer(container);
+viewer.setWasmPath("wasm/");
 const grid = new Grid(viewer, 100, 100);
 const axes = new Axes(viewer);
 const clippingComponent = new ClippingComponent(viewer);
