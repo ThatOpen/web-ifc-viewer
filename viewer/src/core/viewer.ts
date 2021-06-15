@@ -114,6 +114,11 @@ export class Viewer {
         if(fitToFrame) this.fitModelToFrame();
     }
 
+    loadIfcUrl = async (url: string, fitToFrame: boolean = false) => {
+        await this.ifcManager.loadIfcUrl(url, this.scene);
+        if(fitToFrame) this.fitModelToFrame();
+    }
+
     preselect = (event: any) => {
         this.ifcManager.preselect(event);
     }
