@@ -1,0 +1,24 @@
+name: ESLint check
+
+on: [pull_request]
+jobs:
+  eslint:
+    name: runner / eslint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use Node.js 14
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+          registry-url: https://npm.pkg.github.com
+          scope: "@novade"
+      - uses: actions/checkout@v2
+
+      # only install dependencies in viewer folder
+      - run: cd viewer && yarn
+      - name: eslint
+        uses: reviewdog/action-eslint@v1
+        with:
+          reporter: github-pr-review
+          workdir: "viewer"
+          eslint_flags: "src/ --ext .js,.ts"
