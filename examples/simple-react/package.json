@@ -1,6 +1,6 @@
 {
   "name": "web-ifc-viewer-simple-react",
-  "version": "0.1.7",
+  "version": "1.0.11",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.4",

@@ -31,12 +31,12 @@ export class IfcManager {
     ifc_objects: THREE.Object3D[],
     scene: THREE.Scene,
     camera: THREE.PerspectiveCamera,
-    mouse: THREE.Vector2
+    renderer: THREE.WebGLRenderer
   ) {
     this.loader = new IFCLoader();
     this.models = ifc_objects;
     this.scene = scene;
-    this.caster = new IFCRaycaster(this.models, camera, mouse);
+    this.caster = new IFCRaycaster(this.models, camera, renderer);
     this.preselection = new IfcSelection(this.loader, this.scene, this.preselectMat);
     this.selection = new IfcSelection(this.loader, this.scene, this.selectMat);
   }
@@ -58,7 +58,7 @@ export class IfcManager {
     }
   }
 
-  setWasmPath(path: string){
+  setWasmPath(path: string) {
     this.loader.setWasmPath(path);
   }
 
@@ -66,10 +66,11 @@ export class IfcManager {
     return this.loader.getSpatialStructure(modelID, recursive);
   }
 
-  getProperties(modelID: number, id: number, indirect = false) {
+  getProperties(modelID: number, id: number, indirect: boolean, recursive: boolean) {
+    if(modelID == null || id == null ) return null;
     const props = this.loader.getItemProperties(modelID, id);
-    if(indirect){
-      props.psets = this.loader.getPropertySets(modelID, id, true);
+    if (indirect) {
+      props.psets = this.loader.getPropertySets(modelID, id, recursive);
       props.type = this.loader.getTypeProperties(modelID, id);
     }
     console.log(props);
@@ -77,11 +78,12 @@ export class IfcManager {
   }
 
   preselect(event: any) {
-    const { modelID, id } = this.caster.castRay(event, this.preselection.select);
+    this.caster.castRay(event, this.preselection.select);
   }
 
-  select(event: any) {
-    const { modelID, id } = this.caster.castRay(event, this.selection.select);
-    return this.getProperties(modelID, id, true);
+  select(event: any, indirect: boolean, recursive: boolean) {
+    const result = this.caster.castRay(event, this.selection.select);
+    if(result == null || result.modelID == null || result.id == null) return null;
+    return this.getProperties(result.modelID, result.id, indirect, recursive);
   }
 }

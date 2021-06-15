@@ -6,7 +6,7 @@ import { VisualizationInfo } from '@parametricos/bcf-js';
 import { IfcManager } from './IFC/ifc-manager';
 
 export interface ViewerOptions {
-    backgroundColor?: THREE.Color
+    backgroundColor?: THREE.Color | number
 }
 
 export class Viewer {
@@ -54,6 +54,10 @@ export class Viewer {
         this.controls = controls;
 
         //Scene
+        if(typeof options?.backgroundColor == 'number') {
+            const color = options?.backgroundColor as number;
+            options.backgroundColor = new THREE.Color(color);
+        }
         scene.background = options?.backgroundColor || new THREE.Color(0xa9a9a9);
 
         //Renderer
@@ -102,7 +106,7 @@ export class Viewer {
         this.render();
 
         //IFC management
-        this.ifcManager = new IfcManager(this.ifc_objects, this.scene, this.camera, this.mouse);
+        this.ifcManager = new IfcManager(this.ifc_objects, this.scene, this.camera, this.renderer);
     }
 
     render = () => {
@@ -131,8 +135,8 @@ export class Viewer {
         this.ifcManager.preselect(event);
     }
 
-    select = (event: any) => {
-        this.ifcManager.select(event);
+    select = (event: any, indirect = true, recursive = false) => {
+        this.ifcManager.select(event, indirect, recursive);
     }
 
     get ifcObjects() {
