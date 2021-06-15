@@ -12,22 +12,21 @@ type dbChooserResponse = {
 };
 
 export class DropboxAPI extends Component {
-
   constructor(viewer: Viewer) {
     super(viewer);
     this.initializeAPI();
   }
 
   loadDropboxIfc() {
-    //@ts-ignore
+    // @ts-ignore
     Dropbox.choose(this.chooserOptions);
   }
 
   private onDBChooserSuccess = async (files: dbChooserResponse[]) => {
     const rawResponse = await fetch(files[0].link);
     const result = await rawResponse.text();
-    const ifcBlob = new Blob([result], {type: 'text/plain'});
-    const ifcFile = new File([ifcBlob], "ifcFile");
+    const ifcBlob = new Blob([result], { type: 'text/plain' });
+    const ifcFile = new File([ifcBlob], 'ifcFile');
     this.viewer.loadIfc(ifcFile);
   }
 
@@ -37,7 +36,7 @@ export class DropboxAPI extends Component {
     linkType: 'direct',
     multiselect: false,
     extensions: ['.ifc'],
-    folderselect: false
+    folderselect: false,
   };
 
   private onDBChooserCancel(files: dbChooserResponse[]) {
@@ -45,7 +44,7 @@ export class DropboxAPI extends Component {
   }
 
   private initializeAPI() {
-    var script = document.createElement('script');
+    const script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = 'https://www.dropbox.com/static/api/2/dropins.js';
     script.id = 'dropboxjs';

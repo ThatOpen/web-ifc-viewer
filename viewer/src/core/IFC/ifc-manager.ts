@@ -16,7 +16,7 @@ export class IfcManager {
     transparent: true,
     opacity: 0.5,
     depthTest: false,
-    side: THREE.DoubleSide
+    side: THREE.DoubleSide,
   });
 
   private selectMat = new THREE.MeshLambertMaterial({
@@ -24,14 +24,14 @@ export class IfcManager {
     transparent: true,
     opacity: 0.3,
     depthTest: false,
-    side: THREE.DoubleSide
+    side: THREE.DoubleSide,
   });
 
   constructor(
     ifc_objects: THREE.Object3D[],
     scene: THREE.Scene,
     camera: THREE.PerspectiveCamera,
-    mouse: THREE.Vector2
+    mouse: THREE.Vector2,
   ) {
     this.loader = new IFCLoader();
     this.models = ifc_objects;

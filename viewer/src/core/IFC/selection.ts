@@ -35,7 +35,7 @@ export class IfcSelection {
       modelID: this.modelID,
       ids: [id],
       removePrevious: true,
-      material: this.material
+      material: this.material,
     });
   };
 

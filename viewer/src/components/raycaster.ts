@@ -11,13 +11,13 @@ export class IFCRaycaster {
     this.mouse = mouse;
     this.ifcModels = ifcModels;
     this.raycaster = new THREE.Raycaster();
-    //@ts-ignore
+    // @ts-ignore
     this.raycaster.firstHitOnly = true;
   }
 
-  castRay(event: any, onHit: (event: any, item: THREE.Intersection) => any ) {
+  castRay(event: any, onHit: (event: any, item: THREE.Intersection) => any) {
     this.raycaster.setFromCamera(this.mouse, this.camera);
     const result = this.raycaster.intersectObjects(this.ifcModels);
-    if(result.length > 0) return onHit(event, result[0]);
+    if (result.length > 0) return onHit(event, result[0]);
   }
 }
