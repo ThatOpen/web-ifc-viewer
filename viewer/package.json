@@ -1,6 +1,6 @@
 {
   "name": "web-ifc-viewer",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "description": "IFC viewer",
   "main": "dist/index.js",
   "scripts": {
@@ -21,9 +21,9 @@
   "author": "agviegas",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/agviegas/IFC.js/issues"
+    "url": "https://github.com/agviegas/web-ifc-viewer/issues"
   },
-  "homepage": "https://github.com/agviegas/IFC.js#readme",
+  "homepage": "https://github.com/agviegas/web-ifc-viewer",
   "dependencies": {
     "@parametricos/bcf-js": "^0.1.2",
     "three": "^0.128.0",
