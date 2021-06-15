@@ -6,7 +6,7 @@ import { getBasisTransform } from '../utils/ThreeUtils';
 import { IfcManager } from './IFC/ifc-manager';
 
 export interface ViewerOptions {
-    backgroundColor?: THREE.Color
+    backgroundColor?: THREE.Color | number
 }
 
 export class Viewer {
@@ -44,15 +44,31 @@ export class Viewer {
       const clock = new THREE.Clock(true);
       this.clock = clock;
 
-      const controls = new OrbitControls(camera, renderer.domElement);
-      this.controls = controls;
-
-      // Scene
-      scene.background = options?.backgroundColor || new THREE.Color(0xa9a9a9);
+      if (container instanceof HTMLCanvasElement) {
+        const canvas = container as HTMLCanvasElement;
+        this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
+      } else {
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        container.appendChild(this.renderer.domElement);
+      }
 
       // Renderer
       renderer.setSize(width, height);
       renderer.localClippingEnabled = true;
+
+      const controls = new OrbitControls(camera, this.renderer.domElement);
+      this.controls = controls;
+
+      // Scene
+      if (typeof options?.backgroundColor === 'number') {
+        const color = options?.backgroundColor as number;
+        options.backgroundColor = new THREE.Color(color);
+      }
+      scene.background = options?.backgroundColor || new THREE.Color(0xa9a9a9);
+
+      // Renderer
+      this.renderer.setSize(width, height);
+      this.renderer.localClippingEnabled = true;
 
       // Camera
       camera.position.z = 8;
@@ -78,10 +94,10 @@ export class Viewer {
       scene.add(ambientLight);
 
       // Mouse position
-      renderer.domElement.onmousemove = (event: MouseEvent) => {
-        const rect = renderer.domElement.getBoundingClientRect();
-        this.mouse.x = ((event.clientX - rect.left) / renderer.domElement.clientWidth) * 2 - 1;
-        this.mouse.y = -((event.clientY - rect.top) / renderer.domElement.clientHeight) * 2 + 1;
+      this.renderer.domElement.onmousemove = (event: MouseEvent) => {
+        const rect = this.renderer.domElement.getBoundingClientRect();
+        this.mouse.x = ((event.clientX - rect.left) / this.renderer.domElement.clientWidth) * 2 - 1;
+        this.mouse.y = -((event.clientY - rect.top) / this.renderer.domElement.clientHeight) * 2 + 1;
       };
 
       // Window resize support
@@ -90,13 +106,13 @@ export class Viewer {
         const height = container.clientHeight;
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
-        renderer.setSize(width, height);
+        this.renderer.setSize(width, height);
       });
 
       this.render();
 
       // IFC management
-      this.ifcManager = new IfcManager(this.ifc_objects, this.scene, this.camera, this.mouse);
+      this.ifcManager = new IfcManager(this.ifc_objects, this.scene, this.camera, this.renderer);
     }
 
     render = () => {
@@ -112,12 +128,21 @@ export class Viewer {
       if (fitToFrame) this.fitModelToFrame();
     }
 
+    loadIfcUrl = async (url: string, fitToFrame: boolean = false) => {
+      await this.ifcManager.loadIfcUrl(url, this.scene);
+      if (fitToFrame) this.fitModelToFrame();
+    }
+
+    setWasmPath(path: string) {
+      this.ifcManager.setWasmPath(path);
+    }
+
     preselect = (event: any) => {
       this.ifcManager.preselect(event);
     }
 
-    select = (event: any) => {
-      this.ifcManager.select(event);
+    select = (event: any, indirect = true, recursive = false) => {
+      this.ifcManager.select(event, indirect, recursive);
     }
 
     get ifcObjects() {

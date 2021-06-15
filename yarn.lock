@@ -12541,6 +12541,19 @@ web-ifc-three@^0.0.25:
     three-mesh-bvh "^0.3.7"
     web-ifc "0.0.19"
 
+web-ifc-viewer@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/web-ifc-viewer/-/web-ifc-viewer-1.0.1.tgz#e691820bf215f4531b38469b54dbc79e6a58bd8c"
+  integrity sha512-qQkm/PdF7tUuVws93UPvtNsJdlpt9i7hNuvdObNykYhvXIK9sfeyI1h6zGotYjz2Ky+gVB2XMPlfMeKR1IFsvA==
+  dependencies:
+    three "^0.128.0"
+    web-ifc "0.0.17"
+
+web-ifc@0.0.17:
+  version "0.0.17"
+  resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.17.tgz#c0662ba1f765fb0148802e886640737741083028"
+  integrity sha512-MW30sYcJ1daSE2IUARwBKh3y+jky1Cz7KwGj6J/BfvOgFf4XpPgWzodwGUM635DH4LQED0BQhay3L4vewORLuw==
+
 web-ifc@0.0.19:
   version "0.0.19"
   resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.19.tgz#314ceb45e2971aba7bf68deef02eb38189b6b8a7"
