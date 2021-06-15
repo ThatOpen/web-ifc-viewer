@@ -18,6 +18,6 @@ export class IFCRaycaster {
   castRay(event: any, onHit: (event: any, item: THREE.Intersection) => any ) {
     this.raycaster.setFromCamera(this.mouse, this.camera);
     const result = this.raycaster.intersectObjects(this.ifcModels);
-    if(result.length > 0) onHit(event, result[0]);
+    if(result.length > 0) return onHit(event, result[0]);
   }
 }

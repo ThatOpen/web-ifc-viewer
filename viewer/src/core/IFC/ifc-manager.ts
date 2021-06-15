@@ -54,11 +54,26 @@ export class IfcManager {
     }
   }
 
+  getSpatialStructure(modelID: number, recursive = false) {
+    return this.loader.getSpatialStructure(modelID, recursive);
+  }
+
+  getProperties(modelID: number, id: number, indirect = false) {
+    const props = this.loader.getItemProperties(modelID, id);
+    if(indirect){
+      props.psets = this.loader.getPropertySets(modelID, id, true);
+      props.type = this.loader.getTypeProperties(modelID, id);
+    }
+    console.log(props);
+    return props;
+  }
+
   preselect(event: any) {
-    this.caster.castRay(event, this.preselection.select);
+    const { modelID, id } = this.caster.castRay(event, this.preselection.select);
   }
 
   select(event: any) {
-    this.caster.castRay(event, this.selection.selectProps);
+    const { modelID, id } = this.caster.castRay(event, this.selection.select);
+    return this.getProperties(modelID, id, true);
   }
 }

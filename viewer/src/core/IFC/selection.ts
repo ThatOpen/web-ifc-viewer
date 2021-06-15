@@ -26,22 +26,8 @@ export class IfcSelection {
     this.removePreviousSelection(mesh);
     this.modelID = mesh.modelID;
     this.newSelection(id);
-    return id;
-  }
-
-  selectProps = (event: any, item: THREE.Intersection) => {
-    const id = this.select(event, item);
-    if(id) return this.getProperties(id);
-    return null;
-  }
-  
-  getProperties(id: number){
-    const props = this.ifcLoader.getItemProperties(this.modelID, id);
-    props.psets = this.ifcLoader.getPropertySets(this.modelID, id, true);
-    props.type = this.ifcLoader.getTypeProperties(this.modelID, id);
-    console.log(props);
-    return props;
-  }
+    return { modelID: this.modelID, id };
+  };
 
   newSelection = (id: number) => {
     this.ifcLoader.createSubset({
@@ -51,7 +37,7 @@ export class IfcSelection {
       removePrevious: true,
       material: this.material
     });
-  }
+  };
 
   removePreviousSelection(mesh: IfcMesh) {
     if (this.modelID != undefined && this.modelID != mesh.modelID) {
