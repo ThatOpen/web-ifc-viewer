@@ -6,7 +6,9 @@
   "description": "A basic html example for web-ifc-viewer",
   "main": "index.html",
   "scripts": {
-    "build": "rollup -c",
+    "build": "npm run update-example && rollup -c && npm run copy-wasm",
+    "update-example": "yarn upgrade web-ifc-viewer",
+    "copy-wasm": "cpy ../../node_modules/web-ifc/web-ifc.wasm ./",
     "start": "serve"
   },
   "author": "",
@@ -18,6 +20,6 @@
     "serve": "^11.3.2"
   },
   "dependencies": {
-    "web-ifc-viewer": "1.0.1"
+    "web-ifc-viewer": "1.0.4"
   }
 }
