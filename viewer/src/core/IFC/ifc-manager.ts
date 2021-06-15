@@ -43,7 +43,7 @@ export class IfcManager {
 
   async loadIfc(file: File, scene: THREE.Scene) {
     const url = URL.createObjectURL(file);
-    this.loadIfcUrl(url, scene);
+    await this.loadIfcUrl(url, scene);
   }
 
   async loadIfcUrl(url: string, scene: THREE.Scene) {
