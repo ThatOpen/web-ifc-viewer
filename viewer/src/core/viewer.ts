@@ -38,23 +38,27 @@ export class Viewer {
 
         const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
         this.camera = camera;
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        container.appendChild(renderer.domElement);
-        this.renderer = renderer;
+        
+        if (container instanceof HTMLCanvasElement) {
+            const canvas = container as HTMLCanvasElement;
+            this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
+        } else {
+            this.renderer = new THREE.WebGLRenderer({antialias: true});
+            container.appendChild(this.renderer.domElement);  
+        }
 
         const clock = new THREE.Clock(true);
         this.clock = clock;
 
-        const controls = new OrbitControls(camera, renderer.domElement);
+        const controls = new OrbitControls(camera, this.renderer.domElement);
         this.controls = controls;
 
         //Scene
         scene.background = options?.backgroundColor || new THREE.Color(0xa9a9a9);
 
         //Renderer
-        renderer.setSize(width, height);
-        renderer.localClippingEnabled = true;
+        this.renderer.setSize(width, height);
+        this.renderer.localClippingEnabled = true;
 
         //Camera
         camera.position.z = 8;
@@ -80,10 +84,10 @@ export class Viewer {
         scene.add(ambientLight);
 
         //Mouse position
-        renderer.domElement.onmousemove = (event: MouseEvent) => {
-            const rect = renderer.domElement.getBoundingClientRect();
-            this.mouse.x = ((event.clientX - rect.left) / renderer.domElement.clientWidth) * 2 - 1;
-            this.mouse.y = -((event.clientY - rect.top) / renderer.domElement.clientHeight) * 2 + 1;
+        this.renderer.domElement.onmousemove = (event: MouseEvent) => {
+            const rect = this.renderer.domElement.getBoundingClientRect();
+            this.mouse.x = ((event.clientX - rect.left) / this.renderer.domElement.clientWidth) * 2 - 1;
+            this.mouse.y = -((event.clientY - rect.top) / this.renderer.domElement.clientHeight) * 2 + 1;
         };
 
         //Window resize support
@@ -92,7 +96,7 @@ export class Viewer {
             const height = container.clientHeight
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
-            renderer.setSize(width, height);
+            this.renderer.setSize(width, height);
         });
 
         this.render();
