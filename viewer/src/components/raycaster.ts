@@ -11,7 +11,7 @@ export class IFCRaycaster {
     this.canvas = renderer.domElement;
     this.ifcModels = ifcModels;
     this.raycaster = new THREE.Raycaster();
-    //@ts-ignore
+    // @ts-ignore
     this.raycaster.firstHitOnly = true;
   }
 
@@ -19,9 +19,9 @@ export class IFCRaycaster {
     const mouse = new THREE.Vector2();
     const canvasBounds = this.canvas.getBoundingClientRect();
     mouse.x = ((event.clientX - canvasBounds.left) / (canvasBounds.right - canvasBounds.left)) * 2 - 1;
-    mouse.y = -((event.clientY - canvasBounds.top) / (canvasBounds.bottom - canvasBounds.top)) * 2 + 1; 
+    mouse.y = -((event.clientY - canvasBounds.top) / (canvasBounds.bottom - canvasBounds.top)) * 2 + 1;
     this.raycaster.setFromCamera(mouse, this.camera);
     const result = this.raycaster.intersectObjects(this.ifcModels);
-    if(result.length > 0) return onHit(event, result[0]);
+    if (result.length > 0) return onHit(event, result[0]);
   }
 }

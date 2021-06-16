@@ -16,7 +16,7 @@ export class IfcManager {
     transparent: true,
     opacity: 0.5,
     depthTest: false,
-    side: THREE.DoubleSide
+    side: THREE.DoubleSide,
   });
 
   private selectMat = new THREE.MeshLambertMaterial({
@@ -24,17 +24,17 @@ export class IfcManager {
     transparent: true,
     opacity: 0.3,
     depthTest: false,
-    side: THREE.DoubleSide
+    side: THREE.DoubleSide,
   });
 
   constructor(
-    ifc_objects: THREE.Object3D[],
+    ifcObjects: THREE.Object3D[],
     scene: THREE.Scene,
     camera: THREE.PerspectiveCamera,
-    renderer: THREE.WebGLRenderer
+    renderer: THREE.WebGLRenderer,
   ) {
     this.loader = new IFCLoader();
-    this.models = ifc_objects;
+    this.models = ifcObjects;
     this.scene = scene;
     this.caster = new IFCRaycaster(this.models, camera, renderer);
     this.preselection = new IfcSelection(this.loader, this.scene, this.preselectMat);
@@ -67,7 +67,7 @@ export class IfcManager {
   }
 
   getProperties(modelID: number, id: number, indirect: boolean, recursive: boolean) {
-    if(modelID == null || id == null ) return null;
+    if (modelID == null || id == null) return null;
     const props = this.loader.getItemProperties(modelID, id);
     if (indirect) {
       props.psets = this.loader.getPropertySets(modelID, id, recursive);
@@ -83,7 +83,7 @@ export class IfcManager {
 
   select(event: any, indirect: boolean, recursive: boolean) {
     const result = this.caster.castRay(event, this.selection.select);
-    if(result == null || result.modelID == null || result.id == null) return null;
+    if (result == null || result.modelID == null || result.id == null) return null;
     return this.getProperties(result.modelID, result.id, indirect, recursive);
   }
 }
