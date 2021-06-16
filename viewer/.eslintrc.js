@@ -35,4 +35,10 @@ module.exports = {
       },
     },
   },
+  overrides: [{
+    files: ['*.spec.ts'],
+    env: {
+      jest: true,
+    },
+  }],
 };

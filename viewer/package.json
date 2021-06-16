@@ -5,7 +5,9 @@
   "main": "dist/index.js",
   "scripts": {
     "watch": "tsc -w",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "repository": {
     "type": "git",
@@ -31,14 +33,18 @@
     "web-ifc-three": "^0.0.25"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.23",
     "@types/node": "^14.14.31",
     "@types/three": "^0.127.1",
     "@typescript-eslint/eslint-plugin": "^4.27.0",
     "@typescript-eslint/parser": "^4.27.0",
+    "babel-jest": "^27.0.2",
     "cpy-cli": "^3.1.1",
     "eslint": "^7.28.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.23.4",
-    "typescript": "^4.2.4"
+    "jest": "^27.0.4",
+    "ts-jest": "^27.0.3",
+    "typescript": "^4.3.2"
   }
 }
