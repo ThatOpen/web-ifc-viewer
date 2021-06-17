@@ -27,11 +27,11 @@ export function stringToAxes(axesString: string) {
 
 export function getBasisTransform(from: string, to: string, targetMatrix: THREE.Matrix4) {
   if (!basesRegex.test(from)) {
-    return null;
+    return;
   }
 
   if (!basesRegex.test(to)) {
-    return null;
+    return;
   }
 
   const fromAxes = stringToAxes(from);

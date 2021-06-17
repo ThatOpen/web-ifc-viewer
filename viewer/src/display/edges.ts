@@ -1,75 +1,91 @@
-import * as THREE from 'three';
+import {
+  Material,
+  Mesh,
+  LineSegments,
+  LineBasicMaterial,
+  DoubleSide,
+  MeshBasicMaterial,
+  EdgesGeometry
+} from 'three';
 import { Component } from '../components';
 import { Viewer } from '../core';
 
-export const lineMaterial = new THREE.LineBasicMaterial({
-  color: 0x555555,
-});
-
-export const whiteMaterial = new THREE.MeshBasicMaterial({
-  color: 0xffffff, side: THREE.DoubleSide,
-});
-
-export const invisibleMaterial = new THREE.MeshBasicMaterial({
-  color: 0xffffff,
-  transparent: true,
-  opacity: 0,
-});
-
-// TODO: Merge all wireframes in single object
-// TODO: Create all wireframes on init async
-
-export interface EdgesIfcObject extends THREE.Mesh {
-    ifcMaterial: THREE.Material | THREE.Material[],
-    wireframe: THREE.LineSegments
+export interface EdgesIfcObject extends Mesh {
+  ifcMaterial: Material | Material[];
+  wireframe: LineSegments;
 }
 
 export class Edges extends Component {
-    active: boolean = false;
+  active: boolean = false;
+  private lineMaterial: Material;
+  private whiteMaterial: Material;
+  private invisibleMaterial: Material;
 
-    constructor(viewer: Viewer) {
-      super(viewer);
-    }
+  constructor(viewer: Viewer) {
+    super(viewer);
 
-    activateEdgeDisplay = () => {
-      this.active = true;
-      this.viewer.ifcObjects.forEach((object) => {
-        object.traverse((item) => {
-          if (item.type === 'Mesh') {
-            const mesh = item as EdgesIfcObject;
+    this.lineMaterial = new LineBasicMaterial({
+      color: 0x555555
+    });
 
-            if (!mesh.ifcMaterial) { mesh.ifcMaterial = mesh.material; }
+    this.whiteMaterial = new MeshBasicMaterial({
+      color: 0xffffff,
+      side: DoubleSide
+    });
 
-            mesh.wireframe ? (mesh.wireframe.visible = true) : (mesh.wireframe = this.getEdges(mesh));
-            mesh.add(mesh.wireframe);
+    this.invisibleMaterial = new MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0
+    });
+  }
 
-            // @ts-ignore
-            if (!mesh.isSelected) {
-              // @ts-ignore
-              mesh.material = mesh.material.transparent ? invisibleMaterial : whiteMaterial;
-            }
+  activateEdgeDisplay = () => {
+    this.active = true;
+    this.viewer.ifcObjects.forEach((object) => {
+      object.traverse((item) => {
+        if (item.type === 'Mesh') {
+          const mesh = item as EdgesIfcObject;
+
+          if (!mesh.ifcMaterial) {
+            mesh.ifcMaterial = mesh.material;
           }
-        });
-      });
-    };
 
-    deactivateEdgeDisplay = () => {
-      this.active = false;
-      this.viewer.ifcObjects.forEach((object) => {
-        object.traverse((item) => {
-          if (item.type === 'Mesh') {
-            const mesh = item as EdgesIfcObject;
+          if (mesh.wireframe) mesh.wireframe.visible = true;
+          else mesh.wireframe = this.getEdges(mesh);
+          mesh.add(mesh.wireframe);
+
+          // @ts-ignore
+          if (!mesh.isSelected) {
             // @ts-ignore
-            if (mesh.wireframe) { mesh.wireframe.visible = false; }
-            // @ts-ignore
-            if (!mesh.isSelected) { mesh.material = mesh.ifcMaterial; }
+            mesh.material = mesh.material.transparent ? this.invisibleMaterial : this.whiteMaterial;
           }
-        });
+        }
       });
-    }
+    });
+  };
 
-    getEdges = (item: THREE.Mesh) => {
-      const geometry = new THREE.EdgesGeometry(item.geometry);
-      return new THREE.LineSegments(geometry, lineMaterial);
-    }
+  deactivateEdgeDisplay = () => {
+    this.active = false;
+    this.viewer.ifcObjects.forEach((object) => {
+      object.traverse((item) => {
+        if (item.type === 'Mesh') {
+          const mesh = item as EdgesIfcObject;
+          // @ts-ignore
+          if (mesh.wireframe) {
+            mesh.wireframe.visible = false;
+          }
+          // @ts-ignore
+          if (!mesh.isSelected) {
+            mesh.material = mesh.ifcMaterial;
+          }
+        }
+      });
+    });
+  };
+
+  getEdges = (item: Mesh) => {
+    const geometry = new EdgesGeometry(item.geometry);
+    return new LineSegments(geometry, this.lineMaterial);
+  };
 }

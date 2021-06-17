@@ -18,11 +18,11 @@ export class IfcSelection {
   }
 
   select = (event: any, item: THREE.Intersection) => {
-    if (this.selected == item.faceIndex || item.faceIndex == null) return;
+    if (this.selected === item.faceIndex || item.faceIndex == null) return null;
     this.selected = item.faceIndex;
     const mesh = item.object as IfcMesh;
     const id = this.ifcLoader.getExpressId(mesh.geometry, item.faceIndex);
-    if (id == undefined) return null;
+    if (id === undefined) return null;
     this.removePreviousSelection(mesh);
     this.modelID = mesh.modelID;
     this.newSelection(id);
@@ -35,12 +35,12 @@ export class IfcSelection {
       modelID: this.modelID,
       ids: [id],
       removePrevious: true,
-      material: this.material,
+      material: this.material
     });
   };
 
   removePreviousSelection(mesh: IfcMesh) {
-    if (this.modelID != undefined && this.modelID != mesh.modelID) {
+    if (this.modelID !== undefined && this.modelID !== mesh.modelID) {
       this.ifcLoader.removeSubset(this.modelID, this.scene, this.material);
     }
   }
