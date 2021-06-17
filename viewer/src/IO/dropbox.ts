@@ -1,6 +1,8 @@
 import { Component } from '../components';
 import { Viewer } from '../core';
 
+declare const Dropbox: any;
+
 type dbChooserResponse = {
   id: string;
   name: string;
@@ -12,13 +14,14 @@ type dbChooserResponse = {
 };
 
 export class DropboxAPI extends Component {
+  private cancelMessage = 'The Dropbox communication was cancelled.';
+
   constructor(viewer: Viewer) {
     super(viewer);
     this.initializeAPI();
   }
 
   loadDropboxIfc() {
-    // @ts-ignore
     Dropbox.choose(this.chooserOptions);
   }
 
@@ -28,7 +31,7 @@ export class DropboxAPI extends Component {
     const ifcBlob = new Blob([result], { type: 'text/plain' });
     const ifcFile = new File([ifcBlob], 'ifcFile');
     this.viewer.loadIfc(ifcFile);
-  }
+  };
 
   private chooserOptions: object = {
     success: this.onDBChooserSuccess,
@@ -36,11 +39,11 @@ export class DropboxAPI extends Component {
     linkType: 'direct',
     multiselect: false,
     extensions: ['.ifc'],
-    folderselect: false,
+    folderselect: false
   };
 
-  private onDBChooserCancel(files: dbChooserResponse[]) {
-    console.log('Canceled!');
+  private onDBChooserCancel(response: dbChooserResponse[]) {
+    console.log(this.cancelMessage, ' - ', response);
   }
 
   private initializeAPI() {
