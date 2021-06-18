@@ -24,7 +24,9 @@ module.exports = {
     'no-console': 'off',
     'no-param-reassign': 'off',
     'eol-last': 'off',
-    'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    'no-unused-vars': ['error', {
+      argsIgnorePattern: '^_'
+    }],
     'class-methods-use-this': 'off',
     'import/extensions': [
       'error',
@@ -40,8 +42,14 @@ module.exports = {
   settings: {
     'import/resolver': {
       node: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx', '.d.ts']
-      }
-    }
-  }
+        extensions: ['.js', '.jsx', '.ts', '.tsx', '.d.ts'],
+      },
+    },
+  },
+  overrides: [{
+    files: ['*.spec.ts'],
+    env: {
+      jest: true,
+    },
+  }],
 };
