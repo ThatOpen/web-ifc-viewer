@@ -1,27 +1,29 @@
-import { IFCLoader } from 'web-ifc-three/IFCLoader';
+import { Intersection, Material, Scene } from 'three';
 import { IfcMesh } from 'web-ifc-three/IFC/BaseDefinitions';
-import * as THREE from 'three';
+import { IFCLoader } from 'web-ifc-three/IFCLoader';
+import { Component } from '../../base-types';
 
-export class IfcSelection {
-  private ifcLoader: IFCLoader;
+export class IfcSelection extends Component {
   private selected: number;
   private modelID: number;
-  private material: THREE.Material | undefined;
-  private scene: THREE.Scene;
+  private material: Material | undefined;
+  private loader: IFCLoader;
+  private scene: Scene;
 
-  constructor(ifcLoader: IFCLoader, scene: THREE.Scene, material?: THREE.Material) {
-    this.ifcLoader = ifcLoader;
+  constructor(scene: Scene, loader: IFCLoader, material: Material | undefined) {
+    super();
+    this.scene = scene;
+    this.loader = loader;
+    this.material = material;
     this.selected = -1;
     this.modelID = -1;
-    this.scene = scene;
-    this.material = material;
   }
 
-  select = (event: any, item: THREE.Intersection) => {
+  select = (item: Intersection) => {
     if (this.selected === item.faceIndex || item.faceIndex == null) return null;
     this.selected = item.faceIndex;
     const mesh = item.object as IfcMesh;
-    const id = this.ifcLoader.getExpressId(mesh.geometry, item.faceIndex);
+    const id = this.loader.getExpressId(mesh.geometry, item.faceIndex);
     if (id === undefined) return null;
     this.removePreviousSelection(mesh);
     this.modelID = mesh.modelID;
@@ -30,7 +32,7 @@ export class IfcSelection {
   };
 
   newSelection = (id: number) => {
-    this.ifcLoader.createSubset({
+    this.loader.createSubset({
       scene: this.scene,
       modelID: this.modelID,
       ids: [id],
@@ -41,7 +43,7 @@ export class IfcSelection {
 
   removePreviousSelection(mesh: IfcMesh) {
     if (this.modelID !== undefined && this.modelID !== mesh.modelID) {
-      this.ifcLoader.removeSubset(this.modelID, this.scene, this.material);
+      this.loader.removeSubset(this.modelID, this.scene, this.material);
     }
   }
 }

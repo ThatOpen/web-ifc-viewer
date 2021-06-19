@@ -7,8 +7,7 @@ import {
   MeshBasicMaterial,
   EdgesGeometry
 } from 'three';
-import { Component } from '../components';
-import { Viewer } from '../core';
+import { Component, Items } from '../../base-types';
 
 export interface EdgesIfcObject extends Mesh {
   ifcMaterial: Material | Material[];
@@ -16,13 +15,15 @@ export interface EdgesIfcObject extends Mesh {
 }
 
 export class Edges extends Component {
+  items: Items;
   active: boolean = false;
   private lineMaterial: Material;
   private whiteMaterial: Material;
   private invisibleMaterial: Material;
 
-  constructor(viewer: Viewer) {
-    super(viewer);
+  constructor(items: Items) {
+    super();
+    this.items = items;
 
     this.lineMaterial = new LineBasicMaterial({
       color: 0x555555
@@ -42,7 +43,7 @@ export class Edges extends Component {
 
   activateEdgeDisplay = () => {
     this.active = true;
-    this.viewer.ifcObjects.forEach((object) => {
+    this.items.ifcModels.forEach((object) => {
       object.traverse((item) => {
         if (item.type === 'Mesh') {
           const mesh = item as EdgesIfcObject;
@@ -67,7 +68,7 @@ export class Edges extends Component {
 
   deactivateEdgeDisplay = () => {
     this.active = false;
-    this.viewer.ifcObjects.forEach((object) => {
+    this.items.ifcModels.forEach((object) => {
       object.traverse((item) => {
         if (item.type === 'Mesh') {
           const mesh = item as EdgesIfcObject;
