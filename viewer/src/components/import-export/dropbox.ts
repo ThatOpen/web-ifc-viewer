@@ -1,4 +1,4 @@
-import { Component } from '../../base-types';
+import { IfcComponent, Context } from '../../base-types';
 import { IfcManager } from '../ifc';
 
 type dbChooserResponse = {
@@ -13,13 +13,13 @@ type dbChooserResponse = {
 
 declare const Dropbox: any;
 
-export class DropboxAPI extends Component {
+export class DropboxAPI extends IfcComponent {
   private tid?: any;
   private counter: number;
   private loader: IfcManager;
 
-  constructor(loader: IfcManager) {
-    super();
+  constructor(context: Context, loader: IfcManager) {
+    super(context);
     this.loader = loader;
     this.counter = 0;
     this.initializeAPI();

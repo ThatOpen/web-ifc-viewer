@@ -8,10 +8,9 @@ import {
   Mesh
 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
-import { Component } from '../../../base-types';
-import { IfcViewerAPI } from '../../../ifc-viewer-api';
+import { IfcComponent, Context } from '../../../base-types';
 
-export class IfcPlane extends Component {
+export class IfcPlane extends IfcComponent {
   plane: Plane;
   planeMesh: Mesh;
   visible: boolean;
@@ -19,16 +18,16 @@ export class IfcPlane extends Component {
   private origin: Vector3;
   private helper: Object3D;
   private controls: TransformControls;
-  private api: IfcViewerAPI;
+  private context: Context;
   constructor(
-    api: IfcViewerAPI,
+    context: Context,
     origin: Vector3,
     normal: Vector3,
     onStartDragging: Function,
     onEndDragging: Function
   ) {
-    super();
-    this.api = api;
+    super(context);
+    this.context = context;
     this.plane = new Plane();
     this.planeMesh = this.getPlaneMesh();
     this.visible = true;
@@ -47,16 +46,18 @@ export class IfcPlane extends Component {
   }
 
   removeFromScene = () => {
-    this.api.ifcScene.remove(this.helper);
-    this.api.ifcScene.remove(this.controls);
+    const scene = this.context.getScene();
+    scene.remove(this.helper);
+    scene.remove(this.controls);
   };
 
   private newTransformControls() {
-    const camera = this.api.ifcCamera.camera;
-    const container = this.api.ifcRenderer.renderer.domElement;
+    const camera = this.context.getCamera();
+    const container = this.context.getDomElement();
     const controls = new TransformControls(camera, container);
     this.initializeControls(controls);
-    this.api.ifcScene.add(controls);
+    const scene = this.context.getScene();
+    scene.add(controls);
     return controls;
   }
 
@@ -73,7 +74,7 @@ export class IfcPlane extends Component {
     });
     this.controls.addEventListener('dragging-changed', (event) => {
       this.visible = !event.value;
-      this.api.ifcCamera.toggleControls(this.visible);
+      this.context.toggleCameraControls(this.visible);
       if (event.value) onStart();
       else onEnd();
     });
@@ -83,7 +84,8 @@ export class IfcPlane extends Component {
     const helper = new Object3D();
     helper.lookAt(this.normal);
     helper.position.copy(this.origin);
-    this.api.ifcScene.add(helper);
+    const scene = this.context.getScene();
+    scene.add(helper);
     helper.add(this.planeMesh);
     return helper;
   }

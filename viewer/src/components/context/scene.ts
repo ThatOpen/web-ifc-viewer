@@ -1,13 +1,13 @@
 import { AmbientLight, Color, DirectionalLight, Object3D, Scene } from 'three';
-import { Component, ViewerOptions } from '../../base-types';
+import { IfcComponent, ViewerOptions, Context } from '../../base-types';
 
-export class IfcScene extends Component {
+export class IfcScene extends IfcComponent {
   scene: Scene;
 
-  constructor(options?: ViewerOptions) {
-    super();
+  constructor(context: Context) {
+    super(context);
     this.scene = new Scene();
-    this.setupScene(options);
+    this.setupScene(context.options);
     this.setupLights();
   }
 

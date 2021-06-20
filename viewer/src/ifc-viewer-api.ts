@@ -1,75 +1,46 @@
-import { Clock, Color } from 'three';
+import { Color } from 'three';
+import { IfcContext } from './components/context';
 import {
-  Component,
-  IfcCamera,
   IfcManager,
-  IfcRaycaster,
-  IfcRenderer,
-  IfcScene,
-  Items,
   ViewerOptions,
   IfcGrid,
   IfcAxes,
   IfcClipper,
-  DropboxAPI,
-  Edges
+  DropboxAPI
 } from './components/index';
 
 export class IfcViewerAPI {
-  items: Items;
-  ifcScene: IfcScene;
-  ifcRenderer: IfcRenderer;
-  container: HTMLElement;
-  ifcCamera: IfcCamera;
-  ifcCaster: IfcRaycaster;
-  ifcManager: IfcManager;
-  clock: Clock;
+  private readonly context: IfcContext;
+  private readonly ifcManager: IfcManager;
+  clipper: IfcClipper;
   grid?: IfcGrid;
   axes?: IfcAxes;
-  clipper?: IfcClipper;
   dropbox?: DropboxAPI;
-  edges?: Edges;
 
   constructor(options: ViewerOptions) {
     if (!options.container) throw new Error('Could not get container element!');
-    this.container = options.container;
-    this.items = this.newItems();
-    this.ifcScene = new IfcScene(options);
-    this.ifcRenderer = new IfcRenderer(options);
-    this.ifcCamera = new IfcCamera(this.container, this.items, this.ifcRenderer.renderer);
-    this.ifcCaster = new IfcRaycaster(this.items, this.ifcCamera.camera, this.ifcRenderer.renderer);
-    this.ifcManager = new IfcManager(this.items, this.ifcScene.scene, this.ifcCaster, options);
-    this.clock = new Clock(true);
-    this.setupWindowRescale();
-    this.render();
+    this.context = new IfcContext(options);
+    this.ifcManager = new IfcManager(this.context);
+    this.clipper = new IfcClipper(this.context);
   }
 
-  addComponent = (component: Component) => {
-    this.items.components.push(component);
-  };
-
   addGrid(size?: number, divisions?: number, colorCenterLine?: Color, colorGrid?: Color) {
-    const scene = this.ifcScene.scene;
-    this.grid = new IfcGrid(scene, size, divisions, colorCenterLine, colorGrid);
+    this.grid = new IfcGrid(this.context, size, divisions, colorCenterLine, colorGrid);
   }
 
   addAxes(size?: number) {
-    const scene = this.ifcScene.scene;
-    this.axes = new IfcAxes(scene, size);
+    this.axes = new IfcAxes(this.context, size);
   }
 
   addClippingPlane = () => {
-    if (!this.clipper) this.clipper = new IfcClipper(this);
     this.clipper.createPlane();
   };
 
   removeClippingPlane = () => {
-    if (!this.clipper) this.clipper = new IfcClipper(this);
     this.clipper.deletePlane();
   };
 
   toggleClippingPlanes = () => {
-    if (!this.clipper) this.clipper = new IfcClipper(this);
     this.clipper.active = !this.clipper.active;
   };
 
@@ -102,32 +73,7 @@ export class IfcViewerAPI {
   };
 
   openDropboxWindow() {
-    if (!this.dropbox) this.dropbox = new DropboxAPI(this.ifcManager);
+    if (!this.dropbox) this.dropbox = new DropboxAPI(this.context, this.ifcManager);
     this.dropbox?.loadDropboxIfc();
-  }
-
-  private render = () => {
-    requestAnimationFrame(this.render);
-    this.updateAllComponents();
-    this.ifcRenderer.renderer.render(this.ifcScene.scene, this.ifcCamera.camera);
-  };
-
-  private updateAllComponents() {
-    const delta = this.clock.getDelta();
-    this.items.components.forEach((component) => component.update(delta));
-  }
-
-  private setupWindowRescale() {
-    window.addEventListener('resize', () => {
-      this.ifcCamera.updateAspect();
-      this.ifcRenderer.adjustRendererSize();
-    });
-  }
-
-  private newItems(): Items {
-    return {
-      components: [],
-      ifcModels: []
-    };
   }
 }

@@ -1,42 +1,36 @@
-import { PerspectiveCamera, Renderer, Vector2, Vector3 } from 'three';
+import { PerspectiveCamera, Vector3 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { Component, Items } from '../../base-types';
+import { IfcComponent, Context } from '../../base-types';
 
-export class IfcCamera extends Component {
+export class IfcCamera extends IfcComponent {
   readonly camera: PerspectiveCamera;
   private readonly controls: OrbitControls;
-  private readonly renderer: Renderer;
-  private readonly container: HTMLElement;
+  private readonly context: Context;
 
-  constructor(container: HTMLElement, items: Items, renderer: Renderer) {
-    super();
-    this.renderer = renderer;
-    this.container = container;
+  constructor(context: Context) {
+    super(context);
+    this.context = context;
 
-    const dims = this.getDimensions();
+    const dims = this.context.getDimensions();
     this.camera = new PerspectiveCamera(45, dims.x / dims.y, 0.1, 1000);
     this.setupCamera();
 
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls = new OrbitControls(this.camera, context.getDomElement());
     this.setupControls();
-    items.components.push(this);
   }
 
-  update() {
+  update(_delta: number) {
     this.controls.update();
   }
 
   updateAspect() {
-    this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
+    const dims = this.context.getDimensions();
+    this.camera.aspect = dims.x / dims.y;
     this.camera.updateProjectionMatrix();
   }
 
   toggleControls(active: boolean) {
     this.controls.enabled = active;
-  }
-
-  private getDimensions() {
-    return new Vector2(this.renderer.domElement.clientWidth, this.renderer.domElement.clientHeight);
   }
 
   private setupCamera() {

@@ -1,14 +1,11 @@
-import { DoubleSide, Material, MeshLambertMaterial, Scene } from 'three';
+import { DoubleSide, Material, MeshLambertMaterial } from 'three';
 import { IFCLoader } from 'web-ifc-three/IFCLoader';
-import { Component, Items, ViewerOptions } from '../../base-types';
-import { IfcRaycaster } from '../scene/raycaster';
+import { IfcComponent, Context } from '../../base-types';
 import { IfcSelection } from './selection';
 
-export class IfcManager extends Component {
+export class IfcManager extends IfcComponent {
   loader: IFCLoader;
-  private scene: Scene;
-  private items: Items;
-  private caster: IfcRaycaster;
+  private context: Context;
   private preselection: IfcSelection;
   private selection: IfcSelection;
   private selectMat: Material | undefined;
@@ -16,18 +13,16 @@ export class IfcManager extends Component {
   private defPreselectMat: Material;
   private defSelectMat: Material;
 
-  constructor(items: Items, scene: Scene, raycaster: IfcRaycaster, options: ViewerOptions) {
-    super();
-    this.scene = scene;
-    this.items = items;
-    this.caster = raycaster;
+  constructor(context: Context) {
+    super(context);
+    this.context = context;
     this.loader = new IFCLoader();
     this.defSelectMat = this.initializeDefMaterial(0xff33ff, 0.3);
     this.defPreselectMat = this.initializeDefMaterial(0xffccff, 0.5);
-    this.selectMat = options.selectMaterial || this.defSelectMat;
-    this.preselectMat = options.preselectMaterial || this.defPreselectMat;
-    this.preselection = new IfcSelection(scene, this.loader, this.preselectMat);
-    this.selection = new IfcSelection(scene, this.loader, this.selectMat);
+    this.selectMat = context.options.selectMaterial || this.defSelectMat;
+    this.preselectMat = context.options.preselectMaterial || this.defPreselectMat;
+    this.preselection = new IfcSelection(context, this.loader, this.preselectMat);
+    this.selection = new IfcSelection(context, this.loader, this.selectMat);
   }
 
   async loadIfc(file: File) {
@@ -38,8 +33,8 @@ export class IfcManager extends Component {
   async loadIfcUrl(url: string) {
     try {
       const object = await this.loader.loadAsync(url);
-      this.items.ifcModels.push(object);
-      this.scene.add(object);
+      this.context.items.ifcModels.push(object);
+      this.context.getScene().add(object);
     } catch (err) {
       console.error('Error loading IFC.');
       console.error(err);
@@ -66,13 +61,13 @@ export class IfcManager extends Component {
   }
 
   prePickIfcItem() {
-    const found = this.caster.castRayIfc();
+    const found = this.context.castRayIfc();
     if (!found) return;
     this.preselection.select(found);
   }
 
   pickIfcItem(indirect: boolean, recursive: boolean) {
-    const found = this.caster.castRayIfc();
+    const found = this.context.castRayIfc();
     if (!found) return null;
     const result = this.selection.select(found);
     if (result == null || result.modelID == null || result.id == null) return null;

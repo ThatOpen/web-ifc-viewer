@@ -1,20 +1,21 @@
-import { Color, GridHelper, Material, Scene } from 'three';
-import { Component } from '../../base-types';
+import { Color, GridHelper, Material } from 'three';
+import { IfcComponent, Context } from '../../base-types';
 
-export class IfcGrid extends Component {
+export class IfcGrid extends IfcComponent {
   grid: GridHelper;
 
   constructor(
-    scene: Scene,
+    context: Context,
     size?: number,
     divisions?: number,
     colorCenterLine?: Color,
     colorGrid?: Color
   ) {
-    super();
+    super(context);
     this.grid = new GridHelper(size, divisions, colorCenterLine, colorGrid);
     (this.grid.material as Material).depthTest = false;
     this.grid.renderOrder = 0;
+    const scene = context.getScene();
     scene.add(this.grid);
   }
 }
