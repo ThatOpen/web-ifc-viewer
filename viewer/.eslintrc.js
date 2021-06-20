@@ -10,7 +10,7 @@ module.exports = {
     sourceType: 'module'
   },
   plugins: ['@typescript-eslint', 'prettier'],
-  ignorePatterns: ['**/dist/*', '**/node_modules/*'],
+  ignorePatterns: ['**/dist/*', '**/node_modules/*', '**/*.json'],
   rules: {
     'prettier/prettier': [
       'error',
@@ -19,14 +19,15 @@ module.exports = {
       }
     ],
     indent: 'off',
+    'no-shadow': 'off',
     'lines-between-class-members': 'off',
     'linebreak-style': 'off',
+    'arrow-body-style': 'off',
+    'prefer-destructuring': 'off',
     'no-console': 'off',
     'no-param-reassign': 'off',
     'eol-last': 'off',
-    'no-unused-vars': ['error', {
-      argsIgnorePattern: '^_'
-    }],
+    'no-unused-vars': 'off',
     'class-methods-use-this': 'off',
     'import/extensions': [
       'error',
@@ -42,14 +43,16 @@ module.exports = {
   settings: {
     'import/resolver': {
       node: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx', '.d.ts'],
-      },
-    },
+        extensions: ['.js', '.jsx', '.ts', '.tsx', '.d.ts']
+      }
+    }
   },
-  overrides: [{
-    files: ['*.spec.ts'],
-    env: {
-      jest: true,
-    },
-  }],
+  overrides: [
+    {
+      files: ['*.spec.ts'],
+      env: {
+        jest: true
+      }
+    }
+  ]
 };

@@ -1,15 +1,12 @@
-import { Axes, ClippingComponent, DropboxAPI, Edges, Grid, Viewer } from 'web-ifc-viewer';
+import {IfcViewerAPI } from 'web-ifc-viewer';
 import { createSideMenuButton } from './utils/gui-creator';
 
 const container = document.getElementById("viewer-container");
-const viewer = new Viewer(container);
+const viewer = new IfcViewerAPI({container});
+viewer.addAxes();
+viewer.addGrid();
 viewer.setWasmPath("wasm/");
-const grid = new Grid(viewer, 100, 100);
-const axes = new Axes(viewer);
-const clippingComponent = new ClippingComponent(viewer);
-const dropBoxAPI = new DropboxAPI(viewer);
-
-const edges = new Edges(viewer);
+// const edges = new Edges(viewer);
 
 //Setup loader
 const loadIfc = async (event) => {
@@ -22,8 +19,13 @@ inputElement.classList.add('hidden');
 inputElement.addEventListener('change', loadIfc, false);
 document.body.appendChild(inputElement);
 
-window.onmousemove = viewer.preselect;
-window.ondblclick = viewer.select;
+const handleKeyDown = (event) => {
+    viewer.removeClippingPlane();
+};
+
+window.onmousemove = viewer.preselectIfcItem;
+window.onkeydown = handleKeyDown;
+window.ondblclick = viewer.addClippingPlane;
 
 //Setup UI
 const loadButton = createSideMenuButton('./resources/folder-icon.svg');
@@ -35,17 +37,17 @@ const loadButton = createSideMenuButton('./resources/folder-icon.svg');
 const sectionButton = createSideMenuButton('./resources/section-plane-down.svg');
 sectionButton.addEventListener('click', () => {
     sectionButton.blur();
-    clippingComponent.active = !clippingComponent.active;
+    viewer.toggleClippingPlanes();
 });
 
-const edgesButton = createSideMenuButton('./resources/wireframe-cube.svg');
-edgesButton.addEventListener('click', () => {
-    edgesButton.blur();
-    edges.active ? edges.deactivateEdgeDisplay() : edges.activateEdgeDisplay();
-});
+// const edgesButton = createSideMenuButton('./resources/wireframe-cube.svg');
+// edgesButton.addEventListener('click', () => {
+//     edgesButton.blur();
+//     edges.active ? edges.deactivateEdgeDisplay() : edges.activateEdgeDisplay();
+// });
 
 const dropBoxButton = createSideMenuButton('./resources/dropbox-icon.svg');
 dropBoxButton.addEventListener('click', () => {
     dropBoxButton.blur();
-    dropBoxAPI.loadDropboxIfc();
+    viewer.openDropboxWindow();
 });
