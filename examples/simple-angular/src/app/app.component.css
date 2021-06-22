@@ -1,0 +1,9 @@
+.navbar-button {
+  position: absolute;
+  margin: 1rem;
+}
+
+#viewer-container {
+  width: 100vw;
+  height: 100vh;
+}

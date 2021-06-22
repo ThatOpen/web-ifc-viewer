@@ -1,2 +1,13 @@
-<aside class="side-menu" id="side-menu-left"></aside>
-<div id="viewer-container" style="width: 100vw; height: 100vh"></div>
+<mat-sidenav-container class="example-container">
+    <mat-sidenav #sidenav opened="false" mode="side" opened>
+        <app-toolbar
+            (onOpenIfc)="loadIfc($event)"
+        ></app-toolbar>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <button mat-fab color="accent" (click)="sidenav.toggle()" class="navbar-button">
+            <mat-icon>menu</mat-icon>
+        </button>
+        <div id="viewer-container"></div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>

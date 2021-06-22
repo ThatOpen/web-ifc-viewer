@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { MatSidenav } from '@angular/material/sidenav';
 import { IfcViewerAPI } from 'web-ifc-viewer';
 
 @Component({
@@ -9,8 +10,11 @@ import { IfcViewerAPI } from 'web-ifc-viewer';
 export class AppComponent implements OnInit {
   title = 'ifcjs-angular-example';
   viewer?: IfcViewerAPI;
+  @ViewChild('sidenav', {static: true}) serverContentInput?: MatSidenav;
 
   ngOnInit(){
+
+    if(this.serverContentInput) this.serverContentInput.close();
     
     const container = document.getElementById("viewer-container")!;
     this.viewer = new IfcViewerAPI({container});
@@ -19,8 +23,8 @@ export class AppComponent implements OnInit {
     this.viewer.addGrid();
     this.viewer.setWasmPath("assets/");
 
-    const url = "https://raw.githubusercontent.com/IFCjs/test-ifc-files/main/Revit/TESTED_Simple_project_01.ifc";
-    this.viewer.loadIfcUrl(url);
+    // const url = "https://raw.githubusercontent.com/IFCjs/test-ifc-files/main/Revit/TESTED_Simple_project_01.ifc";
+    // this.viewer.loadIfcUrl(url);
     
     //Setup loader
     // const loadIfc = async (event) => {
@@ -59,5 +63,9 @@ export class AppComponent implements OnInit {
     //     dropBoxButton.blur();
     //     viewer.openDropboxWindow();
     // });
+  }
+
+  loadIfc(file: File){
+    this.viewer?.loadIfc(file);
   }
 }
