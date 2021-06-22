@@ -1,0 +1,21 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+html, body {
+    overflow: hidden;
+}
+
+.side-menu {
+    z-index: 1;
+    position: fixed;
+    background-color: #36393F;
+    height:100vh;
+}
+
+#side-menu-left {
+    width: 40px;
+}
