@@ -15,6 +15,7 @@ export interface ViewerOptions {
   preselectMaterial?: Material;
   selectMaterial?: Material;
   backgroundColor?: Color;
+  panWithMMB?: boolean;
 }
 
 interface Component {

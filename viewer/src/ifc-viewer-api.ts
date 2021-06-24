@@ -6,13 +6,15 @@ import {
   IfcGrid,
   IfcAxes,
   IfcClipper,
-  DropboxAPI
+  DropboxAPI,
+  IfcStats
 } from './components/index';
 
 export class IfcViewerAPI {
   private readonly context: IfcContext;
   private readonly ifcManager: IfcManager;
   clipper: IfcClipper;
+  stats: IfcStats;
   grid?: IfcGrid;
   axes?: IfcAxes;
   dropbox?: DropboxAPI;
@@ -22,6 +24,7 @@ export class IfcViewerAPI {
     this.context = new IfcContext(options);
     this.ifcManager = new IfcManager(this.context);
     this.clipper = new IfcClipper(this.context);
+    this.stats = new IfcStats(this.context);
   }
 
   addGrid(size?: number, divisions?: number, colorCenterLine?: Color, colorGrid?: Color) {
@@ -30,6 +33,18 @@ export class IfcViewerAPI {
 
   addAxes(size?: number) {
     this.axes = new IfcAxes(this.context, size);
+  }
+
+  addStats(css = '') {
+    this.stats.addStats(css);
+  }
+
+  getModelID() {
+    return this.ifcManager.getModelId();
+  }
+
+  getProperties(modelID: number, id: number, indirect = false, recursive = false) {
+    return this.ifcManager.getProperties(modelID, id, indirect, recursive);
   }
 
   addClippingPlane = () => {
@@ -68,8 +83,8 @@ export class IfcViewerAPI {
     this.ifcManager.prePickIfcItem();
   };
 
-  getSpatialStructure = (modelID: number) => {
-    return this.ifcManager.getSpatialStructure(modelID);
+  getSpatialStructure = (modelID: number, recursive = false) => {
+    return this.ifcManager.getSpatialStructure(modelID, recursive);
   };
 
   openDropboxWindow() {

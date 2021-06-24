@@ -41,8 +41,8 @@ export class IfcSelection extends IfcComponent {
     });
   };
 
-  removePreviousSelection(mesh: IfcMesh) {
-    if (this.modelID !== undefined && this.modelID !== mesh.modelID) {
+  removePreviousSelection(mesh?: IfcMesh) {
+    if (this.modelID !== undefined && this.modelID !== mesh?.modelID) {
       this.loader.removeSubset(this.modelID, this.scene, this.material);
     }
   }

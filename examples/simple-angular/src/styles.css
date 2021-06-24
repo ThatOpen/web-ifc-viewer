@@ -1,0 +1,16 @@
+@import "https://fonts.googleapis.com/icon?family=Material+Icons";
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+html, body {
+    overflow: hidden;
+}
+
+.hidden {
+    visibility: collapse;
+}
