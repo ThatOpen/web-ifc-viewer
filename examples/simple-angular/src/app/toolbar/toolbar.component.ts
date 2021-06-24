@@ -6,11 +6,14 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
   styleUrls: ['./toolbar.component.css']
 })
 export class ToolbarComponent implements OnInit {
+  clippingActive: boolean;
   @Output('onOpenIfc') onOpenIfc = new EventEmitter();
+  @Output('onActivateClipping') onActivateClipping = new EventEmitter();
 
   private fileOpener: HTMLInputElement;
 
   constructor() {
+    this.clippingActive = false;
     this.fileOpener = this.newFileOpener();
   }
 
@@ -20,8 +23,14 @@ export class ToolbarComponent implements OnInit {
     this.fileOpener.click();
   }
 
-  loadIfc = async (event: any) => {
+  activateClipping(){
+    this.clippingActive = !this.clippingActive;
+    this.onActivateClipping.emit();
+  }
+
+  private loadIfc = async (event: any) => {
     const file = event.target.files[0];
+    if(!file) return;
     this.onOpenIfc.emit(file);
   };
 

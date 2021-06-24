@@ -1,4 +1,5 @@
 import { DoubleSide, Material, MeshLambertMaterial } from 'three';
+import { IfcMesh } from 'web-ifc-three/IFC/BaseDefinitions';
 import { IFCLoader } from 'web-ifc-three/IFCLoader';
 import { IfcComponent, Context } from '../../base-types';
 import { IfcSelection } from './selection';
@@ -60,9 +61,20 @@ export class IfcManager extends IfcComponent {
     return props;
   }
 
+  getModelId() {
+    const found = this.context.castRayIfc();
+    if (!found) return null;
+    const mesh = found.object as IfcMesh;
+    if (!mesh || typeof mesh.modelID !== 'number') return null;
+    return mesh.modelID;
+  }
+
   prePickIfcItem() {
     const found = this.context.castRayIfc();
-    if (!found) return;
+    if (!found) {
+      this.preselection.removePreviousSelection();
+      return;
+    }
     this.preselection.select(found);
   }
 

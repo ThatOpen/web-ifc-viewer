@@ -1,0 +1,23 @@
+.tree-menu{
+    min-width: 20rem;
+    position: absolute;
+    padding: 0;
+    right: 0rem;
+    height: 100vh;
+    overflow: auto;
+}
+
+.tree-section{
+    min-width: 20rem;
+    margin: 0;
+    right: 0rem;
+    margin-left: 1rem;
+    padding-right: 0;
+}
+
+.header-align-right{
+    display: flex;
+    width: 20rem;
+    padding: 21px 0;
+    justify-content: flex-end;
+  }

@@ -1,4 +1,4 @@
-import { PerspectiveCamera, Vector3 } from 'three';
+import { PerspectiveCamera, Vector3, MOUSE } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { IfcComponent, Context } from '../../base-types';
 
@@ -44,5 +44,9 @@ export class IfcCamera extends IfcComponent {
   private setupControls() {
     this.controls.enableDamping = true;
     this.controls.dampingFactor *= 2;
+    const panWithMMB = this.context.options.panWithMMB || true;
+    if (panWithMMB) {
+      this.controls.mouseButtons = { RIGHT: MOUSE.RIGHT, MIDDLE: MOUSE.RIGHT, LEFT: MOUSE.LEFT };
+    }
   }
 }
