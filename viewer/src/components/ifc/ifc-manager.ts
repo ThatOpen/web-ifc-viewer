@@ -1,5 +1,5 @@
 import { DoubleSide, Material, MeshLambertMaterial } from 'three';
-import { IfcMesh } from 'web-ifc-three/IFC/BaseDefinitions';
+import { IfcMesh, Node } from 'web-ifc-three/IFC/BaseDefinitions';
 import { IFCLoader } from 'web-ifc-three/IFCLoader';
 import { IfcComponent, Context } from '../../base-types';
 import { IfcSelection } from './selection';
@@ -67,6 +67,14 @@ export class IfcManager extends IfcComponent {
     const mesh = found.object as IfcMesh;
     if (!mesh || typeof mesh.modelID !== 'number') return null;
     return mesh.modelID;
+  }
+
+  getAllItemsOfType(modelID: number, type: number, verbose = true) {
+    return this.loader.getAllItemsOfType(modelID, type, verbose);
+  }
+
+  getAllSpatialChildren(modelID: number, item: Node, recursive = false) {
+    return this.loader.getAllSpatialChildren(modelID, item, recursive);
   }
 
   prePickIfcItem() {

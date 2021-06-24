@@ -18,6 +18,8 @@ import { ClickStopPropagationDirective } from './directives/click-stop-propagati
 import {MatDividerModule} from '@angular/material/divider';
 import {MatListModule} from '@angular/material/list';
 import {MatTableModule} from '@angular/material/table';
+import { SpatialTreeNodeComponent } from './spatial-tree/spatial-tree-node/spatial-tree-node.component';
+import { PropertyMenuComponent } from './property-menu/property-menu.component';
 
 @NgModule({
   declarations: [
@@ -26,6 +28,8 @@ import {MatTableModule} from '@angular/material/table';
     ContextMenuComponent,
     SpatialTreeComponent,
     ClickStopPropagationDirective,
+    SpatialTreeNodeComponent,
+    PropertyMenuComponent,
   ],
   imports: [
     BrowserModule,

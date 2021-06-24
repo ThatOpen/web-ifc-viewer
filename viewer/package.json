@@ -31,8 +31,7 @@
     "@types/stats.js": "^0.17.0",
     "stats.js": "^0.17.0",
     "three": "^0.128.0",
-    "web-ifc": "0.0.19",
-    "web-ifc-three": "^0.0.25"
+    "web-ifc-three": "0.0.26"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
@@ -51,5 +50,10 @@
     "ts-jest": "^27.0.3",
     "ts-node": "^10.0.0",
     "typescript": "^4.3.2"
+  },
+  "browser": {
+    "crypto": false,
+    "path": false,
+    "fs": false
   }
 }

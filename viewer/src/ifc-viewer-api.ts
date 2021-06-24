@@ -1,4 +1,5 @@
 import { Color } from 'three';
+import { Node } from 'web-ifc-three/IFC/BaseDefinitions';
 import { IfcContext } from './components/context';
 import {
   IfcManager,
@@ -45,6 +46,14 @@ export class IfcViewerAPI {
 
   getProperties(modelID: number, id: number, indirect = false, recursive = false) {
     return this.ifcManager.getProperties(modelID, id, indirect, recursive);
+  }
+
+  getAllItemsOfType(modelID: number, type: number, verbose = true) {
+    return this.ifcManager.getAllItemsOfType(modelID, type, verbose);
+  }
+
+  getAllSpatialChildren(modelID: number, item: Node, recursive = false) {
+    return this.ifcManager.getAllSpatialChildren(modelID, item, recursive);
   }
 
   addClippingPlane = () => {

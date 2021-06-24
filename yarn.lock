@@ -15955,15 +15955,15 @@ wcwidth@^1.0.1:
   dependencies:
     defaults "^1.0.3"
 
-web-ifc-three@^0.0.25:
-  version "0.0.25"
-  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.25.tgz#942100bee5d69c599815dd59b28b8808eec7352c"
-  integrity sha512-IjChraaCr6NjSoUQJApuJQQgbAVvVwyJbQYsF/EL6tia87KGcSYzCfQ6NN/oibTfQcnnQPFNdkke6x+pMqbLDA==
+web-ifc-three@0.0.26:
+  version "0.0.26"
+  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.26.tgz#7e1d771ad6317eb132006bd9e72e7c5e95053908"
+  integrity sha512-WerN11MYnora9S+InsyuQx5drorn7AAZSmISFxftfbupZBlH0YPMOmp1YKY0pY8EmArrg/Y0h/oDso+ZfOvu3w==
   dependencies:
     stats.js "^0.17.0"
     three "^0.128.0"
     three-mesh-bvh "^0.3.7"
-    web-ifc "0.0.19"
+    web-ifc "0.0.20"
 
 web-ifc-viewer@1.0.1:
   version "1.0.1"
@@ -15978,10 +15978,10 @@ web-ifc@0.0.17:
   resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.17.tgz#c0662ba1f765fb0148802e886640737741083028"
   integrity sha512-MW30sYcJ1daSE2IUARwBKh3y+jky1Cz7KwGj6J/BfvOgFf4XpPgWzodwGUM635DH4LQED0BQhay3L4vewORLuw==
 
-web-ifc@0.0.19:
-  version "0.0.19"
-  resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.19.tgz#314ceb45e2971aba7bf68deef02eb38189b6b8a7"
-  integrity sha512-nPovv6ZnhbuCPGntbJSIphyMEI+928ISKeedORJUz0mYsp3uqAN+ExLvPNCqU9o3jzpL+X1IsWa1UbFjGG7WFw==
+web-ifc@0.0.20, web-ifc@^0.0.20:
+  version "0.0.20"
+  resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.20.tgz#b1bc302de518d8ce3e3789b01c06df0a6b24b2c5"
+  integrity sha512-mcmUsUWGPpjdRabIErcZO9xsBbzvVz5lka3J27MGB7ea4lzybRjKyRNDqoGY5qJ7P37KdDgd9PVBLYmvgVto2Q==
 
 web-vitals@^1.0.1:
   version "1.1.2"
