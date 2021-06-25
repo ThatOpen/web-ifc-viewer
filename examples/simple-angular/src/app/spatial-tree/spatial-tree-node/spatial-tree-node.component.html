@@ -1,6 +1,6 @@
 <mat-accordion>
   <mat-expansion-panel 
-      (opened)="loadChild()" 
+      (opened)="loadChildren()" 
       class="mat-elevation-z0 spatial-tree-node" 
       [ngClass] = "{'root-node': rootNode && clicked}" 
       hideToggle>
@@ -10,6 +10,17 @@
       </mat-panel-title>
       <mat-panel-description> {{"ID: " + ifcID}} </mat-panel-description>
     </mat-expansion-panel-header>
-    <ng-content></ng-content>
+
+
+    <app-spatial-tree-node
+    *ngFor="let spatialChild of spatialChildren; index as i"
+    [currentModel]="currentModel"
+    [ifcID]="spatialChildren[i]"
+    [ifc]="ifcViewer"
+    prefix="IfcProject"
+  >
+  </app-spatial-tree-node>
+
+
   </mat-expansion-panel>
 </mat-accordion>

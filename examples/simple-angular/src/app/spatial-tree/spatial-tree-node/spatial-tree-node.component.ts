@@ -7,30 +7,34 @@ import { IfcViewerAPI } from '../../../../../../viewer/dist';
   styleUrls: ['./spatial-tree-node.component.css']
 })
 export class SpatialTreeNodeComponent implements AfterContentInit {
-
+  @Input('currentModel') currentModel: number;
   @Input('ifcID') ifcID: number;
   @Input('prefix') prefix: string;
   @Input('rootNode') rootNode: boolean;
-  @Input('ifcViewer') ifcViewer?: IfcViewerAPI;
-  @Output("onSelect") onSelect = new EventEmitter();
+  @Input('ifc') ifcViewer?: IfcViewerAPI;
+  // @Output('onSelect') onSelect = new EventEmitter();
   props: object;
+  spatialChildren: number[];
   clicked: boolean;
 
-  constructor() { 
+  constructor() {
+    this.ifcID = -1;
+    this.currentModel = -1;
     this.clicked = false;
     this.rootNode = false;
+    this.spatialChildren = [];
     this.props = {};
-    this.prefix = "";
-    this.ifcID = -1;
+    this.prefix = '';
   }
 
-  ngAfterContentInit(): void {
-    
-  }
+  ngAfterContentInit(): void {}
 
-  loadChild(){
+  loadChildren() {
     this.clicked = true;
-    this.onSelect.emit(this.ifcID);
+    // this.onSelect.emit(this.ifcID);
+    const found = { expressID: this.ifcID, hasChildren: [], hasSpatialChildren: [] };
+    this.ifcViewer?.getAllSpatialChildren(this.currentModel, found, false, true);
+    console.log(found);
+    this.spatialChildren = found.hasSpatialChildren;
   }
-
 }

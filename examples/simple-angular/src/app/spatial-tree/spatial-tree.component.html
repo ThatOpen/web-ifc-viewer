@@ -1,32 +1,11 @@
 <div class="tree-menu">
   <app-spatial-tree-node
-    [rootNode]="true"
-    [ifcID]="ifcProjects[i]"
-    (onSelect)="getSpatialChildren($event, ifcSites)"
     *ngFor="let project of ifcProjects; index as i"
+    [rootNode]="true"
+    [currentModel]="currentModel"
+    [ifcID]="ifcProjects[i]"
+    [ifc]="ifcViewer"
     prefix="IfcProject"
   >
-    <app-spatial-tree-node
-      (onSelect)="getSpatialChildren($event, ifcBuildings)"
-      *ngFor="let site of ifcSites; index as j"
-      [ifcID]="ifcSites[j]"
-      prefix="IfcSite"
-    >
-      <app-spatial-tree-node
-        (onSelect)="getSpatialChildren($event, ifcStoreys)"
-        *ngFor="let building of ifcBuildings; index as k"
-        [ifcID]="ifcBuildings[k]"
-        prefix="IfcBuilding"
-      >
-        <app-spatial-tree-node
-        *ngFor="let storey of ifcStoreys; index as l"
-        [ifcID]="ifcStoreys[l]"
-        prefix="IfcBuildingStorey"
-      >
-      
-      
-      </app-spatial-tree-node>
-      </app-spatial-tree-node>
-    </app-spatial-tree-node>
   </app-spatial-tree-node>
 </div>

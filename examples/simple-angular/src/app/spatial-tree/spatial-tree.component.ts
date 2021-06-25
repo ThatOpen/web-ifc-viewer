@@ -40,14 +40,14 @@ export class SpatialTreeComponent implements AfterViewInit {
     if (ifcProjectsIds) this.ifcProjects = ifcProjectsIds;
   }
 
-  getSpatialChildren(id: number, spatialChildren: number[]){
-    const found = { expressID: id, hasChildren: [], hasSpatialChildren: [] };
-    this.ifcViewer?.getAllSpatialChildren(this.currentModel, found, false, true);
-    console.log(found);
-    if(spatialChildren != undefined){
-      spatialChildren.length = 0;
-      spatialChildren.push(...found.hasSpatialChildren);
-    }
-    this.ifcProducts[id] = found.hasChildren;
-  }
+  // getSpatialChildren(id: number, spatialChildren: number[]){
+  //   const found = { expressID: id, hasChildren: [], hasSpatialChildren: [] };
+  //   this.ifcViewer?.getAllSpatialChildren(this.currentModel, found, false, true);
+  //   console.log(found);
+  //   if(spatialChildren != undefined){
+  //     spatialChildren.length = 0;
+  //     spatialChildren.push(...found.hasSpatialChildren);
+  //   }
+  //   this.ifcProducts[id] = found.hasChildren;
+  // }
 }

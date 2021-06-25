@@ -1,4 +1,5 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { IfcService } from '../services/ifc.service';
 
 @Component({
   selector: 'app-toolbar',
@@ -7,31 +8,31 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 })
 export class ToolbarComponent implements OnInit {
   clippingActive: boolean;
-  @Output('onOpenIfc') onOpenIfc = new EventEmitter();
-  @Output('onActivateClipping') onActivateClipping = new EventEmitter();
+  ifc: IfcService;
 
   private fileOpener: HTMLInputElement;
 
-  constructor() {
+  constructor(service: IfcService) {
+    this.ifc = service;
     this.clippingActive = false;
     this.fileOpener = this.newFileOpener();
   }
 
   ngOnInit(): void {}
 
-  openIfc() {
+  onOpenIfc() {
     this.fileOpener.click();
   }
 
-  activateClipping(){
+  onActivateClipping(){
     this.clippingActive = !this.clippingActive;
-    this.onActivateClipping.emit();
+    this.ifc.ifcViewer?.toggleClippingPlanes();
   }
 
   private loadIfc = async (event: any) => {
     const file = event.target.files[0];
     if(!file) return;
-    this.onOpenIfc.emit(file);
+    this.ifc.ifcViewer?.loadIfc(file);
   };
 
   private newFileOpener() {
