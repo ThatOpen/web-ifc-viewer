@@ -1,10 +1,14 @@
 <mat-accordion>
-  <mat-expansion-panel (opened)="loadChild()" class="mat-elevation-z0" style="height: auto;" hideToggle>
+  <mat-expansion-panel 
+      (opened)="loadChild()" 
+      class="mat-elevation-z0 spatial-tree-node" 
+      [ngClass] = "{'root-node': rootNode && clicked}" 
+      hideToggle>
     <mat-expansion-panel-header>
       <mat-panel-title>
-        <mat-checkbox class="example-margin" click-stop-propagation>{{ prefix + " - " + ifcID }}</mat-checkbox>
+        <mat-checkbox class="example-margin" click-stop-propagation>{{ prefix }}</mat-checkbox>
       </mat-panel-title>
-      <mat-panel-description> This is a summary of the content </mat-panel-description>
+      <mat-panel-description> {{"ID: " + ifcID}} </mat-panel-description>
     </mat-expansion-panel-header>
     <ng-content></ng-content>
   </mat-expansion-panel>

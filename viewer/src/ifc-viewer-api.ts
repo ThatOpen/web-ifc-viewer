@@ -52,8 +52,8 @@ export class IfcViewerAPI {
     return this.ifcManager.getAllItemsOfType(modelID, type, verbose);
   }
 
-  getAllSpatialChildren(modelID: number, item: Node, recursive = false) {
-    return this.ifcManager.getAllSpatialChildren(modelID, item, recursive);
+  getAllSpatialChildren(modelID: number, item: Node, recursive = false, onlyID = false) {
+    return this.ifcManager.getAllSpatialChildren(modelID, item, recursive, onlyID);
   }
 
   addClippingPlane = () => {

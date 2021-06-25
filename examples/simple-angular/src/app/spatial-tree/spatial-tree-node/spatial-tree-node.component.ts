@@ -10,11 +10,15 @@ export class SpatialTreeNodeComponent implements AfterContentInit {
 
   @Input('ifcID') ifcID: number;
   @Input('prefix') prefix: string;
+  @Input('rootNode') rootNode: boolean;
   @Input('ifcViewer') ifcViewer?: IfcViewerAPI;
   @Output("onSelect") onSelect = new EventEmitter();
   props: object;
+  clicked: boolean;
 
   constructor() { 
+    this.clicked = false;
+    this.rootNode = false;
     this.props = {};
     this.prefix = "";
     this.ifcID = -1;
@@ -25,6 +29,7 @@ export class SpatialTreeNodeComponent implements AfterContentInit {
   }
 
   loadChild(){
+    this.clicked = true;
     this.onSelect.emit(this.ifcID);
   }
 

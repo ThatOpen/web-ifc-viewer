@@ -73,8 +73,8 @@ export class IfcManager extends IfcComponent {
     return this.loader.getAllItemsOfType(modelID, type, verbose);
   }
 
-  getAllSpatialChildren(modelID: number, item: Node, recursive = false) {
-    return this.loader.getAllSpatialChildren(modelID, item, recursive);
+  getAllSpatialChildren(modelID: number, item: Node, recursive = false, onlyID = false) {
+    return this.loader.getAllSpatialChildren(modelID, item, recursive, onlyID);
   }
 
   prePickIfcItem() {

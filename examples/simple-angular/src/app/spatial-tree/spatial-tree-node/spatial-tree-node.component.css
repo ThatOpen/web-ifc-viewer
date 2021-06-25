@@ -1,0 +1,8 @@
+.spatial-tree-node {
+  max-height: 100vh;
+  width: 25rem;
+}
+
+.root-node{
+  overflow-y: auto;
+}

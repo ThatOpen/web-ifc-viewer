@@ -1,7 +1,7 @@
 import { Component, AfterViewInit, Input } from '@angular/core';
-import { MatMenuTrigger } from '@angular/material/menu';
 import { IFCPROJECT } from 'web-ifc';
 import { IfcViewerAPI } from '../../../../../viewer/dist';
+// import { MatMenuTrigger } from '@angular/material/menu';
 
 @Component({
   selector: 'app-spatial-tree',
@@ -17,6 +17,8 @@ export class SpatialTreeComponent implements AfterViewInit {
   ifcSites: number[];
   ifcBuildings: number[];
   ifcStoreys: number[];
+  ifcProducts: {[key: number]: number[]};
+  spatialChildren: {[key: number]: number[]};
 
   constructor() {
     this.currentModel = -1;
@@ -25,6 +27,8 @@ export class SpatialTreeComponent implements AfterViewInit {
     this.ifcSites = [];
     this.ifcBuildings = [];
     this.ifcStoreys = [];
+    this.ifcProducts = {};
+    this.spatialChildren = {};
   }
 
   ngAfterViewInit(): void {}
@@ -36,11 +40,14 @@ export class SpatialTreeComponent implements AfterViewInit {
     if (ifcProjectsIds) this.ifcProjects = ifcProjectsIds;
   }
 
-  updateProperty(id: number, property: number[]){
+  getSpatialChildren(id: number, spatialChildren: number[]){
     const found = { expressID: id, hasChildren: [], hasSpatialChildren: [] };
-    this.ifcViewer?.getAllSpatialChildren(this.currentModel, found, false);
+    this.ifcViewer?.getAllSpatialChildren(this.currentModel, found, false, true);
     console.log(found);
-    property.length = 0;
-    property.push(...found.hasSpatialChildren);
+    if(spatialChildren != undefined){
+      spatialChildren.length = 0;
+      spatialChildren.push(...found.hasSpatialChildren);
+    }
+    this.ifcProducts[id] = found.hasChildren;
   }
 }
