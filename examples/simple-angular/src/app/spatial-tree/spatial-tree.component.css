@@ -1,8 +1,4 @@
 .tree-menu {
-  min-width: 20rem;
   position: absolute;
-  padding: 0;
-  right: 0rem;
-  height: 100vh;
-  overflow: auto;
+  right: 0;
 }

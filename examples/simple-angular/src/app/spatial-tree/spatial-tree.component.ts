@@ -12,13 +12,19 @@ export class SpatialTreeComponent implements AfterViewInit {
   @Input('ifc') ifcViewer?: IfcViewerAPI;
 
   spatialTree: any;
-  currentModel?: number;
+  currentModel: number;
   ifcProjects: number[];
+  ifcSites: number[];
+  ifcBuildings: number[];
+  ifcStoreys: number[];
 
   constructor() {
     this.currentModel = -1;
     this.spatialTree = {};
     this.ifcProjects = [];
+    this.ifcSites = [];
+    this.ifcBuildings = [];
+    this.ifcStoreys = [];
   }
 
   ngAfterViewInit(): void {}
@@ -30,35 +36,11 @@ export class SpatialTreeComponent implements AfterViewInit {
     if (ifcProjectsIds) this.ifcProjects = ifcProjectsIds;
   }
 
-  // createTreeBranche(item: any) {
-  //   const name = item.__proto__.constructor.name;
-  //   const properties = this.getProperties(item);
-  //   const spatialChildren = item.hasSpatialChildren.map((child: any) => this.createTreeBranche(child));
-  //   const children = item.hasChildren;
-  //   return {name, properties, spatialChildren, children};
-  // }
-
-  // getGuid(item: any) {
-  //   if (item.GlobalId) return item.GlobalId.value as string;
-  //   return '';
-  // }
-
-  // getProperties(item: any) {
-  //   if (!item) return '';
-  //   const result: any = [];
-  //   Object.keys(item).forEach((i) => {
-  //     if (i != 'hasChildren' && i != 'hasSpatialChildren')
-  //       result.push({ name: i, value: this.getValue(item[i]) });
-  //   });
-  //   return result;
-  // }
-
-  // getValue(prop: any) {
-  //   if (prop === null || prop === undefined) return 'undefined';
-  //   if (typeof prop === 'number') return prop;
-  //   if (Array.isArray(prop)) return prop.map(p => p.value);
-  //   if (typeof prop === 'string' && prop.length > 0) return prop;
-  //   if (typeof prop === 'object' && prop.value) return prop.value;
-  //   return 'undefined';
-  // }
+  updateProperty(id: number, property: number[]){
+    const found = { expressID: id, hasChildren: [], hasSpatialChildren: [] };
+    this.ifcViewer?.getAllSpatialChildren(this.currentModel, found, false);
+    console.log(found);
+    property.length = 0;
+    property.push(...found.hasSpatialChildren);
+  }
 }

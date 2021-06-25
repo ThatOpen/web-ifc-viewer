@@ -1,4 +1,5 @@
-import { Component, AfterContentInit, Input } from '@angular/core';
+import { Component, AfterContentInit, Input, Output, EventEmitter } from '@angular/core';
+import { IfcViewerAPI } from '../../../../../../viewer/dist';
 
 @Component({
   selector: 'app-spatial-tree-node',
@@ -9,6 +10,8 @@ export class SpatialTreeNodeComponent implements AfterContentInit {
 
   @Input('ifcID') ifcID: number;
   @Input('prefix') prefix: string;
+  @Input('ifcViewer') ifcViewer?: IfcViewerAPI;
+  @Output("onSelect") onSelect = new EventEmitter();
   props: object;
 
   constructor() { 
@@ -19,6 +22,10 @@ export class SpatialTreeNodeComponent implements AfterContentInit {
 
   ngAfterContentInit(): void {
     
+  }
+
+  loadChild(){
+    this.onSelect.emit(this.ifcID);
   }
 
 }

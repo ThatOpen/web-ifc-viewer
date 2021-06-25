@@ -1,7 +1,15 @@
-
-<app-spatial-tree-node 
-class="tree-menu" 
-*ngFor="let project of ifcProjects; index as i" 
-[ifcID]="ifcProjects[i]" 
-prefix="IfcProject"
-></app-spatial-tree-node>
+<div class="tree-menu">
+  <app-spatial-tree-node
+    (onSelect)="updateProperty($event, ifcSites)"
+    *ngFor="let project of ifcProjects; index as i"
+    [ifcID]="ifcProjects[i]"
+    prefix="IfcProject"
+  >
+    <app-spatial-tree-node
+      *ngFor="let project of ifcSites; index as j"
+      [ifcID]="ifcSites[j]"
+      prefix="IfcSite"
+    >
+    </app-spatial-tree-node>
+  </app-spatial-tree-node>
+</div>
