@@ -1,11 +1,8 @@
 <div class="tree-menu">
   <app-spatial-tree-node
     *ngFor="let project of ifcProjects; index as i"
-    [rootNode]="true"
-    [currentModel]="currentModel"
     [ifcID]="ifcProjects[i]"
-    [ifc]="ifcViewer"
-    prefix="IfcProject"
+    [rootNode]="true"
   >
   </app-spatial-tree-node>
 </div>

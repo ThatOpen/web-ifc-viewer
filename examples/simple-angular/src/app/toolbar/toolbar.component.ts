@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { IfcService } from '../services/ifc.service';
 
 @Component({
@@ -6,10 +6,9 @@ import { IfcService } from '../services/ifc.service';
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.css']
 })
-export class ToolbarComponent implements OnInit {
-  clippingActive: boolean;
+export class ToolbarComponent {
   ifc: IfcService;
-
+  clippingActive: boolean;
   private fileOpener: HTMLInputElement;
 
   constructor(service: IfcService) {
@@ -17,8 +16,6 @@ export class ToolbarComponent implements OnInit {
     this.clippingActive = false;
     this.fileOpener = this.newFileOpener();
   }
-
-  ngOnInit(): void {}
 
   onOpenIfc() {
     this.fileOpener.click();

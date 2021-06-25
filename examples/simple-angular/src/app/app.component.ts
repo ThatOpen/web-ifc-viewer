@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, HostListener } from '@angular/core';
+import { Component, AfterContentInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { IfcService } from './services/ifc.service';
 import { SpatialTreeComponent } from './spatial-tree/spatial-tree.component';
@@ -8,7 +8,7 @@ import { SpatialTreeComponent } from './spatial-tree/spatial-tree.component';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements AfterContentInit {
   
   title = 'ifcjs-angular-example';
   ifc: IfcService;
@@ -21,7 +21,7 @@ export class AppComponent implements AfterViewInit {
     this.ifc = service;
   }
 
-  ngAfterViewInit() {
+  ngAfterContentInit() {
     if (this.sidenav) this.sidenav.close();
     const container = this.getContainer();
     if(container) this.ifc.startIfcViewer(container);

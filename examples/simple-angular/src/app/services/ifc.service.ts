@@ -1,8 +1,14 @@
 import { IfcViewerAPI } from 'web-ifc-viewer';
 
 export class IfcService {
+  currentModel = -1;
   ifcViewer?: IfcViewerAPI;
   container?: HTMLElement;
+  onClickActions: ((modelID: number, id: number) => void)[];
+
+  constructor() {
+    this.onClickActions = [];
+  }
 
   startIfcViewer(container: HTMLElement) {
     if (!container) return this.notFoundError('container');
@@ -11,7 +17,7 @@ export class IfcService {
     this.setupInputs();
   }
 
-  setupIfcScene(){
+  setupIfcScene() {
     if (!this.container) return;
     this.ifcViewer = new IfcViewerAPI({ container: this.container });
     this.ifcViewer.addAxes();
@@ -27,9 +33,15 @@ export class IfcService {
     this.container.onmousemove = this.handleMouseMove;
   }
 
+  subscribeOnClick(action: (modelID: number, id: number) => void) {
+    this.onClickActions.push(action);
+  }
+
   private handleClick = (event: Event) => {
-    const id = this.ifcViewer?.getModelID();
-    // if (typeof id === 'number') this.spatialTree?.updateSpatialTree(id);
+    const modelID = this.ifcViewer?.getModelID();
+    if(typeof modelID != 'number') return;
+    this.currentModel = modelID;
+    this.onClickActions.forEach(action => action(modelID, -1));
   };
 
   private handleDoubleClick = (event: Event) => {};

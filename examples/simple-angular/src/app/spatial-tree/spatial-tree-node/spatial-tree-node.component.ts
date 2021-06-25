@@ -1,4 +1,5 @@
-import { Component, AfterContentInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, AfterContentInit, EventEmitter } from '@angular/core';
+import { IfcService } from 'src/app/services/ifc.service';
 import { IfcViewerAPI } from '../../../../../../viewer/dist';
 
 @Component({
@@ -7,34 +8,37 @@ import { IfcViewerAPI } from '../../../../../../viewer/dist';
   styleUrls: ['./spatial-tree-node.component.css']
 })
 export class SpatialTreeNodeComponent implements AfterContentInit {
-  @Input('currentModel') currentModel: number;
-  @Input('ifcID') ifcID: number;
-  @Input('prefix') prefix: string;
-  @Input('rootNode') rootNode: boolean;
-  @Input('ifc') ifcViewer?: IfcViewerAPI;
-  // @Output('onSelect') onSelect = new EventEmitter();
-  props: object;
-  spatialChildren: number[];
-  clicked: boolean;
+  @Input('ifcID') ifcID: number = -1;
+  @Input('rootNode') rootNode: boolean = false;
+  @Input('spatialIndex') spatialIndex?: number;
 
-  constructor() {
-    this.ifcID = -1;
-    this.currentModel = -1;
-    this.clicked = false;
-    this.rootNode = false;
-    this.spatialChildren = [];
-    this.props = {};
-    this.prefix = '';
+  ifc: IfcService;
+  name: string = '';
+  props: any = {};
+  spatialChildren: number[] = [];
+  children: number[] = [];
+  clicked: boolean = false;
+  spatialStructure: string[] = [
+    'IfcProject',
+    'IfcSite',
+    'IfcBuilding',
+    'IfcBuildingStorey',
+    'IfcSpace'
+  ];
+
+  constructor(service: IfcService) {
+    this.ifc = service;
   }
 
-  ngAfterContentInit(): void {}
+  ngAfterContentInit() {
+    if (this.spatialIndex) this.name = this.spatialStructure[this.spatialIndex] || 'IfcItem';
+  }
 
   loadChildren() {
     this.clicked = true;
-    // this.onSelect.emit(this.ifcID);
     const found = { expressID: this.ifcID, hasChildren: [], hasSpatialChildren: [] };
-    this.ifcViewer?.getAllSpatialChildren(this.currentModel, found, false, true);
-    console.log(found);
+    this.ifc.ifcViewer?.getAllSpatialChildren(this.ifc.currentModel, found, false, true);
     this.spatialChildren = found.hasSpatialChildren;
+    this.children = found.hasChildren;
   }
 }
