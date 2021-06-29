@@ -8,6 +8,7 @@ interface ifcProperty {
 
 interface ifcPropertyGroup {
   name: string;
+  description: string;
   props: ifcProperty[];
 }
 
@@ -21,6 +22,7 @@ export class PropertyMenuComponent implements OnInit {
   properties: ifcPropertyGroup[] = [
     {
       name: '01',
+      description: 'Hello!',
       props: [
         { name: 'asdf', value: 'asdf' },
         { name: 'asdf', value: 'asdf' },
@@ -30,6 +32,7 @@ export class PropertyMenuComponent implements OnInit {
     },
     {
       name: '02',
+      description: 'Hello!',
       props: [
         { name: 'asdf', value: 'asdf' },
         { name: 'asdf', value: 'asdf' },
@@ -69,14 +72,18 @@ export class PropertyMenuComponent implements OnInit {
 
   getPropertyGroups(props: any): ifcPropertyGroup[] {
     const psets = props.psets.map((p: any) => {
-      return { name: 'Property set', props: this.getProps(p) };
+      return { name: 'Property set', description: 'Properties defined by the user', props: this.getProps(p) };
     });
     delete props.psets;
     const type = props.type.map((p: any) => {
-      return { name: 'Type properties', props: this.getProps(p) };
+      return { name: 'Type properties', description: 'Properties defined by the type of element', props: this.getProps(p) };
     });
     delete props.type;
-    props = { name: 'Native properties', props: this.getProps(props) };
+    props = {
+      name: 'Native properties',
+      description: 'Properties contained in the IFC class',
+      props: this.getProps(props)
+    };
     return [props, ...psets, ...type];
   }
 
