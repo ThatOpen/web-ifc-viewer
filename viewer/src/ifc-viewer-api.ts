@@ -1,5 +1,4 @@
 import { Color } from 'three';
-import { Node } from 'web-ifc-three/IFC/BaseDefinitions';
 import { IfcContext } from './components/context';
 import {
   IfcManager,
@@ -44,16 +43,12 @@ export class IfcViewerAPI {
     return this.ifcManager.getModelId();
   }
 
-  getProperties(modelID: number, id: number, indirect = false, recursive = false) {
-    return this.ifcManager.getProperties(modelID, id, indirect, recursive);
+  getProperties(modelID: number, id: number, indirect = false) {
+    return this.ifcManager.getProperties(modelID, id, indirect);
   }
 
   getAllItemsOfType(modelID: number, type: number, verbose = true) {
     return this.ifcManager.getAllItemsOfType(modelID, type, verbose);
-  }
-
-  getAllSpatialChildren(modelID: number, item: Node, recursive = false, onlyID = false) {
-    return this.ifcManager.getAllSpatialChildren(modelID, item, recursive, onlyID);
   }
 
   addClippingPlane = () => {
@@ -84,16 +79,20 @@ export class IfcViewerAPI {
     this.ifcManager.setWasmPath(path);
   }
 
-  selectIfcItem = (indirect = true, recursive = false) => {
-    return this.ifcManager.pickIfcItem(indirect, recursive);
+  pickIfcItem = () => {
+    return this.ifcManager.pickIfcItem();
   };
 
-  preselectIfcItem = () => {
+  prepickIfcItem = () => {
     this.ifcManager.prePickIfcItem();
   };
 
-  getSpatialStructure = (modelID: number, recursive = false) => {
-    return this.ifcManager.getSpatialStructure(modelID, recursive);
+  pickIfcItemByID(modelID: number, id: number){
+    this.ifcManager.pickIfcItemByID(modelID, id);
+  }
+
+  getSpatialStructure = (modelID: number) => {
+    return this.ifcManager.getSpatialStructure(modelID);
   };
 
   openDropboxWindow() {

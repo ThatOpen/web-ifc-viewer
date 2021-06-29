@@ -3,3 +3,6 @@ button {
   margin: 0.5rem;
 }
 
+.toolbar {
+  position: absolute;
+}

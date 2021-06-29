@@ -31,7 +31,7 @@
     "@types/stats.js": "^0.17.0",
     "stats.js": "^0.17.0",
     "three": "^0.128.0",
-    "web-ifc-three": "0.0.27"
+    "web-ifc-three": "^0.0.30"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",

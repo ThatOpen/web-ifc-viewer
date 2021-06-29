@@ -17,6 +17,8 @@ export class ToolbarComponent {
     this.fileOpener = this.newFileOpener();
   }
 
+  @Output('onOpenNavbar') onOpenNavbar = new EventEmitter();
+
   onOpenIfc() {
     this.fileOpener.click();
   }
@@ -29,7 +31,7 @@ export class ToolbarComponent {
   private loadIfc = async (event: any) => {
     const file = event.target.files[0];
     if(!file) return;
-    this.ifc.ifcViewer?.loadIfc(file);
+    this.ifc.loadIfc(file);
   };
 
   private newFileOpener() {

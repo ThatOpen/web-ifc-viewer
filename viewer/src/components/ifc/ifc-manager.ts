@@ -1,5 +1,5 @@
 import { DoubleSide, Material, MeshLambertMaterial } from 'three';
-import { IfcMesh, Node } from 'web-ifc-three/IFC/BaseDefinitions';
+import { IfcMesh } from 'web-ifc-three/IFC/BaseDefinitions';
 import { IFCLoader } from 'web-ifc-three/IFCLoader';
 import { IfcComponent, Context } from '../../base-types';
 import { IfcSelection } from './selection';
@@ -46,15 +46,15 @@ export class IfcManager extends IfcComponent {
     this.loader.setWasmPath(path);
   }
 
-  getSpatialStructure(modelID: number, recursive = false) {
-    return this.loader.getSpatialStructure(modelID, recursive);
+  getSpatialStructure(modelID: number) {
+    return this.loader.getSpatialStructure(modelID);
   }
 
-  getProperties(modelID: number, id: number, indirect: boolean, recursive: boolean) {
+  getProperties(modelID: number, id: number, indirect: boolean) {
     if (modelID == null || id == null) return null;
     const props = this.loader.getItemProperties(modelID, id);
     if (indirect) {
-      props.psets = this.loader.getPropertySets(modelID, id, recursive);
+      props.psets = this.loader.getPropertySets(modelID, id);
       props.type = this.loader.getTypeProperties(modelID, id);
     }
     console.log(props);
@@ -73,25 +73,25 @@ export class IfcManager extends IfcComponent {
     return this.loader.getAllItemsOfType(modelID, type, verbose);
   }
 
-  getAllSpatialChildren(modelID: number, item: Node, recursive = false, onlyID = false) {
-    return this.loader.getAllSpatialChildren(modelID, item, recursive, onlyID);
-  }
-
   prePickIfcItem() {
     const found = this.context.castRayIfc();
     if (!found) {
-      this.preselection.removePreviousSelection();
+      this.preselection.removeSelectionOfOtherModel();
       return;
     }
-    this.preselection.select(found);
+    this.preselection.pick(found);
   }
 
-  pickIfcItem(indirect: boolean, recursive: boolean) {
+  pickIfcItem() {
     const found = this.context.castRayIfc();
     if (!found) return null;
-    const result = this.selection.select(found);
+    const result = this.selection.pick(found);
     if (result == null || result.modelID == null || result.id == null) return null;
-    return this.getProperties(result.modelID, result.id, indirect, recursive);
+    return result;
+  }
+
+  pickIfcItemByID(modelID: number, id: number) {
+    this.selection.pickByID(modelID, id);
   }
 
   private initializeDefMaterial(color: number, opacity: number) {
