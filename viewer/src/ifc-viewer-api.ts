@@ -14,7 +14,7 @@ export class IfcViewerAPI {
   private readonly context: IfcContext;
   private readonly ifcManager: IfcManager;
   clipper: IfcClipper;
-  stats: IfcStats;
+  stats?: IfcStats;
   grid?: IfcGrid;
   axes?: IfcAxes;
   dropbox?: DropboxAPI;
@@ -24,7 +24,6 @@ export class IfcViewerAPI {
     this.context = new IfcContext(options);
     this.ifcManager = new IfcManager(this.context);
     this.clipper = new IfcClipper(this.context);
-    this.stats = new IfcStats(this.context);
   }
 
   addGrid(size?: number, divisions?: number, colorCenterLine?: Color, colorGrid?: Color) {
@@ -36,6 +35,7 @@ export class IfcViewerAPI {
   }
 
   addStats(css = '') {
+    this.stats = new IfcStats(this.context);
     this.stats.addStats(css);
   }
 
@@ -87,7 +87,7 @@ export class IfcViewerAPI {
     this.ifcManager.prePickIfcItem();
   };
 
-  pickIfcItemByID(modelID: number, id: number){
+  pickIfcItemByID(modelID: number, id: number) {
     this.ifcManager.pickIfcItemByID(modelID, id);
   }
 

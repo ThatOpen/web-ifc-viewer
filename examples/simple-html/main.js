@@ -1,4 +1,4 @@
-import {IfcViewerAPI } from 'web-ifc-viewer';
+import { IfcViewerAPI } from 'web-ifc-viewer';
 import { createSideMenuButton } from './utils/gui-creator';
 
 const container = document.getElementById("viewer-container");
@@ -23,7 +23,7 @@ const handleKeyDown = (event) => {
     viewer.removeClippingPlane();
 };
 
-window.onmousemove = viewer.preselectIfcItem;
+window.onmousemove = viewer.prepickIfcItem;
 window.onkeydown = handleKeyDown;
 window.ondblclick = viewer.addClippingPlane;
 
@@ -39,12 +39,6 @@ sectionButton.addEventListener('click', () => {
     sectionButton.blur();
     viewer.toggleClippingPlanes();
 });
-
-// const edgesButton = createSideMenuButton('./resources/wireframe-cube.svg');
-// edgesButton.addEventListener('click', () => {
-//     edgesButton.blur();
-//     edges.active ? edges.deactivateEdgeDisplay() : edges.activateEdgeDisplay();
-// });
 
 const dropBoxButton = createSideMenuButton('./resources/dropbox-icon.svg');
 dropBoxButton.addEventListener('click', () => {
