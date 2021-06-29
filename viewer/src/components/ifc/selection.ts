@@ -19,17 +19,22 @@ export class IfcSelection extends IfcComponent {
     this.modelID = -1;
   }
 
-  select = (item: Intersection) => {
+  pick = (item: Intersection) => {
     if (this.selected === item.faceIndex || item.faceIndex == null) return null;
     this.selected = item.faceIndex;
     const mesh = item.object as IfcMesh;
     const id = this.loader.getExpressId(mesh.geometry, item.faceIndex);
     if (id === undefined) return null;
-    this.removePreviousSelection(mesh);
+    this.removeSelectionOfOtherModel(mesh);
     this.modelID = mesh.modelID;
     this.newSelection(id);
     return { modelID: this.modelID, id };
   };
+
+  pickByID = (modelID: number, id: number) => {
+    this.modelID = modelID;
+    this.newSelection(id);
+  }
 
   newSelection = (id: number) => {
     this.loader.createSubset({
@@ -41,7 +46,7 @@ export class IfcSelection extends IfcComponent {
     });
   };
 
-  removePreviousSelection(mesh?: IfcMesh) {
+  removeSelectionOfOtherModel(mesh?: IfcMesh) {
     if (this.modelID !== undefined && this.modelID !== mesh?.modelID) {
       this.loader.removeSubset(this.modelID, this.scene, this.material);
     }

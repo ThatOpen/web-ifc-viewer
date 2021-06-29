@@ -1,37 +1,37 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
+import { IfcService } from '../services/ifc.service';
 
 @Component({
   selector: 'app-toolbar',
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.css']
 })
-export class ToolbarComponent implements OnInit {
+export class ToolbarComponent {
+  ifc: IfcService;
   clippingActive: boolean;
-  @Output('onOpenIfc') onOpenIfc = new EventEmitter();
-  @Output('onActivateClipping') onActivateClipping = new EventEmitter();
-
   private fileOpener: HTMLInputElement;
 
-  constructor() {
+  constructor(service: IfcService) {
+    this.ifc = service;
     this.clippingActive = false;
     this.fileOpener = this.newFileOpener();
   }
 
-  ngOnInit(): void {}
+  @Output('onOpenNavbar') onOpenNavbar = new EventEmitter();
 
-  openIfc() {
+  onOpenIfc() {
     this.fileOpener.click();
   }
 
-  activateClipping(){
+  onActivateClipping(){
     this.clippingActive = !this.clippingActive;
-    this.onActivateClipping.emit();
+    this.ifc.ifcViewer?.toggleClippingPlanes();
   }
 
   private loadIfc = async (event: any) => {
     const file = event.target.files[0];
     if(!file) return;
-    this.onOpenIfc.emit(file);
+    this.ifc.loadIfc(file);
   };
 
   private newFileOpener() {

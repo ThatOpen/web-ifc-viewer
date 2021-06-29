@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "config-web-ifc": "cpy config/package.json ../../node_modules/web-ifc"
+    "config-web-ifc": "cpy config/package.json ../../node_modules/web-ifc && cpy config/package.json ../node_modules/web-ifc-three/node_modules/web-ifc"
   },
   "private": true,
   "dependencies": {
@@ -23,7 +23,9 @@
     "@angular/router": "~12.0.5",
     "hammerjs": "^2.0.8",
     "rxjs": "~6.6.0",
+    "three": "^0.129.0",
     "tslib": "^2.1.0",
+    "web-ifc": "^0.0.20",
     "web-ifc-viewer": "^1.0.11",
     "zone.js": "~0.11.4"
   },
@@ -40,5 +42,10 @@
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "^1.5.0",
     "typescript": "~4.2.3"
+  },
+  "browser": {
+    "crypto": false,
+    "path": false,
+    "fs": false
   }
 }

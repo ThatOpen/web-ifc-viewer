@@ -1,23 +1,34 @@
-.tree-menu{
-    min-width: 20rem;
-    position: absolute;
-    padding: 0;
-    right: 0rem;
-    height: 100vh;
-    overflow: auto;
+.example-tree-invisible {
+  display: none;
 }
 
-.tree-section{
-    min-width: 20rem;
-    margin: 0;
-    right: 0rem;
-    margin-left: 1rem;
-    padding-right: 0;
+.example-tree ul,
+.example-tree li {
+  margin-top: 0;
+  margin-bottom: 0;
+  list-style-type: none;
 }
 
-.header-align-right{
-    display: flex;
-    width: 20rem;
-    padding: 21px 0;
-    justify-content: flex-end;
-  }
+/*
+ * This padding sets alignment of the nested nodes.
+ */
+.example-tree .mat-nested-tree-node div[role=group] {
+  padding-left: 20px;
+}
+
+/*
+ * Padding for leaf nodes.
+ * Leaf nodes need to have padding so as to align with other non-leaf nodes
+ * under the same parent.
+ */
+.example-tree div[role=group] > .mat-tree-node {
+  padding-left: 20px;
+}
+
+.example-tree{
+  width: fit-content;
+  min-width: 100%;
+  min-height:50%;
+  max-height:50%;
+  overflow-y: scroll;
+}

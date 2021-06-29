@@ -1,19 +1,11 @@
-<mat-sidenav-container class="example-container">
-    <mat-sidenav #sidenav opened="false" mode="side" opened>
-        <app-toolbar
-            (onOpenIfc)="loadIfc($event)"
-            (onActivateClipping)="activateClipping()"
-        ></app-toolbar>
-    </mat-sidenav>
-    <mat-sidenav-content >
-        <button mat-fab color="accent" (click)="sidenav.toggle()" class="navbar-button">
-            <mat-icon>menu</mat-icon>
-        </button>
-        <app-spatial-tree #spatialTree [ifc]="ifcViewer"></app-spatial-tree>
-        <app-context-menu
-            (onAddClippingPlane)="addClippingPlane($event)"
-            (onRemoveClippingPlane)="removeClippingPlane($event)"
-        ></app-context-menu>
-        <div #threeContainer id="viewer-container"></div>
-    </mat-sidenav-content>
-  </mat-sidenav-container>
+<mat-sidenav-container>
+  <mat-sidenav #sidenav mode="side" class="sidemenu" opened>
+    <app-property-menu #propMenu></app-property-menu>
+    <app-spatial-tree #spatialTree></app-spatial-tree>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <app-toolbar (onOpenNavbar)="sidenav.toggle()"></app-toolbar>
+    <app-context-menu></app-context-menu>
+    <div #threeContainer id="viewer-container"></div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

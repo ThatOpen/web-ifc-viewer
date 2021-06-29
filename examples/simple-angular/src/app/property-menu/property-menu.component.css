@@ -1,0 +1,24 @@
+table {
+  width: 100%;
+}
+
+.prop-menu {
+  min-height: 50%;
+  max-height: 50%; 
+  width: 100%; 
+  overflow-y: scroll;
+  border-bottom: solid 1px rgb(179, 179, 179);
+}
+
+.props-table {
+  right: 0;
+}
+
+.align-right{
+  text-align: right !important;
+}
+
+::ng-deep .tooltip {
+  position: absolute;
+  right: 1rem;
+}

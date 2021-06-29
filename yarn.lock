@@ -15280,6 +15280,11 @@ three@^0.128.0:
   resolved "https://registry.yarnpkg.com/three/-/three-0.128.0.tgz#884dacca6a330e45600a09ec5439283f50b76aa6"
   integrity sha512-i0ap/E+OaSfzw7bD1TtYnPo3VEplkl70WX5fZqZnfZsE3k3aSFudqrrC9ldFZfYFkn1zwDmBcdGfiIm/hnbyZA==
 
+three@^0.129.0:
+  version "0.129.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.129.0.tgz#f5e530bbc96eac5d5b4749cb5da886ef0d42f554"
+  integrity sha512-wiWio1yVRg2Oj6WEWsTHQo5eSzYpEwSBtPSi3OofNpvFbf26HFfb9kw4FZJNjII4qxzp0b1xLB11+tKkBGB1ZA==
+
 throat@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/throat/-/throat-5.0.0.tgz#c5199235803aad18754a667d659b5e72ce16764b"
@@ -15955,15 +15960,15 @@ wcwidth@^1.0.1:
   dependencies:
     defaults "^1.0.3"
 
-web-ifc-three@^0.0.25:
-  version "0.0.25"
-  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.25.tgz#942100bee5d69c599815dd59b28b8808eec7352c"
-  integrity sha512-IjChraaCr6NjSoUQJApuJQQgbAVvVwyJbQYsF/EL6tia87KGcSYzCfQ6NN/oibTfQcnnQPFNdkke6x+pMqbLDA==
+web-ifc-three@^0.0.30:
+  version "0.0.30"
+  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.30.tgz#ad42ffe21b300dea2d50a74d668b503e5910ce02"
+  integrity sha512-zgDKMJv9y9rg/1eb/3NLXCYKpvp4rzYvkFop9RM/rLoos7y1tlk8HFifP0xt2IJy2etb82h/XDy//2Jl1zPPUg==
   dependencies:
     stats.js "^0.17.0"
     three "^0.128.0"
     three-mesh-bvh "^0.3.7"
-    web-ifc "0.0.19"
+    web-ifc "0.0.20"
 
 web-ifc-viewer@1.0.1:
   version "1.0.1"
@@ -15978,10 +15983,10 @@ web-ifc@0.0.17:
   resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.17.tgz#c0662ba1f765fb0148802e886640737741083028"
   integrity sha512-MW30sYcJ1daSE2IUARwBKh3y+jky1Cz7KwGj6J/BfvOgFf4XpPgWzodwGUM635DH4LQED0BQhay3L4vewORLuw==
 
-web-ifc@0.0.19:
-  version "0.0.19"
-  resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.19.tgz#314ceb45e2971aba7bf68deef02eb38189b6b8a7"
-  integrity sha512-nPovv6ZnhbuCPGntbJSIphyMEI+928ISKeedORJUz0mYsp3uqAN+ExLvPNCqU9o3jzpL+X1IsWa1UbFjGG7WFw==
+web-ifc@0.0.20, web-ifc@^0.0.20:
+  version "0.0.20"
+  resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.20.tgz#b1bc302de518d8ce3e3789b01c06df0a6b24b2c5"
+  integrity sha512-mcmUsUWGPpjdRabIErcZO9xsBbzvVz5lka3J27MGB7ea4lzybRjKyRNDqoGY5qJ7P37KdDgd9PVBLYmvgVto2Q==
 
 web-vitals@^1.0.1:
   version "1.1.2"

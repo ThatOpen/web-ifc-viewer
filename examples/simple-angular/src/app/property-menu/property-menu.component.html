@@ -1,0 +1,50 @@
+<mat-accordion>
+  <div class="prop-menu">
+    <mat-expansion-panel
+      *ngFor="let propertyGroup of properties; index as i"
+      class="mat-elevation-z0"
+      hideToggle
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title> {{ propertyGroup.name }} </mat-panel-title>
+        <mat-panel-description> {{ propertyGroup.description }} </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <mat-divider></mat-divider>
+
+      <div class="prop-menu-content">
+        <table mat-table [dataSource]="dataSources[i]" class="mat-elevation-z0">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+              matTooltip="{{ element.value }}"
+              matTooltipClass="tooltip"
+              matTooltipPosition="right"
+            >
+              {{ element.name | summary: 20 }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="value">
+            <th mat-header-cell *matHeaderCellDef class="align-right">Value</th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+              matTooltip="{{ element.value }}"
+              matTooltipPosition="right"
+              matTooltipClass="tooltip"
+              class="align-right"
+            >
+              {{ element.value | summary: 10 }}
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="['name', 'value']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['name', 'value']"></tr>
+        </table>
+      </div>
+    </mat-expansion-panel>
+  </div>
+</mat-accordion>
