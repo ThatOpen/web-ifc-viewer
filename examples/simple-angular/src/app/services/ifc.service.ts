@@ -47,7 +47,7 @@ export class IfcService {
   }
 
   loadIfc(file: File) {
-    this.ifcViewer?.loadIfc(file);
+    this.ifcViewer?.loadIfc(file, true);
   }
 
   select(modelID: number, expressID: number, pick = true) {

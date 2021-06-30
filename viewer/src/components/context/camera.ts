@@ -1,4 +1,4 @@
-import { PerspectiveCamera, Vector3, MOUSE } from 'three';
+import { PerspectiveCamera, Vector3, MOUSE, Box3, MathUtils } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { IfcComponent, Context } from '../../base-types';
 
@@ -31,6 +31,30 @@ export class IfcCamera extends IfcComponent {
 
   toggleControls(active: boolean) {
     this.controls.enabled = active;
+  }
+
+  fitModelToFrame() {
+    const scene = this.context.getScene();
+    const box = new Box3().setFromObject(scene.children[scene.children.length - 1]);
+    const boxSize = box.getSize(new Vector3()).length();
+    const boxCenter = box.getCenter(new Vector3());
+
+    const halfSizeToFitOnScreen = boxSize * 0.5;
+    const halfFovY = MathUtils.degToRad(this.camera.fov * 0.5);
+    const distance = halfSizeToFitOnScreen / Math.tan(halfFovY);
+
+    const direction = new Vector3()
+      .subVectors(this.camera.position, boxCenter)
+      .multiply(new Vector3(1, 0, 1))
+      .normalize();
+
+    this.camera.position.copy(direction.multiplyScalar(distance).add(boxCenter));
+    this.camera.updateProjectionMatrix();
+    this.camera.lookAt(boxCenter.x, boxCenter.y, boxCenter.z);
+
+    // set target to newest loaded model
+    this.controls.target.copy(boxCenter);
+    this.controls.update();
   }
 
   private setupCamera() {

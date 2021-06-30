@@ -81,6 +81,10 @@ export class IfcContext implements Context {
     return this.ifcCaster.castRayIfc();
   }
 
+  fitToFrame() {
+    this.ifcCamera.fitModelToFrame();
+  }
+
   private render = () => {
     requestAnimationFrame(this.render);
     this.updateAllComponents();

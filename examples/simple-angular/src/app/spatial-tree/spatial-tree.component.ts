@@ -1,6 +1,6 @@
 import { IfcService } from '../services/ifc.service';
 import { NestedTreeControl } from '@angular/cdk/tree';
-import { ChangeDetectionStrategy, Component, Output, EventEmitter } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 
 /**

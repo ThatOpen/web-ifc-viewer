@@ -67,12 +67,14 @@ export class IfcViewerAPI {
   //   if(!this.edges) this.edges
   // }
 
-  loadIfc = async (file: File) => {
-    this.ifcManager.loadIfc(file);
+  loadIfc = async (file: File, fitToFrame = false) => {
+    await this.ifcManager.loadIfc(file);
+    if (fitToFrame) this.context.fitToFrame();
   };
 
-  loadIfcUrl = async (fileUrl: string) => {
-    this.ifcManager.loadIfcUrl(fileUrl);
+  loadIfcUrl = async (fileUrl: string, fitToFrame = false) => {
+    await this.ifcManager.loadIfcUrl(fileUrl);
+    if (fitToFrame) this.context.fitToFrame();
   };
 
   setWasmPath(path: string) {

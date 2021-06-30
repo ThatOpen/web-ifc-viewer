@@ -26,7 +26,7 @@
     "three": "^0.129.0",
     "tslib": "^2.1.0",
     "web-ifc": "^0.0.20",
-    "web-ifc-viewer": "^1.0.11",
+    "web-ifc-viewer": "1.0.14",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {

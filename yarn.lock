@@ -15960,10 +15960,10 @@ wcwidth@^1.0.1:
   dependencies:
     defaults "^1.0.3"
 
-web-ifc-three@^0.0.30:
-  version "0.0.30"
-  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.30.tgz#ad42ffe21b300dea2d50a74d668b503e5910ce02"
-  integrity sha512-zgDKMJv9y9rg/1eb/3NLXCYKpvp4rzYvkFop9RM/rLoos7y1tlk8HFifP0xt2IJy2etb82h/XDy//2Jl1zPPUg==
+web-ifc-three@0.0.31:
+  version "0.0.31"
+  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.31.tgz#258a546885427cd57dab9bef92d12d2c8da4ceeb"
+  integrity sha512-eQJCI2GppIQhqIBytUbQnboViXd4Bx2NRemY2S36z1uFom13RY2FMqHOKU9C5BB+xhENPWabVdFm29kOF8CIxQ==
   dependencies:
     stats.js "^0.17.0"
     three "^0.128.0"
