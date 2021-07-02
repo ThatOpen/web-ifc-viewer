@@ -10,11 +10,10 @@
     "url": "git+https://github.com/agviegas/web-ifc-viewer.git"
   },
   "scripts": {
-    "init-repo": "npm run init-yarn && npm run build",
-    "start": "cd examples/simple-html && npm run start",
-    "init-yarn": "npm i yarn -g && yarn",
-    "build": "cd viewer && npm run build && cd .. && cd examples/simple-html && npm run build",
-    "publish-repo": "cd viewer && npm run build && npm publish"
+    "init-repo": "yarn && npm run build",
+    "start": "cd example && yarn start",
+    "build": "cd viewer && yarn build && cd ../example && yarn build",
+    "publish-repo": "cd viewer && yarn build && npm publish"
   },
   "bugs": {
     "url": "https://github.com/agviegas/web-ifc-viewer/issues"
