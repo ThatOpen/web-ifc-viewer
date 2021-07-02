@@ -15,13 +15,16 @@ Join the [Discord channel](https://discord.gg/g7Uzn2KSwB) to meet other people i
 
 ## Contribution
 
-Do you want to contribute to make this even better? Bear in mind that this project is split in three repositories, so you might want to contribute to the part that interests you most.
+Do you want to contribute to make this even better? Bear in mind that this project is split in multiple repositories, so you might want to contribute to the part that interests you most.
 
 - [web-ifc](https://github.com/tomvandig/web-ifc) if you are interested in low-level IFC parsing, WebAssembly, Emscripten, C++.
 
-- [web-ifc-three](https://github.com/agviegas/web-ifc-three) if you want to help us with the Three.js geometry generation.
+- [web-ifc-three](https://github.com/IFCjs/web-ifc-three) if you want to help us with the Three.js geometry generation.
+
+- [examples](https://github.com/IFCjs/examples) if you want to help us by creating more example implementations of IFC.js.
 
 - This repository if you have ideas about cool tools that could help others develop BIM applications!
+
 
 - Try it and spread the word!
 
