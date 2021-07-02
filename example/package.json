@@ -8,7 +8,7 @@
   "scripts": {
     "build": "rollup -c && npm run copy-wasm",
     "update-example": "yarn remove web-ifc-viewer && yarn remove web-ifc-viewer",
-    "copy-wasm": "cpy ../../node_modules/web-ifc/web-ifc.wasm ./wasm/",
+    "copy-wasm": "cpy ../node_modules/web-ifc/web-ifc.wasm ./wasm/",
     "start": "serve"
   },
   "author": "",

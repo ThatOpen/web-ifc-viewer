@@ -53,7 +53,7 @@
   },
   "browser": {
     "crypto": false,
-    "path": false,
-    "fs": false
+    "fs": false,
+    "path": false
   }
 }
