@@ -1,3 +1,5 @@
+// @ts-ignore
+import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { DoubleSide, Material, MeshLambertMaterial } from 'three';
 import { IfcMesh, IfcModel } from 'web-ifc-three/IFC/BaseDefinitions';
 import { IFCLoader } from 'web-ifc-three/IFCLoader';
@@ -20,6 +22,7 @@ export class IfcManager extends IfcComponent {
     super(context);
     this.context = context;
     this.loader = new IFCLoader();
+    this.setupThreeMeshBVH();
     this.visibility = new VisibilityManager(this.loader, this.context);
     this.defSelectMat = this.initializeDefMaterial(0xff33ff, 0.3);
     this.defPreselectMat = this.initializeDefMaterial(0xffccff, 0.5);
@@ -83,7 +86,7 @@ export class IfcManager extends IfcComponent {
       return;
     }
     this.preselection.pick(found);
-  }
+  };
 
   pickIfcItem = () => {
     const found = this.context.castRayIfc();
@@ -91,16 +94,24 @@ export class IfcManager extends IfcComponent {
     const result = this.selection.pick(found);
     if (result == null || result.modelID == null || result.id == null) return null;
     return result;
-  }
+  };
 
   pickIfcItemByID = (modelID: number, id: number) => {
     this.selection.pickByID(modelID, id);
-  }
+  };
 
   private addIfcModel(ifcMesh: IfcMesh) {
     this.context.items.ifcModels.push(ifcMesh);
     this.context.items.pickableIfcModels.push(ifcMesh);
     this.context.getScene().add(ifcMesh);
+  }
+
+  private setupThreeMeshBVH() {
+    this.loader.ifcManager.setupThreeMeshBVH(
+      computeBoundsTree,
+      disposeBoundsTree,
+      acceleratedRaycast
+    );
   }
 
   private initializeDefMaterial(color: number, opacity: number) {

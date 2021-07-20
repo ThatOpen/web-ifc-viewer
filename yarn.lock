@@ -4835,6 +4835,11 @@ three-mesh-bvh@^0.3.7:
   resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.3.7.tgz#39a05d2d53f66b5df486d08622801a1850734934"
   integrity sha512-veRJRj0mY2rBj9yRZVg/E98wd6e7AzqzTq/+6ispY6m50gYuGitUNih2dRQzbkMcwRECLURvuudb9BFW3/swAw==
 
+three-mesh-bvh@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.4.1.tgz#ba0bf1dac7cbd41f2132c8446545c8ad9fbeb892"
+  integrity sha512-1ALlGVjArZpi0SdqZhjwFA3DZHgBF/Uo4LnL8G7PczI7rpOoBK87CaBL073DVrrbIE4OONJvpq/PEzluKoRHbg==
+
 three@^0.128.0:
   version "0.128.0"
   resolved "https://registry.yarnpkg.com/three/-/three-0.128.0.tgz#884dacca6a330e45600a09ec5439283f50b76aa6"
@@ -5141,10 +5146,10 @@ walker@^1.0.7:
   dependencies:
     makeerror "1.0.x"
 
-web-ifc-three@^0.0.36:
-  version "0.0.36"
-  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.36.tgz#7232ea2a2c988cbe8a0d03d72d1957a2addca047"
-  integrity sha512-AawI4DxUdE2DHpICQNRDa+qBKAN3e2+wYQXZqLL+z1Kgn3yJyHmixzpxWP6d7ZoKfzW75vygyZepFkvCjN3Mnw==
+web-ifc-three@^0.0.37:
+  version "0.0.37"
+  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.37.tgz#1550af6ea37890cea0648d4e46f837430efde2e6"
+  integrity sha512-dwDmTD3DRKnnywjps/xc3ufBX7GIzQYmQIV+FHrOseyiVBH271+pyiFMDOclkvvUVZqFfeQ5Hhf/JQLFx4QpVQ==
   dependencies:
     stats.js "^0.17.0"
     three "^0.128.0"

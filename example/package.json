@@ -2,7 +2,7 @@
   "name": "web-ifc-viewer-basic-example",
   "private": true,
   "type": "module",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "A basic html example for web-ifc-viewer",
   "main": "index.html",
   "scripts": {
@@ -23,6 +23,6 @@
     "stats.js": "^0.17.0",
     "three": "^0.130.1",
     "web-ifc": "^0.0.20",
-    "web-ifc-viewer": "1.0.14"
+    "web-ifc-viewer": "^1.0.17"
   }
 }
