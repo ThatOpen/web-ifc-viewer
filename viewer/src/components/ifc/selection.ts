@@ -6,9 +6,9 @@ import { IfcComponent, Context } from '../../base-types';
 export class IfcSelection extends IfcComponent {
   private selected: number;
   private modelID: number;
-  private material: Material | undefined;
+  private readonly material: Material | undefined;
   private loader: IFCLoader;
-  private scene: Scene;
+  private readonly scene: Scene;
 
   constructor(context: Context, loader: IFCLoader, material: Material | undefined) {
     super(context);
@@ -23,7 +23,7 @@ export class IfcSelection extends IfcComponent {
     if (this.selected === item.faceIndex || item.faceIndex == null) return null;
     this.selected = item.faceIndex;
     const mesh = item.object as IfcMesh;
-    const id = this.loader.getExpressId(mesh.geometry, item.faceIndex);
+    const id = this.loader.ifcManager.getExpressId(mesh.geometry, item.faceIndex);
     if (id === undefined) return null;
     this.removeSelectionOfOtherModel(mesh);
     this.modelID = mesh.modelID;
@@ -34,10 +34,10 @@ export class IfcSelection extends IfcComponent {
   pickByID = (modelID: number, id: number) => {
     this.modelID = modelID;
     this.newSelection(id);
-  }
+  };
 
   newSelection = (id: number) => {
-    this.loader.createSubset({
+    this.loader.ifcManager.createSubset({
       scene: this.scene,
       modelID: this.modelID,
       ids: [id],
@@ -48,7 +48,7 @@ export class IfcSelection extends IfcComponent {
 
   removeSelectionOfOtherModel(mesh?: IfcMesh) {
     if (this.modelID !== undefined && this.modelID !== mesh?.modelID) {
-      this.loader.removeSubset(this.modelID, this.scene, this.material);
+      this.loader.ifcManager.removeSubset(this.modelID, this.scene, this.material);
     }
   }
 }

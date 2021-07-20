@@ -5,12 +5,12 @@ const container = document.getElementById("viewer-container");
 const viewer = new IfcViewerAPI({container});
 viewer.addAxes();
 viewer.addGrid();
-viewer.setWasmPath("wasm/");
+viewer.IFC.setWasmPath("wasm/");
 // const edges = new Edges(viewer);
 
 //Setup loader
 const loadIfc = async (event) => {
-   await viewer.loadIfc(event.target.files[0], true);
+   await viewer.IFC.loadIfc(event.target.files[0], true);
 }
 
 const inputElement = document.createElement('input');
@@ -20,10 +20,12 @@ inputElement.addEventListener('change', loadIfc, false);
 document.body.appendChild(inputElement);
 
 const handleKeyDown = (event) => {
-    viewer.removeClippingPlane();
+    if(event.code === "Delete"){
+        viewer.removeClippingPlane();
+    }
 };
 
-window.onmousemove = viewer.prepickIfcItem;
+window.onmousemove = viewer.IFC.prePickIfcItem;
 window.onkeydown = handleKeyDown;
 window.ondblclick = viewer.addClippingPlane;
 

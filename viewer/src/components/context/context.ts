@@ -105,7 +105,8 @@ export class IfcContext implements Context {
   private newItems(): Items {
     return {
       components: [],
-      ifcModels: []
+      ifcModels: [],
+      pickableIfcModels: []
     };
   }
 }

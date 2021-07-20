@@ -1,23 +1,26 @@
 import { DoubleSide, Material, MeshLambertMaterial } from 'three';
-import { IfcMesh } from 'web-ifc-three/IFC/BaseDefinitions';
+import { IfcMesh, IfcModel } from 'web-ifc-three/IFC/BaseDefinitions';
 import { IFCLoader } from 'web-ifc-three/IFCLoader';
 import { IfcComponent, Context } from '../../base-types';
 import { IfcSelection } from './selection';
+import { VisibilityManager } from './visibility-manager';
 
 export class IfcManager extends IfcComponent {
   loader: IFCLoader;
-  private context: Context;
+  visibility: VisibilityManager;
   private preselection: IfcSelection;
   private selection: IfcSelection;
-  private selectMat: Material | undefined;
-  private preselectMat: Material | undefined;
-  private defPreselectMat: Material;
-  private defSelectMat: Material;
+  private readonly context: Context;
+  private readonly selectMat: Material | undefined;
+  private readonly preselectMat: Material | undefined;
+  private readonly defPreselectMat: Material;
+  private readonly defSelectMat: Material;
 
   constructor(context: Context) {
     super(context);
     this.context = context;
     this.loader = new IFCLoader();
+    this.visibility = new VisibilityManager(this.loader, this.context);
     this.defSelectMat = this.initializeDefMaterial(0xff33ff, 0.3);
     this.defPreselectMat = this.initializeDefMaterial(0xffccff, 0.5);
     this.selectMat = context.options.selectMaterial || this.defSelectMat;
@@ -26,16 +29,16 @@ export class IfcManager extends IfcComponent {
     this.selection = new IfcSelection(context, this.loader, this.selectMat);
   }
 
-  async loadIfc(file: File) {
+  async loadIfc(file: File, fitToFrame = false) {
     const url = URL.createObjectURL(file);
-    await this.loadIfcUrl(url);
+    await this.loadIfcUrl(url, fitToFrame);
   }
 
-  async loadIfcUrl(url: string) {
+  async loadIfcUrl(url: string, fitToFrame = false) {
     try {
-      const object = await this.loader.loadAsync(url);
-      this.context.items.ifcModels.push(object);
-      this.context.getScene().add(object);
+      const ifcModel = (await this.loader.loadAsync(url)) as IfcModel;
+      this.addIfcModel(ifcModel.mesh);
+      if (fitToFrame) this.context.fitToFrame();
     } catch (err) {
       console.error('Error loading IFC.');
       console.error(err);
@@ -43,19 +46,19 @@ export class IfcManager extends IfcComponent {
   }
 
   setWasmPath(path: string) {
-    this.loader.setWasmPath(path);
+    this.loader.ifcManager.setWasmPath(path);
   }
 
   getSpatialStructure(modelID: number) {
-    return this.loader.getSpatialStructure(modelID);
+    return this.loader.ifcManager.getSpatialStructure(modelID);
   }
 
   getProperties(modelID: number, id: number, indirect: boolean) {
     if (modelID == null || id == null) return null;
-    const props = this.loader.getItemProperties(modelID, id);
+    const props = this.loader.ifcManager.getItemProperties(modelID, id);
     if (indirect) {
-      props.psets = this.loader.getPropertySets(modelID, id);
-      props.type = this.loader.getTypeProperties(modelID, id);
+      props.psets = this.loader.ifcManager.getPropertySets(modelID, id);
+      props.type = this.loader.ifcManager.getTypeProperties(modelID, id);
     }
     console.log(props);
     return props;
@@ -65,15 +68,15 @@ export class IfcManager extends IfcComponent {
     const found = this.context.castRayIfc();
     if (!found) return null;
     const mesh = found.object as IfcMesh;
-    if (!mesh || typeof mesh.modelID !== 'number') return null;
+    if (!mesh || mesh.modelID === undefined || mesh.modelID === null) return null;
     return mesh.modelID;
   }
 
   getAllItemsOfType(modelID: number, type: number, verbose = true) {
-    return this.loader.getAllItemsOfType(modelID, type, verbose);
+    return this.loader.ifcManager.getAllItemsOfType(modelID, type, verbose);
   }
 
-  prePickIfcItem() {
+  prePickIfcItem = () => {
     const found = this.context.castRayIfc();
     if (!found) {
       this.preselection.removeSelectionOfOtherModel();
@@ -82,7 +85,7 @@ export class IfcManager extends IfcComponent {
     this.preselection.pick(found);
   }
 
-  pickIfcItem() {
+  pickIfcItem = () => {
     const found = this.context.castRayIfc();
     if (!found) return null;
     const result = this.selection.pick(found);
@@ -90,8 +93,14 @@ export class IfcManager extends IfcComponent {
     return result;
   }
 
-  pickIfcItemByID(modelID: number, id: number) {
+  pickIfcItemByID = (modelID: number, id: number) => {
     this.selection.pickByID(modelID, id);
+  }
+
+  private addIfcModel(ifcMesh: IfcMesh) {
+    this.context.items.ifcModels.push(ifcMesh);
+    this.context.items.pickableIfcModels.push(ifcMesh);
+    this.context.getScene().add(ifcMesh);
   }
 
   private initializeDefMaterial(color: number, opacity: number) {

@@ -9,6 +9,7 @@ import {
   Scene,
   Vector2
 } from 'three';
+import { IfcMesh } from 'web-ifc-three/IFC/BaseDefinitions';
 
 export interface ViewerOptions {
   container: HTMLElement;
@@ -24,7 +25,8 @@ interface Component {
 
 export interface Items {
   components: Component[];
-  ifcModels: Object3D[];
+  ifcModels: IfcMesh[];
+  pickableIfcModels: IfcMesh[];
 }
 
 export interface Context {
@@ -38,6 +40,7 @@ export interface Context {
   getDimensions: () => Vector2;
   getClippingPlanes: () => Plane[];
 
+  fitToFrame: () => void;
   addComponent: (component: Component) => void;
   addClippingPlane: (plane: Plane) => void;
   removeClippingPlane: (plane: Plane) => void;

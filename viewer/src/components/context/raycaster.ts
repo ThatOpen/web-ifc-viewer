@@ -21,7 +21,7 @@ export class IfcRaycaster extends IfcComponent {
   }
 
   castRayIfc() {
-    const items = this.castRay(this.context.items.ifcModels);
+    const items = this.castRay(this.context.items.pickableIfcModels);
     return this.filterClippingPlanes(items)[0];
   }
 
