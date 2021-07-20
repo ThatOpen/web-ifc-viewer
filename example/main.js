@@ -1,5 +1,7 @@
 import { IfcViewerAPI } from 'web-ifc-viewer';
 import { createSideMenuButton } from './utils/gui-creator';
+import { IFCWALLSTANDARDCASE } from 'three/examples/jsm/loaders/ifc/web-ifc-api';
+import { MeshLambertMaterial } from 'three';
 
 const container = document.getElementById("viewer-container");
 const viewer = new IfcViewerAPI({container});
