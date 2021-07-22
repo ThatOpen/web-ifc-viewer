@@ -32,11 +32,21 @@ export class IfcManager extends IfcComponent {
     this.selection = new IfcSelection(context, this.loader, this.selectMat);
   }
 
+  /**
+   * Loads the given IFC in the current scene.
+   * @file IFC as File.
+   * @fitToFrame (optional) if true, brings the camera to the loaded IFC.
+   */
   async loadIfc(file: File, fitToFrame = false) {
     const url = URL.createObjectURL(file);
     await this.loadIfcUrl(url, fitToFrame);
   }
 
+  /**
+   * Loads the given IFC in the current scene.
+   * @file IFC as URL.
+   * @fitToFrame (optional) if true, brings the camera to the loaded IFC.
+   */
   async loadIfcUrl(url: string, fitToFrame = false) {
     try {
       const ifcModel = (await this.loader.loadAsync(url)) as IfcModel;
@@ -48,14 +58,38 @@ export class IfcManager extends IfcComponent {
     }
   }
 
+  /**
+   * Sets the relative path of web-ifc.wasm file in the project.
+   * Beware: you **must** serve this file in your page; this means
+   * that you have to copy this files from *node_modules/web-ifc*
+   * to your deployment directory.
+   *
+   * If you don't use this methods,
+   * IFC.js assumes that you are serving it in the root directory.
+   *
+   * Example if web-ifc.wasm is in dist/wasmDir:
+   * `ifcLoader.setWasmPath("dist/wasmDir/");`
+   *
+   * @path Relative path to web-ifc.wasm.
+   */
   setWasmPath(path: string) {
     this.loader.ifcManager.setWasmPath(path);
   }
 
+  /**
+   * Gets the spatial structure of the specified model.
+   * @modelID ID of the IFC model.
+   */
   getSpatialStructure(modelID: number) {
     return this.loader.ifcManager.getSpatialStructure(modelID);
   }
 
+  /**
+   * Gets the properties of the specified item.
+   * @modelID ID of the IFC model.
+   * @id Express ID of the item.
+   * @indirect If true, also returns psets, qsets and type properties.
+   */
   getProperties(modelID: number, id: number, indirect: boolean) {
     if (modelID == null || id == null) return null;
     const props = this.loader.ifcManager.getItemProperties(modelID, id);
@@ -63,11 +97,13 @@ export class IfcManager extends IfcComponent {
       props.psets = this.loader.ifcManager.getPropertySets(modelID, id);
       props.type = this.loader.ifcManager.getTypeProperties(modelID, id);
     }
-    console.log(props);
     return props;
   }
 
-  getModelId() {
+  /**
+   * Gets the ID of the model pointed by the cursor.
+   */
+  getModelID() {
     const found = this.context.castRayIfc();
     if (!found) return null;
     const mesh = found.object as IfcMesh;
@@ -75,10 +111,19 @@ export class IfcManager extends IfcComponent {
     return mesh.modelID;
   }
 
-  getAllItemsOfType(modelID: number, type: number, verbose = true) {
+  /**
+   * Gets all the items of the specified type in the specified IFC model.
+   * @modelID ID of the IFC model.
+   * @type type of element. You can import the type from web-ifc.
+   * @verbose If true, also gets the properties for all the elements.
+   */
+  getAllItemsOfType(modelID: number, type: number, verbose = false) {
     return this.loader.ifcManager.getAllItemsOfType(modelID, type, verbose);
   }
 
+  /**
+   * Highlights the item pointed by the cursor.
+   */
   prePickIfcItem = () => {
     const found = this.context.castRayIfc();
     if (!found) {
@@ -88,6 +133,9 @@ export class IfcManager extends IfcComponent {
     this.preselection.pick(found);
   };
 
+  /**
+   * Highlights the item pointed by the cursor and gets is properties.
+   */
   pickIfcItem = () => {
     const found = this.context.castRayIfc();
     if (!found) return null;
@@ -96,9 +144,48 @@ export class IfcManager extends IfcComponent {
     return result;
   };
 
+  /**
+   * Highlights the item with the given ID.
+   * @modelID ID of the IFC model.
+   * @id Express ID of the item.
+   */
   pickIfcItemByID = (modelID: number, id: number) => {
     this.selection.pickByID(modelID, id);
   };
+
+  /**
+   * Hides the selected items in the specified model
+   * @modelID ID of the IFC model.
+   * @ids Express ID of the elements.
+   */
+  hideItems(modelID: number, ids: number[]) {
+    this.loader.ifcManager.hideItems(modelID, ids);
+  }
+
+  /**
+   * Hides all the items of the specified model
+   * @modelID ID of the IFC model.
+   */
+  hideAllItems(modelID: number) {
+    this.loader.ifcManager.hideAllItems(modelID);
+  }
+
+  /**
+   * Shows all the items of the specified model
+   * @modelID ID of the IFC model.
+   * @ids Express ID of the elements.
+   */
+  showItems(modelID: number, ids: number[]) {
+    this.loader.ifcManager.showItems(modelID, ids);
+  }
+
+  /**
+   * Shows all the items of the specified model
+   * @modelID ID of the IFC model.
+   */
+  showAllItems(modelID: number) {
+    this.loader.ifcManager.showAllItems(modelID);
+  }
 
   private addIfcModel(ifcMesh: IfcMesh) {
     this.context.items.ifcModels.push(ifcMesh);

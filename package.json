@@ -1,7 +1,7 @@
 {
   "name": "web-ifc-viewer-root",
   "description": "IFC viewer",
-  "version": "1.0.17",
+  "version": "1.0.20",
   "private": true,
   "author": "agviegas",
   "license": "MIT",
@@ -28,5 +28,8 @@
   "workspaces": [
     "viewer",
     "example"
-  ]
+  ],
+  "dependencies": {
+    "web-ifc-three": "0.0.40"
+  }
 }

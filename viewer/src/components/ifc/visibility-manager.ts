@@ -77,6 +77,10 @@ export class VisibilityManager {
   }
 
   private isolate(modelID: number, ids: number[], removePrevious: boolean) {
+    if (ids.length === 0) {
+      this.ifc.ifcManager.removeSubset(modelID, this.scene);
+      return;
+    }
     this.ifc.ifcManager.createSubset({
       scene: this.scene,
       ids,
