@@ -181,12 +181,12 @@ export class IfcViewerAPI {
   };
 
   /**
-   * @deprecated Use `IfcViewerAPI.IFC.pickIfcItem()` instead.
+   * @deprecated Use `IfcViewerAPI.IFC.pickIfcItemsByID()` instead.
    * Highlights the item with the given ID.
    * @modelID ID of the IFC model.
    * @id Express ID of the item.
    */
-  pickIfcItemByID = (modelID: number, id: number) => {
-    this.IFC.pickIfcItemByID(modelID, id);
+  pickIfcItemsByID = (modelID: number, ids: number[]) => {
+    this.IFC.pickIfcItemsByID(modelID, ids);
   };
 }

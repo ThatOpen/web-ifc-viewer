@@ -149,8 +149,12 @@ export class IfcManager extends IfcComponent {
    * @modelID ID of the IFC model.
    * @id Express ID of the item.
    */
-  pickIfcItemByID = (modelID: number, id: number) => {
-    this.selection.pickByID(modelID, id);
+  pickIfcItemsByID = (modelID: number, ids: number[]) => {
+    this.selection.pickByID(modelID, ids);
+  };
+
+  unpickIfcItems = () => {
+    this.selection.unpick();
   };
 
   /**
@@ -185,6 +189,30 @@ export class IfcManager extends IfcComponent {
    */
   showAllItems(modelID: number) {
     this.loader.ifcManager.showAllItems(modelID);
+  }
+
+  /**
+   * Makes an IFC model translucent
+   * @modelID ID of the IFC model.
+   */
+  setModelTranslucency(modelID: number, translucent: boolean, opacity = 0.2, selectable = false) {
+    const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
+    if (!model) return;
+    if (Array.isArray(model.material)) {
+      model.material.forEach((material) => {
+        if (material.userData.opacity === undefined) {
+          material.userData = { transparent: material.transparent, opacity: material.opacity };
+        }
+        material.opacity = translucent ? opacity : material.userData.opacity;
+        material.transparent = translucent ? true : material.userData.transparent;
+      });
+    }
+    if (translucent && !selectable) {
+      const index = this.context.items.pickableIfcModels.indexOf(model);
+      this.context.items.pickableIfcModels.splice(index, 1);
+    } else if (!this.context.items.pickableIfcModels.includes(model)) {
+      this.context.items.pickableIfcModels.push(model);
+    }
   }
 
   private addIfcModel(ifcMesh: IfcMesh) {

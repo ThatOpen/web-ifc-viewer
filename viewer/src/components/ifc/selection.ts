@@ -27,20 +27,24 @@ export class IfcSelection extends IfcComponent {
     if (id === undefined) return null;
     this.removeSelectionOfOtherModel(mesh);
     this.modelID = mesh.modelID;
-    this.newSelection(id);
+    this.newSelection([id]);
     return { modelID: this.modelID, id };
   };
 
-  pickByID = (modelID: number, id: number) => {
+  unpick() {
+    this.loader.ifcManager.removeSubset(this.modelID, this.scene, this.material);
+  }
+
+  pickByID = (modelID: number, ids: number[]) => {
     this.modelID = modelID;
-    this.newSelection(id);
+    this.newSelection(ids);
   };
 
-  newSelection = (id: number) => {
+  newSelection = (ids: number[]) => {
     this.loader.ifcManager.createSubset({
       scene: this.scene,
       modelID: this.modelID,
-      ids: [id],
+      ids,
       removePrevious: true,
       material: this.material
     });
