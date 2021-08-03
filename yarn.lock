@@ -5156,10 +5156,20 @@ walker@^1.0.7:
   dependencies:
     makeerror "1.0.x"
 
-web-ifc-three@0.0.40, web-ifc-three@^0.0.40:
+web-ifc-three@0.0.40:
   version "0.0.40"
   resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.40.tgz#66d99bc21d4fd1133184c321f77f9af5202c39c0"
   integrity sha512-MY2Z10QCxRqNUfc+IHYTV2tZW5BVGHLMOxzHTx+QLwO1tPfULVYsUkkJ9p875OcXVajf+vvUcqHzXH9NUjNkHQ==
+  dependencies:
+    stats.js "^0.17.0"
+    three "^0.128.0"
+    three-mesh-bvh "^0.3.7"
+    web-ifc "0.0.21"
+
+web-ifc-three@^0.0.41:
+  version "0.0.41"
+  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.41.tgz#86b618152eb70accd691371b4888cc391bdd1e12"
+  integrity sha512-5M2q3gx7vPWy32ZFtP88CWUbAkm9I6ph5K+KZlt3VdkoRedBKt1Yiv0sHOIc3La9Jj/mGk1Cpvzc7JWD15BoTA==
   dependencies:
     stats.js "^0.17.0"
     three "^0.128.0"

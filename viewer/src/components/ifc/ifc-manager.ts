@@ -95,6 +95,7 @@ export class IfcManager extends IfcComponent {
     const props = this.loader.ifcManager.getItemProperties(modelID, id);
     if (indirect) {
       props.psets = this.loader.ifcManager.getPropertySets(modelID, id);
+      props.mats = this.loader.ifcManager.getMaterialsProperties(modelID, id);
       props.type = this.loader.ifcManager.getTypeProperties(modelID, id);
     }
     return props;
