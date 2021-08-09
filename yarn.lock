@@ -5166,10 +5166,10 @@ web-ifc-three@0.0.40:
     three-mesh-bvh "^0.3.7"
     web-ifc "0.0.21"
 
-web-ifc-three@^0.0.44:
-  version "0.0.44"
-  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.44.tgz#ae6a75c3d6f6016734822f2072db0bdf16eedafb"
-  integrity sha512-s8xa6eiuKrc2lWDnUYNOT+ip24k+IHpcEk5Ker3GdSE3o6RhVCjVokyKRhLpZQYa1vEikqLPRH29eT4SJUqyHQ==
+web-ifc-three@^0.0.47:
+  version "0.0.47"
+  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.47.tgz#804191f2ac92f9fbbb9d28aef49f15106b5b527d"
+  integrity sha512-5V8YYHGSAc3O3z6MCM0QzHcwuEFxMpELyWgobY5bTUY0hv3prUYH+rF9i5c9mvXWZA9LffOUKkzR1kZH9ig/NA==
   dependencies:
     stats.js "^0.17.0"
     three "^0.128.0"
