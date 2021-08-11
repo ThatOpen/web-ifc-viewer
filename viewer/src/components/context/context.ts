@@ -43,6 +43,10 @@ export class IfcContext implements Context {
     return this.ifcCamera.camera;
   }
 
+  getIfcCamera() {
+    return this.ifcCamera;
+  }
+
   toggleCameraControls(active: boolean) {
     this.ifcCamera.toggleControls(active);
   }

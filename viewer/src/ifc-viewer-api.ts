@@ -11,7 +11,7 @@ import {
 } from './components';
 
 export class IfcViewerAPI {
-  private readonly context: IfcContext;
+  public readonly context: IfcContext;
   readonly IFC: IfcManager;
   clipper: IfcClipper;
   stats?: IfcStats;

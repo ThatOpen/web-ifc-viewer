@@ -57,6 +57,10 @@ export class IfcCamera extends IfcComponent {
     this.controls.update();
   }
 
+  get target() {
+    return this.controls.target;
+  }
+
   private setupCamera() {
     // camera.up = new Vector3(0, 0, 1);
     this.camera.position.z = 8;
