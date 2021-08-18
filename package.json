@@ -28,8 +28,5 @@
   "workspaces": [
     "viewer",
     "example"
-  ],
-  "dependencies": {
-    "web-ifc-three": "0.0.40"
-  }
+  ]
 }
