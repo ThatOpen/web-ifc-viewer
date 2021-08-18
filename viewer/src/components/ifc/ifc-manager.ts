@@ -36,25 +36,34 @@ export class IfcManager extends IfcComponent {
    * Loads the given IFC in the current scene.
    * @file IFC as File.
    * @fitToFrame (optional) if true, brings the camera to the loaded IFC.
+   * @onError (optional) a callback function to report on loading errors
    */
-  async loadIfc(file: File, fitToFrame = false) {
+  async loadIfc(file: File, fitToFrame = false, onError?: (err: any) => any) {
     const url = URL.createObjectURL(file);
-    await this.loadIfcUrl(url, fitToFrame);
+    await this.loadIfcUrl(url, fitToFrame, undefined, onError);
   }
 
   /**
    * Loads the given IFC in the current scene.
    * @file IFC as URL.
    * @fitToFrame (optional) if true, brings the camera to the loaded IFC.
+   * @onProgress (optional) a callback function to report on downloading progress
+   * @onError (optional) a callback function to report on loading errors
    */
-  async loadIfcUrl(url: string, fitToFrame = false) {
+  async loadIfcUrl(
+    url: string,
+    fitToFrame = false,
+    onProgress?: (event: ProgressEvent) => void,
+    onError?: (err: any) => any
+  ) {
     try {
-      const ifcModel = (await this.loader.loadAsync(url)) as IfcModel;
+      const ifcModel = (await this.loader.loadAsync(url, onProgress)) as IfcModel;
       this.addIfcModel(ifcModel.mesh);
       if (fitToFrame) this.context.fitToFrame();
     } catch (err) {
       console.error('Error loading IFC.');
       console.error(err);
+      if (onError) onError(err);
     }
   }
 
