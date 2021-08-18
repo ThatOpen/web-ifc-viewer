@@ -4845,6 +4845,11 @@ three-mesh-bvh@^0.4.1:
   resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.4.1.tgz#ba0bf1dac7cbd41f2132c8446545c8ad9fbeb892"
   integrity sha512-1ALlGVjArZpi0SdqZhjwFA3DZHgBF/Uo4LnL8G7PczI7rpOoBK87CaBL073DVrrbIE4OONJvpq/PEzluKoRHbg==
 
+three@0.131.3:
+  version "0.131.3"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.131.3.tgz#406fd210c603ca9154937ae3582996fbfd3cb716"
+  integrity sha512-VkZAv8ZTJqiE/fyEmoWLxcNHImpVcjqW7RO0GzMu3tRpwO0KUvK9pjTmJzJcAbc51BOeB2G38zh80yjHTbP8gQ==
+
 three@^0.128.0:
   version "0.128.0"
   resolved "https://registry.yarnpkg.com/three/-/three-0.128.0.tgz#884dacca6a330e45600a09ec5439283f50b76aa6"
@@ -5166,13 +5171,11 @@ web-ifc-three@0.0.40:
     three-mesh-bvh "^0.3.7"
     web-ifc "0.0.21"
 
-web-ifc-three@^0.0.47:
-  version "0.0.47"
-  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.47.tgz#804191f2ac92f9fbbb9d28aef49f15106b5b527d"
-  integrity sha512-5V8YYHGSAc3O3z6MCM0QzHcwuEFxMpELyWgobY5bTUY0hv3prUYH+rF9i5c9mvXWZA9LffOUKkzR1kZH9ig/NA==
+web-ifc-three@^0.0.50:
+  version "0.0.50"
+  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.50.tgz#b50c44ce6e201be700c38971a8701cd1f73d15b6"
+  integrity sha512-GCPWL/pxzotLUJTkMSbu3yONRZqEmSEC/w17Jq8o85lcaRPfQE2nSvK14byUOaTdB8G2WT2IJFE9HUGUARcQdA==
   dependencies:
-    stats.js "^0.17.0"
-    three "^0.128.0"
     three-mesh-bvh "^0.3.7"
     web-ifc "0.0.21"
 
