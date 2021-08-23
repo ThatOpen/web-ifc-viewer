@@ -9,11 +9,13 @@ import {
   DropboxAPI,
   IfcStats
 } from './components';
+import { IfcDimensions } from './components/display/dimensions/dimensions';
 
 export class IfcViewerAPI {
   public readonly context: IfcContext;
   readonly IFC: IfcManager;
   clipper: IfcClipper;
+  dimensions: IfcDimensions;
   stats?: IfcStats;
   grid?: IfcGrid;
   axes?: IfcAxes;
@@ -24,6 +26,7 @@ export class IfcViewerAPI {
     this.context = new IfcContext(options);
     this.IFC = new IfcManager(this.context);
     this.clipper = new IfcClipper(this.context);
+    this.dimensions = new IfcDimensions(this.context);
   }
 
   /**
