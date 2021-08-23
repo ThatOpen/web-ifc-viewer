@@ -55,8 +55,12 @@ export class IfcContext implements Context {
     return this.getRenderer().domElement;
   }
 
+  getContainerElement() {
+    return this.options.container;
+  }
+
   getDimensions() {
-    const element = this.getDomElement();
+    const element = this.getContainerElement();
     return new Vector2(element.clientWidth, element.clientHeight);
   }
 
