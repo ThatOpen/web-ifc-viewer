@@ -60,10 +60,6 @@ export class IfcViewerAPI {
     this.stats.addStats(css);
   }
 
-  addDimension = () => {
-    this.dimensions.createDimension();
-  };
-
   /**
    * Adds a clipping plane on the face pointed to by the cursor.
    */
