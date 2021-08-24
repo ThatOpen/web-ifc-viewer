@@ -29,7 +29,7 @@ const handleKeyDown = (event) => {
 
 window.onmousemove = viewer.IFC.prePickIfcItem;
 window.onkeydown = handleKeyDown;
-window.ondblclick = viewer.addDimension;
+window.ondblclick = viewer.addClippingPlane;
 
 //Setup UI
 const loadButton = createSideMenuButton('./resources/folder-icon.svg');

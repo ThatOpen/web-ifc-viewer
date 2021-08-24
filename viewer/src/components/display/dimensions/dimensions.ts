@@ -12,7 +12,7 @@ import { IfcDimensionLine } from './dimension-line';
 export class IfcDimensions extends IfcComponent {
   private readonly context: Context;
   private dimensions: IfcDimensionLine[] = [];
-  private enabled = true;
+  private enabled = false;
   private preview = false;
   private dragging = false;
   private startPoint = new Vector3();
@@ -41,6 +41,10 @@ export class IfcDimensions extends IfcComponent {
       const closest = this.getClosestVertex(intersects);
       this.previewMesh.position.set(closest.x, closest.y, closest.z);
     }
+  }
+
+  get dimensionTexts() {
+    return this.dimensions.map((dim) => dim.dimensionText);
   }
 
   get active() {

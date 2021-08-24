@@ -49,13 +49,20 @@ html, body {
     z-index: 1;
     position: fixed;
     background-color: #36393F;
-    height:100vh;
+    height: 100vh;
 }
 
 .side-sub-menu {
     width: 100%;
-    height:inherit;
+    height: inherit;
     margin: 2px;
+}
+
+#viewer-container {
+    position: relative;
+    width: 50vw;
+    height: 50vh;
+    overflow: hidden;
 }
 
 #side-menu-left {

@@ -1,6 +1,7 @@
 import {
   BoxGeometry,
   BufferGeometry,
+  Camera,
   Color,
   ConeGeometry,
   Group,
@@ -14,6 +15,7 @@ import { Context, IfcComponent } from '../../../base-types';
 
 export class IfcDimensionLine extends IfcComponent {
   private readonly context: Context;
+  private camera: Camera;
 
   // Elements
   private root = new Group();
@@ -40,6 +42,7 @@ export class IfcDimensionLine extends IfcComponent {
   constructor(context: Context, start: Vector3, end: Vector3, height = 0.2, radius = 0.05) {
     super(context);
     this.context = context;
+    this.camera = context.getCamera();
 
     this.length = parseFloat(start.distanceTo(end).toFixed(2));
     this.center = this.getCenter(start, end);
@@ -57,6 +60,10 @@ export class IfcDimensionLine extends IfcComponent {
     this.setupBoundingBox(end);
 
     this.context.getScene().add(this.root);
+  }
+
+  get dimensionText() {
+    return this.text;
   }
 
   get boundingBox() {
@@ -78,9 +85,11 @@ export class IfcDimensionLine extends IfcComponent {
   }
 
   update(_delta: number) {
-    const camera = this.context.getCamera();
     const screenPosition = this.center.clone();
-    screenPosition.project(camera);
+    screenPosition.project(this.camera);
+    const isInsideFrustum = Math.abs(screenPosition.z) <= 1;
+    this.setTextVisibility(isInsideFrustum);
+    if (!isInsideFrustum) return;
     if (this.previousScreenPosition.equals(screenPosition)) return;
     this.updateTextPosition(screenPosition);
   }
@@ -91,10 +100,15 @@ export class IfcDimensionLine extends IfcComponent {
   }
 
   private updateTextPosition(screenPosition: Vector3) {
-    const domElement = this.context.getDomElement();
+    const domElement = this.context.getDomElement().parentElement;
+    if (!domElement) return;
     const translateX = screenPosition.x * domElement.clientWidth * 0.5;
     const translateY = -screenPosition.y * domElement.clientHeight * 0.5;
     this.text.style.transform = `translateX(${translateX}px) translateY(${translateY}px)`;
+  }
+
+  private setTextVisibility(visible: boolean) {
+    this.text.style.visibility = visible ? 'visible' : 'collapse';
   }
 
   private addArrows(start: Vector3, end: Vector3) {
