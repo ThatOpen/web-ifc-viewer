@@ -89,6 +89,7 @@ export class IfcClipper extends IfcComponent {
     this.context.items.ifcModels.forEach((obj: Object3D) => {
       const mesh = obj as Mesh;
       if (mesh.material) this.updateMaterial(mesh);
+      if (mesh.userData.wireframe) this.updateMaterial(mesh.userData.wireframe);
     });
   };
 

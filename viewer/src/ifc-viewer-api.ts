@@ -7,7 +7,7 @@ import {
   IfcAxes,
   IfcClipper,
   DropboxAPI,
-  IfcStats
+  IfcStats, IfcEdges
 } from './components';
 import { IfcDimensions } from './components/display/dimensions/dimensions';
 
@@ -16,6 +16,7 @@ export class IfcViewerAPI {
   readonly IFC: IfcManager;
   clipper: IfcClipper;
   dimensions: IfcDimensions;
+  edges: IfcEdges;
   stats?: IfcStats;
   grid?: IfcGrid;
   axes?: IfcAxes;
@@ -27,6 +28,7 @@ export class IfcViewerAPI {
     this.IFC = new IfcManager(this.context);
     this.clipper = new IfcClipper(this.context);
     this.dimensions = new IfcDimensions(this.context);
+    this.edges = new IfcEdges(this.context);
   }
 
   /**

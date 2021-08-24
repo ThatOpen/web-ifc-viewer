@@ -8,7 +8,6 @@ const viewer = new IfcViewerAPI({container});
 viewer.addAxes();
 viewer.addGrid();
 viewer.IFC.setWasmPath("wasm/");
-// const edges = new Edges(viewer);
 
 //Setup loader
 const loadIfc = async (event) => {
