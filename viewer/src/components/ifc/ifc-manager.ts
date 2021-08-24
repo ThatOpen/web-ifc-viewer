@@ -89,8 +89,8 @@ export class IfcManager extends IfcComponent {
    * Gets the spatial structure of the specified model.
    * @modelID ID of the IFC model.
    */
-  getSpatialStructure(modelID: number) {
-    return this.loader.ifcManager.getSpatialStructure(modelID);
+  getSpatialStructure(modelID: number, includeProperties?: boolean) {
+    return this.loader.ifcManager.getSpatialStructure(modelID, includeProperties);
   }
 
   /**
