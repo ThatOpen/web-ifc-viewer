@@ -28,7 +28,9 @@ const handleKeyDown = (event) => {
 
 window.onmousemove = viewer.IFC.prePickIfcItem;
 window.onkeydown = handleKeyDown;
-window.ondblclick = viewer.addClippingPlane;
+window.ondblclick = viewer.dimensions.create;
+viewer.dimensions.active = true;
+viewer.dimensions.previewActive = true;
 
 //Setup UI
 const loadButton = createSideMenuButton('./resources/folder-icon.svg');

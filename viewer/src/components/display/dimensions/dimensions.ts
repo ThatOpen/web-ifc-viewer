@@ -17,6 +17,7 @@ export class IfcDimensions extends IfcComponent {
   private dragging = false;
   private startPoint = new Vector3();
   private endPoint = new Vector3();
+  readonly className = 'ifcjs-dimension-label';
 
   private previewGeometry = new SphereGeometry(0.1);
   private previewMaterial = new MeshBasicMaterial({
@@ -41,10 +42,6 @@ export class IfcDimensions extends IfcComponent {
       const closest = this.getClosestVertex(intersects);
       this.previewMesh.position.set(closest.x, closest.y, closest.z);
     }
-  }
-
-  get dimensionTexts() {
-    return this.dimensions.map((dim) => dim.dimensionText);
   }
 
   get active() {
@@ -114,7 +111,9 @@ export class IfcDimensions extends IfcComponent {
   }
 
   private drawDimension() {
-    this.dimensions.push(new IfcDimensionLine(this.context, this.startPoint, this.endPoint));
+    this.dimensions.push(
+      new IfcDimensionLine(this.context, this.startPoint, this.endPoint, this.className)
+    );
   }
 
   private getClosestVertex(intersects: Intersection) {

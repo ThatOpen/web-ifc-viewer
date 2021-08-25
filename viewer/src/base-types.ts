@@ -37,6 +37,7 @@ export interface Context {
   getCamera: () => Camera;
   getRenderer: () => Renderer;
   getDomElement: () => HTMLElement;
+  getDomElement2D: () => HTMLElement;
   getDimensions: () => Vector2;
   getClippingPlanes: () => Plane[];
 

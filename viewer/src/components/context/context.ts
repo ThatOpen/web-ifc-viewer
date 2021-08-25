@@ -39,6 +39,10 @@ export class IfcContext implements Context {
     return this.ifcRenderer.renderer;
   }
 
+  getRenderer2D() {
+    return this.ifcRenderer.renderer2D;
+  }
+
   getCamera() {
     return this.ifcCamera.camera;
   }
@@ -53,6 +57,10 @@ export class IfcContext implements Context {
 
   getDomElement() {
     return this.getRenderer().domElement;
+  }
+
+  getDomElement2D() {
+    return this.getRenderer2D().domElement;
   }
 
   getContainerElement() {
