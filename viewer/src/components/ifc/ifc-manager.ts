@@ -40,7 +40,7 @@ export class IfcManager extends IfcComponent {
    */
   async loadIfc(file: File, fitToFrame = false, onError?: (err: any) => any) {
     const url = URL.createObjectURL(file);
-    await this.loadIfcUrl(url, fitToFrame, undefined, onError);
+    return this.loadIfcUrl(url, fitToFrame, undefined, onError);
   }
 
   /**
@@ -60,10 +60,12 @@ export class IfcManager extends IfcComponent {
       const ifcModel = (await this.loader.loadAsync(url, onProgress)) as IfcModel;
       this.addIfcModel(ifcModel.mesh);
       if (fitToFrame) this.context.fitToFrame();
+      return ifcModel;
     } catch (err) {
       console.error('Error loading IFC.');
       console.error(err);
       if (onError) onError(err);
+      return null;
     }
   }
 
