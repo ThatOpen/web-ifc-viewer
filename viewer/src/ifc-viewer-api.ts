@@ -10,6 +10,7 @@ import {
   IfcStats, IfcEdges
 } from './components';
 import { IfcDimensions } from './components/display/dimensions/dimensions';
+import { GLTFManager } from './components/import-export/glTF';
 
 export class IfcViewerAPI {
   public readonly context: IfcContext;
@@ -17,6 +18,7 @@ export class IfcViewerAPI {
   clipper: IfcClipper;
   dimensions: IfcDimensions;
   edges: IfcEdges;
+  gltf: GLTFManager;
   stats?: IfcStats;
   grid?: IfcGrid;
   axes?: IfcAxes;
@@ -29,6 +31,7 @@ export class IfcViewerAPI {
     this.clipper = new IfcClipper(this.context);
     this.dimensions = new IfcDimensions(this.context);
     this.edges = new IfcEdges(this.context);
+    this.gltf = new GLTFManager(this.context);
   }
 
   /**
