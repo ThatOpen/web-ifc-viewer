@@ -1,6 +1,9 @@
 import {
   BufferGeometry,
+  Color,
+  ConeGeometry,
   Intersection,
+  LineBasicMaterial,
   Mesh,
   MeshBasicMaterial,
   SphereGeometry,
@@ -12,25 +15,43 @@ import { IfcDimensionLine } from './dimension-line';
 export class IfcDimensions extends IfcComponent {
   private readonly context: Context;
   private dimensions: IfcDimensionLine[] = [];
+  readonly className = 'ifcjs-dimension-label';
+
+  // State
   private enabled = false;
   private preview = false;
   private dragging = false;
-  private startPoint = new Vector3();
-  private endPoint = new Vector3();
-  readonly className = 'ifcjs-dimension-label';
 
+  // Measures
+  private arrowHeight = 0.2;
+  private arrowRadius = 0.05;
+  private baseScale = new Vector3(1, 1, 1);
+
+  // Geometries
+  private endpoint: BufferGeometry;
   private previewGeometry = new SphereGeometry(0.1);
+
+  // Materials
+  private lineMaterial = new LineBasicMaterial({ color: 0x000000, linewidth: 2, depthTest: false });
+  private endpointsMaterial = new MeshBasicMaterial({ color: 0x000000, depthTest: false });
   private previewMaterial = new MeshBasicMaterial({
     color: 0xff00ff,
     transparent: true,
     opacity: 0.3,
     depthTest: false
   });
+
+  // Meshes
   private previewMesh = new Mesh(this.previewGeometry, this.previewMaterial);
+
+  // Temp variables
+  private startPoint = new Vector3();
+  private endPoint = new Vector3();
 
   constructor(context: Context) {
     super(context);
     this.context = context;
+    this.endpoint = this.getDefaultEndpointGeometry();
   }
 
   update(_delta: number) {
@@ -74,6 +95,24 @@ export class IfcDimensions extends IfcComponent {
     });
   }
 
+  set dimensionsColor(color: Color) {
+    this.endpointsMaterial.color = color;
+    this.lineMaterial.color = color;
+  }
+
+  set endpointGeometry(geometry: BufferGeometry) {
+    this.dimensions.forEach((dim) => {
+      dim.endpointGeometry = geometry;
+    });
+  }
+
+  set endpointScale(scale: Vector3) {
+    this.baseScale = scale;
+    this.dimensions.forEach((dim) => {
+      dim.endpointScale = scale;
+    });
+  }
+
   create = () => {
     if (!this.enabled) return;
     if (!this.dragging) {
@@ -95,6 +134,13 @@ export class IfcDimensions extends IfcComponent {
     selected.removeFromScene();
   };
 
+  deleteAll = () => {
+    this.dimensions.forEach((dim) => {
+      dim.removeFromScene();
+    });
+    this.dimensions = [];
+  };
+
   private drawStart() {
     this.dragging = true;
     const intersects = this.context.castRayIfc();
@@ -112,8 +158,24 @@ export class IfcDimensions extends IfcComponent {
 
   private drawDimension() {
     this.dimensions.push(
-      new IfcDimensionLine(this.context, this.startPoint, this.endPoint, this.className)
+      new IfcDimensionLine(
+        this.context,
+        this.startPoint,
+        this.endPoint,
+        this.lineMaterial,
+        this.endpointsMaterial,
+        this.endpoint,
+        this.className,
+        this.baseScale
+      )
     );
+  }
+
+  private getDefaultEndpointGeometry() {
+    const coneGeometry = new ConeGeometry(this.arrowRadius, this.arrowHeight);
+    coneGeometry.translate(0, -this.arrowHeight / 2, 0);
+    coneGeometry.rotateX(-Math.PI / 2);
+    return coneGeometry;
   }
 
   private getClosestVertex(intersects: Intersection) {

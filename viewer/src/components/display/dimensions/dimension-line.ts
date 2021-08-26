@@ -2,12 +2,11 @@ import {
   BoxGeometry,
   BufferGeometry,
   Color,
-  ConeGeometry,
   Group,
   Line,
   LineBasicMaterial,
-  Mesh,
   MeshBasicMaterial,
+  Mesh,
   Vector3
 } from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
@@ -15,25 +14,29 @@ import { Context, IfcComponent } from '../../../base-types';
 
 export class IfcDimensionLine extends IfcComponent {
   private readonly context: Context;
-  // private camera: Camera;
+  private className: string;
 
   // Elements
   private root = new Group();
-  private className: string;
   private readonly line: Line;
-  private readonly axis: BufferGeometry;
-  private readonly coneGeometry: ConeGeometry;
   private readonly textLabel: CSS2DObject;
+  private endpointMeshes: Mesh[] = [];
+
+  // Geometries
+  private readonly axis: BufferGeometry;
+  private endpoint: BufferGeometry;
 
   // Dimensions
+  private start: Vector3;
+  private end: Vector3;
   private readonly length: number;
   private readonly center: Vector3;
-  private readonly arrowHeight: number;
-  private readonly arrowRadius: number;
+  private minimumLengthToDisplayEndpoints = 0.6;
+  private scale = new Vector3(1, 1, 1);
 
   // Materials
-  private lineMaterial = new LineBasicMaterial({ color: 0x000000, linewidth: 2, depthTest: false });
-  private coneMaterial = new MeshBasicMaterial({ color: 0x000000, depthTest: false });
+  private lineMaterial: LineBasicMaterial;
+  private endpointMaterial: MeshBasicMaterial;
 
   // Bounding box
   private readonly boundingMesh: Mesh;
@@ -43,29 +46,37 @@ export class IfcDimensionLine extends IfcComponent {
     context: Context,
     start: Vector3,
     end: Vector3,
+    lineMaterial: LineBasicMaterial,
+    endpointMaterial: MeshBasicMaterial,
+    endpointGeometry: BufferGeometry,
     className: string,
-    height = 0.2,
-    radius = 0.05
+    endpointScale: Vector3
   ) {
     super(context);
     this.context = context;
     this.className = className;
 
+    this.start = start;
+    this.end = end;
+    this.scale = endpointScale;
+
+    this.lineMaterial = lineMaterial;
+    this.endpointMaterial = endpointMaterial;
+
     this.length = parseFloat(start.distanceTo(end).toFixed(2));
-    this.center = this.getCenter(start, end);
-    this.arrowHeight = height;
-    this.arrowRadius = radius;
+    this.center = this.getCenter();
 
     this.axis = new BufferGeometry().setFromPoints([start, end]);
     this.line = new Line(this.axis, this.lineMaterial);
     this.root.add(this.line);
-    this.coneGeometry = this.newConeGeometry();
-    this.addArrows(start, end);
+    this.endpoint = endpointGeometry;
+    this.addEndpointMeshes();
     this.textLabel = this.newText();
 
     this.boundingMesh = this.newBoundingBox();
     this.setupBoundingBox(end);
 
+    this.root.renderOrder = 2;
     this.context.getScene().add(this.root);
   }
 
@@ -78,7 +89,7 @@ export class IfcDimensionLine extends IfcComponent {
   }
 
   set dimensionColor(dimensionColor: Color) {
-    this.coneMaterial.color = dimensionColor;
+    this.endpointMaterial.color = dimensionColor;
     this.lineMaterial.color = dimensionColor;
   }
 
@@ -86,30 +97,36 @@ export class IfcDimensionLine extends IfcComponent {
     this.root.visible = visible;
   }
 
+  set endpointGeometry(geometry: BufferGeometry) {
+    this.endpointMeshes.forEach((mesh) => this.root.remove(mesh));
+    this.endpointMeshes = [];
+    this.endpoint = geometry;
+    this.addEndpointMeshes();
+  }
+
+  set endpointScale(scale: Vector3) {
+    this.scale = scale;
+    this.endpointMeshes.forEach((mesh) => mesh.scale.set(scale.x, scale.y, scale.z));
+  }
+
   removeFromScene() {
     this.context.getScene().remove(this.root);
   }
 
-  private addArrows(start: Vector3, end: Vector3) {
-    // Don't add arrows if dimension is too small
-    if (this.length > this.arrowHeight * 3) {
-      this.newArrow(start, end);
-      this.newArrow(end, start);
+  private addEndpointMeshes() {
+    if (this.length > this.minimumLengthToDisplayEndpoints) {
+      this.newEndpointMesh(this.start, this.end);
+      this.newEndpointMesh(this.end, this.start);
     }
   }
 
-  private newConeGeometry() {
-    const coneGeometry = new ConeGeometry(this.arrowRadius, this.arrowHeight);
-    coneGeometry.translate(0, -this.arrowHeight / 2, 0);
-    coneGeometry.rotateX(-Math.PI / 2);
-    return coneGeometry;
-  }
-
-  private newArrow(position: Vector3, direction: Vector3) {
-    const cone = new Mesh(this.coneGeometry, this.coneMaterial);
-    cone.position.set(position.x, position.y, position.z);
-    cone.lookAt(direction);
-    this.root.add(cone);
+  private newEndpointMesh(position: Vector3, direction: Vector3) {
+    const mesh = new Mesh(this.endpoint, this.endpointMaterial);
+    mesh.position.set(position.x, position.y, position.z);
+    mesh.scale.set(this.scale.x, this.scale.y, this.scale.z);
+    mesh.lookAt(direction);
+    this.endpointMeshes.push(mesh);
+    this.root.add(mesh);
   }
 
   private newText() {
@@ -134,10 +151,10 @@ export class IfcDimensionLine extends IfcComponent {
     this.root.add(this.boundingMesh);
   }
 
-  private getCenter(pointA: Vector3, pointB: Vector3) {
-    let dir = pointB.clone().sub(pointA);
+  private getCenter() {
+    let dir = this.end.clone().sub(this.start);
     const len = dir.length() * 0.5;
     dir = dir.normalize().multiplyScalar(len);
-    return pointA.clone().add(dir);
+    return this.start.clone().add(dir);
   }
 }
