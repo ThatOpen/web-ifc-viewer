@@ -100,6 +100,10 @@ export class IfcDimensions extends IfcComponent {
     this.lineMaterial.color = color;
   }
 
+  set dimensionsWidth(width: number) {
+    this.lineMaterial.linewidth = width;
+  }
+
   set endpointGeometry(geometry: BufferGeometry) {
     this.dimensions.forEach((dim) => {
       dim.endpointGeometry = geometry;

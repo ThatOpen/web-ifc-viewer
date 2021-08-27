@@ -111,6 +111,7 @@ export class IfcDimensionLine extends IfcComponent {
 
   removeFromScene() {
     this.context.getScene().remove(this.root);
+    this.root.remove(this.textLabel);
   }
 
   private addEndpointMeshes() {
