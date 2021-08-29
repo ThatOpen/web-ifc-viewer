@@ -1,6 +1,6 @@
 {
   "name": "web-ifc-viewer",
-  "version": "1.0.45",
+  "version": "1.0.46",
   "description": "IFC viewer",
   "main": "dist/index.js",
   "scripts": {
@@ -31,7 +31,9 @@
     "@types/stats.js": "^0.17.0",
     "stats.js": "^0.17.0",
     "three-mesh-bvh": "^0.4.1",
-    "web-ifc-three": "^0.0.54"
+    "web-ifc": "^0.0.24",
+    "web-ifc-three": "^0.0.55",
+    "web-ifc-viewer": "^1.0.45"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",

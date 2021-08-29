@@ -30,6 +30,11 @@ window.onmousemove = viewer.IFC.prePickIfcItem;
 window.onkeydown = handleKeyDown;
 window.ondblclick = viewer.addClippingPlane;
 
+viewer.IFC.applyWebIfcConfig({
+  COORDINATE_TO_ORIGIN: true,
+  USE_FAST_BOOLS: true
+});
+
 //Setup UI
 const loadButton = createSideMenuButton('./resources/folder-icon.svg');
 loadButton.addEventListener('click', () => {

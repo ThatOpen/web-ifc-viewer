@@ -6,6 +6,7 @@ import { IFCLoader } from 'web-ifc-three/IFCLoader';
 import { IfcComponent, Context } from '../../base-types';
 import { IfcSelection } from './selection';
 import { VisibilityManager } from './visibility-manager';
+import { LoaderSettings } from 'web-ifc';
 
 export class IfcManager extends IfcComponent {
   loader: IFCLoader;
@@ -85,6 +86,13 @@ export class IfcManager extends IfcComponent {
    */
   setWasmPath(path: string) {
     this.loader.ifcManager.setWasmPath(path);
+  }
+
+  /**
+   * Applies a configuration for [web-ifc](https://ifcjs.github.io/info/docs/Guide/web-ifc/Introduction).
+   */
+  applyWebIfcConfig(settings: LoaderSettings) {
+    this.loader.ifcManager.applyWebIfcConfig(settings);
   }
 
   /**
