@@ -95,6 +95,7 @@ export class IfcDimensionLine extends IfcComponent {
 
   set visibility(visible: boolean) {
     this.root.visible = visible;
+    this.textLabel.visible = visible;
   }
 
   set endpointGeometry(geometry: BufferGeometry) {
