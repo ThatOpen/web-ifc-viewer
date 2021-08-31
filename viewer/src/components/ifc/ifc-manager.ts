@@ -177,6 +177,10 @@ export class IfcManager extends IfcComponent {
     this.selection.unpick();
   };
 
+  unPrepickIfcItems = () => {
+    this.preselection.unpick();
+  };
+
   /**
    * Hides the selected items in the specified model
    * @modelID ID of the IFC model.
