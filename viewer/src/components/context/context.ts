@@ -101,6 +101,11 @@ export class IfcContext implements Context {
     this.ifcCamera.fitModelToFrame();
   }
 
+  updateAspect() {
+    this.ifcCamera.updateAspect();
+    this.ifcRenderer.adjustRendererSize();
+  }
+
   private render = () => {
     requestAnimationFrame(this.render);
     this.updateAllComponents();
@@ -113,8 +118,7 @@ export class IfcContext implements Context {
 
   private setupWindowRescale() {
     window.addEventListener('resize', () => {
-      this.ifcCamera.updateAspect();
-      this.ifcRenderer.adjustRendererSize();
+      this.updateAspect();
     });
   }
 
