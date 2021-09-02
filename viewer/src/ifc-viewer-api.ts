@@ -13,8 +13,8 @@ import { IfcDimensions } from './components/display/dimensions/dimensions';
 import { GLTFManager } from './components/import-export/glTF';
 
 export class IfcViewerAPI {
-  public readonly context: IfcContext;
-  readonly IFC: IfcManager;
+  public context: IfcContext;
+  IFC: IfcManager;
   clipper: IfcClipper;
   dimensions: IfcDimensions;
   edges: IfcEdges;
@@ -197,4 +197,31 @@ export class IfcViewerAPI {
   pickIfcItemsByID = (modelID: number, ids: number[]) => {
     this.IFC.pickIfcItemsByID(modelID, ids);
   };
+
+  /**
+   * Deletes all data, releasing all memory
+   */
+  releaseAllMemory() {
+    this.IFC.loader.ifcManager.disposeMemory();
+    // @ts-ignore
+    this.context = null;
+    // @ts-ignore
+    this.IFC = null;
+    // @ts-ignore
+    this.clipper = null;
+    // @ts-ignore
+    this.dimensions = null;
+    // @ts-ignore
+    this.edges = null;
+    // @ts-ignore
+    this.gltf = null;
+    // @ts-ignore
+    this.stats = null;
+    // @ts-ignore
+    this.grid = null;
+    // @ts-ignore
+    this.axes = null;
+    // @ts-ignore
+    this.dropbox = null;
+  }
 }
