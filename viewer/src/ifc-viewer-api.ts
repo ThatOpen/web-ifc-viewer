@@ -200,6 +200,8 @@ export class IfcViewerAPI {
 
   /**
    * Deletes all data, releasing all memory
+   * Work in progress: this doesn't remove all the memory
+   * Page reloading recommended to avoid heap overload
    */
   releaseAllMemory() {
     this.context.dispose();
