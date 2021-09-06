@@ -71,6 +71,19 @@ export class IfcManager extends IfcComponent {
   }
 
   /**
+   * Disposes all webgl memory regarding IFC files
+   */
+  dispose() {
+    this.selectMat?.dispose();
+    this.preselectMat?.dispose();
+    this.selection.dispose();
+    this.preselection.dispose();
+    this.loader.ifcManager.disposeMemory();
+    // @ts-ignore
+    this.loader = null;
+  }
+
+  /**
    * Sets the relative path of web-ifc.wasm file in the project.
    * Beware: you **must** serve this file in your page; this means
    * that you have to copy this files from *node_modules/web-ifc*

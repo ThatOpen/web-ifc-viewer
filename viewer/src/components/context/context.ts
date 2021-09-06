@@ -16,6 +16,7 @@ export class IfcContext implements Context {
   private readonly clippingPlanes: Plane[];
   private readonly clock: Clock;
   private readonly ifcCaster: IfcRaycaster;
+  private animationFrameID = -1;
 
   constructor(options: ViewerOptions) {
     if (!options.container) throw new Error('Could not get container element!');
@@ -29,6 +30,33 @@ export class IfcContext implements Context {
     this.clock = new Clock(true);
     this.setupWindowRescale();
     this.render();
+  }
+
+  dispose() {
+    this.items.components.forEach((component) => {
+      component.dispose();
+    });
+    this.items.components.length = 0;
+    this.items.pickableIfcModels.length = 0;
+    this.items.ifcModels.forEach((model) => {
+      if (model.parent) {
+        model.parent.remove(model);
+      }
+      if (model.geometry) {
+        model.geometry.dispose();
+      }
+      if (model.material) {
+        if (Array.isArray(model.material)) {
+          model.material.forEach((mat => mat.dispose()));
+        } else {
+          model.material.dispose();
+        }
+      }
+    });
+    this.items.ifcModels.length = 0;
+    // @ts-ignore
+    this.items = null;
+    window.cancelAnimationFrame(this.animationFrameID);
   }
 
   getScene() {
@@ -107,7 +135,7 @@ export class IfcContext implements Context {
   }
 
   private render = () => {
-    requestAnimationFrame(this.render);
+    this.animationFrameID = requestAnimationFrame(this.render);
     this.updateAllComponents();
   };
 

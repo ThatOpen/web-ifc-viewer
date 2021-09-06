@@ -3,8 +3,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { IfcComponent, Context } from '../../base-types';
 
 export class IfcCamera extends IfcComponent {
-  readonly camera: PerspectiveCamera;
-  private readonly controls: OrbitControls;
+  camera: PerspectiveCamera;
+  private controls: OrbitControls;
   private readonly context: Context;
 
   constructor(context: Context) {
@@ -21,6 +21,17 @@ export class IfcCamera extends IfcComponent {
 
   update(_delta: number) {
     this.controls.update();
+  }
+
+  dispose() {
+    if (this.camera.parent) {
+      this.camera.parent.remove(this.camera);
+    }
+    // @ts-ignore
+    this.camera = null;
+    this.controls.dispose();
+    // @ts-ignore
+    this.controls = null;
   }
 
   updateAspect() {

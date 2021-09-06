@@ -202,26 +202,6 @@ export class IfcViewerAPI {
    * Deletes all data, releasing all memory
    */
   releaseAllMemory() {
-    this.IFC.loader.ifcManager.disposeMemory();
-    // @ts-ignore
-    this.context = null;
-    // @ts-ignore
-    this.IFC = null;
-    // @ts-ignore
-    this.clipper = null;
-    // @ts-ignore
-    this.dimensions = null;
-    // @ts-ignore
-    this.edges = null;
-    // @ts-ignore
-    this.gltf = null;
-    // @ts-ignore
-    this.stats = null;
-    // @ts-ignore
-    this.grid = null;
-    // @ts-ignore
-    this.axes = null;
-    // @ts-ignore
-    this.dropbox = null;
+    this.context.dispose();
   }
 }

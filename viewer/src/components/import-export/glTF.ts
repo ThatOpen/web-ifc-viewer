@@ -1,13 +1,14 @@
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Group } from 'three';
-import { Context } from '../../base-types';
+import { Context, IfcComponent } from '../../base-types';
 
-export class GLTFManager {
+export class GLTFManager extends IfcComponent {
   private context: Context;
   private loader = new GLTFLoader();
   private GLTFModels: { [modelID: number]: Group } = {};
 
   constructor(context: Context) {
+    super(context);
     this.context = context;
   }
 
@@ -16,6 +17,15 @@ export class GLTFManager {
     const mesh = loaded.scene;
     this.GLTFModels[modelID] = mesh;
     this.context.getScene().add(mesh);
+  }
+
+  dispose() {
+    const models = Object.values(this.GLTFModels);
+    models.forEach((model) => {
+      if (model.parent) {
+        model.parent.remove(model);
+      }
+    });
   }
 
   getModel(modelID: number) {

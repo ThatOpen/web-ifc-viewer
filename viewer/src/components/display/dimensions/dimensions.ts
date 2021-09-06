@@ -117,6 +117,17 @@ export class IfcDimensions extends IfcComponent {
     });
   }
 
+  dispose() {
+    if (this.previewMesh.parent) {
+      this.previewMesh.parent.remove(this.previewMesh);
+    }
+    this.previewMesh.geometry.dispose();
+    this.previewGeometry.dispose();
+    this.previewMaterial.dispose();
+    this.endpointsMaterial.dispose();
+    this.lineMaterial.dispose();
+  }
+
   create = () => {
     if (!this.enabled) return;
     if (!this.dragging) {

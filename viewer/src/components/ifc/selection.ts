@@ -31,6 +31,10 @@ export class IfcSelection extends IfcComponent {
     return { modelID: this.modelID, id };
   };
 
+  dispose() {
+    this.material?.dispose();
+  }
+
   unpick() {
     this.loader.ifcManager.removeSubset(this.modelID, this.scene, this.material);
   }

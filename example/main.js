@@ -26,9 +26,9 @@ const handleKeyDown = (event) => {
   }
 };
 
-window.onmousemove = viewer.IFC.prePickIfcItem;
+// window.onmousemove = viewer.IFC.prePickIfcItem;
 window.onkeydown = handleKeyDown;
-window.ondblclick = viewer.addClippingPlane;
+window.ondblclick = () => viewer.releaseAllMemory();
 
 viewer.IFC.applyWebIfcConfig({
   COORDINATE_TO_ORIGIN: true,

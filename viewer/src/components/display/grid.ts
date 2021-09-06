@@ -18,4 +18,10 @@ export class IfcGrid extends IfcComponent {
     const scene = context.getScene();
     scene.add(this.grid);
   }
+
+  dispose() {
+    if (this.grid.parent) {
+      this.grid.parent.remove(this.grid);
+    }
+  }
 }
