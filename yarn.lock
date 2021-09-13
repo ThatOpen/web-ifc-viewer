@@ -2441,6 +2441,11 @@ graceful-fs@^4.1.2, graceful-fs@^4.2.4:
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.6.tgz#ff040b2b0853b23c3d31027523706f1885d76bee"
   integrity sha512-nTnJ528pbqxYanhpDYsi4Rd8MAeaBA67+RZ10CM1m3bTAVFEDcd5AuA4a6W5YkGZ1iNXHzZz8T6TBKLeBuNriQ==
 
+gsap@^3.7.1:
+  version "3.7.1"
+  resolved "https://registry.yarnpkg.com/gsap/-/gsap-3.7.1.tgz#1c5857f4fbcbd3f5ca0b513ef7abf828fbaa20a8"
+  integrity sha512-4qxuaC2yFWRjMRof5tI/7c9/+L4xMsCoqHrZAmuh+IbOokTnZyoeF0VgvcVHq3uo+/VJZCs7PTvjrFasfGl+ww==
+
 hard-rejection@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/hard-rejection/-/hard-rejection-2.1.0.tgz#1c6eda5c1685c63942766d79bb40ae773cecd883"
@@ -4845,10 +4850,10 @@ three-mesh-bvh@^0.4.1:
   resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.4.1.tgz#ba0bf1dac7cbd41f2132c8446545c8ad9fbeb892"
   integrity sha512-1ALlGVjArZpi0SdqZhjwFA3DZHgBF/Uo4LnL8G7PczI7rpOoBK87CaBL073DVrrbIE4OONJvpq/PEzluKoRHbg==
 
-three@^0.131.3:
-  version "0.131.3"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.131.3.tgz#406fd210c603ca9154937ae3582996fbfd3cb716"
-  integrity sha512-VkZAv8ZTJqiE/fyEmoWLxcNHImpVcjqW7RO0GzMu3tRpwO0KUvK9pjTmJzJcAbc51BOeB2G38zh80yjHTbP8gQ==
+three@^0.132.2:
+  version "0.132.2"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.132.2.tgz#95eb1856147237c03e887cbbe56f964b6fb40b5e"
+  integrity sha512-0wcR7LxxkXMn6Gi58gEs3QvY8WpTVXA31L2VOvpjm4ZPYFRHCZC13UqynheFoS5OXDYgtBneN0dhbaNBE8iLhQ==
 
 throat@^6.0.1:
   version "6.0.1"
@@ -5151,11 +5156,12 @@ walker@^1.0.7:
   dependencies:
     makeerror "1.0.x"
 
-web-ifc-three@^0.0.59:
-  version "0.0.59"
-  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.59.tgz#fb9e4d4fb47365ef02799480e9b15d4cdf0bf7fa"
-  integrity sha512-kBLnrxlDklf5El1JRIkwIzLHGUt8nePZ5rNOWYwQ5pMNo5ZxyoX9tGacXvBRCeXbeJQcGIlDWCda9Me1Nk0NAA==
+web-ifc-three@^0.0.61:
+  version "0.0.61"
+  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.61.tgz#9a65ef84f31dcfffc4346e1dc293466e24808b09"
+  integrity sha512-jUj3JBJGQ91td+Zl+1JJO92+KmNIjp41Qb2x3EggT2nXQG2KDXCz/Pklaxx1V63yBGwNcvEtlBcMumJITxlP3Q==
   dependencies:
+    "@types/three" "^0.131.0"
     three-mesh-bvh "^0.3.7"
     web-ifc "^0.0.24"
 

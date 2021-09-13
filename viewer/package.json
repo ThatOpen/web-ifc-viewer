@@ -1,6 +1,6 @@
 {
   "name": "web-ifc-viewer",
-  "version": "1.0.55",
+  "version": "1.0.58",
   "description": "IFC viewer",
   "main": "dist/index.js",
   "scripts": {
@@ -29,11 +29,11 @@
   "dependencies": {
     "@parametricos/bcf-js": "^0.1.2",
     "@types/stats.js": "^0.17.0",
+    "gsap": "^3.7.1",
     "stats.js": "^0.17.0",
     "three-mesh-bvh": "^0.4.1",
     "web-ifc": "^0.0.24",
-    "web-ifc-three": "^0.0.59",
-    "web-ifc-viewer": "^1.0.45"
+    "web-ifc-three": "^0.0.61"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
@@ -59,6 +59,6 @@
     "path": false
   },
   "peerDependencies": {
-    "three": "0.131.3"
+    "three": "^0.132.2"
   }
 }

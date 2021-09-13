@@ -19,15 +19,6 @@ export class GLTFManager extends IfcComponent {
     this.context.getScene().add(mesh);
   }
 
-  dispose() {
-    const models = Object.values(this.GLTFModels);
-    models.forEach((model) => {
-      if (model.parent) {
-        model.parent.remove(model);
-      }
-    });
-  }
-
   getModel(modelID: number) {
     if (!this.GLTFModels[modelID]) {
       throw new Error('The requested GLTF model does not exist!');

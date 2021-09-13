@@ -1,10 +1,10 @@
-import { Clock, Object3D, Plane, Vector2 } from 'three';
-import { Context } from 'vm';
-import { IfcComponent, Items, ViewerOptions } from '../../base-types';
-import { IfcCamera } from './camera';
+import { Clock, Mesh, Object3D, Plane, Vector2, Vector3 } from 'three';
+import { Context, IfcComponent, Items, NavigationModes, ViewerOptions } from '../../base-types';
+import { IfcCamera } from './camera/camera';
 import { IfcRaycaster } from './raycaster';
 import { IfcRenderer } from './renderer';
 import { IfcScene } from './scene';
+import { Animator } from './animator';
 
 export class IfcContext implements Context {
   options: ViewerOptions;
@@ -16,7 +16,7 @@ export class IfcContext implements Context {
   private readonly clippingPlanes: Plane[];
   private readonly clock: Clock;
   private readonly ifcCaster: IfcRaycaster;
-  private animationFrameID = -1;
+  private readonly ifcAnimator: Animator;
 
   constructor(options: ViewerOptions) {
     if (!options.container) throw new Error('Could not get container element!');
@@ -28,35 +28,9 @@ export class IfcContext implements Context {
     this.clippingPlanes = [];
     this.ifcCaster = new IfcRaycaster(this);
     this.clock = new Clock(true);
+    this.ifcAnimator = new Animator();
     this.setupWindowRescale();
     this.render();
-  }
-
-  dispose() {
-    this.items.components.forEach((component) => {
-      component.dispose();
-    });
-    this.items.components.length = 0;
-    this.items.pickableIfcModels.length = 0;
-    this.items.ifcModels.forEach((model) => {
-      if (model.parent) {
-        model.parent.remove(model);
-      }
-      if (model.geometry) {
-        model.geometry.dispose();
-      }
-      if (model.material) {
-        if (Array.isArray(model.material)) {
-          model.material.forEach((mat => mat.dispose()));
-        } else {
-          model.material.dispose();
-        }
-      }
-    });
-    this.items.ifcModels.length = 0;
-    // @ts-ignore
-    this.items = null;
-    window.cancelAnimationFrame(this.animationFrameID);
   }
 
   getScene() {
@@ -79,10 +53,6 @@ export class IfcContext implements Context {
     return this.ifcCamera;
   }
 
-  toggleCameraControls(active: boolean) {
-    this.ifcCamera.toggleControls(active);
-  }
-
   getDomElement() {
     return this.getRenderer().domElement;
   }
@@ -102,6 +72,17 @@ export class IfcContext implements Context {
 
   getClippingPlanes() {
     return this.clippingPlanes;
+  }
+
+  getAnimator() {
+    return this.ifcAnimator;
+  }
+
+  getCenter(mesh: Mesh) {
+    const center = new Vector3();
+    mesh.geometry.computeBoundingBox();
+    mesh.geometry.boundingBox?.getCenter(center);
+    return center;
   }
 
   addComponent(component: IfcComponent) {
@@ -126,7 +107,11 @@ export class IfcContext implements Context {
   }
 
   fitToFrame() {
-    this.ifcCamera.fitModelToFrame();
+    this.ifcCamera.navMode[NavigationModes.Orbit].fitModelToFrame();
+  }
+
+  toggleCameraControls(active: boolean) {
+    this.ifcCamera.toggleCameraControls(active);
   }
 
   updateAspect() {
@@ -135,7 +120,7 @@ export class IfcContext implements Context {
   }
 
   private render = () => {
-    this.animationFrameID = requestAnimationFrame(this.render);
+    requestAnimationFrame(this.render);
     this.updateAllComponents();
   };
 

@@ -3,19 +3,19 @@ import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-
 import { DoubleSide, Material, MeshLambertMaterial } from 'three';
 import { IfcMesh, IfcModel } from 'web-ifc-three/IFC/BaseDefinitions';
 import { IFCLoader } from 'web-ifc-three/IFCLoader';
+import { LoaderSettings } from 'web-ifc';
 import { IfcComponent, Context } from '../../base-types';
 import { IfcSelection } from './selection';
 import { VisibilityManager } from './visibility-manager';
-import { LoaderSettings } from 'web-ifc';
 
 export class IfcManager extends IfcComponent {
   loader: IFCLoader;
   visibility: VisibilityManager;
-  private preselection: IfcSelection;
-  private selection: IfcSelection;
+  preselection: IfcSelection;
+  selection: IfcSelection;
   private readonly context: Context;
   private readonly selectMat: Material | undefined;
-  private readonly preselectMat: Material | undefined;
+  readonly preselectMat: Material | undefined;
   private readonly defPreselectMat: Material;
   private readonly defSelectMat: Material;
 
@@ -68,19 +68,6 @@ export class IfcManager extends IfcComponent {
       if (onError) onError(err);
       return null;
     }
-  }
-
-  /**
-   * Disposes all webgl memory regarding IFC files
-   */
-  dispose() {
-    this.selectMat?.dispose();
-    this.preselectMat?.dispose();
-    this.selection.dispose();
-    this.preselection.dispose();
-    this.loader.ifcManager.disposeMemory();
-    // @ts-ignore
-    this.loader = null;
   }
 
   /**

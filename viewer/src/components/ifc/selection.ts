@@ -1,9 +1,10 @@
-import { Intersection, Material, Scene } from 'three';
+import { Intersection, Material, Mesh, Scene } from 'three';
 import { IfcMesh } from 'web-ifc-three/IFC/BaseDefinitions';
 import { IFCLoader } from 'web-ifc-three/IFCLoader';
 import { IfcComponent, Context } from '../../base-types';
 
 export class IfcSelection extends IfcComponent {
+  mesh: Mesh | null = null;
   private selected: number;
   private modelID: number;
   private readonly material: Material | undefined;
@@ -31,11 +32,8 @@ export class IfcSelection extends IfcComponent {
     return { modelID: this.modelID, id };
   };
 
-  dispose() {
-    this.material?.dispose();
-  }
-
   unpick() {
+    this.mesh = null;
     this.loader.ifcManager.removeSubset(this.modelID, this.scene, this.material);
   }
 
@@ -45,13 +43,16 @@ export class IfcSelection extends IfcComponent {
   };
 
   newSelection = (ids: number[]) => {
-    this.loader.ifcManager.createSubset({
+    const mesh = this.loader.ifcManager.createSubset({
       scene: this.scene,
       modelID: this.modelID,
       ids,
       removePrevious: true,
       material: this.material
     });
+    if (mesh) {
+      this.mesh = mesh;
+    }
   };
 
   removeSelectionOfOtherModel(mesh?: IfcMesh) {

@@ -199,11 +199,10 @@ export class IfcViewerAPI {
   };
 
   /**
-   * Deletes all data, releasing all memory
-   * Work in progress: this doesn't remove all the memory
-   * Page reloading recommended to avoid heap overload
+   * TODO: Method to delete all data
+   * Needs to be implemented yet
    */
   releaseAllMemory() {
-    this.context.dispose();
+
   }
 }

@@ -7,9 +7,29 @@ import {
   Plane,
   Renderer,
   Scene,
-  Vector2
+  Vector2,
+  Vector3,
+  Mesh
 } from 'three';
 import { IfcMesh } from 'web-ifc-three/IFC/BaseDefinitions';
+import { Animator } from './components/context/animator';
+import { OrbitControl } from './components/context/camera/OrbitControl';
+import { FirstPersonControl } from './components/context/camera/FirstPersonControl';
+
+export enum NavigationModes {
+  Orbit,
+  FirstPerson
+}
+
+export interface NavigationMode {
+  toggle: (active: boolean, options?: any) => void;
+  enabled: boolean;
+}
+
+export interface NavModeManager {
+  [NavigationModes.Orbit]: OrbitControl;
+  [NavigationModes.FirstPerson]: FirstPersonControl;
+}
 
 export interface ViewerOptions {
   container: HTMLElement;
@@ -41,21 +61,43 @@ export interface Context {
   getDomElement2D: () => HTMLElement;
   getDimensions: () => Vector2;
   getClippingPlanes: () => Plane[];
+  getAnimator: () => Animator;
+  getCenter: (mesh: Mesh) => Vector3;
 
   fitToFrame: () => void;
+  toggleCameraControls: (active: boolean) => void;
   addComponent: (component: Component) => void;
   addClippingPlane: (plane: Plane) => void;
   removeClippingPlane: (plane: Plane) => void;
   castRay: (items: Object3D[]) => Intersection[];
   castRayIfc: () => Intersection;
-  toggleCameraControls: (active: boolean) => void;
 }
 
 export abstract class IfcComponent implements Component {
-  constructor(context: Context) {
+  protected constructor(context: Context) {
     context.addComponent(this);
   }
 
   update(_delta: number) {}
   dispose() {}
+}
+
+export interface fpsControl {
+  active: boolean;
+  keys: string[];
+}
+
+export interface fpsControls {
+  forward: fpsControl;
+  back: fpsControl;
+  right: fpsControl;
+  left: fpsControl;
+  up: fpsControl;
+  down: fpsControl;
+}
+
+export enum dimension {
+  x = 'x',
+  y = 'y',
+  z = 'z'
 }

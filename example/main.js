@@ -1,7 +1,7 @@
-import { IfcViewerAPI } from 'web-ifc-viewer';
+import { IfcViewerAPI, NavigationModes } from 'web-ifc-viewer';
 import { createSideMenuButton } from './utils/gui-creator';
 import { IFCWALLSTANDARDCASE } from 'three/examples/jsm/loaders/ifc/web-ifc-api';
-import { DirectionalLight, MeshLambertMaterial } from 'three';
+import { DirectionalLight, MeshLambertMaterial, Vector3 } from 'three';
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container });
@@ -26,9 +26,19 @@ const handleKeyDown = (event) => {
   }
 };
 
-// window.onmousemove = viewer.IFC.prePickIfcItem;
+window.onmousemove = viewer.IFC.prePickIfcItem;
 window.onkeydown = handleKeyDown;
-window.ondblclick = () => viewer.releaseAllMemory();
+window.ondblclick = () => {
+  // viewer.context.getIfcCamera().setNavigationMode(NavigationModes.FirstPerson);
+  const camera = viewer.context.getIfcCamera();
+  camera.goToHomeView();
+}
+// window.ondblclick = () => {
+  // const preselected = viewer.IFC.preselection.mesh;
+  // const camera = viewer.context.getIfcCamera();
+  // camera.targetItem(preselected);
+  // camera.zoomItem(preselected, new Vector3(1, 1, 1));
+// };
 
 viewer.IFC.applyWebIfcConfig({
   COORDINATE_TO_ORIGIN: true,

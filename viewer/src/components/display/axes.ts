@@ -12,11 +12,4 @@ export class IfcAxes extends IfcComponent {
     const scene = context.getScene();
     scene.add(this.axes);
   }
-
-  dispose() {
-    if (this.axes.parent) {
-      this.axes.parent.remove(this.axes);
-    }
-    this.axes.dispose();
-  }
 }
