@@ -11,7 +11,7 @@ export class IfcSelection extends IfcComponent {
   private loader: IFCLoader;
   private readonly scene: Scene;
 
-  constructor(context: Context, loader: IFCLoader, material: Material | undefined) {
+  constructor(private context: Context, loader: IFCLoader, material?: Material) {
     super(context);
     this.scene = context.getScene();
     this.loader = loader;
@@ -20,7 +20,7 @@ export class IfcSelection extends IfcComponent {
     this.modelID = -1;
   }
 
-  pick = (item: Intersection) => {
+  pick = (item: Intersection, focusSelection = false, duration?: number) => {
     if (this.selected === item.faceIndex || item.faceIndex == null) return null;
     this.selected = item.faceIndex;
     const mesh = item.object as IfcMesh;
@@ -29,6 +29,7 @@ export class IfcSelection extends IfcComponent {
     this.removeSelectionOfOtherModel(mesh);
     this.modelID = mesh.modelID;
     this.newSelection([id]);
+    if (focusSelection) this.focusSelection(duration);
     return { modelID: this.modelID, id };
   };
 
@@ -58,6 +59,12 @@ export class IfcSelection extends IfcComponent {
   removeSelectionOfOtherModel(mesh?: IfcMesh) {
     if (this.modelID !== undefined && this.modelID !== mesh?.modelID) {
       this.loader.ifcManager.removeSubset(this.modelID, this.scene, this.material);
+    }
+  }
+
+  private focusSelection(duration?: number) {
+    if (this.mesh) {
+      this.context.ifcCamera.targetItem(this.mesh, duration);
     }
   }
 }

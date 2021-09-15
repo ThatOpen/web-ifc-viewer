@@ -9,12 +9,20 @@ import {
   Scene,
   Vector2,
   Vector3,
-  Mesh
+  Mesh,
+  MOUSE
 } from 'three';
 import { IfcMesh } from 'web-ifc-three/IFC/BaseDefinitions';
 import { Animator } from './components/context/animator';
 import { OrbitControl } from './components/context/camera/OrbitControl';
 import { FirstPersonControl } from './components/context/camera/FirstPersonControl';
+import { IfcCamera } from './components/context/camera/camera';
+
+export interface MouseButtons {
+  left: MOUSE;
+  middle: MOUSE;
+  right: MOUSE;
+}
 
 export enum NavigationModes {
   Orbit,
@@ -63,6 +71,7 @@ export interface Context {
   getClippingPlanes: () => Plane[];
   getAnimator: () => Animator;
   getCenter: (mesh: Mesh) => Vector3;
+  ifcCamera: IfcCamera;
 
   fitToFrame: () => void;
   toggleCameraControls: (active: boolean) => void;
@@ -79,6 +88,7 @@ export abstract class IfcComponent implements Component {
   }
 
   update(_delta: number) {}
+
   dispose() {}
 }
 

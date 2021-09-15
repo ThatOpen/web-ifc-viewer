@@ -13,6 +13,7 @@ export class IfcManager extends IfcComponent {
   visibility: VisibilityManager;
   preselection: IfcSelection;
   selection: IfcSelection;
+  highlight: IfcSelection;
   private readonly context: Context;
   private readonly selectMat: Material | undefined;
   readonly preselectMat: Material | undefined;
@@ -31,6 +32,7 @@ export class IfcManager extends IfcComponent {
     this.preselectMat = context.options.preselectMaterial || this.defPreselectMat;
     this.preselection = new IfcSelection(context, this.loader, this.preselectMat);
     this.selection = new IfcSelection(context, this.loader, this.selectMat);
+    this.highlight = new IfcSelection(context, this.loader);
   }
 
   /**
@@ -155,11 +157,26 @@ export class IfcManager extends IfcComponent {
 
   /**
    * Highlights the item pointed by the cursor and gets is properties.
+   * @focusSelection If true, animate the camera to focus the current selection
+   * @duration The length of the camera animation in seconds
    */
-  pickIfcItem = () => {
+  pickIfcItem = (focusSelection = false, duration?: number) => {
     const found = this.context.castRayIfc();
     if (!found) return null;
-    const result = this.selection.pick(found);
+    const result = this.selection.pick(found, focusSelection, duration);
+    if (result == null || result.modelID == null || result.id == null) return null;
+    return result;
+  };
+
+  /**
+   * Highlights the item pointed by the cursor and gets is properties, without applying any material to it.
+   * @focusSelection If true, animate the camera to focus the current selection
+   * @duration The length of the camera animation in seconds
+   */
+  highlightIfcItem = (focusSelection = false, duration?: number) => {
+    const found = this.context.castRayIfc();
+    if (!found) return null;
+    const result = this.highlight.pick(found, focusSelection, duration);
     if (result == null || result.modelID == null || result.id == null) return null;
     return result;
   };
@@ -179,6 +196,10 @@ export class IfcManager extends IfcComponent {
 
   unPrepickIfcItems = () => {
     this.preselection.unpick();
+  };
+
+  unHighlightIfcItems = () => {
+    this.highlight.unpick();
   };
 
   /**
@@ -227,9 +248,13 @@ export class IfcManager extends IfcComponent {
         if (material.userData.opacity === undefined) {
           material.userData = { transparent: material.transparent, opacity: material.opacity };
         }
-        material.opacity = translucent ? opacity : material.userData.opacity;
-        material.transparent = translucent ? true : material.userData.transparent;
       });
+      const newMats = model.material.map((mat) => mat.clone());
+      newMats.forEach((mat) => {
+        mat.opacity = translucent ? opacity : mat.userData.opacity;
+        mat.transparent = translucent ? true : mat.userData.transparent;
+      });
+      model.material = newMats;
     }
     if (translucent && !selectable) {
       const index = this.context.items.pickableIfcModels.indexOf(model);

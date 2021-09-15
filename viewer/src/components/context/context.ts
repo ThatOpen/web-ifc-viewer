@@ -1,5 +1,11 @@
 import { Clock, Mesh, Object3D, Plane, Vector2, Vector3 } from 'three';
-import { Context, IfcComponent, Items, NavigationModes, ViewerOptions } from '../../base-types';
+import {
+  Context,
+  IfcComponent,
+  Items,
+  NavigationModes,
+  ViewerOptions
+} from '../../base-types';
 import { IfcCamera } from './camera/camera';
 import { IfcRaycaster } from './raycaster';
 import { IfcRenderer } from './renderer';
@@ -9,10 +15,10 @@ import { Animator } from './animator';
 export class IfcContext implements Context {
   options: ViewerOptions;
   items: Items;
+  ifcCamera: IfcCamera;
 
   private readonly ifcScene: IfcScene;
   private readonly ifcRenderer: IfcRenderer;
-  private readonly ifcCamera: IfcCamera;
   private readonly clippingPlanes: Plane[];
   private readonly clock: Clock;
   private readonly ifcCaster: IfcRaycaster;

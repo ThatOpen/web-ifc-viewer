@@ -1,5 +1,11 @@
 import { Mesh, PerspectiveCamera, Vector3 } from 'three';
-import { Context, IfcComponent, NavigationMode, NavigationModes, NavModeManager } from '../../../base-types';
+import {
+  Context,
+  IfcComponent, MouseButtons,
+  NavigationMode,
+  NavigationModes,
+  NavModeManager
+} from '../../../base-types';
 import { FirstPersonControl } from './FirstPersonControl';
 import { OrbitControl } from './OrbitControl';
 
@@ -40,13 +46,18 @@ export class IfcCamera extends IfcComponent {
     this.currentNavMode.toggle(true);
   }
 
+  setOrbitControlsButtons(buttons: MouseButtons) {
+    const orbitControls = this.setOrbitControls();
+    orbitControls.setOrbitControlsButtons(buttons);
+  }
+
   toggleCameraControls(active: boolean) {
     this.currentNavMode.toggle(active);
   }
 
-  targetItem(mesh: Mesh) {
+  targetItem(mesh: Mesh, duration = 1) {
     const orbitControls = this.setOrbitControls();
-    orbitControls.targetItem(mesh);
+    orbitControls.targetItem(mesh, duration);
   }
 
   goToHomeView() {
@@ -60,9 +71,9 @@ export class IfcCamera extends IfcComponent {
   }
 
   private setupCamera() {
-    this.camera.position.z = 8;
-    this.camera.position.y = 8;
-    this.camera.position.x = 8;
+    this.camera.position.z = 10;
+    this.camera.position.y = 10;
+    this.camera.position.x = 10;
     this.camera.lookAt(new Vector3(0, 0, 0));
   }
 }

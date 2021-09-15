@@ -22,23 +22,16 @@ document.body.appendChild(inputElement);
 
 const handleKeyDown = (event) => {
   if (event.code === 'Delete') {
-    viewer.removeClippingPlane();
+    // viewer.removeClippingPlane();
+    viewer.IFC.setModelTranslucency(0, true, 0.1, true);
   }
 };
 
 window.onmousemove = viewer.IFC.prePickIfcItem;
 window.onkeydown = handleKeyDown;
 window.ondblclick = () => {
-  // viewer.context.getIfcCamera().setNavigationMode(NavigationModes.FirstPerson);
-  const camera = viewer.context.getIfcCamera();
-  camera.goToHomeView();
+  viewer.IFC.highlightIfcItem(true);
 }
-// window.ondblclick = () => {
-  // const preselected = viewer.IFC.preselection.mesh;
-  // const camera = viewer.context.getIfcCamera();
-  // camera.targetItem(preselected);
-  // camera.zoomItem(preselected, new Vector3(1, 1, 1));
-// };
 
 viewer.IFC.applyWebIfcConfig({
   COORDINATE_TO_ORIGIN: true,
