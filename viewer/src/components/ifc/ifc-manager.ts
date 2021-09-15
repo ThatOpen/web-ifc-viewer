@@ -186,8 +186,13 @@ export class IfcManager extends IfcComponent {
    * @modelID ID of the IFC model.
    * @id Express ID of the item.
    */
-  pickIfcItemsByID = (modelID: number, ids: number[]) => {
-    this.selection.pickByID(modelID, ids);
+  pickIfcItemsByID = (
+    modelID: number,
+    ids: number[],
+    focusSelection = false,
+    duration?: number
+  ) => {
+    this.selection.pickByID(modelID, ids, focusSelection, duration);
   };
 
   unpickIfcItems = () => {
