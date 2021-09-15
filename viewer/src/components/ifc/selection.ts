@@ -38,9 +38,10 @@ export class IfcSelection extends IfcComponent {
     this.loader.ifcManager.removeSubset(this.modelID, this.scene, this.material);
   }
 
-  pickByID = (modelID: number, ids: number[]) => {
+  pickByID = (modelID: number, ids: number[], focusSelection = false, duration?: number) => {
     this.modelID = modelID;
     this.newSelection(ids);
+    if (focusSelection) this.focusSelection(duration);
   };
 
   newSelection = (ids: number[]) => {
