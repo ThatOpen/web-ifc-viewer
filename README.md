@@ -2,7 +2,7 @@
 
 This library is part of the [IFC.js ecosystem](https://agviegas.github.io/ifcjs-docs/#/).
 
-[Try it here!](https://ifcjs.github.io/web-ifc-viewer/examples/simple-html)
+[Try it here!](https://ifcjs.github.io/web-ifc-viewer/example/index)
 
 ## Community
 
