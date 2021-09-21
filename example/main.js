@@ -7,11 +7,17 @@ const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container });
 viewer.addAxes();
 viewer.addGrid();
-viewer.IFC.setWasmPath('wasm/');
+
+viewer.IFC.setWasmPath('files/');
+viewer.IFC.loader.ifcManager.applyWebIfcConfig({
+  COORDINATE_TO_ORIGIN: true,
+  USE_FAST_BOOLS: false
+});
+// viewer.IFC.loader.ifcManager.useWebWorkers('files/IFCWorker.js');
 
 //Setup loader
 const loadIfc = async (event) => {
-  await viewer.IFC.loadIfc(event.target.files[0], true);
+  await viewer.IFC.loadIfc(event.target.files[0], false);
 };
 
 const inputElement = document.createElement('input');
@@ -29,8 +35,12 @@ const handleKeyDown = (event) => {
 
 window.onmousemove = viewer.IFC.prePickIfcItem;
 window.onkeydown = handleKeyDown;
-window.ondblclick = () => {
-  viewer.IFC.highlightIfcItem(true);
+window.ondblclick = async () => {
+  const result = viewer.IFC.pickIfcItem(true);
+  if(result) {
+    const props = await viewer.IFC.getProperties(result.modelID, result.id, true);
+    console.log(props);
+  }
 }
 
 viewer.IFC.applyWebIfcConfig({

@@ -33,7 +33,7 @@
     "stats.js": "^0.17.0",
     "three-mesh-bvh": "^0.4.1",
     "web-ifc": "^0.0.24",
-    "web-ifc-three": "^0.0.61"
+    "web-ifc-three": "^0.0.63"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",

@@ -111,13 +111,13 @@ export class IfcManager extends IfcComponent {
    * @id Express ID of the item.
    * @indirect If true, also returns psets, qsets and type properties.
    */
-  getProperties(modelID: number, id: number, indirect: boolean) {
+  async getProperties(modelID: number, id: number, indirect: boolean) {
     if (modelID == null || id == null) return null;
-    const props = this.loader.ifcManager.getItemProperties(modelID, id);
+    const props = await this.loader.ifcManager.getItemProperties(modelID, id);
     if (indirect) {
-      props.psets = this.loader.ifcManager.getPropertySets(modelID, id);
-      props.mats = this.loader.ifcManager.getMaterialsProperties(modelID, id);
-      props.type = this.loader.ifcManager.getTypeProperties(modelID, id);
+      props.psets = await this.loader.ifcManager.getPropertySets(modelID, id);
+      props.mats = await this.loader.ifcManager.getMaterialsProperties(modelID, id);
+      props.type = await this.loader.ifcManager.getTypeProperties(modelID, id);
     }
     return props;
   }
