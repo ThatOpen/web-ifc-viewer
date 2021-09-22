@@ -85832,21 +85832,15 @@
       }
 
       async getPropertySets(modelID, elementID, recursive = false) {
-        return {
-          ...await this.getProperty(modelID, elementID, recursive, PropsNames.psets)
-        };
+        return await this.getProperty(modelID, elementID, recursive, PropsNames.psets);
       }
 
       async getTypeProperties(modelID, elementID, recursive = false) {
-        return {
-          ...await this.getProperty(modelID, elementID, recursive, PropsNames.type)
-        };
+        return await this.getProperty(modelID, elementID, recursive, PropsNames.type);
       }
 
       async getMaterialsProperties(modelID, elementID, recursive = false) {
-        return {
-          ...await this.getProperty(modelID, elementID, recursive, PropsNames.materials)
-        };
+        return await this.getProperty(modelID, elementID, recursive, PropsNames.materials);
       }
 
       getSpatialNode(modelID, node, treeChunks, includeProperties) {
