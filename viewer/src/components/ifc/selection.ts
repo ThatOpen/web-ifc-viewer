@@ -20,11 +20,11 @@ export class IfcSelection extends IfcComponent {
     this.modelID = -1;
   }
 
-  pick = (item: Intersection, focusSelection = false, duration?: number) => {
+  pick = async (item: Intersection, focusSelection = false, duration?: number) => {
     if (this.selected === item.faceIndex || item.faceIndex == null) return null;
     this.selected = item.faceIndex;
     const mesh = item.object as IfcMesh;
-    const id = this.loader.ifcManager.getExpressId(mesh.geometry, item.faceIndex);
+    const id = await this.loader.ifcManager.getExpressId(mesh.geometry, item.faceIndex);
     if (id === undefined) return null;
     this.removeSelectionOfOtherModel(mesh);
     this.modelID = mesh.modelID;

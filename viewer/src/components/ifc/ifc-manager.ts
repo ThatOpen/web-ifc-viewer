@@ -160,10 +160,10 @@ export class IfcManager extends IfcComponent {
    * @focusSelection If true, animate the camera to focus the current selection
    * @duration The length of the camera animation in seconds
    */
-  pickIfcItem = (focusSelection = false, duration?: number) => {
+  pickIfcItem = async (focusSelection = false, duration?: number) => {
     const found = this.context.castRayIfc();
     if (!found) return null;
-    const result = this.selection.pick(found, focusSelection, duration);
+    const result = await this.selection.pick(found, focusSelection, duration);
     if (result == null || result.modelID == null || result.id == null) return null;
     return result;
   };
@@ -173,10 +173,10 @@ export class IfcManager extends IfcComponent {
    * @focusSelection If true, animate the camera to focus the current selection
    * @duration The length of the camera animation in seconds
    */
-  highlightIfcItem = (focusSelection = false, duration?: number) => {
+  highlightIfcItem = async (focusSelection = false, duration?: number) => {
     const found = this.context.castRayIfc();
     if (!found) return null;
-    const result = this.highlight.pick(found, focusSelection, duration);
+    const result = await this.highlight.pick(found, focusSelection, duration);
     if (result == null || result.modelID == null || result.id == null) return null;
     return result;
   };

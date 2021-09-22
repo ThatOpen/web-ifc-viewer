@@ -5146,10 +5146,10 @@ walker@^1.0.7:
   dependencies:
     makeerror "1.0.x"
 
-web-ifc-three@^0.0.63:
-  version "0.0.63"
-  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.63.tgz#a516b70a755f3d8aee71396d6febbaebf6431373"
-  integrity sha512-ZG7/GDb2R5Xdb2HYzI/l6XrrhC8s5ryL5htJ2x3tg6ZgK5xlcu8aEKTm3jG+eYZLpoWwxqFY2GQJZSjG1quAcQ==
+web-ifc-three@^0.0.65:
+  version "0.0.65"
+  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.65.tgz#529ba98ad42bb8eccb2abe979cdf1b3e29553332"
+  integrity sha512-0AI+ERsSkYItAEYuIylUToM/9hAd/skbNrFr0/pnGhIB+SHZL2I5boiNt2FVswZsZAYw5iE6vgCvQfPy1i+ZHg==
   dependencies:
     "@types/three" "^0.131.0"
     three-mesh-bvh "^0.3.7"

@@ -13,7 +13,7 @@ viewer.IFC.loader.ifcManager.applyWebIfcConfig({
   COORDINATE_TO_ORIGIN: true,
   USE_FAST_BOOLS: false
 });
-// viewer.IFC.loader.ifcManager.useWebWorkers('files/IFCWorker.js');
+viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
 
 //Setup loader
 const loadIfc = async (event) => {
@@ -31,12 +31,18 @@ const handleKeyDown = (event) => {
     // viewer.removeClippingPlane();
     viewer.IFC.setModelTranslucency(0, true, 0.1, true);
   }
+  if (event.code === 'Space') {
+    viewer.context.ifcCamera.setNavigationMode(NavigationModes.FirstPerson);
+  }
+  if (event.code === 'KeyP') {
+    viewer.context.ifcCamera.goToHomeView();
+  }
 };
 
 window.onmousemove = viewer.IFC.prePickIfcItem;
 window.onkeydown = handleKeyDown;
 window.ondblclick = async () => {
-  const result = viewer.IFC.pickIfcItem(true);
+  const result = await viewer.IFC.pickIfcItem(true);
   if(result) {
     const props = await viewer.IFC.getProperties(result.modelID, result.id, true);
     console.log(props);
