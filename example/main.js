@@ -1,7 +1,6 @@
 import { IfcViewerAPI, NavigationModes } from 'web-ifc-viewer';
 import { createSideMenuButton } from './utils/gui-creator';
 import { IFCWALLSTANDARDCASE } from 'three/examples/jsm/loaders/ifc/web-ifc-api';
-import { DirectionalLight, MeshLambertMaterial, Vector3 } from 'three';
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container });
@@ -13,7 +12,9 @@ viewer.IFC.loader.ifcManager.applyWebIfcConfig({
   COORDINATE_TO_ORIGIN: true,
   USE_FAST_BOOLS: false
 });
-viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+// viewer.IFC.loader.ifcManager.useJSONData();
+// viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+viewer.IFC.loader.ifcManager.loadJsonDataFromWorker(0, '01.json');
 
 //Setup loader
 const loadIfc = async (event) => {
@@ -33,9 +34,14 @@ const handleKeyDown = (event) => {
   }
   if (event.code === 'Space') {
     viewer.context.ifcCamera.setNavigationMode(NavigationModes.FirstPerson);
+    viewer.IFC.unPrepickIfcItems();
+    window.onmousemove = null;
   }
   if (event.code === 'KeyP') {
     viewer.context.ifcCamera.goToHomeView();
+  }
+  if (event.code === 'Escape') {
+    window.onmousemove = viewer.IFC.prePickIfcItem;
   }
 };
 
@@ -44,8 +50,9 @@ window.onkeydown = handleKeyDown;
 window.ondblclick = async () => {
   const result = await viewer.IFC.pickIfcItem(true);
   if(result) {
-    const props = await viewer.IFC.getProperties(result.modelID, result.id, true);
-    console.log(props);
+    // const props = await viewer.IFC.getProperties(result.modelID, result.id, true);
+    const all = await viewer.IFC.getAllItemsOfType(result.modelID, IFCWALLSTANDARDCASE, false);
+    console.log(all);
   }
 }
 

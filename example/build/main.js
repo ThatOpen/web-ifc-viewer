@@ -54405,7 +54405,7 @@
     var IFCVOIDINGFEATURE = 926996030;
     var IFCWALL = 2391406946;
     var IFCWALLELEMENTEDCASE = 4156078855;
-    var IFCWALLSTANDARDCASE = 3512223829;
+    var IFCWALLSTANDARDCASE$1 = 3512223829;
     var IFCWALLTYPE = 1898987631;
     var IFCWASTETERMINAL = 4237592921;
     var IFCWASTETERMINALTYPE = 1133259667;
@@ -56822,7 +56822,7 @@
     FromRawLineData[IFCWALLELEMENTEDCASE] = (d) => {
       return IfcWallElementedCase.FromTape(d.ID, d.type, d.arguments);
     };
-    FromRawLineData[IFCWALLSTANDARDCASE] = (d) => {
+    FromRawLineData[IFCWALLSTANDARDCASE$1] = (d) => {
       return IfcWallStandardCase.FromTape(d.ID, d.type, d.arguments);
     };
     FromRawLineData[IFCWALLTYPE] = (d) => {
@@ -105468,6 +105468,7 @@
           exports["WebIFCWasm"] = WebIFCWasm2;
       }
     });
+    var IFCWALLSTANDARDCASE = 3512223829;
 
     // dist/web-ifc-api.ts
     require_web_ifc();
@@ -105485,7 +105486,9 @@
       COORDINATE_TO_ORIGIN: true,
       USE_FAST_BOOLS: false
     });
-    viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+    // viewer.IFC.loader.ifcManager.useJSONData();
+    // viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+    viewer.IFC.loader.ifcManager.loadJsonDataFromWorker(0, '01.json');
 
     //Setup loader
     const loadIfc = async (event) => {
@@ -105505,9 +105508,14 @@
       }
       if (event.code === 'Space') {
         viewer.context.ifcCamera.setNavigationMode(NavigationModes.FirstPerson);
+        viewer.IFC.unPrepickIfcItems();
+        window.onmousemove = null;
       }
       if (event.code === 'KeyP') {
         viewer.context.ifcCamera.goToHomeView();
+      }
+      if (event.code === 'Escape') {
+        window.onmousemove = viewer.IFC.prePickIfcItem;
       }
     };
 
@@ -105516,8 +105524,9 @@
     window.ondblclick = async () => {
       const result = await viewer.IFC.pickIfcItem(true);
       if(result) {
-        const props = await viewer.IFC.getProperties(result.modelID, result.id, true);
-        console.log(props);
+        // const props = await viewer.IFC.getProperties(result.modelID, result.id, true);
+        const all = await viewer.IFC.getAllItemsOfType(result.modelID, IFCWALLSTANDARDCASE, false);
+        console.log(all);
       }
     };
 
