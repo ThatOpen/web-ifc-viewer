@@ -88301,7 +88301,7 @@
             this.pickIfcItemsByID = (modelID, ids, focusSelection = false, duration) => {
                 this.selection.pickByID(modelID, ids, focusSelection, duration);
             };
-            this.highlightItemsByID = (modelID, ids, focusSelection = false, duration) => {
+            this.highlightIfcItemsByID = (modelID, ids, focusSelection = false, duration) => {
                 this.highlight.pickByID(modelID, ids, focusSelection, duration);
             };
             this.unpickIfcItems = () => {
