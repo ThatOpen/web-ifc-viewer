@@ -195,6 +195,15 @@ export class IfcManager extends IfcComponent {
     this.selection.pickByID(modelID, ids, focusSelection, duration);
   };
 
+  prepickIfcItemsByID = (
+    modelID: number,
+    ids: number[],
+    focusSelection = false,
+    duration?: number
+  ) => {
+    this.preselection.pickByID(modelID, ids, focusSelection, duration);
+  };
+
   highlightIfcItemsByID = (
     modelID: number,
     ids: number[],
