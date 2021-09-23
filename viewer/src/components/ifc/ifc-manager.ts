@@ -195,6 +195,15 @@ export class IfcManager extends IfcComponent {
     this.selection.pickByID(modelID, ids, focusSelection, duration);
   };
 
+  highlightItemsByID = (
+    modelID: number,
+    ids: number[],
+    focusSelection = false,
+    duration?: number
+  ) => {
+    this.highlight.pickByID(modelID, ids, focusSelection, duration);
+  };
+
   unpickIfcItems = () => {
     this.selection.unpick();
   };
