@@ -259,9 +259,15 @@ export class IfcManager extends IfcComponent {
     this.loader.ifcManager.showAllItems(modelID);
   }
 
+  // TODO: Move to another file, cleanup
+  newMats: { [modelID: number]: Material[] } = {};
+
   /**
    * Makes an IFC model translucent
    * @modelID ID of the IFC model.
+   * @translucent wether to activate or deactivate the translucency.
+   * @opacity the opacity of the translucent material.
+   * @selectable wether the translucent models are selectable with the mouse.
    */
   setModelTranslucency(modelID: number, translucent: boolean, opacity = 0.2, selectable = false) {
     const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
@@ -272,7 +278,8 @@ export class IfcManager extends IfcComponent {
           material.userData = { transparent: material.transparent, opacity: material.opacity };
         }
       });
-      const newMats = model.material.map((mat) => mat.clone());
+      if (!this.newMats[modelID]) this.newMats[modelID] = model.material.map((mat) => mat.clone());
+      const newMats = this.newMats[modelID];
       newMats.forEach((mat) => {
         mat.opacity = translucent ? opacity : mat.userData.opacity;
         mat.transparent = translucent ? true : mat.userData.transparent;
