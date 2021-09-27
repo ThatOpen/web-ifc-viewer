@@ -32,6 +32,7 @@ export enum NavigationModes {
 export interface NavigationMode {
   toggle: (active: boolean, options?: any) => void;
   enabled: boolean;
+  submitOnChange: (action: (event: any) => void) => void;
 }
 
 export interface NavModeManager {

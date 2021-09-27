@@ -6,16 +6,18 @@ import {
   LineBasicMaterial,
   Mesh,
   MeshBasicMaterial,
-  SphereGeometry,
   Vector3
 } from 'three';
+import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
 import { Context, IfcComponent } from '../../../base-types';
 import { IfcDimensionLine } from './dimension-line';
 
 export class IfcDimensions extends IfcComponent {
   private readonly context: Context;
   private dimensions: IfcDimensionLine[] = [];
-  readonly className = 'ifcjs-dimension-label';
+  private currentDimension?: IfcDimensionLine;
+  readonly labelClassName = 'ifcjs-dimension-label';
+  readonly previewClassName = 'ifcjs-dimension-preview';
 
   // State
   private enabled = false;
@@ -29,20 +31,11 @@ export class IfcDimensions extends IfcComponent {
 
   // Geometries
   private endpoint: BufferGeometry;
-  private previewGeometry = new SphereGeometry(0.1);
+  private previewElement: CSS2DObject;
 
   // Materials
   private lineMaterial = new LineBasicMaterial({ color: 0x000000, linewidth: 2, depthTest: false });
   private endpointsMaterial = new MeshBasicMaterial({ color: 0x000000, depthTest: false });
-  private previewMaterial = new MeshBasicMaterial({
-    color: 0xff00ff,
-    transparent: true,
-    opacity: 0.3,
-    depthTest: false
-  });
-
-  // Meshes
-  private previewMesh = new Mesh(this.previewGeometry, this.previewMaterial);
 
   // Temp variables
   private startPoint = new Vector3();
@@ -52,16 +45,23 @@ export class IfcDimensions extends IfcComponent {
     super(context);
     this.context = context;
     this.endpoint = this.getDefaultEndpointGeometry();
+    const htmlPreview = document.createElement('div');
+    htmlPreview.className = this.previewClassName;
+    this.previewElement = new CSS2DObject(htmlPreview);
+    this.previewElement.visible = false;
   }
 
   update(_delta: number) {
     if (this.enabled && this.preview) {
       const intersects = this.context.castRayIfc();
-      this.previewMesh.visible = !!intersects;
+      this.previewElement.visible = !!intersects;
       if (!intersects) return;
-      this.previewMesh.visible = true;
+      this.previewElement.visible = true;
       const closest = this.getClosestVertex(intersects);
-      this.previewMesh.position.set(closest.x, closest.y, closest.z);
+      this.previewElement.position.set(closest.x, closest.y, closest.z);
+      if (this.dragging) {
+        this.drawInProcess();
+      }
     }
   }
 
@@ -74,16 +74,16 @@ export class IfcDimensions extends IfcComponent {
   }
 
   get previewObject() {
-    return this.previewMesh;
+    return this.previewElement;
   }
 
   set previewActive(state: boolean) {
     this.preview = state;
     const scene = this.context.getScene();
     if (this.preview) {
-      scene.add(this.previewMesh);
+      scene.add(this.previewElement);
     } else {
-      scene.remove(this.previewMesh);
+      scene.remove(this.previewElement);
     }
   }
 
@@ -110,6 +110,10 @@ export class IfcDimensions extends IfcComponent {
     });
   }
 
+  set endpointScaleFactor(factor: number) {
+    IfcDimensionLine.scaleFactor = factor;
+  }
+
   set endpointScale(scale: Vector3) {
     this.baseScale = scale;
     this.dimensions.forEach((dim) => {
@@ -117,16 +121,16 @@ export class IfcDimensions extends IfcComponent {
     });
   }
 
-  create = () => {
+  create() {
     if (!this.enabled) return;
     if (!this.dragging) {
       this.drawStart();
       return;
     }
     this.drawEnd();
-  };
+  }
 
-  delete = () => {
+  delete() {
     if (!this.enabled || this.dimensions.length === 0) return;
     const boundingBoxes = this.dimensions.map((dim) => dim.boundingBox);
     const intersects = this.context.castRay(boundingBoxes);
@@ -136,14 +140,21 @@ export class IfcDimensions extends IfcComponent {
     const index = this.dimensions.indexOf(selected);
     this.dimensions.splice(index, 1);
     selected.removeFromScene();
-  };
+  }
 
-  deleteAll = () => {
+  deleteAll() {
     this.dimensions.forEach((dim) => {
       dim.removeFromScene();
     });
     this.dimensions = [];
-  };
+  }
+
+  cancelDrawing() {
+    if (!this.currentDimension) return;
+    this.dragging = false;
+    this.currentDimension?.removeFromScene();
+    this.currentDimension = undefined;
+  }
 
   private drawStart() {
     this.dragging = true;
@@ -152,26 +163,31 @@ export class IfcDimensions extends IfcComponent {
     this.startPoint = this.getClosestVertex(intersects);
   }
 
-  private drawEnd() {
+  private drawInProcess() {
     const intersects = this.context.castRayIfc();
     if (!intersects) return;
     this.endPoint = this.getClosestVertex(intersects);
-    this.drawDimension();
+    if (!this.currentDimension) this.currentDimension = this.drawDimension();
+    this.currentDimension.endPoint = this.endPoint;
+  }
+
+  private drawEnd() {
+    if (!this.currentDimension) return;
+    this.dimensions.push(this.currentDimension);
+    this.currentDimension = undefined;
     this.dragging = false;
   }
 
   private drawDimension() {
-    this.dimensions.push(
-      new IfcDimensionLine(
-        this.context,
-        this.startPoint,
-        this.endPoint,
-        this.lineMaterial,
-        this.endpointsMaterial,
-        this.endpoint,
-        this.className,
-        this.baseScale
-      )
+    return new IfcDimensionLine(
+      this.context,
+      this.startPoint,
+      this.endPoint,
+      this.lineMaterial,
+      this.endpointsMaterial,
+      this.endpoint,
+      this.labelClassName,
+      this.baseScale
     );
   }
 

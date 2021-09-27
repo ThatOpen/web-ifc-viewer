@@ -58,6 +58,14 @@ html, body {
     margin: 2px;
 }
 
+.ifcjs-dimension-preview {
+    width: 2rem;
+    height: 2rem;
+    background-color: rebeccapurple;
+    border-radius: 1rem;
+    opacity: 0.3;
+}
+
 #viewer-container {
     position: relative;
     width: 100vw;

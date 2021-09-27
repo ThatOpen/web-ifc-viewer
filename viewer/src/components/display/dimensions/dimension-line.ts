@@ -7,14 +7,17 @@ import {
   LineBasicMaterial,
   MeshBasicMaterial,
   Mesh,
-  Vector3
+  Vector3,
+  Camera
 } from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
 import { Context, IfcComponent } from '../../../base-types';
 
 export class IfcDimensionLine extends IfcComponent {
   private readonly context: Context;
-  private className: string;
+  private readonly camera: Camera;
+  private readonly labelClassName: string;
+  static scaleFactor = 0.1;
 
   // Elements
   private root = new Group();
@@ -29,9 +32,8 @@ export class IfcDimensionLine extends IfcComponent {
   // Dimensions
   private start: Vector3;
   private end: Vector3;
-  private readonly length: number;
-  private readonly center: Vector3;
-  private minimumLengthToDisplayEndpoints = 0.6;
+  private center: Vector3;
+  private length: number;
   private scale = new Vector3(1, 1, 1);
 
   // Materials
@@ -40,7 +42,7 @@ export class IfcDimensionLine extends IfcComponent {
 
   // Bounding box
   private readonly boundingMesh: Mesh;
-  private readonly boundingSize = 0.5;
+  private readonly boundingSize = 0.05;
 
   constructor(
     context: Context,
@@ -54,7 +56,7 @@ export class IfcDimensionLine extends IfcComponent {
   ) {
     super(context);
     this.context = context;
-    this.className = className;
+    this.labelClassName = className;
 
     this.start = start;
     this.end = end;
@@ -63,7 +65,7 @@ export class IfcDimensionLine extends IfcComponent {
     this.lineMaterial = lineMaterial;
     this.endpointMaterial = endpointMaterial;
 
-    this.length = parseFloat(start.distanceTo(end).toFixed(2));
+    this.length = this.getLength();
     this.center = this.getCenter();
 
     this.axis = new BufferGeometry().setFromPoints([start, end]);
@@ -78,6 +80,10 @@ export class IfcDimensionLine extends IfcComponent {
 
     this.root.renderOrder = 2;
     this.context.getScene().add(this.root);
+
+    this.camera = this.context.getCamera();
+    this.context.ifcCamera.submitOnChange(() => this.rescaleObjectsToCameraPosition());
+    this.rescaleObjectsToCameraPosition();
   }
 
   get boundingBox() {
@@ -110,16 +116,44 @@ export class IfcDimensionLine extends IfcComponent {
     this.endpointMeshes.forEach((mesh) => mesh.scale.set(scale.x, scale.y, scale.z));
   }
 
+  set endPoint(point: Vector3) {
+    this.end = point;
+    if (!this.axis) return;
+    const position = this.axis.attributes.position;
+    if (!position) return;
+    position.setXYZ(1, point.x, point.y, point.z);
+    position.needsUpdate = true;
+    this.endpointMeshes[1].position.set(point.x, point.y, point.z);
+    this.endpointMeshes[1].lookAt(this.start);
+    this.endpointMeshes[0].lookAt(this.end);
+    this.length = this.getLength();
+    this.textLabel.element.textContent = this.getTextContent();
+    this.center = this.getCenter();
+    this.textLabel.position.set(this.center.x, this.center.y, this.center.z);
+  }
+
   removeFromScene() {
     this.context.getScene().remove(this.root);
     this.root.remove(this.textLabel);
   }
 
+  private rescaleObjectsToCameraPosition() {
+    this.endpointMeshes.forEach((mesh) => this.rescaleMesh(mesh, IfcDimensionLine.scaleFactor));
+    this.rescaleMesh(this.boundingMesh, this.boundingSize, true, true, false);
+  }
+
+  private rescaleMesh(mesh: Mesh, scalefactor = 1, x = true, y = true, z = true) {
+    let scale = new Vector3().subVectors(mesh.position, this.camera.position).length();
+    scale *= scalefactor;
+    const scaleX = x ? scale : 1;
+    const scaleY = y ? scale : 1;
+    const scaleZ = z ? scale : 1;
+    mesh.scale.set(scaleX, scaleY, scaleZ);
+  }
+
   private addEndpointMeshes() {
-    if (this.length > this.minimumLengthToDisplayEndpoints) {
-      this.newEndpointMesh(this.start, this.end);
-      this.newEndpointMesh(this.end, this.start);
-    }
+    this.newEndpointMesh(this.start, this.end);
+    this.newEndpointMesh(this.end, this.start);
   }
 
   private newEndpointMesh(position: Vector3, direction: Vector3) {
@@ -133,16 +167,20 @@ export class IfcDimensionLine extends IfcComponent {
 
   private newText() {
     const htmlText = document.createElement('div');
-    htmlText.className = this.className;
-    htmlText.textContent = `${this.length} m`;
+    htmlText.className = this.labelClassName;
+    htmlText.textContent = this.getTextContent();
     const label = new CSS2DObject(htmlText);
     label.position.set(this.center.x, this.center.y, this.center.z);
     this.root.add(label);
     return label;
   }
 
+  private getTextContent() {
+    return `${this.length} m`;
+  }
+
   private newBoundingBox() {
-    const box = new BoxGeometry(this.boundingSize, this.boundingSize, this.length);
+    const box = new BoxGeometry(1, 1, this.length);
     return new Mesh(box);
   }
 
@@ -151,6 +189,10 @@ export class IfcDimensionLine extends IfcComponent {
     this.boundingMesh.lookAt(end);
     this.boundingMesh.visible = false;
     this.root.add(this.boundingMesh);
+  }
+
+  private getLength() {
+    return parseFloat(this.start.distanceTo(this.end).toFixed(2));
   }
 
   private getCenter() {

@@ -88833,6 +88833,11 @@
                 this.prevTime = currentTime;
             }
         }
+        submitOnChange(action) {
+            this.fpControls.addEventListener('change', (event) => {
+                action(event);
+            });
+        }
         enable() {
             if (!this.fpControls.isLocked)
                 this.fpControls.lock();
@@ -90178,6 +90183,11 @@
                 this.orbitControls.update();
             }
         }
+        submitOnChange(action) {
+            this.orbitControls.addEventListener('change', (event) => {
+                action(event);
+            });
+        }
         toggle(active) {
             if (active) {
                 this.adjustTarget();
@@ -90251,6 +90261,9 @@
             const dims = this.context.getDimensions();
             this.camera.aspect = dims.x / dims.y;
             this.camera.updateProjectionMatrix();
+        }
+        submitOnChange(action) {
+            Object.values(this.navMode).forEach((mode) => mode.submitOnChange(action));
         }
         setNavigationMode(mode) {
             this.currentNavMode.toggle(false);
@@ -96028,17 +96041,16 @@
             // Elements
             this.root = new Group();
             this.endpointMeshes = [];
-            this.minimumLengthToDisplayEndpoints = 0.6;
             this.scale = new Vector3(1, 1, 1);
-            this.boundingSize = 0.5;
+            this.boundingSize = 0.05;
             this.context = context;
-            this.className = className;
+            this.labelClassName = className;
             this.start = start;
             this.end = end;
             this.scale = endpointScale;
             this.lineMaterial = lineMaterial;
             this.endpointMaterial = endpointMaterial;
-            this.length = parseFloat(start.distanceTo(end).toFixed(2));
+            this.length = this.getLength();
             this.center = this.getCenter();
             this.axis = new BufferGeometry().setFromPoints([start, end]);
             this.line = new Line(this.axis, this.lineMaterial);
@@ -96050,6 +96062,9 @@
             this.setupBoundingBox(end);
             this.root.renderOrder = 2;
             this.context.getScene().add(this.root);
+            this.camera = this.context.getCamera();
+            this.context.ifcCamera.submitOnChange(() => this.rescaleObjectsToCameraPosition());
+            this.rescaleObjectsToCameraPosition();
         }
         get boundingBox() {
             return this.boundingMesh;
@@ -96075,15 +96090,42 @@
             this.scale = scale;
             this.endpointMeshes.forEach((mesh) => mesh.scale.set(scale.x, scale.y, scale.z));
         }
+        set endPoint(point) {
+            this.end = point;
+            if (!this.axis)
+                return;
+            const position = this.axis.attributes.position;
+            if (!position)
+                return;
+            position.setXYZ(1, point.x, point.y, point.z);
+            position.needsUpdate = true;
+            this.endpointMeshes[1].position.set(point.x, point.y, point.z);
+            this.endpointMeshes[1].lookAt(this.start);
+            this.endpointMeshes[0].lookAt(this.end);
+            this.length = this.getLength();
+            this.textLabel.element.textContent = this.getTextContent();
+            this.center = this.getCenter();
+            this.textLabel.position.set(this.center.x, this.center.y, this.center.z);
+        }
         removeFromScene() {
             this.context.getScene().remove(this.root);
             this.root.remove(this.textLabel);
         }
+        rescaleObjectsToCameraPosition() {
+            this.endpointMeshes.forEach((mesh) => this.rescaleMesh(mesh, IfcDimensionLine.scaleFactor));
+            this.rescaleMesh(this.boundingMesh, this.boundingSize, true, true, false);
+        }
+        rescaleMesh(mesh, scalefactor = 1, x = true, y = true, z = true) {
+            let scale = new Vector3().subVectors(mesh.position, this.camera.position).length();
+            scale *= scalefactor;
+            const scaleX = x ? scale : 1;
+            const scaleY = y ? scale : 1;
+            const scaleZ = z ? scale : 1;
+            mesh.scale.set(scaleX, scaleY, scaleZ);
+        }
         addEndpointMeshes() {
-            if (this.length > this.minimumLengthToDisplayEndpoints) {
-                this.newEndpointMesh(this.start, this.end);
-                this.newEndpointMesh(this.end, this.start);
-            }
+            this.newEndpointMesh(this.start, this.end);
+            this.newEndpointMesh(this.end, this.start);
         }
         newEndpointMesh(position, direction) {
             const mesh = new Mesh(this.endpoint, this.endpointMaterial);
@@ -96095,15 +96137,18 @@
         }
         newText() {
             const htmlText = document.createElement('div');
-            htmlText.className = this.className;
-            htmlText.textContent = `${this.length} m`;
+            htmlText.className = this.labelClassName;
+            htmlText.textContent = this.getTextContent();
             const label = new CSS2DObject(htmlText);
             label.position.set(this.center.x, this.center.y, this.center.z);
             this.root.add(label);
             return label;
         }
+        getTextContent() {
+            return `${this.length} m`;
+        }
         newBoundingBox() {
-            const box = new BoxGeometry(this.boundingSize, this.boundingSize, this.length);
+            const box = new BoxGeometry(1, 1, this.length);
             return new Mesh(box);
         }
         setupBoundingBox(end) {
@@ -96112,6 +96157,9 @@
             this.boundingMesh.visible = false;
             this.root.add(this.boundingMesh);
         }
+        getLength() {
+            return parseFloat(this.start.distanceTo(this.end).toFixed(2));
+        }
         getCenter() {
             let dir = this.end.clone().sub(this.start);
             const len = dir.length() * 0.5;
@@ -96119,12 +96167,14 @@
             return this.start.clone().add(dir);
         }
     }
+    IfcDimensionLine.scaleFactor = 0.1;
 
     class IfcDimensions extends IfcComponent {
         constructor(context) {
             super(context);
             this.dimensions = [];
-            this.className = 'ifcjs-dimension-label';
+            this.labelClassName = 'ifcjs-dimension-label';
+            this.previewClassName = 'ifcjs-dimension-preview';
             // State
             this.enabled = false;
             this.preview = false;
@@ -96133,62 +96183,31 @@
             this.arrowHeight = 0.2;
             this.arrowRadius = 0.05;
             this.baseScale = new Vector3(1, 1, 1);
-            this.previewGeometry = new SphereGeometry(0.1);
             // Materials
             this.lineMaterial = new LineBasicMaterial({ color: 0x000000, linewidth: 2, depthTest: false });
             this.endpointsMaterial = new MeshBasicMaterial({ color: 0x000000, depthTest: false });
-            this.previewMaterial = new MeshBasicMaterial({
-                color: 0xff00ff,
-                transparent: true,
-                opacity: 0.3,
-                depthTest: false
-            });
-            // Meshes
-            this.previewMesh = new Mesh(this.previewGeometry, this.previewMaterial);
             // Temp variables
             this.startPoint = new Vector3();
             this.endPoint = new Vector3();
-            this.create = () => {
-                if (!this.enabled)
-                    return;
-                if (!this.dragging) {
-                    this.drawStart();
-                    return;
-                }
-                this.drawEnd();
-            };
-            this.delete = () => {
-                if (!this.enabled || this.dimensions.length === 0)
-                    return;
-                const boundingBoxes = this.dimensions.map((dim) => dim.boundingBox);
-                const intersects = this.context.castRay(boundingBoxes);
-                if (!intersects)
-                    return;
-                const selected = this.dimensions.find((dim) => dim.boundingBox === intersects[0].object);
-                if (!selected)
-                    return;
-                const index = this.dimensions.indexOf(selected);
-                this.dimensions.splice(index, 1);
-                selected.removeFromScene();
-            };
-            this.deleteAll = () => {
-                this.dimensions.forEach((dim) => {
-                    dim.removeFromScene();
-                });
-                this.dimensions = [];
-            };
             this.context = context;
             this.endpoint = this.getDefaultEndpointGeometry();
+            const htmlPreview = document.createElement('div');
+            htmlPreview.className = this.previewClassName;
+            this.previewElement = new CSS2DObject(htmlPreview);
+            this.previewElement.visible = false;
         }
         update(_delta) {
             if (this.enabled && this.preview) {
                 const intersects = this.context.castRayIfc();
-                this.previewMesh.visible = !!intersects;
+                this.previewElement.visible = !!intersects;
                 if (!intersects)
                     return;
-                this.previewMesh.visible = true;
+                this.previewElement.visible = true;
                 const closest = this.getClosestVertex(intersects);
-                this.previewMesh.position.set(closest.x, closest.y, closest.z);
+                this.previewElement.position.set(closest.x, closest.y, closest.z);
+                if (this.dragging) {
+                    this.drawInProcess();
+                }
             }
         }
         get active() {
@@ -96198,16 +96217,16 @@
             return this.preview;
         }
         get previewObject() {
-            return this.previewMesh;
+            return this.previewElement;
         }
         set previewActive(state) {
             this.preview = state;
             const scene = this.context.getScene();
             if (this.preview) {
-                scene.add(this.previewMesh);
+                scene.add(this.previewElement);
             }
             else {
-                scene.remove(this.previewMesh);
+                scene.remove(this.previewElement);
             }
         }
         set active(state) {
@@ -96229,11 +96248,51 @@
                 dim.endpointGeometry = geometry;
             });
         }
+        set endpointScaleFactor(factor) {
+            IfcDimensionLine.scaleFactor = factor;
+        }
         set endpointScale(scale) {
             this.baseScale = scale;
             this.dimensions.forEach((dim) => {
                 dim.endpointScale = scale;
             });
+        }
+        create() {
+            if (!this.enabled)
+                return;
+            if (!this.dragging) {
+                this.drawStart();
+                return;
+            }
+            this.drawEnd();
+        }
+        delete() {
+            if (!this.enabled || this.dimensions.length === 0)
+                return;
+            const boundingBoxes = this.dimensions.map((dim) => dim.boundingBox);
+            const intersects = this.context.castRay(boundingBoxes);
+            if (!intersects)
+                return;
+            const selected = this.dimensions.find((dim) => dim.boundingBox === intersects[0].object);
+            if (!selected)
+                return;
+            const index = this.dimensions.indexOf(selected);
+            this.dimensions.splice(index, 1);
+            selected.removeFromScene();
+        }
+        deleteAll() {
+            this.dimensions.forEach((dim) => {
+                dim.removeFromScene();
+            });
+            this.dimensions = [];
+        }
+        cancelDrawing() {
+            var _a;
+            if (!this.currentDimension)
+                return;
+            this.dragging = false;
+            (_a = this.currentDimension) === null || _a === void 0 ? void 0 : _a.removeFromScene();
+            this.currentDimension = undefined;
         }
         drawStart() {
             this.dragging = true;
@@ -96242,16 +96301,24 @@
                 return;
             this.startPoint = this.getClosestVertex(intersects);
         }
-        drawEnd() {
+        drawInProcess() {
             const intersects = this.context.castRayIfc();
             if (!intersects)
                 return;
             this.endPoint = this.getClosestVertex(intersects);
-            this.drawDimension();
+            if (!this.currentDimension)
+                this.currentDimension = this.drawDimension();
+            this.currentDimension.endPoint = this.endPoint;
+        }
+        drawEnd() {
+            if (!this.currentDimension)
+                return;
+            this.dimensions.push(this.currentDimension);
+            this.currentDimension = undefined;
             this.dragging = false;
         }
         drawDimension() {
-            this.dimensions.push(new IfcDimensionLine(this.context, this.startPoint, this.endPoint, this.lineMaterial, this.endpointsMaterial, this.endpoint, this.className, this.baseScale));
+            return new IfcDimensionLine(this.context, this.startPoint, this.endPoint, this.lineMaterial, this.endpointsMaterial, this.endpoint, this.labelClassName, this.baseScale);
         }
         getDefaultEndpointGeometry() {
             const coneGeometry = new ConeGeometry(this.arrowRadius, this.arrowHeight);
@@ -105544,6 +105611,9 @@
     inputElement.addEventListener('change', loadIfc, false);
     document.body.appendChild(inputElement);
 
+    viewer.dimensions.active = true;
+    viewer.dimensions.previewActive = true;
+
     const handleKeyDown = (event) => {
       if (event.code === 'Delete') {
         viewer.removeClippingPlane();
@@ -105553,15 +105623,18 @@
         viewer.IFC.unPrepickIfcItems();
         window.onmousemove = null;
       }
-      if (event.code === 'KeyP') {
+      if (event.code === 'KeyH') {
         viewer.context.ifcCamera.goToHomeView();
+      }
+      if (event.code === 'KeyD') {
+        viewer.dimensions.create();
       }
       if (event.code === 'Escape') {
         window.onmousemove = viewer.IFC.prePickIfcItem;
       }
     };
 
-    window.onmousemove = viewer.IFC.prePickIfcItem;
+    // window.onmousemove = viewer.IFC.prePickIfcItem;
     window.onkeydown = handleKeyDown;
     window.ondblclick = async () => {
       viewer.clipper.createPlane();

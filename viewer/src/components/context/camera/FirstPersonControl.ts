@@ -76,6 +76,12 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
     }
   }
 
+  submitOnChange(action: (event: any) => void) {
+    this.fpControls.addEventListener('change', (event: any) => {
+      action(event);
+    });
+  }
+
   private enable() {
     if (!this.fpControls.isLocked) this.fpControls.lock();
     document.addEventListener('keydown', this.onKeyDown);

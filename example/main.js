@@ -27,6 +27,9 @@ inputElement.classList.add('hidden');
 inputElement.addEventListener('change', loadIfc, false);
 document.body.appendChild(inputElement);
 
+viewer.dimensions.active = true;
+viewer.dimensions.previewActive = true;
+
 const handleKeyDown = (event) => {
   if (event.code === 'Delete') {
     viewer.removeClippingPlane();
@@ -36,15 +39,18 @@ const handleKeyDown = (event) => {
     viewer.IFC.unPrepickIfcItems();
     window.onmousemove = null;
   }
-  if (event.code === 'KeyP') {
+  if (event.code === 'KeyH') {
     viewer.context.ifcCamera.goToHomeView();
+  }
+  if (event.code === 'KeyD') {
+    viewer.dimensions.create();
   }
   if (event.code === 'Escape') {
     window.onmousemove = viewer.IFC.prePickIfcItem;
   }
 };
 
-window.onmousemove = viewer.IFC.prePickIfcItem;
+// window.onmousemove = viewer.IFC.prePickIfcItem;
 window.onkeydown = handleKeyDown;
 window.ondblclick = async () => {
   viewer.clipper.createPlane();
