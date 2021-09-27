@@ -5,28 +5,42 @@ import {
   Plane,
   MeshBasicMaterial,
   DoubleSide,
-  Mesh
+  Mesh,
+  CylinderGeometry
 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 import { IfcComponent, Context } from '../../../base-types';
 
 export class IfcPlane extends IfcComponent {
-  plane: Plane;
-  planeMesh: Mesh;
+  readonly arrowBoundingBox = new Mesh();
+  readonly plane: Plane;
+  readonly planeMesh: Mesh;
   visible: boolean;
-  private normal: Vector3;
-  private origin: Vector3;
-  private helper: Object3D;
-  private controls: TransformControls;
+
+  private static hiddenMaterial = new MeshBasicMaterial({ visible: false });
+  static planeMaterial = new MeshBasicMaterial({
+    color: 0xffff00,
+    side: DoubleSide,
+    transparent: true,
+    opacity: 0.2
+  });
+  readonly controls: TransformControls;
+  private readonly normal: Vector3;
+  private readonly origin: Vector3;
+  private readonly helper: Object3D;
+  private readonly planeSize: number;
   private context: Context;
+
   constructor(
     context: Context,
     origin: Vector3,
     normal: Vector3,
     onStartDragging: Function,
-    onEndDragging: Function
+    onEndDragging: Function,
+    planeSize: number
   ) {
     super(context);
+    this.planeSize = planeSize;
     this.context = context;
     this.plane = new Plane();
     this.planeMesh = this.getPlaneMesh();
@@ -66,6 +80,16 @@ export class IfcPlane extends IfcComponent {
     controls.showX = false;
     controls.showY = false;
     controls.setSpace('local');
+    this.createArrowBoundingBox();
+    controls.children[0].children[0].add(this.arrowBoundingBox);
+  }
+
+  private createArrowBoundingBox() {
+    this.arrowBoundingBox.geometry = new CylinderGeometry(0.18, 0.18, 1.2);
+    this.arrowBoundingBox.material = IfcPlane.hiddenMaterial;
+    this.arrowBoundingBox.rotateX(Math.PI / 2);
+    this.arrowBoundingBox.updateMatrix();
+    this.arrowBoundingBox.geometry.applyMatrix4(this.arrowBoundingBox.matrix);
   }
 
   private setupEvents(onStart: Function, onEnd: Function) {
@@ -91,13 +115,7 @@ export class IfcPlane extends IfcComponent {
   }
 
   private getPlaneMesh() {
-    const geom = new PlaneGeometry(5, 5, 1);
-    const mat = new MeshBasicMaterial({
-      color: 0xffff00,
-      side: DoubleSide,
-      transparent: true,
-      opacity: 0.2
-    });
-    return new Mesh(geom, mat);
+    const planeGeom = new PlaneGeometry(this.planeSize, this.planeSize, 1);
+    return new Mesh(planeGeom, IfcPlane.planeMaterial);
   }
 }

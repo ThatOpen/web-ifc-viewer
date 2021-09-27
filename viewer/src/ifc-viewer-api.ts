@@ -7,7 +7,8 @@ import {
   IfcAxes,
   IfcClipper,
   DropboxAPI,
-  IfcStats, IfcEdges
+  IfcStats,
+  IfcEdges
 } from './components';
 import { IfcDimensions } from './components/display/dimensions/dimensions';
 import { GLTFManager } from './components/import-export/glTF';

@@ -29,8 +29,7 @@ document.body.appendChild(inputElement);
 
 const handleKeyDown = (event) => {
   if (event.code === 'Delete') {
-    // viewer.removeClippingPlane();
-    viewer.IFC.setModelTranslucency(0, true, 0.1, true);
+    viewer.removeClippingPlane();
   }
   if (event.code === 'Space') {
     viewer.context.ifcCamera.setNavigationMode(NavigationModes.FirstPerson);
@@ -48,12 +47,13 @@ const handleKeyDown = (event) => {
 window.onmousemove = viewer.IFC.prePickIfcItem;
 window.onkeydown = handleKeyDown;
 window.ondblclick = async () => {
-  const result = await viewer.IFC.pickIfcItem(true);
-  if(result) {
-    // const props = await viewer.IFC.getProperties(result.modelID, result.id, true);
-    const all = await viewer.IFC.getAllItemsOfType(result.modelID, IFCWALLSTANDARDCASE, false);
-    console.log(all);
-  }
+  viewer.clipper.createPlane();
+  // const result = await viewer.IFC.pickIfcItem(true);
+  // if(result) {
+  //   // const props = await viewer.IFC.getProperties(result.modelID, result.id, true);
+  //   const all = await viewer.IFC.getAllItemsOfType(result.modelID, IFCWALLSTANDARDCASE, false);
+  //   console.log(all);
+  // }
 }
 
 viewer.IFC.applyWebIfcConfig({

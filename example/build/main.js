@@ -45191,13 +45191,15 @@
     TransformControlsPlane.prototype.isTransformControlsPlane = true;
 
     class IfcPlane$1 extends IfcComponent {
-        constructor(context, origin, normal, onStartDragging, onEndDragging) {
+        constructor(context, origin, normal, onStartDragging, onEndDragging, planeSize) {
             super(context);
+            this.arrowBoundingBox = new Mesh();
             this.removeFromScene = () => {
                 const scene = this.context.getScene();
                 scene.remove(this.helper);
                 scene.remove(this.controls);
             };
+            this.planeSize = planeSize;
             this.context = context;
             this.plane = new Plane();
             this.planeMesh = this.getPlaneMesh();
@@ -45228,6 +45230,15 @@
             controls.showX = false;
             controls.showY = false;
             controls.setSpace('local');
+            this.createArrowBoundingBox();
+            controls.children[0].children[0].add(this.arrowBoundingBox);
+        }
+        createArrowBoundingBox() {
+            this.arrowBoundingBox.geometry = new CylinderGeometry(0.18, 0.18, 1.2);
+            this.arrowBoundingBox.material = IfcPlane$1.hiddenMaterial;
+            this.arrowBoundingBox.rotateX(Math.PI / 2);
+            this.arrowBoundingBox.updateMatrix();
+            this.arrowBoundingBox.geometry.applyMatrix4(this.arrowBoundingBox.matrix);
         }
         setupEvents(onStart, onEnd) {
             this.controls.addEventListener('change', () => {
@@ -45252,20 +45263,24 @@
             return helper;
         }
         getPlaneMesh() {
-            const geom = new PlaneGeometry(5, 5, 1);
-            const mat = new MeshBasicMaterial({
-                color: 0xffff00,
-                side: DoubleSide,
-                transparent: true,
-                opacity: 0.2
-            });
-            return new Mesh(geom, mat);
+            const planeGeom = new PlaneGeometry(this.planeSize, this.planeSize, 1);
+            return new Mesh(planeGeom, IfcPlane$1.planeMaterial);
         }
     }
+    IfcPlane$1.hiddenMaterial = new MeshBasicMaterial({ visible: false });
+    IfcPlane$1.planeMaterial = new MeshBasicMaterial({
+        color: 0xffff00,
+        side: DoubleSide,
+        transparent: true,
+        opacity: 0.2
+    });
 
     class IfcClipper extends IfcComponent {
         constructor(context) {
             super(context);
+            this.orthogonalY = true;
+            this.toleranceOrthogonalY = 0.7;
+            this.planeSize = 5;
             this.createPlane = () => {
                 if (!this.enabled)
                     return;
@@ -45289,10 +45304,17 @@
             };
             this.pickPlane = () => {
                 const planeMeshes = this.planes.map((p) => p.planeMesh);
-                const intersects = this.context.castRay(planeMeshes);
-                if (intersects.length <= 0)
-                    return null;
-                return this.planes.find((p) => p.planeMesh === intersects[0].object);
+                const arrowMeshes = this.planes.map((p) => p.arrowBoundingBox);
+                const intersects = this.context.castRay([...planeMeshes, ...arrowMeshes]);
+                if (intersects.length > 0) {
+                    return this.planes.find((p) => {
+                        if (p.planeMesh === intersects[0].object || p.arrowBoundingBox === intersects[0].object) {
+                            return p;
+                        }
+                        return null;
+                    });
+                }
+                return null;
             };
             this.createPlaneFromIntersection = (intersection) => {
                 var _a;
@@ -45302,6 +45324,7 @@
                     return;
                 const normalMatrix = new Matrix3().getNormalMatrix(intersection.object.matrixWorld);
                 const worldNormal = normal.clone().applyMatrix3(normalMatrix).normalize();
+                this.normalizePlaneDirectionY(worldNormal);
                 const plane = this.newPlane(intersection, worldNormal);
                 this.planes.push(plane);
                 this.context.addClippingPlane(plane.plane);
@@ -45337,8 +45360,22 @@
             this.planes.forEach((plane) => plane.setVisibility(state));
             this.updateMaterials();
         }
+        normalizePlaneDirectionY(normal) {
+            if (this.orthogonalY) {
+                if (normal.y > this.toleranceOrthogonalY) {
+                    normal.x = 0;
+                    normal.y = 1;
+                    normal.z = 0;
+                }
+                if (normal.y < -this.toleranceOrthogonalY) {
+                    normal.x = 0;
+                    normal.y = -1;
+                    normal.z = 0;
+                }
+            }
+        }
         newPlane(intersection, worldNormal) {
-            return new IfcPlane$1(this.context, intersection.point, worldNormal, this.activateDragging, this.deactivateDragging);
+            return new IfcPlane$1(this.context, intersection.point, worldNormal, this.activateDragging, this.deactivateDragging, this.planeSize);
         }
         updateMaterial(mesh) {
             const activePlanes = this.planes.filter((plane) => plane.visible);
@@ -54405,7 +54442,7 @@
     var IFCVOIDINGFEATURE = 926996030;
     var IFCWALL = 2391406946;
     var IFCWALLELEMENTEDCASE = 4156078855;
-    var IFCWALLSTANDARDCASE$1 = 3512223829;
+    var IFCWALLSTANDARDCASE = 3512223829;
     var IFCWALLTYPE = 1898987631;
     var IFCWASTETERMINAL = 4237592921;
     var IFCWASTETERMINALTYPE = 1133259667;
@@ -56822,7 +56859,7 @@
     FromRawLineData[IFCWALLELEMENTEDCASE] = (d) => {
       return IfcWallElementedCase.FromTape(d.ID, d.type, d.arguments);
     };
-    FromRawLineData[IFCWALLSTANDARDCASE$1] = (d) => {
+    FromRawLineData[IFCWALLSTANDARDCASE] = (d) => {
       return IfcWallStandardCase.FromTape(d.ID, d.type, d.arguments);
     };
     FromRawLineData[IFCWALLTYPE] = (d) => {
@@ -105475,7 +105512,6 @@
           exports["WebIFCWasm"] = WebIFCWasm2;
       }
     });
-    var IFCWALLSTANDARDCASE = 3512223829;
 
     // dist/web-ifc-api.ts
     require_web_ifc();
@@ -105510,8 +105546,7 @@
 
     const handleKeyDown = (event) => {
       if (event.code === 'Delete') {
-        // viewer.removeClippingPlane();
-        viewer.IFC.setModelTranslucency(0, true, 0.1, true);
+        viewer.removeClippingPlane();
       }
       if (event.code === 'Space') {
         viewer.context.ifcCamera.setNavigationMode(NavigationModes.FirstPerson);
@@ -105529,12 +105564,13 @@
     window.onmousemove = viewer.IFC.prePickIfcItem;
     window.onkeydown = handleKeyDown;
     window.ondblclick = async () => {
-      const result = await viewer.IFC.pickIfcItem(true);
-      if(result) {
-        // const props = await viewer.IFC.getProperties(result.modelID, result.id, true);
-        const all = await viewer.IFC.getAllItemsOfType(result.modelID, IFCWALLSTANDARDCASE, false);
-        console.log(all);
-      }
+      viewer.clipper.createPlane();
+      // const result = await viewer.IFC.pickIfcItem(true);
+      // if(result) {
+      //   // const props = await viewer.IFC.getProperties(result.modelID, result.id, true);
+      //   const all = await viewer.IFC.getAllItemsOfType(result.modelID, IFCWALLSTANDARDCASE, false);
+      //   console.log(all);
+      // }
     };
 
     viewer.IFC.applyWebIfcConfig({

@@ -6,8 +6,11 @@ export class IfcClipper extends IfcComponent {
   dragging: boolean;
   planes: IfcPlane[];
   intersection: Intersection | undefined;
+  orthogonalY = true;
+  toleranceOrthogonalY = 0.7;
+  planeSize = 5;
   private enabled: boolean;
-  private context: Context;
+  private readonly context: Context;
 
   constructor(context: Context) {
     super(context);
@@ -49,9 +52,17 @@ export class IfcClipper extends IfcComponent {
 
   private pickPlane = () => {
     const planeMeshes = this.planes.map((p) => p.planeMesh);
-    const intersects = this.context.castRay(planeMeshes);
-    if (intersects.length <= 0) return null;
-    return this.planes.find((p) => p.planeMesh === intersects[0].object);
+    const arrowMeshes = this.planes.map((p) => p.arrowBoundingBox);
+    const intersects = this.context.castRay([...planeMeshes, ...arrowMeshes]);
+    if (intersects.length > 0) {
+      return this.planes.find((p) => {
+        if (p.planeMesh === intersects[0].object || p.arrowBoundingBox === intersects[0].object) {
+          return p;
+        }
+        return null;
+      });
+    }
+    return null;
   };
 
   private createPlaneFromIntersection = (intersection: Intersection) => {
@@ -60,11 +71,27 @@ export class IfcClipper extends IfcComponent {
     if (!constant || !normal) return;
     const normalMatrix = new Matrix3().getNormalMatrix(intersection.object.matrixWorld);
     const worldNormal = normal.clone().applyMatrix3(normalMatrix).normalize();
+    this.normalizePlaneDirectionY(worldNormal);
     const plane = this.newPlane(intersection, worldNormal);
     this.planes.push(plane);
     this.context.addClippingPlane(plane.plane);
     this.updateMaterials();
   };
+
+  private normalizePlaneDirectionY(normal: Vector3) {
+    if (this.orthogonalY) {
+      if (normal.y > this.toleranceOrthogonalY) {
+        normal.x = 0;
+        normal.y = 1;
+        normal.z = 0;
+      }
+      if (normal.y < -this.toleranceOrthogonalY) {
+        normal.x = 0;
+        normal.y = -1;
+        normal.z = 0;
+      }
+    }
+  }
 
   private newPlane(intersection: Intersection, worldNormal: Vector3) {
     return new IfcPlane(
@@ -72,7 +99,8 @@ export class IfcClipper extends IfcComponent {
       intersection.point,
       worldNormal,
       this.activateDragging,
-      this.deactivateDragging
+      this.deactivateDragging,
+      this.planeSize
     );
   }
 
