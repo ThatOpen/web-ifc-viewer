@@ -23,6 +23,7 @@ export class IfcDimensions extends IfcComponent {
   private enabled = false;
   private preview = false;
   private dragging = false;
+  snapDistance = 5;
 
   // Measures
   private arrowHeight = 0.2;
@@ -58,6 +59,8 @@ export class IfcDimensions extends IfcComponent {
       if (!intersects) return;
       this.previewElement.visible = true;
       const closest = this.getClosestVertex(intersects);
+      this.previewElement.visible = !!closest;
+      if (!closest) return;
       this.previewElement.position.set(closest.x, closest.y, closest.z);
       if (this.dragging) {
         this.drawInProcess();
@@ -88,7 +91,6 @@ export class IfcDimensions extends IfcComponent {
   }
 
   set active(state: boolean) {
-    console.log(`Clipping Active: ${state}`);
     this.enabled = state;
     this.dimensions.forEach((dim) => {
       dim.visibility = state;
@@ -132,9 +134,9 @@ export class IfcDimensions extends IfcComponent {
 
   delete() {
     if (!this.enabled || this.dimensions.length === 0) return;
-    const boundingBoxes = this.dimensions.map((dim) => dim.boundingBox);
+    const boundingBoxes = this.getBoundingBoxes();
     const intersects = this.context.castRay(boundingBoxes);
-    if (!intersects) return;
+    if (intersects.length === 0) return;
     const selected = this.dimensions.find((dim) => dim.boundingBox === intersects[0].object);
     if (!selected) return;
     const index = this.dimensions.indexOf(selected);
@@ -160,19 +162,24 @@ export class IfcDimensions extends IfcComponent {
     this.dragging = true;
     const intersects = this.context.castRayIfc();
     if (!intersects) return;
-    this.startPoint = this.getClosestVertex(intersects);
+    const found = this.getClosestVertex(intersects);
+    if (!found) return;
+    this.startPoint = found;
   }
 
   private drawInProcess() {
     const intersects = this.context.castRayIfc();
     if (!intersects) return;
-    this.endPoint = this.getClosestVertex(intersects);
+    const found = this.getClosestVertex(intersects);
+    if (!found) return;
+    this.endPoint = found;
     if (!this.currentDimension) this.currentDimension = this.drawDimension();
     this.currentDimension.endPoint = this.endPoint;
   }
 
   private drawEnd() {
     if (!this.currentDimension) return;
+    this.currentDimension.createBoundingBox();
     this.dimensions.push(this.currentDimension);
     this.currentDimension = undefined;
     this.dragging = false;
@@ -191,6 +198,12 @@ export class IfcDimensions extends IfcComponent {
     );
   }
 
+  private getBoundingBoxes() {
+    return this.dimensions
+      .map((dim) => dim.boundingBox)
+      .filter((box) => box !== undefined) as Mesh[];
+  }
+
   private getDefaultEndpointGeometry() {
     const coneGeometry = new ConeGeometry(this.arrowRadius, this.arrowHeight);
     coneGeometry.translate(0, -this.arrowHeight / 2, 0);
@@ -200,15 +213,18 @@ export class IfcDimensions extends IfcComponent {
 
   private getClosestVertex(intersects: Intersection) {
     let closestVertex = new Vector3();
+    let vertexFound = false;
     let closestDistance = Number.MAX_SAFE_INTEGER;
     const vertices = this.getVertices(intersects);
     vertices?.forEach((vertex) => {
-      if (vertex && intersects.point.distanceTo(vertex) < closestDistance) {
-        closestVertex = vertex;
-        closestDistance = intersects.point.distanceTo(vertex);
-      }
+      if (!vertex) return;
+      const distance = intersects.point.distanceTo(vertex);
+      if (distance > closestDistance || distance > this.snapDistance) return;
+      vertexFound = true;
+      closestVertex = vertex;
+      closestDistance = intersects.point.distanceTo(vertex);
     });
-    return closestVertex;
+    return vertexFound ? closestVertex : null;
   }
 
   private getVertices(intersects: Intersection) {

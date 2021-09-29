@@ -25,7 +25,6 @@ export class IfcClipper extends IfcComponent {
   }
 
   set active(state) {
-    console.log(`Clipping Active: ${state}`);
     this.enabled = state;
     this.planes.forEach((plane) => plane.setVisibility(state));
     this.updateMaterials();

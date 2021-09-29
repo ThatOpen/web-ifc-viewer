@@ -32,7 +32,8 @@ viewer.dimensions.previewActive = true;
 
 const handleKeyDown = (event) => {
   if (event.code === 'Delete') {
-    viewer.removeClippingPlane();
+    // viewer.removeClippingPlane();
+    viewer.dimensions.delete();
   }
   if (event.code === 'Space') {
     viewer.context.ifcCamera.setNavigationMode(NavigationModes.FirstPerson);

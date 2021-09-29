@@ -45355,7 +45355,6 @@
             return this.enabled;
         }
         set active(state) {
-            console.log(`Clipping Active: ${state}`);
             this.enabled = state;
             this.planes.forEach((plane) => plane.setVisibility(state));
             this.updateMaterials();
@@ -96069,8 +96068,6 @@
             this.endpoint = endpointGeometry;
             this.addEndpointMeshes();
             this.textLabel = this.newText();
-            this.boundingMesh = this.newBoundingBox();
-            this.setupBoundingBox(end);
             this.root.renderOrder = 2;
             this.context.getScene().add(this.root);
             this.camera = this.context.getCamera();
@@ -96122,9 +96119,15 @@
             this.context.getScene().remove(this.root);
             this.root.remove(this.textLabel);
         }
+        createBoundingBox() {
+            this.boundingMesh = this.newBoundingBox();
+            this.setupBoundingBox(this.end);
+        }
         rescaleObjectsToCameraPosition() {
             this.endpointMeshes.forEach((mesh) => this.rescaleMesh(mesh, IfcDimensionLine.scaleFactor));
-            this.rescaleMesh(this.boundingMesh, this.boundingSize, true, true, false);
+            if (this.boundingMesh) {
+                this.rescaleMesh(this.boundingMesh, this.boundingSize, true, true, false);
+            }
         }
         rescaleMesh(mesh, scalefactor = 1, x = true, y = true, z = true) {
             let scale = new Vector3().subVectors(mesh.position, this.camera.position).length();
@@ -96163,6 +96166,8 @@
             return new Mesh(box);
         }
         setupBoundingBox(end) {
+            if (!this.boundingMesh)
+                return;
             this.boundingMesh.position.set(this.center.x, this.center.y, this.center.z);
             this.boundingMesh.lookAt(end);
             this.boundingMesh.visible = false;
@@ -96190,6 +96195,7 @@
             this.enabled = false;
             this.preview = false;
             this.dragging = false;
+            this.snapDistance = 5;
             // Measures
             this.arrowHeight = 0.2;
             this.arrowRadius = 0.05;
@@ -96215,6 +96221,9 @@
                     return;
                 this.previewElement.visible = true;
                 const closest = this.getClosestVertex(intersects);
+                this.previewElement.visible = !!closest;
+                if (!closest)
+                    return;
                 this.previewElement.position.set(closest.x, closest.y, closest.z);
                 if (this.dragging) {
                     this.drawInProcess();
@@ -96241,7 +96250,6 @@
             }
         }
         set active(state) {
-            console.log(`Clipping Active: ${state}`);
             this.enabled = state;
             this.dimensions.forEach((dim) => {
                 dim.visibility = state;
@@ -96280,9 +96288,9 @@
         delete() {
             if (!this.enabled || this.dimensions.length === 0)
                 return;
-            const boundingBoxes = this.dimensions.map((dim) => dim.boundingBox);
+            const boundingBoxes = this.getBoundingBoxes();
             const intersects = this.context.castRay(boundingBoxes);
-            if (!intersects)
+            if (intersects.length === 0)
                 return;
             const selected = this.dimensions.find((dim) => dim.boundingBox === intersects[0].object);
             if (!selected)
@@ -96310,13 +96318,19 @@
             const intersects = this.context.castRayIfc();
             if (!intersects)
                 return;
-            this.startPoint = this.getClosestVertex(intersects);
+            const found = this.getClosestVertex(intersects);
+            if (!found)
+                return;
+            this.startPoint = found;
         }
         drawInProcess() {
             const intersects = this.context.castRayIfc();
             if (!intersects)
                 return;
-            this.endPoint = this.getClosestVertex(intersects);
+            const found = this.getClosestVertex(intersects);
+            if (!found)
+                return;
+            this.endPoint = found;
             if (!this.currentDimension)
                 this.currentDimension = this.drawDimension();
             this.currentDimension.endPoint = this.endPoint;
@@ -96324,12 +96338,18 @@
         drawEnd() {
             if (!this.currentDimension)
                 return;
+            this.currentDimension.createBoundingBox();
             this.dimensions.push(this.currentDimension);
             this.currentDimension = undefined;
             this.dragging = false;
         }
         drawDimension() {
             return new IfcDimensionLine(this.context, this.startPoint, this.endPoint, this.lineMaterial, this.endpointsMaterial, this.endpoint, this.labelClassName, this.baseScale);
+        }
+        getBoundingBoxes() {
+            return this.dimensions
+                .map((dim) => dim.boundingBox)
+                .filter((box) => box !== undefined);
         }
         getDefaultEndpointGeometry() {
             const coneGeometry = new ConeGeometry(this.arrowRadius, this.arrowHeight);
@@ -96339,15 +96359,20 @@
         }
         getClosestVertex(intersects) {
             let closestVertex = new Vector3();
+            let vertexFound = false;
             let closestDistance = Number.MAX_SAFE_INTEGER;
             const vertices = this.getVertices(intersects);
             vertices === null || vertices === void 0 ? void 0 : vertices.forEach((vertex) => {
-                if (vertex && intersects.point.distanceTo(vertex) < closestDistance) {
-                    closestVertex = vertex;
-                    closestDistance = intersects.point.distanceTo(vertex);
-                }
+                if (!vertex)
+                    return;
+                const distance = intersects.point.distanceTo(vertex);
+                if (distance > closestDistance || distance > this.snapDistance)
+                    return;
+                vertexFound = true;
+                closestVertex = vertex;
+                closestDistance = intersects.point.distanceTo(vertex);
             });
-            return closestVertex;
+            return vertexFound ? closestVertex : null;
         }
         getVertices(intersects) {
             const mesh = intersects.object;
@@ -105627,7 +105652,8 @@
 
     const handleKeyDown = (event) => {
       if (event.code === 'Delete') {
-        viewer.removeClippingPlane();
+        // viewer.removeClippingPlane();
+        viewer.dimensions.delete();
       }
       if (event.code === 'Space') {
         viewer.context.ifcCamera.setNavigationMode(NavigationModes.FirstPerson);

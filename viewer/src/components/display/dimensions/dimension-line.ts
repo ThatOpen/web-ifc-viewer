@@ -41,7 +41,7 @@ export class IfcDimensionLine extends IfcComponent {
   private endpointMaterial: MeshBasicMaterial;
 
   // Bounding box
-  private readonly boundingMesh: Mesh;
+  private boundingMesh?: Mesh;
   private readonly boundingSize = 0.05;
 
   constructor(
@@ -74,9 +74,6 @@ export class IfcDimensionLine extends IfcComponent {
     this.endpoint = endpointGeometry;
     this.addEndpointMeshes();
     this.textLabel = this.newText();
-
-    this.boundingMesh = this.newBoundingBox();
-    this.setupBoundingBox(end);
 
     this.root.renderOrder = 2;
     this.context.getScene().add(this.root);
@@ -137,9 +134,16 @@ export class IfcDimensionLine extends IfcComponent {
     this.root.remove(this.textLabel);
   }
 
+  createBoundingBox() {
+    this.boundingMesh = this.newBoundingBox();
+    this.setupBoundingBox(this.end);
+  }
+
   private rescaleObjectsToCameraPosition() {
     this.endpointMeshes.forEach((mesh) => this.rescaleMesh(mesh, IfcDimensionLine.scaleFactor));
-    this.rescaleMesh(this.boundingMesh, this.boundingSize, true, true, false);
+    if (this.boundingMesh) {
+      this.rescaleMesh(this.boundingMesh, this.boundingSize, true, true, false);
+    }
   }
 
   private rescaleMesh(mesh: Mesh, scalefactor = 1, x = true, y = true, z = true) {
@@ -185,6 +189,7 @@ export class IfcDimensionLine extends IfcComponent {
   }
 
   private setupBoundingBox(end: Vector3) {
+    if (!this.boundingMesh) return;
     this.boundingMesh.position.set(this.center.x, this.center.y, this.center.z);
     this.boundingMesh.lookAt(end);
     this.boundingMesh.visible = false;
