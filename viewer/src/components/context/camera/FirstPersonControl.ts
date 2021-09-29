@@ -16,6 +16,7 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
   private velocity = new Vector3();
   private direction = new Vector3();
   private speed = 200;
+  private onCameraUnlocked?: (event: any) => void;
 
   private controls = {
     forward: {
@@ -55,9 +56,10 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
   constructor(context: Context, camera: Camera, ifcCamera: IfcCamera) {
     super(context);
     this.fpControls = new PointerLockControls(camera, context.getDomElement());
-    this.fpControls.addEventListener('unlock', () =>
-      ifcCamera.setNavigationMode(NavigationModes.Orbit)
-    );
+    this.fpControls.addEventListener('unlock', (event: any) => {
+      ifcCamera.setNavigationMode(NavigationModes.Orbit);
+      if (this.onCameraUnlocked) this.onCameraUnlocked(event);
+    });
     context.getScene().add(this.fpControls.getObject());
   }
 
@@ -80,6 +82,10 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
     this.fpControls.addEventListener('change', (event: any) => {
       action(event);
     });
+  }
+
+  submitOnUnlock(action: (event: any) => void) {
+    this.onCameraUnlocked = action;
   }
 
   private enable() {

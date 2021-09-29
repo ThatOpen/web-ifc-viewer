@@ -44,6 +44,10 @@ export class IfcCamera extends IfcComponent {
     Object.values(this.navMode).forEach((mode) => mode.submitOnChange(action));
   }
 
+  submitOnUnlock(action: (event: any) => void) {
+    Object.values(this.navMode).forEach((mode) => mode.submitOnUnlock(action));
+  }
+
   setNavigationMode(mode: NavigationModes) {
     this.currentNavMode.toggle(false);
     this.currentNavMode = this.navMode[mode];

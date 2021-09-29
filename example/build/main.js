@@ -88815,7 +88815,11 @@
                     found.active = false;
             };
             this.fpControls = new PointerLockControls(camera, context.getDomElement());
-            this.fpControls.addEventListener('unlock', () => ifcCamera.setNavigationMode(NavigationModes.Orbit));
+            this.fpControls.addEventListener('unlock', (event) => {
+                ifcCamera.setNavigationMode(NavigationModes.Orbit);
+                if (this.onCameraUnlocked)
+                    this.onCameraUnlocked(event);
+            });
             context.getScene().add(this.fpControls.getObject());
         }
         toggle(active) {
@@ -88837,6 +88841,9 @@
             this.fpControls.addEventListener('change', (event) => {
                 action(event);
             });
+        }
+        submitOnUnlock(action) {
+            this.onCameraUnlocked = action;
         }
         enable() {
             if (!this.fpControls.isLocked)
@@ -90188,6 +90195,7 @@
                 action(event);
             });
         }
+        submitOnUnlock(_action) { }
         toggle(active) {
             if (active) {
                 this.adjustTarget();
@@ -90264,6 +90272,9 @@
         }
         submitOnChange(action) {
             Object.values(this.navMode).forEach((mode) => mode.submitOnChange(action));
+        }
+        submitOnUnlock(action) {
+            Object.values(this.navMode).forEach((mode) => mode.submitOnUnlock(action));
         }
         setNavigationMode(mode) {
             this.currentNavMode.toggle(false);

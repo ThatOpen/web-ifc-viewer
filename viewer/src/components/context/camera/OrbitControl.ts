@@ -62,6 +62,8 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
     });
   }
 
+  submitOnUnlock(_action: (event: any) => void) {}
+
   toggle(active: boolean) {
     if (active) {
       this.adjustTarget();
