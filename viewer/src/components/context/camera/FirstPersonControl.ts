@@ -12,6 +12,8 @@ import { IfcCamera } from './camera';
 export class FirstPersonControl extends IfcComponent implements NavigationMode {
   fpControls: PointerLockControls;
   enabled = false;
+  readonly mode = NavigationModes.FirstPerson;
+
   private prevTime = performance.now();
   private velocity = new Vector3();
   private direction = new Vector3();

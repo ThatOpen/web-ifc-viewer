@@ -88767,6 +88767,7 @@
         constructor(context, camera, ifcCamera) {
             super(context);
             this.enabled = false;
+            this.mode = NavigationModes.FirstPerson;
             this.prevTime = performance.now();
             this.velocity = new Vector3();
             this.direction = new Vector3();
@@ -90144,6 +90145,7 @@
             this.camera = camera;
             this.enabled = true;
             this.currentTarget = new Vector3();
+            this.mode = NavigationModes.Orbit;
             this.startView = {
                 target: new Vector3(),
                 camera: new Vector3(20, 20, 20)
@@ -90296,7 +90298,7 @@
             orbitControls.goToHomeView();
         }
         setHomeView(camera, target) {
-            const orbitControls = this.setOrbitControls();
+            const orbitControls = this.navMode[NavigationModes.Orbit];
             orbitControls.homeView = { camera, target };
         }
         setOrbitControls() {

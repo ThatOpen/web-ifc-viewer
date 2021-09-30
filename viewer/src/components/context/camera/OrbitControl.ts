@@ -1,11 +1,12 @@
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Box3, MathUtils, Mesh, MOUSE, PerspectiveCamera, Vector3 } from 'three';
-import { Context, IfcComponent, MouseButtons, NavigationMode } from '../../../base-types';
+import { Context, IfcComponent, MouseButtons, NavigationMode, NavigationModes } from '../../../base-types';
 
 export class OrbitControl extends IfcComponent implements NavigationMode {
   orbitControls: OrbitControls;
   enabled = true;
   private currentTarget = new Vector3();
+  readonly mode = NavigationModes.Orbit;
 
   private startView = {
     target: new Vector3(),

@@ -1,7 +1,8 @@
 import { Mesh, PerspectiveCamera, Vector3 } from 'three';
 import {
   Context,
-  IfcComponent, MouseButtons,
+  IfcComponent,
+  MouseButtons,
   NavigationMode,
   NavigationModes,
   NavModeManager
@@ -74,7 +75,7 @@ export class IfcCamera extends IfcComponent {
   }
 
   setHomeView(camera: Vector3, target: Vector3) {
-    const orbitControls = this.setOrbitControls();
+    const orbitControls = this.navMode[NavigationModes.Orbit];
     orbitControls.homeView = { camera, target };
   }
 
