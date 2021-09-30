@@ -88772,7 +88772,7 @@
             this.velocity = new Vector3();
             this.direction = new Vector3();
             this.speed = 200;
-            this.controls = {
+            this.keyBinding = {
                 forward: {
                     active: false,
                     keys: ['KeyW', 'ArrowUp']
@@ -88799,9 +88799,9 @@
                 }
             };
             this.controlsMap = {
-                [dimension.z]: [this.controls.forward, this.controls.back],
-                [dimension.x]: [this.controls.right, this.controls.left],
-                [dimension.y]: [this.controls.up, this.controls.down]
+                [dimension.z]: [this.keyBinding.forward, this.keyBinding.back],
+                [dimension.x]: [this.keyBinding.right, this.keyBinding.left],
+                [dimension.y]: [this.keyBinding.up, this.keyBinding.down]
             };
             this.dimensions = [dimension.x, dimension.y, dimension.z];
             this.onKeyDown = (event) => {
@@ -88814,13 +88814,13 @@
                 if (found)
                     found.active = false;
             };
-            this.fpControls = new PointerLockControls(camera, context.getDomElement());
-            this.fpControls.addEventListener('unlock', (event) => {
+            this.controls = new PointerLockControls(camera, context.getDomElement());
+            this.controls.addEventListener('unlock', (event) => {
                 ifcCamera.setNavigationMode(NavigationModes.Orbit);
                 if (this.onCameraUnlocked)
                     this.onCameraUnlocked(event);
             });
-            context.getScene().add(this.fpControls.getObject());
+            context.getScene().add(this.controls.getObject());
         }
         toggle(active) {
             this.enabled = active;
@@ -88830,7 +88830,7 @@
                 this.disable();
         }
         update(_delta) {
-            if (this.enabled && this.fpControls.isLocked) {
+            if (this.enabled && this.controls.isLocked) {
                 const currentTime = performance.now();
                 const delta = (currentTime - this.prevTime) / 1000;
                 this.move(delta);
@@ -88838,7 +88838,7 @@
             }
         }
         submitOnChange(action) {
-            this.fpControls.addEventListener('change', (event) => {
+            this.controls.addEventListener('change', (event) => {
                 action(event);
             });
         }
@@ -88846,14 +88846,14 @@
             this.onCameraUnlocked = action;
         }
         enable() {
-            if (!this.fpControls.isLocked)
-                this.fpControls.lock();
+            if (!this.controls.isLocked)
+                this.controls.lock();
             document.addEventListener('keydown', this.onKeyDown);
             document.addEventListener('keyup', this.onKeyUp);
         }
         disable() {
-            if (this.fpControls.isLocked)
-                this.fpControls.unlock();
+            if (this.controls.isLocked)
+                this.controls.unlock();
             document.removeEventListener('keydown', this.onKeyDown);
             document.removeEventListener('keyup', this.onKeyUp);
         }
@@ -88888,12 +88888,12 @@
             });
         }
         moveCamera(delta) {
-            this.fpControls.moveRight(-this.velocity.x * delta);
-            this.fpControls.moveForward(-this.velocity.z * delta);
-            this.fpControls.getObject().position.y -= this.velocity.y * delta;
+            this.controls.moveRight(-this.velocity.x * delta);
+            this.controls.moveForward(-this.velocity.z * delta);
+            this.controls.getObject().position.y -= this.velocity.y * delta;
         }
         getControl(event) {
-            const controlValues = Object.values(this.controls);
+            const controlValues = Object.values(this.keyBinding);
             return controlValues.find((control) => control.keys.indexOf(event.code) > -1);
         }
     }
@@ -90304,6 +90304,10 @@
         setHomeView(camera, target) {
             const orbitControls = this.navMode[NavigationModes.Orbit];
             orbitControls.homeView = { camera, target };
+        }
+        unlock() {
+            const firstPerson = this.navMode[NavigationModes.FirstPerson];
+            firstPerson.controls.unlock();
         }
         setOrbitControls() {
             this.setNavigationMode(NavigationModes.Orbit);
@@ -105664,6 +105668,7 @@
       if (event.code === 'Delete') {
         // viewer.removeClippingPlane();
         viewer.dimensions.delete();
+        viewer.context.ifcCamera.unlock();
       }
       if (event.code === 'Space') {
         viewer.context.ifcCamera.setNavigationMode(NavigationModes.FirstPerson);
@@ -105674,7 +105679,8 @@
         viewer.context.ifcCamera.goToHomeView();
       }
       if (event.code === 'KeyD') {
-        viewer.dimensions.create();
+        // viewer.dimensions.create();
+        viewer.context.ifcCamera.setNavigationMode(NavigationModes.FirstPerson);
       }
       if (event.code === 'Escape') {
         window.onmousemove = viewer.IFC.prePickIfcItem;

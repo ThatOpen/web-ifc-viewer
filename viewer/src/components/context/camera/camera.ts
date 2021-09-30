@@ -84,6 +84,11 @@ export class IfcCamera extends IfcComponent {
     orbitControls.homeView = { camera, target };
   }
 
+  unlock() {
+    const firstPerson = this.navMode[NavigationModes.FirstPerson];
+    firstPerson.controls.unlock();
+  }
+
   private setOrbitControls() {
     this.setNavigationMode(NavigationModes.Orbit);
     return this.currentNavMode as OrbitControl;

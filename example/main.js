@@ -34,6 +34,7 @@ const handleKeyDown = (event) => {
   if (event.code === 'Delete') {
     // viewer.removeClippingPlane();
     viewer.dimensions.delete();
+    viewer.context.ifcCamera.unlock();
   }
   if (event.code === 'Space') {
     viewer.context.ifcCamera.setNavigationMode(NavigationModes.FirstPerson);
@@ -44,7 +45,8 @@ const handleKeyDown = (event) => {
     viewer.context.ifcCamera.goToHomeView();
   }
   if (event.code === 'KeyD') {
-    viewer.dimensions.create();
+    // viewer.dimensions.create();
+    viewer.context.ifcCamera.setNavigationMode(NavigationModes.FirstPerson);
   }
   if (event.code === 'Escape') {
     window.onmousemove = viewer.IFC.prePickIfcItem;

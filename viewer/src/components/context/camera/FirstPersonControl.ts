@@ -10,7 +10,7 @@ import {
 import { IfcCamera } from './camera';
 
 export class FirstPersonControl extends IfcComponent implements NavigationMode {
-  fpControls: PointerLockControls;
+  controls: PointerLockControls;
   enabled = false;
   readonly mode = NavigationModes.FirstPerson;
 
@@ -20,7 +20,7 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
   private speed = 200;
   private onCameraUnlocked?: (event: any) => void;
 
-  private controls = {
+  private keyBinding = {
     forward: {
       active: false,
       keys: ['KeyW', 'ArrowUp']
@@ -48,21 +48,21 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
   };
 
   private controlsMap = {
-    [dimension.z]: [this.controls.forward, this.controls.back],
-    [dimension.x]: [this.controls.right, this.controls.left],
-    [dimension.y]: [this.controls.up, this.controls.down]
+    [dimension.z]: [this.keyBinding.forward, this.keyBinding.back],
+    [dimension.x]: [this.keyBinding.right, this.keyBinding.left],
+    [dimension.y]: [this.keyBinding.up, this.keyBinding.down]
   };
 
   private readonly dimensions = [dimension.x, dimension.y, dimension.z];
 
   constructor(context: Context, camera: Camera, ifcCamera: IfcCamera) {
     super(context);
-    this.fpControls = new PointerLockControls(camera, context.getDomElement());
-    this.fpControls.addEventListener('unlock', (event: any) => {
+    this.controls = new PointerLockControls(camera, context.getDomElement());
+    this.controls.addEventListener('unlock', (event: any) => {
       ifcCamera.setNavigationMode(NavigationModes.Orbit);
       if (this.onCameraUnlocked) this.onCameraUnlocked(event);
     });
-    context.getScene().add(this.fpControls.getObject());
+    context.getScene().add(this.controls.getObject());
   }
 
   toggle(active: boolean) {
@@ -72,7 +72,7 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
   }
 
   update(_delta: number) {
-    if (this.enabled && this.fpControls.isLocked) {
+    if (this.enabled && this.controls.isLocked) {
       const currentTime = performance.now();
       const delta = (currentTime - this.prevTime) / 1000;
       this.move(delta);
@@ -81,7 +81,7 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
   }
 
   submitOnChange(action: (event: any) => void) {
-    this.fpControls.addEventListener('change', (event: any) => {
+    this.controls.addEventListener('change', (event: any) => {
       action(event);
     });
   }
@@ -91,13 +91,13 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
   }
 
   private enable() {
-    if (!this.fpControls.isLocked) this.fpControls.lock();
+    if (!this.controls.isLocked) this.controls.lock();
     document.addEventListener('keydown', this.onKeyDown);
     document.addEventListener('keyup', this.onKeyUp);
   }
 
   private disable() {
-    if (this.fpControls.isLocked) this.fpControls.unlock();
+    if (this.controls.isLocked) this.controls.unlock();
     document.removeEventListener('keydown', this.onKeyDown);
     document.removeEventListener('keyup', this.onKeyUp);
   }
@@ -148,13 +148,13 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
   }
 
   private moveCamera(delta: number) {
-    this.fpControls.moveRight(-this.velocity.x * delta);
-    this.fpControls.moveForward(-this.velocity.z * delta);
-    this.fpControls.getObject().position.y -= this.velocity.y * delta;
+    this.controls.moveRight(-this.velocity.x * delta);
+    this.controls.moveForward(-this.velocity.z * delta);
+    this.controls.getObject().position.y -= this.velocity.y * delta;
   }
 
   private getControl(event: KeyboardEvent) {
-    const controlValues = Object.values(this.controls);
+    const controlValues = Object.values(this.keyBinding);
     return controlValues.find((control) => control.keys.indexOf(event.code) > -1);
   }
 }
