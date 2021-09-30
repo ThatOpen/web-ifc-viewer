@@ -35,6 +35,11 @@ export class IfcCamera extends IfcComponent {
     this.currentNavMode.toggle(true, { preventTargetAdjustment: true });
   }
 
+  get target() {
+    const orbitControls = this.navMode[NavigationModes.Orbit];
+    return orbitControls.target;
+  }
+
   updateAspect() {
     const dims = this.context.getDimensions();
     this.camera.aspect = dims.x / dims.y;
