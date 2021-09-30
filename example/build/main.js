@@ -90295,6 +90295,10 @@
             const orbitControls = this.setOrbitControls();
             orbitControls.goToHomeView();
         }
+        setHomeView(camera, target) {
+            const orbitControls = this.setOrbitControls();
+            orbitControls.homeView = { camera, target };
+        }
         setOrbitControls() {
             this.setNavigationMode(NavigationModes.Orbit);
             return this.currentNavMode;
