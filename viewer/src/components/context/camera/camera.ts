@@ -33,8 +33,8 @@ export class IfcCamera extends IfcComponent {
       (frustumSize * aspect) / 2,
       frustumSize / 2,
       frustumSize / -2,
-      0.001,
-      100000
+      0.1,
+      1000
     );
     this.setupCamera();
 
