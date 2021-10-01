@@ -22,7 +22,8 @@ export class IfcRaycaster extends IfcComponent {
 
   castRayIfc() {
     const items = this.castRay(this.context.items.pickableIfcModels);
-    return this.filterClippingPlanes(items)[0];
+    const filtered = this.filterClippingPlanes(items);
+    return filtered.length > 0 ? filtered[0] : null;
   }
 
   private filterClippingPlanes(objs: Intersection[]) {

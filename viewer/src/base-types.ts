@@ -82,7 +82,7 @@ export interface Context {
   addClippingPlane: (plane: Plane) => void;
   removeClippingPlane: (plane: Plane) => void;
   castRay: (items: Object3D[]) => Intersection[];
-  castRayIfc: () => Intersection;
+  castRayIfc: () => Intersection | null;
 }
 
 export abstract class IfcComponent implements Component {

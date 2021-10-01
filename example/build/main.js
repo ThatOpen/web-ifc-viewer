@@ -45285,6 +45285,7 @@
                 if (!this.enabled)
                     return;
                 const intersects = this.context.castRayIfc();
+                // if (!intersects) return;
                 this.createPlaneFromIntersection(intersects);
                 this.intersection = undefined;
             };
@@ -90351,7 +90352,8 @@
         }
         castRayIfc() {
             const items = this.castRay(this.context.items.pickableIfcModels);
-            return this.filterClippingPlanes(items)[0];
+            const filtered = this.filterClippingPlanes(items);
+            return filtered.length > 0 ? filtered[0] : null;
         }
         filterClippingPlanes(objs) {
             const planes = this.context.getClippingPlanes();
