@@ -1,6 +1,12 @@
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { Box3, MathUtils, Mesh, MOUSE, PerspectiveCamera, Vector3 } from 'three';
-import { Context, IfcComponent, MouseButtons, NavigationMode, NavigationModes } from '../../../base-types';
+import { Box3, Camera, MathUtils, Mesh, MOUSE, OrthographicCamera, PerspectiveCamera, Vector3 } from 'three';
+import {
+  Context,
+  IfcComponent,
+  MouseButtons,
+  NavigationMode,
+  NavigationModes
+} from '../../../base-types';
 
 export class OrbitControl extends IfcComponent implements NavigationMode {
   orbitControls: OrbitControls;
@@ -8,22 +14,43 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
   private currentTarget = new Vector3();
   readonly mode = NavigationModes.Orbit;
 
+  private onCameraChangeCallbacks: Function[] = [];
+
   private startView = {
     target: new Vector3(),
     camera: new Vector3(20, 20, 20)
   };
 
-  constructor(private context: Context, private camera: PerspectiveCamera) {
+  constructor(
+    private context: Context,
+    private perspectiveCamera: PerspectiveCamera,
+    private orthographicCamera: OrthographicCamera
+  ) {
     super(context);
-    this.orbitControls = new OrbitControls(this.camera, context.getDomElement());
+
+    orthographicCamera.position.z = 500;
+
+    this.orbitControls = new OrbitControls(this.orthographicCamera, context.getDomElement());
     this.orbitControls.minDistance = 1;
     this.orbitControls.maxDistance = 500;
+    this.orbitControls.minZoom = 1;
+    this.orbitControls.maxZoom = 500;
 
     this.orbitControls.addEventListener('change', () => {
       this.currentTarget.copy(this.orbitControls.target);
     });
 
     this.setupOrbitControls();
+    window.onkeypress = (e) => {
+      if (e.code === 'Enter') {
+        console.log('Switch');
+        this.togglePerspective();
+      }
+    };
+  }
+
+  get activeCamera() {
+    return this.orbitControls.object;
   }
 
   get target() {
@@ -63,11 +90,23 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
     });
   }
 
+  submitOnCameraChange(action: (camera: Camera) => any) {
+    this.onCameraChangeCallbacks.push(action);
+  }
+
   submitOnUnlock(_action: (event: any) => void) {}
+
+  togglePerspective() {
+    this.orbitControls.object =
+      this.activeCamera === this.perspectiveCamera
+        ? this.orthographicCamera
+        : this.perspectiveCamera;
+    this.onCameraChangeCallbacks.forEach((c) => c(this.activeCamera));
+  }
 
   toggle(active: boolean) {
     if (active) {
-      this.adjustTarget();
+      // this.adjustTarget();
     }
     this.enabled = active;
     this.orbitControls.enabled = active;
@@ -76,14 +115,14 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
   targetItem = (mesh: Mesh, duration: number) => {
     const center = this.context.getCenter(mesh);
     const cameraEnd = new Vector3()
-      .subVectors(this.camera.position, this.currentTarget)
+      .subVectors(this.perspectiveCamera.position, this.currentTarget)
       .add(center);
-    this.context.getAnimator().move(this.camera.position, cameraEnd, duration);
+    this.context.getAnimator().move(this.perspectiveCamera.position, cameraEnd, duration);
     this.context.getAnimator().move(this.orbitControls.target, center, duration);
   };
 
   goToHomeView() {
-    this.context.getAnimator().move(this.camera.position, this.startView.camera);
+    this.context.getAnimator().move(this.perspectiveCamera.position, this.startView.camera);
     this.context.getAnimator().move(this.orbitControls.target, this.startView.target);
   }
 
@@ -91,11 +130,11 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
     if (!this.enabled) return;
     const { boxCenter, distance } = this.getBoxCenterAndDistance();
     const direction = new Vector3()
-      .subVectors(this.camera.position, boxCenter)
+      .subVectors(this.perspectiveCamera.position, boxCenter)
       .multiply(new Vector3(1, 0, 1))
       .normalize();
-    this.camera.position.copy(direction.multiplyScalar(distance).add(boxCenter));
-    this.camera.updateProjectionMatrix();
+    this.perspectiveCamera.position.copy(direction.multiplyScalar(distance).add(boxCenter));
+    this.perspectiveCamera.updateProjectionMatrix();
     this.orbitControls.target.set(boxCenter.x, boxCenter.y, boxCenter.z);
   }
 
@@ -106,16 +145,16 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
     const boxCenter = box.getCenter(new Vector3());
 
     const halfSizeToFitOnScreen = boxSize * 0.5;
-    const halfFovY = MathUtils.degToRad(this.camera.fov * 0.5);
+    const halfFovY = MathUtils.degToRad(this.perspectiveCamera.fov * 0.5);
     const distance = halfSizeToFitOnScreen / Math.tan(halfFovY);
     return { boxCenter, distance };
   }
 
   private adjustTarget() {
     const cameraDir = new Vector3();
-    this.camera.getWorldDirection(cameraDir);
+    this.perspectiveCamera.getWorldDirection(cameraDir);
     cameraDir.multiplyScalar(20);
-    const center = new Vector3().addVectors(cameraDir, this.camera.position);
+    const center = new Vector3().addVectors(cameraDir, this.perspectiveCamera.position);
     this.orbitControls.target.set(center.x, center.y, center.z);
   }
 

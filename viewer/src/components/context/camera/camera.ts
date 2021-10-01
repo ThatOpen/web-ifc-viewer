@@ -1,4 +1,4 @@
-import { Mesh, PerspectiveCamera, Vector3 } from 'three';
+import { Mesh, OrthographicCamera, PerspectiveCamera, Vector3 } from 'three';
 import {
   Context,
   IfcComponent,
@@ -10,8 +10,11 @@ import {
 import { FirstPersonControl } from './FirstPersonControl';
 import { OrbitControl } from './OrbitControl';
 
+const frustumSize = 50;
+
 export class IfcCamera extends IfcComponent {
-  camera: PerspectiveCamera;
+  perspectiveCamera: PerspectiveCamera;
+  orthographicCamera: OrthographicCamera;
 
   navMode: NavModeManager;
   currentNavMode: NavigationMode;
@@ -23,12 +26,29 @@ export class IfcCamera extends IfcComponent {
     this.context = context;
 
     const dims = this.context.getDimensions();
-    this.camera = new PerspectiveCamera(45, dims.x / dims.y, 0.1, 1000);
+    const aspect = dims.x / dims.y;
+    this.perspectiveCamera = new PerspectiveCamera(45, aspect, 0.1, 1000);
+    this.orthographicCamera = new OrthographicCamera(
+      (frustumSize * aspect) / -2,
+      (frustumSize * aspect) / 2,
+      frustumSize / 2,
+      frustumSize / -2,
+      0.001,
+      100000
+    );
     this.setupCamera();
 
     this.navMode = {
-      [NavigationModes.Orbit]: new OrbitControl(this.context, this.camera),
-      [NavigationModes.FirstPerson]: new FirstPersonControl(this.context, this.camera, this)
+      [NavigationModes.Orbit]: new OrbitControl(
+        this.context,
+        this.perspectiveCamera,
+        this.orthographicCamera
+      ),
+      [NavigationModes.FirstPerson]: new FirstPersonControl(
+        this.context,
+        this.perspectiveCamera,
+        this
+      )
     };
 
     this.currentNavMode = this.navMode[NavigationModes.Orbit];
@@ -40,10 +60,24 @@ export class IfcCamera extends IfcComponent {
     return orbitControls.target;
   }
 
+  get activeCamera() {
+    return this.currentNavMode.mode === NavigationModes.FirstPerson
+      ? this.perspectiveCamera
+      : this.navMode[NavigationModes.Orbit].activeCamera;
+  }
+
   updateAspect() {
     const dims = this.context.getDimensions();
-    this.camera.aspect = dims.x / dims.y;
-    this.camera.updateProjectionMatrix();
+    const aspect = dims.x / dims.y;
+
+    this.perspectiveCamera.aspect = dims.x / dims.y;
+    this.perspectiveCamera.updateProjectionMatrix();
+
+    this.orthographicCamera.left = (-frustumSize * aspect) / 2;
+    this.orthographicCamera.right = (frustumSize * aspect) / 2;
+    this.orthographicCamera.top = frustumSize / 2;
+    this.orthographicCamera.bottom = -frustumSize / 2;
+    this.orthographicCamera.updateProjectionMatrix();
   }
 
   submitOnChange(action: (event: any) => void) {
@@ -95,9 +129,9 @@ export class IfcCamera extends IfcComponent {
   }
 
   private setupCamera() {
-    this.camera.position.z = 10;
-    this.camera.position.y = 10;
-    this.camera.position.x = 10;
-    this.camera.lookAt(new Vector3(0, 0, 0));
+    this.perspectiveCamera.position.z = 10;
+    this.perspectiveCamera.position.y = 10;
+    this.perspectiveCamera.position.x = 10;
+    this.perspectiveCamera.lookAt(new Vector3(0, 0, 0));
   }
 }

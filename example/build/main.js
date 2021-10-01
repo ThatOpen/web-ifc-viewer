@@ -45252,6 +45252,9 @@
                 else
                     onEnd();
             });
+            this.context.ifcCamera.navMode[NavigationModes.Orbit].submitOnCameraChange((camera) => {
+                this.controls.camera = camera;
+            });
         }
         createHelper() {
             const helper = new Object3D();
@@ -45285,7 +45288,8 @@
                 if (!this.enabled)
                     return;
                 const intersects = this.context.castRayIfc();
-                // if (!intersects) return;
+                if (!intersects)
+                    return;
                 this.createPlaneFromIntersection(intersects);
                 this.intersection = undefined;
             };
@@ -88304,8 +88308,8 @@
             };
             /**
              * Highlights the item pointed by the cursor and gets is properties.
-             * @focusSelection If true, animate the camera to focus the current selection
-             * @duration The length of the camera animation in seconds
+             * @focusSelection If true, animate the perspectiveCamera to focus the current selection
+             * @duration The length of the perspectiveCamera animation in seconds
              */
             this.pickIfcItem = async (focusSelection = false, duration) => {
                 const found = this.context.castRayIfc();
@@ -88318,8 +88322,8 @@
             };
             /**
              * Highlights the item pointed by the cursor and gets is properties, without applying any material to it.
-             * @focusSelection If true, animate the camera to focus the current selection
-             * @duration The length of the camera animation in seconds
+             * @focusSelection If true, animate the perspectiveCamera to focus the current selection
+             * @duration The length of the perspectiveCamera animation in seconds
              */
             this.highlightIfcItem = async (focusSelection = false, duration) => {
                 const found = this.context.castRayIfc();
@@ -88370,7 +88374,7 @@
         /**
          * Loads the given IFC in the current scene.
          * @file IFC as File.
-         * @fitToFrame (optional) if true, brings the camera to the loaded IFC.
+         * @fitToFrame (optional) if true, brings the perspectiveCamera to the loaded IFC.
          * @onError (optional) a callback function to report on loading errors
          */
         async loadIfc(file, fitToFrame = false, onError) {
@@ -88380,7 +88384,7 @@
         /**
          * Loads the given IFC in the current scene.
          * @file IFC as URL.
-         * @fitToFrame (optional) if true, brings the camera to the loaded IFC.
+         * @fitToFrame (optional) if true, brings the perspectiveCamera to the loaded IFC.
          * @onProgress (optional) a callback function to report on downloading progress
          * @onError (optional) a callback function to report on loading errors
          */
@@ -90140,13 +90144,15 @@
     }
 
     class OrbitControl extends IfcComponent {
-        constructor(context, camera) {
+        constructor(context, perspectiveCamera, orthographicCamera) {
             super(context);
             this.context = context;
-            this.camera = camera;
+            this.perspectiveCamera = perspectiveCamera;
+            this.orthographicCamera = orthographicCamera;
             this.enabled = true;
             this.currentTarget = new Vector3();
             this.mode = NavigationModes.Orbit;
+            this.onCameraChangeCallbacks = [];
             this.startView = {
                 target: new Vector3(),
                 camera: new Vector3(20, 20, 20)
@@ -90154,18 +90160,30 @@
             this.targetItem = (mesh, duration) => {
                 const center = this.context.getCenter(mesh);
                 const cameraEnd = new Vector3()
-                    .subVectors(this.camera.position, this.currentTarget)
+                    .subVectors(this.perspectiveCamera.position, this.currentTarget)
                     .add(center);
-                this.context.getAnimator().move(this.camera.position, cameraEnd, duration);
+                this.context.getAnimator().move(this.perspectiveCamera.position, cameraEnd, duration);
                 this.context.getAnimator().move(this.orbitControls.target, center, duration);
             };
-            this.orbitControls = new OrbitControls(this.camera, context.getDomElement());
+            orthographicCamera.position.z = 500;
+            this.orbitControls = new OrbitControls(this.orthographicCamera, context.getDomElement());
             this.orbitControls.minDistance = 1;
             this.orbitControls.maxDistance = 500;
+            this.orbitControls.minZoom = 1;
+            this.orbitControls.maxZoom = 500;
             this.orbitControls.addEventListener('change', () => {
                 this.currentTarget.copy(this.orbitControls.target);
             });
             this.setupOrbitControls();
+            window.onkeypress = (e) => {
+                if (e.code === 'Enter') {
+                    console.log('Switch');
+                    this.togglePerspective();
+                }
+            };
+        }
+        get activeCamera() {
+            return this.orbitControls.object;
         }
         get target() {
             return this.orbitControls.target;
@@ -90197,16 +90215,23 @@
                 action(event);
             });
         }
+        submitOnCameraChange(action) {
+            this.onCameraChangeCallbacks.push(action);
+        }
         submitOnUnlock(_action) { }
+        togglePerspective() {
+            this.orbitControls.object =
+                this.activeCamera === this.perspectiveCamera
+                    ? this.orthographicCamera
+                    : this.perspectiveCamera;
+            this.onCameraChangeCallbacks.forEach((c) => c(this.activeCamera));
+        }
         toggle(active) {
-            if (active) {
-                this.adjustTarget();
-            }
             this.enabled = active;
             this.orbitControls.enabled = active;
         }
         goToHomeView() {
-            this.context.getAnimator().move(this.camera.position, this.startView.camera);
+            this.context.getAnimator().move(this.perspectiveCamera.position, this.startView.camera);
             this.context.getAnimator().move(this.orbitControls.target, this.startView.target);
         }
         fitModelToFrame() {
@@ -90214,11 +90239,11 @@
                 return;
             const { boxCenter, distance } = this.getBoxCenterAndDistance();
             const direction = new Vector3()
-                .subVectors(this.camera.position, boxCenter)
+                .subVectors(this.perspectiveCamera.position, boxCenter)
                 .multiply(new Vector3(1, 0, 1))
                 .normalize();
-            this.camera.position.copy(direction.multiplyScalar(distance).add(boxCenter));
-            this.camera.updateProjectionMatrix();
+            this.perspectiveCamera.position.copy(direction.multiplyScalar(distance).add(boxCenter));
+            this.perspectiveCamera.updateProjectionMatrix();
             this.orbitControls.target.set(boxCenter.x, boxCenter.y, boxCenter.z);
         }
         getBoxCenterAndDistance() {
@@ -90227,15 +90252,15 @@
             const boxSize = box.getSize(new Vector3()).length();
             const boxCenter = box.getCenter(new Vector3());
             const halfSizeToFitOnScreen = boxSize * 0.5;
-            const halfFovY = MathUtils.degToRad(this.camera.fov * 0.5);
+            const halfFovY = MathUtils.degToRad(this.perspectiveCamera.fov * 0.5);
             const distance = halfSizeToFitOnScreen / Math.tan(halfFovY);
             return { boxCenter, distance };
         }
         adjustTarget() {
             const cameraDir = new Vector3();
-            this.camera.getWorldDirection(cameraDir);
+            this.perspectiveCamera.getWorldDirection(cameraDir);
             cameraDir.multiplyScalar(20);
-            const center = new Vector3().addVectors(cameraDir, this.camera.position);
+            const center = new Vector3().addVectors(cameraDir, this.perspectiveCamera.position);
             this.orbitControls.target.set(center.x, center.y, center.z);
         }
         setupOrbitControls() {
@@ -90253,16 +90278,19 @@
         }
     }
 
+    const frustumSize = 50;
     class IfcCamera extends IfcComponent {
         constructor(context) {
             super(context);
             this.context = context;
             const dims = this.context.getDimensions();
-            this.camera = new PerspectiveCamera(45, dims.x / dims.y, 0.1, 1000);
+            const aspect = dims.x / dims.y;
+            this.perspectiveCamera = new PerspectiveCamera(45, aspect, 0.1, 1000);
+            this.orthographicCamera = new OrthographicCamera((frustumSize * aspect) / -2, (frustumSize * aspect) / 2, frustumSize / 2, frustumSize / -2, 0.001, 100000);
             this.setupCamera();
             this.navMode = {
-                [NavigationModes.Orbit]: new OrbitControl(this.context, this.camera),
-                [NavigationModes.FirstPerson]: new FirstPersonControl(this.context, this.camera, this)
+                [NavigationModes.Orbit]: new OrbitControl(this.context, this.perspectiveCamera, this.orthographicCamera),
+                [NavigationModes.FirstPerson]: new FirstPersonControl(this.context, this.perspectiveCamera, this)
             };
             this.currentNavMode = this.navMode[NavigationModes.Orbit];
             this.currentNavMode.toggle(true, { preventTargetAdjustment: true });
@@ -90271,10 +90299,21 @@
             const orbitControls = this.navMode[NavigationModes.Orbit];
             return orbitControls.target;
         }
+        get activeCamera() {
+            return this.currentNavMode.mode === NavigationModes.FirstPerson
+                ? this.perspectiveCamera
+                : this.navMode[NavigationModes.Orbit].activeCamera;
+        }
         updateAspect() {
             const dims = this.context.getDimensions();
-            this.camera.aspect = dims.x / dims.y;
-            this.camera.updateProjectionMatrix();
+            const aspect = dims.x / dims.y;
+            this.perspectiveCamera.aspect = dims.x / dims.y;
+            this.perspectiveCamera.updateProjectionMatrix();
+            this.orthographicCamera.left = (-frustumSize * aspect) / 2;
+            this.orthographicCamera.right = (frustumSize * aspect) / 2;
+            this.orthographicCamera.top = frustumSize / 2;
+            this.orthographicCamera.bottom = -frustumSize / 2;
+            this.orthographicCamera.updateProjectionMatrix();
         }
         submitOnChange(action) {
             Object.values(this.navMode).forEach((mode) => mode.submitOnChange(action));
@@ -90315,10 +90354,10 @@
             return this.currentNavMode;
         }
         setupCamera() {
-            this.camera.position.z = 10;
-            this.camera.position.y = 10;
-            this.camera.position.x = 10;
-            this.camera.lookAt(new Vector3(0, 0, 0));
+            this.perspectiveCamera.position.z = 10;
+            this.perspectiveCamera.position.y = 10;
+            this.perspectiveCamera.position.x = 10;
+            this.perspectiveCamera.lookAt(new Vector3(0, 0, 0));
         }
     }
 
@@ -95986,7 +96025,7 @@
             return this.ifcRenderer.renderer2D;
         }
         getCamera() {
-            return this.ifcCamera.camera;
+            return this.ifcCamera.activeCamera;
         }
         getIfcCamera() {
             return this.ifcCamera;
@@ -100693,7 +100732,7 @@
          * @deprecated Use `IfcViewerAPI.IFC.loadIfc()` instead.
          * Loads the given IFC in the current scene.
          * @file IFC as File.
-         * @fitToFrame (optional) if true, brings the camera to the loaded IFC.
+         * @fitToFrame (optional) if true, brings the perspectiveCamera to the loaded IFC.
          */
         async loadIfc(file, fitToFrame = false) {
             await this.IFC.loadIfc(file, fitToFrame);
@@ -100702,7 +100741,7 @@
          * @deprecated Use `IfcViewerAPI.IFC.loadIfcUrl()` instead.
          * Loads the given IFC in the current scene.
          * @file IFC as URL.
-         * @fitToFrame (optional) if true, brings the camera to the loaded IFC.
+         * @fitToFrame (optional) if true, brings the perspectiveCamera to the loaded IFC.
          */
         async loadIfcUrl(url, fitToFrame = false) {
             await this.IFC.loadIfcUrl(url, fitToFrame);

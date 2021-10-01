@@ -99,7 +99,7 @@ export class IfcViewerAPI {
    * @deprecated Use `IfcViewerAPI.IFC.loadIfc()` instead.
    * Loads the given IFC in the current scene.
    * @file IFC as File.
-   * @fitToFrame (optional) if true, brings the camera to the loaded IFC.
+   * @fitToFrame (optional) if true, brings the perspectiveCamera to the loaded IFC.
    */
   async loadIfc(file: File, fitToFrame = false) {
     await this.IFC.loadIfc(file, fitToFrame);
@@ -109,7 +109,7 @@ export class IfcViewerAPI {
    * @deprecated Use `IfcViewerAPI.IFC.loadIfcUrl()` instead.
    * Loads the given IFC in the current scene.
    * @file IFC as URL.
-   * @fitToFrame (optional) if true, brings the camera to the loaded IFC.
+   * @fitToFrame (optional) if true, brings the perspectiveCamera to the loaded IFC.
    */
   async loadIfcUrl(url: string, fitToFrame = false) {
     await this.IFC.loadIfcUrl(url, fitToFrame);
