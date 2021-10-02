@@ -133,5 +133,10 @@ export class IfcCamera extends IfcComponent {
     this.perspectiveCamera.position.y = 10;
     this.perspectiveCamera.position.x = 10;
     this.perspectiveCamera.lookAt(new Vector3(0, 0, 0));
+
+    this.orthographicCamera.position.z = 10;
+    this.orthographicCamera.position.y = 10;
+    this.orthographicCamera.position.x = 10;
+    this.orthographicCamera.lookAt(new Vector3(0, 0, 0));
   }
 }

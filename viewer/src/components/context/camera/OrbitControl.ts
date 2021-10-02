@@ -37,8 +37,6 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
   ) {
     super(context);
 
-    orthographicCamera.position.z = 500;
-
     this.orbitControls = new OrbitControls(this.orthographicCamera, context.getDomElement());
     // this.orbitControls.minDistance = 1;
     // this.orbitControls.maxDistance = 500;
@@ -121,10 +119,12 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
       const height = depth * 2 * Math.atan((this.perspectiveCamera.fov * (Math.PI / 180)) / 2);
       const width = height * aspect;
 
+      this.orthographicCamera.zoom = 1;
       this.orthographicCamera.left = width / -2;
       this.orthographicCamera.right = width / 2;
       this.orthographicCamera.top = height / 2;
       this.orthographicCamera.bottom = height / -2;
+      this.orthographicCamera.updateProjectionMatrix();
 
       this.orthographicCamera.position.copy(this.perspectiveCamera.position);
       this.orthographicCamera.quaternion.copy(this.perspectiveCamera.quaternion);
@@ -132,6 +132,7 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
     } else {
       this.perspectiveCamera.position.copy(this.orthographicCamera.position);
       this.perspectiveCamera.quaternion.copy(this.orthographicCamera.quaternion);
+      this.perspectiveCamera.updateProjectionMatrix();
       this.orbitControls.object = this.perspectiveCamera;
     }
 
