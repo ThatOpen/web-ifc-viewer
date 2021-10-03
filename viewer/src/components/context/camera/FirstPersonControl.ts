@@ -8,6 +8,7 @@ import {
   NavigationModes
 } from '../../../base-types';
 import { IfcCamera } from './camera';
+import { LiteEvent } from '../../../utils/LiteEvent';
 
 export class FirstPersonControl extends IfcComponent implements NavigationMode {
   controls: PointerLockControls;
@@ -18,7 +19,10 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
   private velocity = new Vector3();
   private direction = new Vector3();
   private speed = 200;
-  private onCameraUnlocked?: (event: any) => void;
+
+  public readonly onChange = new LiteEvent();
+  public readonly onUnlock = new LiteEvent();
+  public readonly onChangeProjection = new LiteEvent<Camera>();
 
   private keyBinding = {
     forward: {
@@ -60,7 +64,10 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
     this.controls = new PointerLockControls(camera, context.getDomElement());
     this.controls.addEventListener('unlock', (event: any) => {
       ifcCamera.setNavigationMode(NavigationModes.Orbit);
-      if (this.onCameraUnlocked) this.onCameraUnlocked(event);
+      this.onUnlock.trigger(event);
+    });
+    this.controls.addEventListener('change', (event: any) => {
+      this.onChange.trigger(event);
     });
     context.getScene().add(this.controls.getObject());
   }
@@ -80,14 +87,18 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
     }
   }
 
+  /**
+   * @deprecated Use onChange.on() instead.
+   */
   submitOnChange(action: (event: any) => void) {
-    this.controls.addEventListener('change', (event: any) => {
-      action(event);
-    });
+    this.onChange.on(action);
   }
 
+  /**
+   * @deprecated Use onChange.on() instead.
+   */
   submitOnUnlock(action: (event: any) => void) {
-    this.onCameraUnlocked = action;
+    this.onUnlock.on(action);
   }
 
   private enable() {

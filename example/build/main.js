@@ -6,6 +6,11 @@
         NavigationModes[NavigationModes["Orbit"] = 0] = "Orbit";
         NavigationModes[NavigationModes["FirstPerson"] = 1] = "FirstPerson";
     })(NavigationModes || (NavigationModes = {}));
+    var CameraProjections;
+    (function (CameraProjections) {
+        CameraProjections[CameraProjections["Perspective"] = 0] = "Perspective";
+        CameraProjections[CameraProjections["Orthographic"] = 1] = "Orthographic";
+    })(CameraProjections || (CameraProjections = {}));
     class IfcComponent {
         constructor(context) {
             context.addComponent(this);
@@ -45252,7 +45257,7 @@
                 else
                     onEnd();
             });
-            this.context.ifcCamera.navMode[NavigationModes.Orbit].submitOnCameraChange((camera) => {
+            this.context.ifcCamera.currentNavMode.onChangeProjection.on((camera) => {
                 this.controls.camera = camera;
             });
         }
@@ -88768,6 +88773,28 @@
 
     }
 
+    // -------------------------------------------------------------------------------------------
+    // Credit to Jason Kleban: https://gist.github.com/JasonKleban/50cee44960c225ac1993c922563aa540
+    // -------------------------------------------------------------------------------------------
+    class LiteEvent {
+        constructor() {
+            this.handlers = [];
+            this.trigger = ((data) => {
+                // @ts-ignore
+                this.handlers.slice(0).forEach((h) => h(data));
+            });
+        }
+        on(handler) {
+            this.handlers.push(handler);
+        }
+        off(handler) {
+            this.handlers = this.handlers.filter((h) => h !== handler);
+        }
+        expose() {
+            return this;
+        }
+    }
+
     class FirstPersonControl extends IfcComponent {
         constructor(context, camera, ifcCamera) {
             super(context);
@@ -88777,6 +88804,9 @@
             this.velocity = new Vector3();
             this.direction = new Vector3();
             this.speed = 200;
+            this.onChange = new LiteEvent();
+            this.onUnlock = new LiteEvent();
+            this.onChangeProjection = new LiteEvent();
             this.keyBinding = {
                 forward: {
                     active: false,
@@ -88822,8 +88852,10 @@
             this.controls = new PointerLockControls(camera, context.getDomElement());
             this.controls.addEventListener('unlock', (event) => {
                 ifcCamera.setNavigationMode(NavigationModes.Orbit);
-                if (this.onCameraUnlocked)
-                    this.onCameraUnlocked(event);
+                this.onUnlock.trigger(event);
+            });
+            this.controls.addEventListener('change', (event) => {
+                this.onChange.trigger(event);
             });
             context.getScene().add(this.controls.getObject());
         }
@@ -88842,13 +88874,17 @@
                 this.prevTime = currentTime;
             }
         }
+        /**
+         * @deprecated Use onChange.on() instead.
+         */
         submitOnChange(action) {
-            this.controls.addEventListener('change', (event) => {
-                action(event);
-            });
+            this.onChange.on(action);
         }
+        /**
+         * @deprecated Use onChange.on() instead.
+         */
         submitOnUnlock(action) {
-            this.onCameraUnlocked = action;
+            this.onUnlock.on(action);
         }
         enable() {
             if (!this.controls.isLocked)
@@ -90152,7 +90188,9 @@
             this.enabled = true;
             this.currentTarget = new Vector3();
             this.mode = NavigationModes.Orbit;
-            this.onCameraChangeCallbacks = [];
+            this.onChange = new LiteEvent();
+            this.onUnlock = new LiteEvent();
+            this.onChangeProjection = new LiteEvent();
             this.startView = {
                 target: new Vector3(),
                 camera: new Vector3(20, 20, 20)
@@ -90170,16 +90208,11 @@
             // this.orbitControls.maxDistance = 500;
             // this.orbitControls.minZoom = 1;
             // this.orbitControls.maxZoom = 500;
-            this.orbitControls.addEventListener('change', () => {
+            this.orbitControls.addEventListener('change', (event) => {
                 this.currentTarget.copy(this.orbitControls.target);
+                this.onChange.trigger(event);
             });
             this.setupOrbitControls();
-            window.onkeypress = (e) => {
-                if (e.code === 'Enter') {
-                    console.log('Switch');
-                    this.togglePerspective();
-                }
-            };
         }
         get activeCamera() {
             return this.orbitControls.object;
@@ -90209,16 +90242,19 @@
                 this.orbitControls.update();
             }
         }
+        /**
+         * @deprecated Use onChange.on() instead.
+         */
         submitOnChange(action) {
-            this.orbitControls.addEventListener('change', (event) => {
-                action(event);
-            });
+            this.onChange.on(action);
         }
-        submitOnCameraChange(action) {
-            this.onCameraChangeCallbacks.push(action);
+        /**
+         * @deprecated Use onChange.on() instead.
+         */
+        submitOnUnlock(action) {
+            this.onUnlock.on(action);
         }
-        submitOnUnlock(_action) { }
-        togglePerspective() {
+        toggleProjection() {
             if (this.activeCamera === this.perspectiveCamera) {
                 // Matching orthographic camera to perspective camera
                 // Resource: https://stackoverflow.com/questions/48758959/what-is-required-to-convert-threejs-perspective-camera-to-orthographic
@@ -90246,9 +90282,12 @@
                 this.perspectiveCamera.updateProjectionMatrix();
                 this.orbitControls.object = this.perspectiveCamera;
             }
-            this.onCameraChangeCallbacks.forEach((c) => c(this.activeCamera));
+            this.onChangeProjection.trigger(this.activeCamera);
         }
         toggle(active) {
+            if (active) {
+                this.adjustTarget();
+            }
             this.enabled = active;
             this.orbitControls.enabled = active;
         }
@@ -90280,9 +90319,9 @@
         }
         adjustTarget() {
             const cameraDir = new Vector3();
-            this.perspectiveCamera.getWorldDirection(cameraDir);
+            this.activeCamera.getWorldDirection(cameraDir);
             cameraDir.multiplyScalar(20);
-            const center = new Vector3().addVectors(cameraDir, this.perspectiveCamera.position);
+            const center = new Vector3().addVectors(cameraDir, this.activeCamera.position);
             this.orbitControls.target.set(center.x, center.y, center.z);
         }
         setupOrbitControls() {
@@ -90304,6 +90343,9 @@
     class IfcCamera extends IfcComponent {
         constructor(context) {
             super(context);
+            this.onChange = new LiteEvent();
+            this.onUnlock = new LiteEvent();
+            this.onChangeProjection = new LiteEvent();
             this.context = context;
             const dims = this.context.getDimensions();
             const aspect = dims.x / dims.y;
@@ -90316,6 +90358,11 @@
             };
             this.currentNavMode = this.navMode[NavigationModes.Orbit];
             this.currentNavMode.toggle(true, { preventTargetAdjustment: true });
+            Object.values(this.navMode).forEach((mode) => {
+                mode.onChange.on(this.onChange.trigger);
+                mode.onUnlock.on(this.onUnlock.trigger);
+                mode.onChangeProjection.on(this.onChangeProjection.trigger);
+            });
         }
         get target() {
             const orbitControls = this.navMode[NavigationModes.Orbit];
@@ -90337,11 +90384,17 @@
             this.orthographicCamera.bottom = -frustumSize / 2;
             this.orthographicCamera.updateProjectionMatrix();
         }
+        /**
+         * @deprecated Use onChange.on() instead.
+         */
         submitOnChange(action) {
-            Object.values(this.navMode).forEach((mode) => mode.submitOnChange(action));
+            this.onChange.on(action);
         }
+        /**
+         * @deprecated Use onUnlock.on() instead.
+         */
         submitOnUnlock(action) {
-            Object.values(this.navMode).forEach((mode) => mode.submitOnUnlock(action));
+            this.onUnlock.on(action);
         }
         setNavigationMode(mode) {
             this.currentNavMode.toggle(false);
@@ -90354,6 +90407,9 @@
         }
         toggleCameraControls(active) {
             this.currentNavMode.toggle(active);
+        }
+        toggleProjection() {
+            this.navMode[NavigationModes.Orbit].toggleProjection();
         }
         targetItem(mesh, duration = 1) {
             const orbitControls = this.setOrbitControls();
@@ -96152,7 +96208,7 @@
             this.root.renderOrder = 2;
             this.context.getScene().add(this.root);
             this.camera = this.context.getCamera();
-            this.context.ifcCamera.submitOnChange(() => this.rescaleObjectsToCameraPosition());
+            this.context.ifcCamera.onChange.on(() => this.rescaleObjectsToCameraPosition());
             this.rescaleObjectsToCameraPosition();
         }
         get boundingBox() {
@@ -105751,6 +105807,9 @@
       }
       if (event.code === 'Escape') {
         window.onmousemove = viewer.IFC.prePickIfcItem;
+      }
+      if (event.code === "KeyP") {
+        viewer.context.ifcCamera.toggleProjection();
       }
     };
 

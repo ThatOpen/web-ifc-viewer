@@ -1,4 +1,4 @@
-import { Mesh, OrthographicCamera, PerspectiveCamera, Vector3 } from 'three';
+import { Camera, Mesh, OrthographicCamera, PerspectiveCamera, Vector3 } from 'three';
 import {
   Context,
   IfcComponent,
@@ -9,6 +9,7 @@ import {
 } from '../../../base-types';
 import { FirstPersonControl } from './FirstPersonControl';
 import { OrbitControl } from './OrbitControl';
+import { LiteEvent } from '../../../utils/LiteEvent';
 
 const frustumSize = 50;
 
@@ -20,6 +21,9 @@ export class IfcCamera extends IfcComponent {
   currentNavMode: NavigationMode;
 
   private readonly context: Context;
+  public readonly onChange = new LiteEvent<any>();
+  public readonly onUnlock = new LiteEvent<any>();
+  public readonly onChangeProjection = new LiteEvent<Camera>();
 
   constructor(context: Context) {
     super(context);
@@ -53,6 +57,12 @@ export class IfcCamera extends IfcComponent {
 
     this.currentNavMode = this.navMode[NavigationModes.Orbit];
     this.currentNavMode.toggle(true, { preventTargetAdjustment: true });
+
+    Object.values(this.navMode).forEach((mode) => {
+      mode.onChange.on(this.onChange.trigger);
+      mode.onUnlock.on(this.onUnlock.trigger);
+      mode.onChangeProjection.on(this.onChangeProjection.trigger);
+    });
   }
 
   get target() {
@@ -80,12 +90,18 @@ export class IfcCamera extends IfcComponent {
     this.orthographicCamera.updateProjectionMatrix();
   }
 
+  /**
+   * @deprecated Use onChange.on() instead.
+   */
   submitOnChange(action: (event: any) => void) {
-    Object.values(this.navMode).forEach((mode) => mode.submitOnChange(action));
+    this.onChange.on(action);
   }
 
+  /**
+   * @deprecated Use onUnlock.on() instead.
+   */
   submitOnUnlock(action: (event: any) => void) {
-    Object.values(this.navMode).forEach((mode) => mode.submitOnUnlock(action));
+    this.onUnlock.on(action);
   }
 
   setNavigationMode(mode: NavigationModes) {
@@ -101,6 +117,10 @@ export class IfcCamera extends IfcComponent {
 
   toggleCameraControls(active: boolean) {
     this.currentNavMode.toggle(active);
+  }
+
+  toggleProjection() {
+    this.navMode[NavigationModes.Orbit].toggleProjection();
   }
 
   targetItem(mesh: Mesh, duration = 1) {

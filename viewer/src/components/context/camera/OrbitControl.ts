@@ -16,6 +16,7 @@ import {
   NavigationMode,
   NavigationModes
 } from '../../../base-types';
+import { LiteEvent } from '../../../utils/LiteEvent';
 
 export class OrbitControl extends IfcComponent implements NavigationMode {
   orbitControls: OrbitControls;
@@ -23,7 +24,9 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
   private currentTarget = new Vector3();
   readonly mode = NavigationModes.Orbit;
 
-  private onCameraChangeCallbacks: Function[] = [];
+  public readonly onChange = new LiteEvent();
+  public readonly onUnlock = new LiteEvent();
+  public readonly onChangeProjection = new LiteEvent<Camera>();
 
   private startView = {
     target: new Vector3(),
@@ -43,17 +46,12 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
     // this.orbitControls.minZoom = 1;
     // this.orbitControls.maxZoom = 500;
 
-    this.orbitControls.addEventListener('change', () => {
+    this.orbitControls.addEventListener('change', (event) => {
       this.currentTarget.copy(this.orbitControls.target);
+      this.onChange.trigger(event);
     });
 
     this.setupOrbitControls();
-    window.onkeypress = (e) => {
-      if (e.code === 'Enter') {
-        console.log('Switch');
-        this.togglePerspective();
-      }
-    };
   }
 
   get activeCamera() {
@@ -91,19 +89,21 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
     }
   }
 
+  /**
+   * @deprecated Use onChange.on() instead.
+   */
   submitOnChange(action: (event: any) => void) {
-    this.orbitControls.addEventListener('change', (event: any) => {
-      action(event);
-    });
+    this.onChange.on(action);
   }
 
-  submitOnCameraChange(action: (camera: Camera) => any) {
-    this.onCameraChangeCallbacks.push(action);
+  /**
+   * @deprecated Use onChange.on() instead.
+   */
+  submitOnUnlock(action: (event: any) => void) {
+    this.onUnlock.on(action);
   }
 
-  submitOnUnlock(_action: (event: any) => void) {}
-
-  togglePerspective() {
+  toggleProjection() {
     if (this.activeCamera === this.perspectiveCamera) {
       // Matching orthographic camera to perspective camera
       // Resource: https://stackoverflow.com/questions/48758959/what-is-required-to-convert-threejs-perspective-camera-to-orthographic
@@ -136,12 +136,12 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
       this.orbitControls.object = this.perspectiveCamera;
     }
 
-    this.onCameraChangeCallbacks.forEach((c) => c(this.activeCamera));
+    this.onChangeProjection.trigger(this.activeCamera);
   }
 
   toggle(active: boolean) {
     if (active) {
-      // this.adjustTarget();
+      this.adjustTarget();
     }
     this.enabled = active;
     this.orbitControls.enabled = active;
@@ -187,9 +187,9 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
 
   private adjustTarget() {
     const cameraDir = new Vector3();
-    this.perspectiveCamera.getWorldDirection(cameraDir);
+    this.activeCamera.getWorldDirection(cameraDir);
     cameraDir.multiplyScalar(20);
-    const center = new Vector3().addVectors(cameraDir, this.perspectiveCamera.position);
+    const center = new Vector3().addVectors(cameraDir, this.activeCamera.position);
     this.orbitControls.target.set(center.x, center.y, center.z);
   }
 
