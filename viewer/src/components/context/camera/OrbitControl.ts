@@ -40,7 +40,7 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
   ) {
     super(context);
 
-    this.orbitControls = new OrbitControls(this.orthographicCamera, context.getDomElement());
+    this.orbitControls = new OrbitControls(this.perspectiveCamera, context.getDomElement());
     // this.orbitControls.minDistance = 1;
     // this.orbitControls.maxDistance = 500;
     // this.orbitControls.minZoom = 1;

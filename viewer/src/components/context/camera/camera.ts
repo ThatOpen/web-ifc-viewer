@@ -7,9 +7,9 @@ import {
   NavigationModes,
   NavModeManager
 } from '../../../base-types';
+import { LiteEvent } from '../../../utils/LiteEvent';
 import { FirstPersonControl } from './FirstPersonControl';
 import { OrbitControl } from './OrbitControl';
-import { LiteEvent } from '../../../utils/LiteEvent';
 
 const frustumSize = 50;
 
