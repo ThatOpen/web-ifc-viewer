@@ -1,15 +1,15 @@
 import {
-  Object3D,
-  PlaneGeometry,
-  Vector3,
-  Plane,
-  MeshBasicMaterial,
+  CylinderGeometry,
   DoubleSide,
   Mesh,
-  CylinderGeometry
+  MeshBasicMaterial,
+  Object3D,
+  Plane,
+  PlaneGeometry,
+  Vector3
 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
-import { IfcComponent, Context } from '../../../base-types';
+import { Context, IfcComponent } from '../../../base-types';
 
 export class IfcPlane extends IfcComponent {
   readonly arrowBoundingBox = new Mesh();
@@ -101,6 +101,9 @@ export class IfcPlane extends IfcComponent {
       this.context.toggleCameraControls(this.visible);
       if (event.value) onStart();
       else onEnd();
+    });
+    this.context.ifcCamera.currentNavMode.onChangeProjection.on((camera) => {
+      this.controls.camera = camera;
     });
   }
 

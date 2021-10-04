@@ -38,7 +38,7 @@ export class IfcManager extends IfcComponent {
   /**
    * Loads the given IFC in the current scene.
    * @file IFC as File.
-   * @fitToFrame (optional) if true, brings the camera to the loaded IFC.
+   * @fitToFrame (optional) if true, brings the perspectiveCamera to the loaded IFC.
    * @onError (optional) a callback function to report on loading errors
    */
   async loadIfc(file: File, fitToFrame = false, onError?: (err: any) => any) {
@@ -49,7 +49,7 @@ export class IfcManager extends IfcComponent {
   /**
    * Loads the given IFC in the current scene.
    * @file IFC as URL.
-   * @fitToFrame (optional) if true, brings the camera to the loaded IFC.
+   * @fitToFrame (optional) if true, brings the perspectiveCamera to the loaded IFC.
    * @onProgress (optional) a callback function to report on downloading progress
    * @onError (optional) a callback function to report on loading errors
    */
@@ -157,8 +157,8 @@ export class IfcManager extends IfcComponent {
 
   /**
    * Highlights the item pointed by the cursor and gets is properties.
-   * @focusSelection If true, animate the camera to focus the current selection
-   * @duration The length of the camera animation in seconds
+   * @focusSelection If true, animate the perspectiveCamera to focus the current selection
+   * @duration The length of the perspectiveCamera animation in seconds
    */
   pickIfcItem = async (focusSelection = false, duration?: number) => {
     const found = this.context.castRayIfc();
@@ -170,8 +170,8 @@ export class IfcManager extends IfcComponent {
 
   /**
    * Highlights the item pointed by the cursor and gets is properties, without applying any material to it.
-   * @focusSelection If true, animate the camera to focus the current selection
-   * @duration The length of the camera animation in seconds
+   * @focusSelection If true, animate the perspectiveCamera to focus the current selection
+   * @duration The length of the perspectiveCamera animation in seconds
    */
   highlightIfcItem = async (focusSelection = false, duration?: number) => {
     const found = this.context.castRayIfc();

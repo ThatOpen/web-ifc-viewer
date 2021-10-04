@@ -1,4 +1,4 @@
-import { Mesh, PerspectiveCamera, Vector3 } from 'three';
+import { Camera, Mesh, OrthographicCamera, PerspectiveCamera, Vector3 } from 'three';
 import {
   Context,
   IfcComponent,
@@ -9,30 +9,60 @@ import {
 } from '../../../base-types';
 import { FirstPersonControl } from './FirstPersonControl';
 import { OrbitControl } from './OrbitControl';
+import { LiteEvent } from '../../../utils/LiteEvent';
+
+const frustumSize = 50;
 
 export class IfcCamera extends IfcComponent {
-  camera: PerspectiveCamera;
+  perspectiveCamera: PerspectiveCamera;
+  orthographicCamera: OrthographicCamera;
 
   navMode: NavModeManager;
   currentNavMode: NavigationMode;
 
   private readonly context: Context;
+  public readonly onChange = new LiteEvent<any>();
+  public readonly onUnlock = new LiteEvent<any>();
+  public readonly onChangeProjection = new LiteEvent<Camera>();
 
   constructor(context: Context) {
     super(context);
     this.context = context;
 
     const dims = this.context.getDimensions();
-    this.camera = new PerspectiveCamera(45, dims.x / dims.y, 0.1, 1000);
+    const aspect = dims.x / dims.y;
+    this.perspectiveCamera = new PerspectiveCamera(45, aspect, 0.1, 1000);
+    this.orthographicCamera = new OrthographicCamera(
+      (frustumSize * aspect) / -2,
+      (frustumSize * aspect) / 2,
+      frustumSize / 2,
+      frustumSize / -2,
+      0.1,
+      1000
+    );
     this.setupCamera();
 
     this.navMode = {
-      [NavigationModes.Orbit]: new OrbitControl(this.context, this.camera),
-      [NavigationModes.FirstPerson]: new FirstPersonControl(this.context, this.camera, this)
+      [NavigationModes.Orbit]: new OrbitControl(
+        this.context,
+        this.perspectiveCamera,
+        this.orthographicCamera
+      ),
+      [NavigationModes.FirstPerson]: new FirstPersonControl(
+        this.context,
+        this.perspectiveCamera,
+        this
+      )
     };
 
     this.currentNavMode = this.navMode[NavigationModes.Orbit];
     this.currentNavMode.toggle(true, { preventTargetAdjustment: true });
+
+    Object.values(this.navMode).forEach((mode) => {
+      mode.onChange.on(this.onChange.trigger);
+      mode.onUnlock.on(this.onUnlock.trigger);
+      mode.onChangeProjection.on(this.onChangeProjection.trigger);
+    });
   }
 
   get target() {
@@ -40,18 +70,38 @@ export class IfcCamera extends IfcComponent {
     return orbitControls.target;
   }
 
+  get activeCamera() {
+    return this.currentNavMode.mode === NavigationModes.FirstPerson
+      ? this.perspectiveCamera
+      : this.navMode[NavigationModes.Orbit].activeCamera;
+  }
+
   updateAspect() {
     const dims = this.context.getDimensions();
-    this.camera.aspect = dims.x / dims.y;
-    this.camera.updateProjectionMatrix();
+    const aspect = dims.x / dims.y;
+
+    this.perspectiveCamera.aspect = dims.x / dims.y;
+    this.perspectiveCamera.updateProjectionMatrix();
+
+    this.orthographicCamera.left = (-frustumSize * aspect) / 2;
+    this.orthographicCamera.right = (frustumSize * aspect) / 2;
+    this.orthographicCamera.top = frustumSize / 2;
+    this.orthographicCamera.bottom = -frustumSize / 2;
+    this.orthographicCamera.updateProjectionMatrix();
   }
 
+  /**
+   * @deprecated Use onChange.on() instead.
+   */
   submitOnChange(action: (event: any) => void) {
-    Object.values(this.navMode).forEach((mode) => mode.submitOnChange(action));
+    this.onChange.on(action);
   }
 
+  /**
+   * @deprecated Use onUnlock.on() instead.
+   */
   submitOnUnlock(action: (event: any) => void) {
-    Object.values(this.navMode).forEach((mode) => mode.submitOnUnlock(action));
+    this.onUnlock.on(action);
   }
 
   setNavigationMode(mode: NavigationModes) {
@@ -67,6 +117,10 @@ export class IfcCamera extends IfcComponent {
 
   toggleCameraControls(active: boolean) {
     this.currentNavMode.toggle(active);
+  }
+
+  toggleProjection() {
+    this.navMode[NavigationModes.Orbit].toggleProjection();
   }
 
   targetItem(mesh: Mesh, duration = 1) {
@@ -95,9 +149,14 @@ export class IfcCamera extends IfcComponent {
   }
 
   private setupCamera() {
-    this.camera.position.z = 10;
-    this.camera.position.y = 10;
-    this.camera.position.x = 10;
-    this.camera.lookAt(new Vector3(0, 0, 0));
+    this.perspectiveCamera.position.z = 10;
+    this.perspectiveCamera.position.y = 10;
+    this.perspectiveCamera.position.x = 10;
+    this.perspectiveCamera.lookAt(new Vector3(0, 0, 0));
+
+    this.orthographicCamera.position.z = 10;
+    this.orthographicCamera.position.y = 10;
+    this.orthographicCamera.position.x = 10;
+    this.orthographicCamera.lookAt(new Vector3(0, 0, 0));
   }
 }

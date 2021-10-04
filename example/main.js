@@ -51,6 +51,9 @@ const handleKeyDown = (event) => {
   if (event.code === 'Escape') {
     window.onmousemove = viewer.IFC.prePickIfcItem;
   }
+  if (event.code === "KeyP") {
+    viewer.context.ifcCamera.toggleProjection();
+  }
 };
 
 // window.onmousemove = viewer.IFC.prePickIfcItem;

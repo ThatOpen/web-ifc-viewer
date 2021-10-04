@@ -79,7 +79,7 @@ export class IfcDimensionLine extends IfcComponent {
     this.context.getScene().add(this.root);
 
     this.camera = this.context.getCamera();
-    this.context.ifcCamera.submitOnChange(() => this.rescaleObjectsToCameraPosition());
+    this.context.ifcCamera.onChange.on(() => this.rescaleObjectsToCameraPosition());
     this.rescaleObjectsToCameraPosition();
   }
 

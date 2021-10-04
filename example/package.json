@@ -7,6 +7,7 @@
   "main": "index.html",
   "scripts": {
     "build": "rollup -c && npm run copy-wasm",
+    "watch": "rollup -c -w",
     "update-example": "yarn remove web-ifc-viewer && yarn remove web-ifc-viewer",
     "copy-wasm": "cpy ../node_modules/web-ifc/web-ifc.wasm files/",
     "start": "serve"
@@ -23,6 +24,6 @@
     "stats.js": "^0.17.0",
     "three": "^0.132.2",
     "web-ifc": "^0.0.24",
-    "web-ifc-viewer": "1.0.81"
+    "web-ifc-viewer": "1.0.82"
   }
 }

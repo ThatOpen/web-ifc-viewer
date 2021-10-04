@@ -17,6 +17,7 @@ import { Animator } from './components/context/animator';
 import { OrbitControl } from './components/context/camera/OrbitControl';
 import { FirstPersonControl } from './components/context/camera/FirstPersonControl';
 import { IfcCamera } from './components/context/camera/camera';
+import { LiteEvent } from './utils/LiteEvent';
 
 export interface MouseButtons {
   left: MOUSE;
@@ -29,12 +30,18 @@ export enum NavigationModes {
   FirstPerson
 }
 
+export enum CameraProjections {
+  Perspective,
+  Orthographic
+}
+
 export interface NavigationMode {
   mode: NavigationModes;
   toggle: (active: boolean, options?: any) => void;
   enabled: boolean;
-  submitOnChange: (action: (event: any) => void) => void;
-  submitOnUnlock: (action: (event: any) => void) => void;
+  onChange: LiteEvent<any>;
+  onUnlock: LiteEvent<any>;
+  onChangeProjection: LiteEvent<Camera>;
 }
 
 export interface NavModeManager {

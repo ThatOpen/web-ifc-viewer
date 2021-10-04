@@ -52,7 +52,7 @@ export class IfcContext implements Context {
   }
 
   getCamera() {
-    return this.ifcCamera.camera;
+    return this.ifcCamera.activeCamera;
   }
 
   getIfcCamera() {
