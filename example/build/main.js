@@ -88618,6 +88618,28 @@
         }
     }
 
+    // -------------------------------------------------------------------------------------------
+    // Credit to Jason Kleban: https://gist.github.com/JasonKleban/50cee44960c225ac1993c922563aa540
+    // -------------------------------------------------------------------------------------------
+    class LiteEvent {
+        constructor() {
+            this.handlers = [];
+            this.trigger = ((data) => {
+                // @ts-ignore
+                this.handlers.slice(0).forEach((h) => h(data));
+            });
+        }
+        on(handler) {
+            this.handlers.push(handler);
+        }
+        off(handler) {
+            this.handlers = this.handlers.filter((h) => h !== handler);
+        }
+        expose() {
+            return this;
+        }
+    }
+
     const _euler = new Euler( 0, 0, 0, 'YXZ' );
     const _vector$1 = new Vector3();
 
@@ -88771,28 +88793,6 @@
 
     	}
 
-    }
-
-    // -------------------------------------------------------------------------------------------
-    // Credit to Jason Kleban: https://gist.github.com/JasonKleban/50cee44960c225ac1993c922563aa540
-    // -------------------------------------------------------------------------------------------
-    class LiteEvent {
-        constructor() {
-            this.handlers = [];
-            this.trigger = ((data) => {
-                // @ts-ignore
-                this.handlers.slice(0).forEach((h) => h(data));
-            });
-        }
-        on(handler) {
-            this.handlers.push(handler);
-        }
-        off(handler) {
-            this.handlers = this.handlers.filter((h) => h !== handler);
-        }
-        expose() {
-            return this;
-        }
     }
 
     class FirstPersonControl extends IfcComponent {
@@ -90203,7 +90203,7 @@
                 this.context.getAnimator().move(this.perspectiveCamera.position, cameraEnd, duration);
                 this.context.getAnimator().move(this.orbitControls.target, center, duration);
             };
-            this.orbitControls = new OrbitControls(this.orthographicCamera, context.getDomElement());
+            this.orbitControls = new OrbitControls(this.perspectiveCamera, context.getDomElement());
             // this.orbitControls.minDistance = 1;
             // this.orbitControls.maxDistance = 500;
             // this.orbitControls.minZoom = 1;
