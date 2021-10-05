@@ -1,6 +1,7 @@
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
 import { Camera, Vector3 } from 'three';
 import {
+  CameraProjections,
   Context,
   dimension,
   IfcComponent,
@@ -85,6 +86,10 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
       this.move(delta);
       this.prevTime = currentTime;
     }
+  }
+
+  get projection() {
+    return CameraProjections.Perspective;
   }
 
   /**

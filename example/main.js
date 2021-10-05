@@ -1,4 +1,4 @@
-import { IfcViewerAPI, NavigationModes } from 'web-ifc-viewer';
+import { CameraProjections, IfcViewerAPI, NavigationModes } from 'web-ifc-viewer';
 import { createSideMenuButton } from './utils/gui-creator';
 import { IFCWALLSTANDARDCASE } from 'three/examples/jsm/loaders/ifc/web-ifc-api';
 
@@ -52,7 +52,10 @@ const handleKeyDown = (event) => {
     window.onmousemove = viewer.IFC.prePickIfcItem;
   }
   if (event.code === "KeyP") {
-    viewer.context.ifcCamera.toggleProjection();
+    viewer.context.ifcCamera.projection = CameraProjections.Perspective;
+  }
+  if (event.code === "KeyO") {
+    viewer.context.ifcCamera.projection = CameraProjections.Orthographic;
   }
 };
 

@@ -1,5 +1,6 @@
 import { Camera, Mesh, OrthographicCamera, PerspectiveCamera, Vector3 } from 'three';
 import {
+  CameraProjections,
   Context,
   IfcComponent,
   MouseButtons,
@@ -121,6 +122,14 @@ export class IfcCamera extends IfcComponent {
 
   toggleProjection() {
     this.navMode[NavigationModes.Orbit].toggleProjection();
+  }
+
+  set projection(projection: CameraProjections) {
+    this.currentNavMode.projection = projection;
+  }
+
+  get projection() {
+    return this.currentNavMode.projection;
   }
 
   targetItem(mesh: Mesh, duration = 1) {

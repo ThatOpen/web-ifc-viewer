@@ -10,6 +10,7 @@ import {
   Vector3
 } from 'three';
 import {
+  CameraProjections,
   Context,
   IfcComponent,
   MouseButtons,
@@ -103,8 +104,16 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
     this.onUnlock.on(action);
   }
 
-  toggleProjection() {
-    if (this.activeCamera === this.perspectiveCamera) {
+  get projection() {
+    return this.activeCamera === this.perspectiveCamera
+      ? CameraProjections.Perspective
+      : CameraProjections.Orthographic;
+  }
+
+  set projection(projection: CameraProjections) {
+    if (this.projection === projection) return;
+
+    if (projection === CameraProjections.Orthographic) {
       // Matching orthographic camera to perspective camera
       // Resource: https://stackoverflow.com/questions/48758959/what-is-required-to-convert-threejs-perspective-camera-to-orthographic
 
@@ -134,6 +143,14 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
       this.perspectiveCamera.quaternion.copy(this.orthographicCamera.quaternion);
       this.perspectiveCamera.updateProjectionMatrix();
       this.orbitControls.object = this.perspectiveCamera;
+    }
+  }
+
+  toggleProjection() {
+    if (this.activeCamera === this.perspectiveCamera) {
+      this.projection = CameraProjections.Orthographic;
+    } else {
+      this.projection = CameraProjections.Perspective;
     }
 
     this.onChangeProjection.trigger(this.activeCamera);

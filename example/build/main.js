@@ -88874,6 +88874,9 @@
                 this.prevTime = currentTime;
             }
         }
+        get projection() {
+            return CameraProjections.Perspective;
+        }
         /**
          * @deprecated Use onChange.on() instead.
          */
@@ -90254,8 +90257,15 @@
         submitOnUnlock(action) {
             this.onUnlock.on(action);
         }
-        toggleProjection() {
-            if (this.activeCamera === this.perspectiveCamera) {
+        get projection() {
+            return this.activeCamera === this.perspectiveCamera
+                ? CameraProjections.Perspective
+                : CameraProjections.Orthographic;
+        }
+        set projection(projection) {
+            if (this.projection === projection)
+                return;
+            if (projection === CameraProjections.Orthographic) {
                 // Matching orthographic camera to perspective camera
                 // Resource: https://stackoverflow.com/questions/48758959/what-is-required-to-convert-threejs-perspective-camera-to-orthographic
                 const lineOfSight = new Vector3();
@@ -90281,6 +90291,14 @@
                 this.perspectiveCamera.quaternion.copy(this.orthographicCamera.quaternion);
                 this.perspectiveCamera.updateProjectionMatrix();
                 this.orbitControls.object = this.perspectiveCamera;
+            }
+        }
+        toggleProjection() {
+            if (this.activeCamera === this.perspectiveCamera) {
+                this.projection = CameraProjections.Orthographic;
+            }
+            else {
+                this.projection = CameraProjections.Perspective;
             }
             this.onChangeProjection.trigger(this.activeCamera);
         }
@@ -90410,6 +90428,12 @@
         }
         toggleProjection() {
             this.navMode[NavigationModes.Orbit].toggleProjection();
+        }
+        set projection(projection) {
+            this.currentNavMode.projection = projection;
+        }
+        get projection() {
+            return this.currentNavMode.projection;
         }
         targetItem(mesh, duration = 1) {
             const orbitControls = this.setOrbitControls();
@@ -105809,7 +105833,10 @@
         window.onmousemove = viewer.IFC.prePickIfcItem;
       }
       if (event.code === "KeyP") {
-        viewer.context.ifcCamera.toggleProjection();
+        viewer.context.ifcCamera.projection = CameraProjections.Perspective;
+      }
+      if (event.code === "KeyO") {
+        viewer.context.ifcCamera.projection = CameraProjections.Orthographic;
       }
     };
 
