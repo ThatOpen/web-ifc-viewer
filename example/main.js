@@ -1,6 +1,7 @@
 import { CameraProjections, IfcViewerAPI, NavigationModes } from 'web-ifc-viewer';
 import { createSideMenuButton } from './utils/gui-creator';
 import { IFCWALLSTANDARDCASE } from 'three/examples/jsm/loaders/ifc/web-ifc-api';
+import { Vector3 } from 'three';
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container });
@@ -8,10 +9,10 @@ viewer.addAxes();
 viewer.addGrid();
 
 viewer.IFC.setWasmPath('files/');
-viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-  COORDINATE_TO_ORIGIN: true,
-  USE_FAST_BOOLS: false
-});
+// viewer.IFC.loader.ifcManager.applyWebIfcConfig({
+//   COORDINATE_TO_ORIGIN: false,
+//   USE_FAST_BOOLS: false
+// });
 // viewer.IFC.loader.ifcManager.useJSONData();
 // viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
 viewer.IFC.loader.ifcManager.loadJsonDataFromWorker(0, '01.json');
@@ -32,7 +33,7 @@ viewer.dimensions.previewActive = true;
 
 const handleKeyDown = (event) => {
   if (event.code === 'Delete') {
-    // viewer.removeClippingPlane();
+    viewer.removeClippingPlane();
     viewer.dimensions.delete();
     viewer.context.ifcCamera.unlock();
   }
@@ -57,6 +58,12 @@ const handleKeyDown = (event) => {
   if (event.code === "KeyO") {
     viewer.context.ifcCamera.projection = CameraProjections.Orthographic;
   }
+  if (event.code === "KeyA"){
+    viewer.clipper.createFromNormalAndCoplanarPoint(
+      new Vector3(0, 0, -1),
+      new Vector3(0, 0,  11.369973182678223)
+    )
+  }
 };
 
 // window.onmousemove = viewer.IFC.prePickIfcItem;
@@ -71,10 +78,10 @@ window.ondblclick = async () => {
   // }
 }
 
-viewer.IFC.applyWebIfcConfig({
-  COORDINATE_TO_ORIGIN: true,
-  USE_FAST_BOOLS: true
-});
+// viewer.IFC.applyWebIfcConfig({
+//   COORDINATE_TO_ORIGIN: true,
+//   USE_FAST_BOOLS: true
+// });
 
 //Setup UI
 const loadButton = createSideMenuButton('./resources/folder-icon.svg');

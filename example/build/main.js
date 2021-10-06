@@ -45214,7 +45214,7 @@
             this.helper = this.createHelper();
             this.controls = this.newTransformControls();
             this.setupEvents(onStartDragging, onEndDragging);
-            this.plane.setFromNormalAndCoplanarPoint(normal.negate(), origin);
+            this.plane.setFromNormalAndCoplanarPoint(normal, origin);
         }
         setVisibility(visible) {
             this.visible = visible;
@@ -45298,6 +45298,12 @@
                 this.createPlaneFromIntersection(intersects);
                 this.intersection = undefined;
             };
+            this.createFromNormalAndCoplanarPoint = (normal, point) => {
+                const plane = new IfcPlane$1(this.context, point, normal, this.activateDragging, this.deactivateDragging, this.planeSize);
+                this.planes.push(plane);
+                this.context.addClippingPlane(plane.plane);
+                this.updateMaterials();
+            };
             this.deletePlane = () => {
                 if (!this.enabled)
                     return;
@@ -45335,7 +45341,7 @@
                 const normalMatrix = new Matrix3().getNormalMatrix(intersection.object.matrixWorld);
                 const worldNormal = normal.clone().applyMatrix3(normalMatrix).normalize();
                 this.normalizePlaneDirectionY(worldNormal);
-                const plane = this.newPlane(intersection, worldNormal);
+                const plane = this.newPlane(intersection, worldNormal.negate());
                 this.planes.push(plane);
                 this.context.addClippingPlane(plane.plane);
                 this.updateMaterials();
@@ -105789,10 +105795,10 @@
     viewer.addGrid();
 
     viewer.IFC.setWasmPath('files/');
-    viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-      COORDINATE_TO_ORIGIN: true,
-      USE_FAST_BOOLS: false
-    });
+    // viewer.IFC.loader.ifcManager.applyWebIfcConfig({
+    //   COORDINATE_TO_ORIGIN: false,
+    //   USE_FAST_BOOLS: false
+    // });
     // viewer.IFC.loader.ifcManager.useJSONData();
     // viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
     viewer.IFC.loader.ifcManager.loadJsonDataFromWorker(0, '01.json');
@@ -105813,7 +105819,7 @@
 
     const handleKeyDown = (event) => {
       if (event.code === 'Delete') {
-        // viewer.removeClippingPlane();
+        viewer.removeClippingPlane();
         viewer.dimensions.delete();
         viewer.context.ifcCamera.unlock();
       }
@@ -105838,6 +105844,12 @@
       if (event.code === "KeyO") {
         viewer.context.ifcCamera.projection = CameraProjections.Orthographic;
       }
+      if (event.code === "KeyA"){
+        viewer.clipper.createFromNormalAndCoplanarPoint(
+          new Vector3(0, 0, -1),
+          new Vector3(0, 0,  11.369973182678223)
+        );
+      }
     };
 
     // window.onmousemove = viewer.IFC.prePickIfcItem;
@@ -105852,10 +105864,10 @@
       // }
     };
 
-    viewer.IFC.applyWebIfcConfig({
-      COORDINATE_TO_ORIGIN: true,
-      USE_FAST_BOOLS: true
-    });
+    // viewer.IFC.applyWebIfcConfig({
+    //   COORDINATE_TO_ORIGIN: true,
+    //   USE_FAST_BOOLS: true
+    // });
 
     //Setup UI
     const loadButton = createSideMenuButton('./resources/folder-icon.svg');

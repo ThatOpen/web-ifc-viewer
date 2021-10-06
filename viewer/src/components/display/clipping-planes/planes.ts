@@ -25,8 +25,8 @@ export class IfcPlane extends IfcComponent {
     opacity: 0.2
   });
   readonly controls: TransformControls;
-  private readonly normal: Vector3;
-  private readonly origin: Vector3;
+  public readonly normal: Vector3;
+  public readonly origin: Vector3;
   private readonly helper: Object3D;
   private readonly planeSize: number;
   private context: Context;
@@ -50,7 +50,7 @@ export class IfcPlane extends IfcComponent {
     this.helper = this.createHelper();
     this.controls = this.newTransformControls();
     this.setupEvents(onStartDragging, onEndDragging);
-    this.plane.setFromNormalAndCoplanarPoint(normal.negate(), origin);
+    this.plane.setFromNormalAndCoplanarPoint(normal, origin);
   }
 
   setVisibility(visible: boolean) {

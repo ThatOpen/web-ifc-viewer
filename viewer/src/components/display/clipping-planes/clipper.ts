@@ -38,6 +38,20 @@ export class IfcClipper extends IfcComponent {
     this.intersection = undefined;
   };
 
+  createFromNormalAndCoplanarPoint = (normal: Vector3, point: Vector3) => {
+    const plane = new IfcPlane(
+      this.context,
+      point,
+      normal,
+      this.activateDragging,
+      this.deactivateDragging,
+      this.planeSize
+    );
+    this.planes.push(plane);
+    this.context.addClippingPlane(plane.plane);
+    this.updateMaterials();
+  };
+
   deletePlane = () => {
     if (!this.enabled) return;
     const plane = this.pickPlane();
@@ -72,7 +86,7 @@ export class IfcClipper extends IfcComponent {
     const normalMatrix = new Matrix3().getNormalMatrix(intersection.object.matrixWorld);
     const worldNormal = normal.clone().applyMatrix3(normalMatrix).normalize();
     this.normalizePlaneDirectionY(worldNormal);
-    const plane = this.newPlane(intersection, worldNormal);
+    const plane = this.newPlane(intersection, worldNormal.negate());
     this.planes.push(plane);
     this.context.addClippingPlane(plane.plane);
     this.updateMaterials();

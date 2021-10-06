@@ -24,6 +24,6 @@
     "stats.js": "^0.17.0",
     "three": "^0.132.2",
     "web-ifc": "^0.0.24",
-    "web-ifc-viewer": "1.0.85"
+    "web-ifc-viewer": "1.0.86"
   }
 }
