@@ -45326,6 +45326,7 @@
                     plane.removeFromScene();
                     this.context.removeClippingPlane(plane.plane);
                 });
+                this.planes = [];
                 this.updateMaterials();
             };
             this.pickPlane = () => {

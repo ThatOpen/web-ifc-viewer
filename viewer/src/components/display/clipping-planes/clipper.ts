@@ -72,6 +72,7 @@ export class IfcClipper extends IfcComponent {
       plane.removeFromScene();
       this.context.removeClippingPlane(plane.plane);
     });
+    this.planes = [];
     this.updateMaterials();
   };
 

@@ -27,7 +27,7 @@ export class IfcPlane extends IfcComponent {
   readonly controls: TransformControls;
   public readonly normal: Vector3;
   public readonly origin: Vector3;
-  private readonly helper: Object3D;
+  public readonly helper: Object3D;
   private readonly planeSize: number;
   private context: Context;
 
