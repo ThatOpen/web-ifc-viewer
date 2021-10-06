@@ -45304,18 +45304,28 @@
                 this.context.addClippingPlane(plane.plane);
                 this.updateMaterials();
             };
-            this.deletePlane = () => {
-                if (!this.enabled)
+            this.deletePlane = (plane) => {
+                let existingPlane = plane;
+                if (!existingPlane) {
+                    if (!this.enabled)
+                        return;
+                    existingPlane = this.pickPlane();
+                }
+                if (!existingPlane)
                     return;
-                const plane = this.pickPlane();
-                if (!plane)
-                    return;
-                const index = this.planes.indexOf(plane);
+                const index = this.planes.indexOf(existingPlane);
                 if (index === -1)
                     return;
-                plane.removeFromScene();
+                existingPlane.removeFromScene();
                 this.planes.splice(index, 1);
-                this.context.removeClippingPlane(plane.plane);
+                this.context.removeClippingPlane(existingPlane.plane);
+                this.updateMaterials();
+            };
+            this.deleteAllPlanes = () => {
+                this.planes.forEach((plane) => {
+                    plane.removeFromScene();
+                    this.context.removeClippingPlane(plane.plane);
+                });
                 this.updateMaterials();
             };
             this.pickPlane = () => {
@@ -105847,7 +105857,11 @@
       if (event.code === "KeyA"){
         viewer.clipper.createFromNormalAndCoplanarPoint(
           new Vector3(0, 0, -1),
-          new Vector3(0, 0,  11.369973182678223)
+          new Vector3(
+            -0.8922663039913914,
+        7.524188741930416,
+        11.369973182678223
+          )
         );
       }
     };

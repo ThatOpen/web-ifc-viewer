@@ -52,15 +52,26 @@ export class IfcClipper extends IfcComponent {
     this.updateMaterials();
   };
 
-  deletePlane = () => {
-    if (!this.enabled) return;
-    const plane = this.pickPlane();
-    if (!plane) return;
-    const index = this.planes.indexOf(plane);
+  deletePlane = (plane?: IfcPlane) => {
+    let existingPlane: IfcPlane | undefined | null = plane;
+    if (!existingPlane) {
+      if (!this.enabled) return;
+      existingPlane = this.pickPlane();
+    }
+    if (!existingPlane) return;
+    const index = this.planes.indexOf(existingPlane);
     if (index === -1) return;
-    plane.removeFromScene();
+    existingPlane.removeFromScene();
     this.planes.splice(index, 1);
-    this.context.removeClippingPlane(plane.plane);
+    this.context.removeClippingPlane(existingPlane.plane);
+    this.updateMaterials();
+  };
+
+  deleteAllPlanes = () => {
+    this.planes.forEach((plane) => {
+      plane.removeFromScene();
+      this.context.removeClippingPlane(plane.plane);
+    });
     this.updateMaterials();
   };
 
