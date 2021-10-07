@@ -58,16 +58,6 @@ const handleKeyDown = (event) => {
   if (event.code === "KeyO") {
     viewer.context.ifcCamera.projection = CameraProjections.Orthographic;
   }
-  if (event.code === "KeyA"){
-    viewer.clipper.createFromNormalAndCoplanarPoint(
-      new Vector3(0, 0, -1),
-      new Vector3(
-        -0.8922663039913914,
-    7.524188741930416,
-    11.369973182678223
-      )
-    )
-  }
 };
 
 // window.onmousemove = viewer.IFC.prePickIfcItem;
