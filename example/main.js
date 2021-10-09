@@ -9,10 +9,10 @@ viewer.addAxes();
 viewer.addGrid();
 
 viewer.IFC.setWasmPath('files/');
-// viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-//   COORDINATE_TO_ORIGIN: false,
-//   USE_FAST_BOOLS: false
-// });
+viewer.IFC.loader.ifcManager.applyWebIfcConfig({
+  COORDINATE_TO_ORIGIN: true,
+  USE_FAST_BOOLS: false
+});
 // viewer.IFC.loader.ifcManager.useJSONData();
 // viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
 viewer.IFC.loader.ifcManager.loadJsonDataFromWorker(0, '01.json');
@@ -44,6 +44,9 @@ const handleKeyDown = (event) => {
   }
   if (event.code === 'KeyH') {
     viewer.context.ifcCamera.goToHomeView();
+  }
+  if (event.code === 'KeyE') {
+    viewer.edges.toggleEdges()
   }
   if (event.code === 'KeyD') {
     // viewer.dimensions.create();

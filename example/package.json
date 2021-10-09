@@ -2,7 +2,7 @@
   "name": "web-ifc-viewer-basic-example",
   "private": true,
   "type": "module",
-  "version": "1.0.88",
+  "version": "1.0.89",
   "description": "A basic html example for web-ifc-viewer",
   "main": "index.html",
   "scripts": {

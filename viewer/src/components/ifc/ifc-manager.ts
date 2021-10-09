@@ -110,14 +110,15 @@ export class IfcManager extends IfcComponent {
    * @modelID ID of the IFC model.
    * @id Express ID of the item.
    * @indirect If true, also returns psets, qsets and type properties.
+   * @recursive If true, this gets the native properties of the referenced elements recursively.
    */
-  async getProperties(modelID: number, id: number, indirect: boolean) {
+  async getProperties(modelID: number, id: number, indirect: boolean, recursive?: boolean) {
     if (modelID == null || id == null) return null;
-    const props = await this.loader.ifcManager.getItemProperties(modelID, id);
+    const props = await this.loader.ifcManager.getItemProperties(modelID, id, recursive);
     if (indirect) {
-      props.psets = await this.loader.ifcManager.getPropertySets(modelID, id);
-      props.mats = await this.loader.ifcManager.getMaterialsProperties(modelID, id);
-      props.type = await this.loader.ifcManager.getTypeProperties(modelID, id);
+      props.psets = await this.loader.ifcManager.getPropertySets(modelID, id, recursive);
+      props.mats = await this.loader.ifcManager.getMaterialsProperties(modelID, id, recursive);
+      props.type = await this.loader.ifcManager.getTypeProperties(modelID, id, recursive);
     }
     return props;
   }
