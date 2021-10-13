@@ -45507,13 +45507,6 @@
     const SAH = 2;
     const CONTAINED = 2;
 
-    // SAH cost constants
-    // TODO: hone these costs more. The relative difference between them should be the
-    // difference in measured time to perform a triangle intersection vs traversing
-    // bounds.
-    const TRIANGLE_INTERSECT_COST = 1.25;
-    const TRAVERSAL_COST = 1;
-
     class MeshBVHNode {
 
     	constructor() {
@@ -45542,6 +45535,20 @@
 
     }
 
+    function arrayToBox$1( arr, target ) {
+
+    	target.min.x = arr[ 0 ];
+    	target.min.y = arr[ 1 ];
+    	target.min.z = arr[ 2 ];
+
+    	target.max.x = arr[ 3 ];
+    	target.max.y = arr[ 4 ];
+    	target.max.z = arr[ 5 ];
+
+    	return target;
+
+    }
+
     function getLongestEdgeIndex( bounds ) {
 
     	let splitDimIdx = - 1;
@@ -45563,48 +45570,10 @@
 
     }
 
-    // copys bounds a into bounds b
-    function copyBounds( source, target ) {
-
-    	target.set( source );
-
-    }
-
-    // sets bounds target to the union of bounds a and b
-    function unionBounds( a, b, target ) {
-
-    	let aVal, bVal;
-    	for ( let d = 0; d < 3; d ++ ) {
-
-    		const d3 = d + 3;
-
-    		// set the minimum values
-    		aVal = a[ d ];
-    		bVal = b[ d ];
-    		target[ d ] = aVal < bVal ? aVal : bVal;
-
-    		// set the max values
-    		aVal = a[ d3 ];
-    		bVal = b[ d3 ];
-    		target[ d3 ] = aVal > bVal ? aVal : bVal;
-
-    	}
-
-    }
-
-    // compute bounds surface area
-    function computeSurfaceArea( bounds ) {
-
-    	const d0 = bounds[ 3 ] - bounds[ 0 ];
-    	const d1 = bounds[ 4 ] - bounds[ 1 ];
-    	const d2 = bounds[ 5 ] - bounds[ 2 ];
-
-    	return 2 * ( d0 * d1 + d1 * d2 + d2 * d0 );
-
-    }
-
     // https://en.wikipedia.org/wiki/Machine_epsilon#Values_for_standard_hardware_floating_point_arithmetics
     const FLOAT32_EPSILON = Math.pow( 2, - 24 );
+    const xyzFields$1 = [ 'x', 'y', 'z' ];
+    const boxTemp = new Box3();
 
     function ensureIndex( geo ) {
 
@@ -45778,7 +45747,7 @@
     // reorders `tris` such that for `count` elements after `offset`, elements on the left side of the split
     // will be on the left and elements on the right side of the split will be on the right. returns the index
     // of the first element on the right side, or offset + count if there are no elements on the right side.
-    function partition( index, triangleBounds, offset, count, split ) {
+    function partition( index, triangleBounds, sahPlanes, offset, count, split ) {
 
     	let left = offset;
     	let right = offset + count - 1;
@@ -45794,8 +45763,6 @@
 
     		}
 
-
-    		// if a triangle center lies on the partition plane it is considered to be on the right side
     		while ( left <= right && triangleBounds[ right * 6 + axisOffset ] >= pos ) {
 
     			right --;
@@ -45824,6 +45791,18 @@
 
     			}
 
+    			if ( sahPlanes ) {
+
+    				for ( let i = 0; i < 3; i ++ ) {
+
+    					let t = sahPlanes[ i ][ left ];
+    					sahPlanes[ i ][ left ] = sahPlanes[ i ][ right ];
+    					sahPlanes[ i ][ right ] = t;
+
+    				}
+
+    			}
+
     			left ++;
     			right --;
 
@@ -45837,22 +45816,7 @@
 
     }
 
-    const BIN_COUNT = 32;
-    const sahBins = new Array( BIN_COUNT ).fill().map( () => {
-
-    	return {
-
-    		count: 0,
-    		bounds: new Float32Array( 6 ),
-    		rightCacheBounds: new Float32Array( 6 ),
-    		candidate: 0,
-
-    	};
-
-    } );
-    const leftBounds = new Float32Array( 6 );
-
-    function getOptimalSplit( nodeBoundingData, centroidBoundingData, triangleBounds, offset, count, strategy ) {
+    function getOptimalSplit( nodeBoundingData, centroidBoundingData, triangleBounds, sahPlanes, offset, count, strategy ) {
 
     	let axis = - 1;
     	let pos = 0;
@@ -45878,139 +45842,135 @@
 
     	} else if ( strategy === SAH ) {
 
-    		const rootSurfaceArea = computeSurfaceArea( nodeBoundingData );
-    		let bestCost = TRIANGLE_INTERSECT_COST * count;
+    		// Surface Area Heuristic
+    		// In order to make this code more terse, the x, y, and z
+    		// variables of various structures have been stuffed into
+    		// 0, 1, and 2 array indices so they can be easily computed
+    		// and accessed within array iteration
 
-    		// iterate over all axes
-    		const cStart = offset * 6;
-    		const cEnd = ( offset + count ) * 6;
-    		for ( let a = 0; a < 3; a ++ ) {
+    		// Cost values defineed for operations. We're using bounds for traversal, so
+    		// the cost of traversing one more layer is more than intersecting a triangle.
+    		const TRAVERSAL_COST = 3;
+    		const INTERSECTION_COST = 1;
+    		const bb = arrayToBox$1( nodeBoundingData, boxTemp );
 
-    			const axisLeft = centroidBoundingData[ a ];
-    			const axisRight = centroidBoundingData[ a + 3 ];
-    			const axisLength = axisRight - axisLeft;
-    			const binWidth = axisLength / BIN_COUNT;
+    		// Define the width, height, and depth of the bounds as a box
+    		const dim = [
+    			bb.max.x - bb.min.x,
+    			bb.max.y - bb.min.y,
+    			bb.max.z - bb.min.z
+    		];
+    		const sa = 2 * ( dim[ 0 ] * dim[ 1 ] + dim[ 0 ] * dim[ 2 ] + dim[ 1 ] * dim[ 2 ] );
 
-    			// reset the bins
-    			for ( let i = 0; i < BIN_COUNT; i ++ ) {
+    		// Get the precalculated planes based for the triangles we're
+    		// testing here
+    		const filteredLists = [[], [], []];
+    		for ( let i = offset, end = offset + count; i < end; i ++ ) {
 
-    				const bin = sahBins[ i ];
-    				bin.count = 0;
-    				bin.candidate = axisLeft + binWidth + i * binWidth;
+    			for ( let v = 0; v < 3; v ++ ) {
 
-    				const bounds = bin.bounds;
-    				for ( let d = 0; d < 3; d ++ ) {
-
-    					bounds[ d ] = Infinity;
-    					bounds[ d + 3 ] = - Infinity;
-
-    				}
-
-    			}
-
-    			// iterate over all center positions
-    			for ( let c = cStart; c < cEnd; c += 6 ) {
-
-    				const triCenter = triangleBounds[ c + 2 * a ];
-    				const relativeCenter = triCenter - axisLeft;
-
-    				// in the partition function if the centroid lies on the split plane then it is
-    				// considered to be on the right side of the split
-    				let binIndex = ~ ~ ( relativeCenter / binWidth );
-    				if ( binIndex >= BIN_COUNT ) binIndex = BIN_COUNT - 1;
-
-    				const bin = sahBins[ binIndex ];
-    				bin.count ++;
-
-    				const bounds = bin.bounds;
-    				for ( let d = 0; d < 3; d ++ ) {
-
-    					const tCenter = triangleBounds[ c + 2 * d ];
-    					const tHalf = triangleBounds[ c + 2 * d + 1 ];
-
-    					const tMin = tCenter - tHalf;
-    					const tMax = tCenter + tHalf;
-
-    					if ( tMin < bounds[ d ] ) {
-
-    						bounds[ d ] = tMin;
-
-    					}
-
-    					if ( tMax > bounds[ d + 3 ] ) {
-
-    						bounds[ d + 3 ] = tMax;
-
-    					}
-
-    				}
+    				filteredLists[ v ].push( sahPlanes[ v ][ i ] );
 
     			}
 
-    			// cache the unioned bounds from right to left so we don't have to regenerate them each time
-    			const lastBin = sahBins[ BIN_COUNT - 1 ];
-    			copyBounds( lastBin.bounds, lastBin.rightCacheBounds );
-    			for ( let i = BIN_COUNT - 2; i >= 0; i -- ) {
+    		}
 
-    				const bin = sahBins[ i ];
-    				const nextBin = sahBins[ i + 1 ];
-    				unionBounds( bin.bounds, nextBin.rightCacheBounds, bin.rightCacheBounds );
+    		filteredLists.forEach( planes => planes.sort( ( a, b ) => a.p - b.p ) );
 
-    			}
+    		// this bounds surface area, left bound SA, left triangles, right bound SA, right triangles
+    		const getCost = ( sa, sal, nl, sar, nr ) =>
+    			  TRAVERSAL_COST + INTERSECTION_COST * ( ( sal / sa ) * nl + ( sar / sa ) * nr );
 
-    			let leftCount = 0;
-    			for ( let i = 0; i < BIN_COUNT - 1; i ++ ) {
+    		// the cost of _not_ splitting into smaller bounds
+    		const noSplitCost = INTERSECTION_COST * count;
 
-    				const bin = sahBins[ i ];
-    				const binCount = bin.count;
-    				const bounds = bin.bounds;
+    		axis = - 1;
+    		let bestCost = noSplitCost;
+    		for ( let i = 0; i < 3; i ++ ) {
 
-    				const nextBin = sahBins[ i + 1 ];
-    				const rightBounds = nextBin.rightCacheBounds;
+    			// o1 and o2 represent the _other_ two axes in the
+    			// the space. So if we're checking the x (0) dimension,
+    			// then o1 and o2 would be y and z (1 and 2)
+    			const o1 = ( i + 1 ) % 3;
+    			const o2 = ( i + 2 ) % 3;
 
-    				// dont do anything with the bounds if the new bounds have no triangles
-    				if ( binCount !== 0 ) {
+    			const bmin = bb.min[ xyzFields$1[ i ] ];
+    			const bmax = bb.max[ xyzFields$1[ i ] ];
+    			const planes = filteredLists[ i ];
 
-    					if ( leftCount === 0 ) {
+    			// The number of left and right triangles on either side
+    			// given the current split
+    			let nl = 0;
+    			let nr = count;
+    			for ( let p = 0; p < planes.length; p ++ ) {
 
-    						copyBounds( bounds, leftBounds );
+    				const pinfo = planes[ p ];
 
-    					} else {
+    				// As the plane moves, we have to increment or decrement the
+    				// number of triangles on either side of the plane
+    				nl ++;
+    				nr --;
 
-    						unionBounds( bounds, leftBounds, leftBounds );
+    				// the distance from the plane to the edge of the broader bounds
+    				const ldim = pinfo.p - bmin;
+    				const rdim = bmax - pinfo.p;
 
-    					}
+    				// same for the other two dimensions
+    				let ldimo1 = dim[ o1 ], rdimo1 = dim[ o1 ];
+    				let ldimo2 = dim[ o2 ], rdimo2 = dim[ o2 ];
 
+    				/*
+    				// compute the other bounding planes for the box
+    				// if only the current triangles are considered to
+    				// be in the box
+    				// This is really slow and probably not really worth it
+    				const o1planes = sahPlanes[o1];
+    				const o2planes = sahPlanes[o2];
+    				let lmin = Infinity, lmax = -Infinity;
+    				let rmin = Infinity, rmax = -Infinity;
+    				planes.forEach((p, i) => {
+    				const tri2 = p.tri * 2;
+    				const inf1 = o1planes[tri2 + 0];
+    				const inf2 = o1planes[tri2 + 1];
+    				if (i <= nl) {
+    				lmin = Math.min(inf1.p, inf2.p, lmin);
+    				lmax = Math.max(inf1.p, inf2.p, lmax);
     				}
-
-    				leftCount += binCount;
-
-    				// check the cost of this split
-    				let leftProb = 0;
-    				let rightProb = 0;
-
-    				if ( leftCount !== 0 ) {
-
-    					leftProb = computeSurfaceArea( leftBounds ) / rootSurfaceArea;
-
+    				if (i >= nr) {
+    				rmin = Math.min(inf1.p, inf2.p, rmin);
+    				rmax = Math.max(inf1.p, inf2.p, rmax);
     				}
+    				})
+    				ldimo1 = Math.min(lmax - lmin, ldimo1);
+    				rdimo1 = Math.min(rmax - rmin, rdimo1);
 
-    				const rightCount = count - leftCount;
-    				if ( rightCount !== 0 ) {
-
-    					rightProb = computeSurfaceArea( rightBounds ) / rootSurfaceArea;
-
+    				planes.forEach((p, i) => {
+    				const tri2 = p.tri * 2;
+    				const inf1 = o2planes[tri2 + 0];
+    				const inf2 = o2planes[tri2 + 1];
+    				if (i <= nl) {
+    				lmin = Math.min(inf1.p, inf2.p, lmin);
+    				lmax = Math.max(inf1.p, inf2.p, lmax);
     				}
+    				if (i >= nr) {
+    				rmin = Math.min(inf1.p, inf2.p, rmin);
+    				rmax = Math.max(inf1.p, inf2.p, rmax);
+    				}
+    				})
+    				ldimo2 = Math.min(lmax - lmin, ldimo2);
+    				rdimo2 = Math.min(rmax - rmin, rdimo2);
+    				*/
 
-    				const cost = TRAVERSAL_COST + TRIANGLE_INTERSECT_COST * (
-    					leftProb * leftCount + rightProb * rightCount
-    				);
+    				// surface areas and cost
+    				const sal = 2 * ( ldimo1 * ldimo2 + ldimo1 * ldim + ldimo2 * ldim );
+    				const sar = 2 * ( rdimo1 * rdimo2 + rdimo1 * rdim + rdimo2 * rdim );
+    				const cost = getCost( sa, sal, nl, sar, nr );
 
     				if ( cost < bestCost ) {
 
-    					axis = a;
+    					axis = i;
+    					pos = pinfo.p;
     					bestCost = cost;
-    					pos = bin.candidate;
 
     				}
 
@@ -46038,40 +45998,48 @@
 
     }
 
+    function computeSAHPlanes( triangleBounds ) {
+
+    	const triCount = triangleBounds.length / 6;
+    	const sahPlanes = [ new Array( triCount ), new Array( triCount ), new Array( triCount ) ];
+    	for ( let tri = 0; tri < triCount; tri ++ ) {
+
+    		for ( let el = 0; el < 3; el ++ ) {
+
+    			sahPlanes[ el ][ tri ] = { p: triangleBounds[ tri * 6 + el * 2 ], tri };
+
+    		}
+
+    	}
+
+    	return sahPlanes;
+
+    }
+
     // precomputes the bounding box for each triangle; required for quickly calculating tree splits.
     // result is an array of size tris.length * 6 where triangle i maps to a
     // [x_center, x_delta, y_center, y_delta, z_center, z_delta] tuple starting at index i * 6,
     // representing the center and half-extent in each dimension of triangle i
     function computeTriangleBounds( geo ) {
 
-    	const posAttr = geo.attributes.position;
-    	const posArr = posAttr.array;
+    	const verts = geo.attributes.position.array;
     	const index = geo.index.array;
     	const triCount = index.length / 3;
     	const triangleBounds = new Float32Array( triCount * 6 );
-
-    	// support for an interleaved position buffer
-    	const bufferOffset = posAttr.offset || 0;
-    	let stride = 3;
-    	if ( posAttr.isInterleavedBufferAttribute ) {
-
-    		stride = posAttr.data.stride;
-
-    	}
 
     	for ( let tri = 0; tri < triCount; tri ++ ) {
 
     		const tri3 = tri * 3;
     		const tri6 = tri * 6;
-    		const ai = index[ tri3 + 0 ] * stride + bufferOffset;
-    		const bi = index[ tri3 + 1 ] * stride + bufferOffset;
-    		const ci = index[ tri3 + 2 ] * stride + bufferOffset;
+    		const ai = index[ tri3 + 0 ] * 3;
+    		const bi = index[ tri3 + 1 ] * 3;
+    		const ci = index[ tri3 + 2 ] * 3;
 
     		for ( let el = 0; el < 3; el ++ ) {
 
-    			const a = posArr[ ai + el ];
-    			const b = posArr[ bi + el ];
-    			const c = posArr[ ci + el ];
+    			const a = verts[ ai + el ];
+    			const b = verts[ bi + el ];
+    			const c = verts[ ci + el ];
 
     			let min = a;
     			if ( b < min ) min = b;
@@ -46125,7 +46093,7 @@
     		}
 
     		// Find where to split the volume
-    		const split = getOptimalSplit( node.boundingData, centroidBoundingData, triangleBounds, offset, count, strategy );
+    		const split = getOptimalSplit( node.boundingData, centroidBoundingData, triangleBounds, sahPlanes, offset, count, strategy );
     		if ( split.axis === - 1 ) {
 
     			node.offset = offset;
@@ -46134,7 +46102,7 @@
 
     		}
 
-    		const splitOffset = partition( indexArray, triangleBounds, offset, count, split );
+    		const splitOffset = partition( indexArray, triangleBounds, sahPlanes, offset, count, split );
 
     		// create the two new child nodes
     		if ( splitOffset === offset || splitOffset === offset + count ) {
@@ -46176,6 +46144,7 @@
 
     	const cacheCentroidBoundingData = new Float32Array( 6 );
     	const triangleBounds = computeTriangleBounds( geo );
+    	const sahPlanes = options.strategy === SAH ? computeSAHPlanes( triangleBounds ) : null;
     	const indexArray = geo.index.array;
     	const maxDepth = options.maxDepth;
     	const verbose = options.verbose;
@@ -46668,12 +46637,20 @@
 
     	}
 
-    	update() {
+    }
+
+    SeparatingAxisTriangle.prototype.update = ( function () {
+
+    	const arr = new Array( 3 );
+    	return function update() {
 
     		const a = this.a;
     		const b = this.b;
     		const c = this.c;
-    		const points = this.points;
+
+    		arr[ 0 ] = this.a;
+    		arr[ 1 ] = this.b;
+    		arr[ 2 ] = this.c;
 
     		const satAxes = this.satAxes;
     		const satBounds = this.satBounds;
@@ -46681,29 +46658,29 @@
     		const axis0 = satAxes[ 0 ];
     		const sab0 = satBounds[ 0 ];
     		this.getNormal( axis0 );
-    		sab0.setFromPoints( axis0, points );
+    		sab0.setFromPoints( axis0, arr );
 
     		const axis1 = satAxes[ 1 ];
     		const sab1 = satBounds[ 1 ];
     		axis1.subVectors( a, b );
-    		sab1.setFromPoints( axis1, points );
+    		sab1.setFromPoints( axis1, arr );
 
     		const axis2 = satAxes[ 2 ];
     		const sab2 = satBounds[ 2 ];
     		axis2.subVectors( b, c );
-    		sab2.setFromPoints( axis2, points );
+    		sab2.setFromPoints( axis2, arr );
 
     		const axis3 = satAxes[ 3 ];
     		const sab3 = satBounds[ 3 ];
     		axis3.subVectors( c, a );
-    		sab3.setFromPoints( axis3, points );
+    		sab3.setFromPoints( axis3, arr );
 
     		this.sphere.setFromPoints( this.points );
     		this.needsUpdate = false;
 
-    	}
+    	};
 
-    }
+    } )();
 
     SeparatingAxisTriangle.prototype.closestPointToSegment = ( function () {
 
@@ -46712,6 +46689,12 @@
     	const edge = new Line3();
 
     	return function distanceToSegment( segment, target1 = null, target2 = null ) {
+
+    		if ( this.needsUpdate ) {
+
+    			this.update();
+
+    		}
 
     		const { start, end } = segment;
     		const points = this.points;
@@ -46786,10 +46769,6 @@
     			saTri2.copy( other );
     			saTri2.update();
     			other = saTri2;
-
-    		} else if ( other.needsUpdate ) {
-
-    			other.update();
 
     		}
 
@@ -46866,6 +46845,18 @@
     	const line2 = new Line3();
 
     	return function distanceToTriangle( other, target1 = null, target2 = null ) {
+
+    		if ( other.needsUpdate ) {
+
+    			other.update();
+
+    		}
+
+    		if ( this.needsUpdate ) {
+
+    			this.update();
+
+    		}
 
     		if ( this.intersectsTriangle( other ) ) {
 
@@ -46968,7 +46959,6 @@
     		this.satBounds = new Array( 3 ).fill().map( () => new SeparatingAxisBounds() );
     		this.alignedSatBounds = new Array( 3 ).fill().map( () => new SeparatingAxisBounds() );
     		this.sphere = new Sphere();
-    		this.needsUpdate = false;
 
     	}
 
@@ -46976,7 +46966,6 @@
 
     		super.set( min, max );
     		this.matrix = matrix;
-    		this.needsUpdate = true;
 
     	}
 
@@ -46984,7 +46973,6 @@
 
     		super.copy( other );
     		this.matrix.copy( other.matrix );
-    		this.needsUpdate = true;
 
     	}
 
@@ -47042,7 +47030,6 @@
     		alignedSatBounds[ 2 ].setFromPointsField( points, 'z' );
 
     		this.invMatrix.copy( this.matrix ).invert();
-    		this.needsUpdate = false;
 
     	};
 
@@ -47052,12 +47039,6 @@
 
     	const aabbBounds = new SeparatingAxisBounds();
     	return function intersectsBox( box ) {
-
-    		if ( this.needsUpdate ) {
-
-    			this.update();
-
-    		}
 
     		if ( ! box.intersectsSphere( this.sphere ) ) return false;
 
@@ -47102,12 +47083,6 @@
     	const cachedSatBounds2 = new SeparatingAxisBounds();
     	const cachedAxis = new Vector3();
     	return function intersectsTriangle( triangle ) {
-
-    		if ( this.needsUpdate ) {
-
-    			this.update();
-
-    		}
 
     		if ( ! triangle.isSeparatingAxisTriangle ) {
 
@@ -47175,12 +47150,6 @@
 
     	return function closestPointToPoint( point, target1 ) {
 
-    		if ( this.needsUpdate ) {
-
-    			this.update();
-
-    		}
-
     		target1
     			.copy( point )
     			.applyMatrix4( this.invMatrix )
@@ -47215,14 +47184,7 @@
     	const point1 = new Vector3();
     	const point2 = new Vector3();
 
-    	// early out if we find a value below threshold
     	return function distanceToBox( box, threshold = 0, target1 = null, target2 = null ) {
-
-    		if ( this.needsUpdate ) {
-
-    			this.update();
-
-    		}
 
     		if ( this.intersectsBox( box ) ) {
 
@@ -47236,7 +47198,6 @@
     				if ( target2 ) target2.copy( point2 );
 
     			}
-
     			return 0;
 
     		}
@@ -47377,28 +47338,20 @@
     	const tb = tri.b;
     	const tc = tri.c;
 
-    	let i0 = i;
-    	let i1 = i + 1;
-    	let i2 = i + 2;
-    	if ( index ) {
+    	let i3 = index.getX( i );
+    	ta.x = pos.getX( i3 );
+    	ta.y = pos.getY( i3 );
+    	ta.z = pos.getZ( i3 );
 
-    		i0 = index.getX( i );
-    		i1 = index.getX( i + 1 );
-    		i2 = index.getX( i + 2 );
+    	i3 = index.getX( i + 1 );
+    	tb.x = pos.getX( i3 );
+    	tb.y = pos.getY( i3 );
+    	tb.z = pos.getZ( i3 );
 
-    	}
-
-    	ta.x = pos.getX( i0 );
-    	ta.y = pos.getY( i0 );
-    	ta.z = pos.getZ( i0 );
-
-    	tb.x = pos.getX( i1 );
-    	tb.y = pos.getY( i1 );
-    	tb.z = pos.getZ( i1 );
-
-    	tc.x = pos.getX( i2 );
-    	tc.y = pos.getY( i2 );
-    	tc.z = pos.getZ( i2 );
+    	i3 = index.getX( i + 2 );
+    	tc.x = pos.getX( i3 );
+    	tc.y = pos.getY( i3 );
+    	tc.z = pos.getZ( i3 );
 
     }
 
@@ -47438,10 +47391,6 @@
     	if ( distance < raycaster.near || distance > raycaster.far ) return null;
 
     	return {
-
-    		// EDITED
-    		// Including the local-space point so it can be used to accelerate raycasting
-    		localPoint: point,
     		distance: distance,
     		point: intersectionPointWorld.clone(),
     		object: object
@@ -47519,7 +47468,6 @@
     	}
 
     }
-
     function intersectClosestTri( mesh, geo, raycaster, ray, offset, count ) {
 
     	let dist = Infinity;
@@ -47581,76 +47529,34 @@
 
     }
 
-    // For speed and readability this script is processed to replace the macro-like calls
+    /* Generated from "castFunctions.template.js". Do not edit. */
 
     const boundingBox = new Box3();
     const boxIntersection = new Vector3();
     const xyzFields = [ 'x', 'y', 'z' ];
 
-    function IS_LEAF( n16, uint16Array ) {
-
-    	return uint16Array[ n16 + 15 ] === 0xFFFF;
-
-    }
-
-    function OFFSET( n32, uint32Array ) {
-
-    	return uint32Array[ n32 + 6 ];
-
-    }
-
-    function COUNT( n32, uint16Array ) {
-
-    	return uint16Array[ n32 + 14 ];
-
-    }
-
-    function LEFT_NODE( n32 ) {
-
-    	return n32 + 8;
-
-    }
-
-    function RIGHT_NODE( n32, uint32Array ) {
-
-    	return uint32Array[ n32 + 6 ];
-
-    }
-
-    function SPLIT_AXIS( n32, uint32Array ) {
-
-    	return uint32Array[ n32 + 7 ];
-
-    }
-
-    function BOUNDING_DATA_INDEX( n32 ) {
-
-    	return n32;
-
-    }
-
     function raycast( nodeIndex32, mesh, geometry, raycaster, ray, intersects ) {
 
     	let nodeIndex16 = nodeIndex32 * 2, float32Array = _float32Array, uint16Array = _uint16Array, uint32Array = _uint32Array;
 
-    	const isLeaf = IS_LEAF( nodeIndex16, uint16Array );
+    	const isLeaf = ( uint16Array[ nodeIndex16 + 15 ] === 0xFFFF );
     	if ( isLeaf ) {
 
-    		const offset = OFFSET( nodeIndex32, uint32Array );
-    		const count = COUNT( nodeIndex16, uint16Array );
+    		const offset = uint32Array[ nodeIndex32 + 6 ];
+    		const count = uint16Array[ nodeIndex16 + 14 ];
 
     		intersectTris( mesh, geometry, raycaster, ray, offset, count, intersects );
 
     	} else {
 
-    		const leftIndex = LEFT_NODE( nodeIndex32 );
+    		const leftIndex = nodeIndex32 + 8;
     		if ( intersectRay( leftIndex, float32Array, ray, boxIntersection ) ) {
 
     			raycast( leftIndex, mesh, geometry, raycaster, ray, intersects );
 
     		}
 
-    		const rightIndex = RIGHT_NODE( nodeIndex32, uint32Array );
+    		const rightIndex = uint32Array[ nodeIndex32 + 6 ];
     		if ( intersectRay( rightIndex, float32Array, ray, boxIntersection ) ) {
 
     			raycast( rightIndex, mesh, geometry, raycaster, ray, intersects );
@@ -47665,18 +47571,18 @@
 
     	let nodeIndex16 = nodeIndex32 * 2, float32Array = _float32Array, uint16Array = _uint16Array, uint32Array = _uint32Array;
 
-    	const isLeaf = IS_LEAF( nodeIndex16, uint16Array );
+    	const isLeaf = ( uint16Array[ nodeIndex16 + 15 ] === 0xFFFF );
     	if ( isLeaf ) {
 
-    		const offset = OFFSET( nodeIndex32, uint32Array );
-    		const count = COUNT( nodeIndex16, uint16Array );
+    		const offset = uint32Array[ nodeIndex32 + 6 ];
+    		const count = uint16Array[ nodeIndex16 + 14 ];
     		return intersectClosestTri( mesh, geometry, raycaster, ray, offset, count );
 
     	} else {
 
     		// consider the position of the split plane with respect to the oncoming ray; whichever direction
     		// the ray is coming from, look for an intersection among that side of the tree first
-    		const splitAxis = SPLIT_AXIS( nodeIndex32, uint32Array );
+    		const splitAxis = uint32Array[ nodeIndex32 + 7 ];
     		const xyzAxis = xyzFields[ splitAxis ];
     		const rayDir = ray.direction[ xyzAxis ];
     		const leftToRight = rayDir >= 0;
@@ -47685,13 +47591,13 @@
     		let c1, c2;
     		if ( leftToRight ) {
 
-    			c1 = LEFT_NODE( nodeIndex32 );
-    			c2 = RIGHT_NODE( nodeIndex32, uint32Array );
+    			c1 = nodeIndex32 + 8;
+    			c2 = uint32Array[ nodeIndex32 + 6 ];
 
     		} else {
 
-    			c1 = RIGHT_NODE( nodeIndex32, uint32Array );
-    			c2 = LEFT_NODE( nodeIndex32 );
+    			c1 = uint32Array[ nodeIndex32 + 6 ];
+    			c2 = nodeIndex32 + 8;
 
     		}
 
@@ -47703,7 +47609,7 @@
     		if ( c1Result ) {
 
     			// check if the point is within the second bounds
-    			const point = c1Result.localPoint[ xyzAxis ];
+    			const point = c1Result.point[ xyzAxis ];
     			const isOutside = leftToRight ?
     				point <= float32Array[ c2 + splitAxis ] : // min bounding data
     				point >= float32Array[ c2 + splitAxis + 3 ]; // max bounding data
@@ -47737,17 +47643,22 @@
 
     const shapecast = ( function () {
 
-    	const _box1 = new Box3();
-    	const _box2 = new Box3();
+    	const _triangle = new SeparatingAxisTriangle();
+    	const _cachedBox1 = new Box3();
+    	const _cachedBox2 = new Box3();
 
     	return function shapecast(
     		nodeIndex32,
+    		mesh,
     		geometry,
     		intersectsBoundsFunc,
     		intersectsRangeFunc,
     		nodeScoreFunc = null,
     		nodeIndexByteOffset = 0, // offset for unique node identifier
-    		depth = 0
+    		depth = 0,
+    		triangle = _triangle,
+    		cachedBox1 = _cachedBox1,
+    		cachedBox2 = _cachedBox2
     	) {
 
     		// Define these inside the function so it has access to the local variables needed
@@ -47757,14 +47668,14 @@
     			let nodeIndex16 = nodeIndex32 * 2, uint16Array = _uint16Array, uint32Array = _uint32Array;
 
     			// traverse until we find a leaf
-    			while ( ! IS_LEAF( nodeIndex16, uint16Array ) ) {
+    			while ( ! ( uint16Array[ nodeIndex16 + 15 ] === 0xFFFF ) ) {
 
-    				nodeIndex32 = LEFT_NODE( nodeIndex32 );
+    				nodeIndex32 = nodeIndex32 + 8;
     				nodeIndex16 = nodeIndex32 * 2;
 
     			}
 
-    			return OFFSET( nodeIndex32, uint32Array );
+    			return uint32Array[ nodeIndex32 + 6 ];
 
     		}
 
@@ -47773,32 +47684,32 @@
     			let nodeIndex16 = nodeIndex32 * 2, uint16Array = _uint16Array, uint32Array = _uint32Array;
 
     			// traverse until we find a leaf
-    			while ( ! IS_LEAF( nodeIndex16, uint16Array ) ) {
+    			while ( ! ( uint16Array[ nodeIndex16 + 15 ] === 0xFFFF ) ) {
 
     				// adjust offset to point to the right node
-    				nodeIndex32 = RIGHT_NODE( nodeIndex32, uint32Array );
+    				nodeIndex32 = uint32Array[ nodeIndex32 + 6 ];
     				nodeIndex16 = nodeIndex32 * 2;
 
     			}
 
     			// return the end offset of the triangle range
-    			return OFFSET( nodeIndex32, uint32Array ) + COUNT( nodeIndex16, uint16Array );
+    			return uint32Array[ nodeIndex32 + 6 ] + uint16Array[ nodeIndex16 + 14 ];
 
     		}
 
     		let nodeIndex16 = nodeIndex32 * 2, float32Array = _float32Array, uint16Array = _uint16Array, uint32Array = _uint32Array;
 
-    		const isLeaf = IS_LEAF( nodeIndex16, uint16Array );
+    		const isLeaf = ( uint16Array[ nodeIndex16 + 15 ] === 0xFFFF );
     		if ( isLeaf ) {
 
-    			const offset = OFFSET( nodeIndex32, uint32Array );
-    			const count = COUNT( nodeIndex16, uint16Array );
-    			return intersectsRangeFunc( offset, count, false, depth, nodeIndexByteOffset + nodeIndex32 );
+    			const offset = uint32Array[ nodeIndex32 + 6 ];
+    			const count = uint16Array[ nodeIndex16 + 14 ];
+    			return intersectsRangeFunc( offset, count, false, depth, nodeIndex32 );
 
     		} else {
 
-    			const left = LEFT_NODE( nodeIndex32 );
-    			const right = RIGHT_NODE( nodeIndex32, uint32Array );
+    			const left = nodeIndex32 + 8;
+    			const right = uint32Array[ nodeIndex32 + 6 ];
     			let c1 = left;
     			let c2 = right;
 
@@ -47806,12 +47717,12 @@
     			let box1, box2;
     			if ( nodeScoreFunc ) {
 
-    				box1 = _box1;
-    				box2 = _box2;
+    				box1 = cachedBox1;
+    				box2 = cachedBox2;
 
     				// bounding data is not offset
-    				arrayToBox( BOUNDING_DATA_INDEX( c1 ), float32Array, box1 );
-    				arrayToBox( BOUNDING_DATA_INDEX( c2 ), float32Array, box2 );
+    				arrayToBox( c1, float32Array, box1 );
+    				arrayToBox( c2, float32Array, box2 );
 
     				score1 = nodeScoreFunc( box1 );
     				score2 = nodeScoreFunc( box2 );
@@ -47835,12 +47746,12 @@
     			// Check box 1 intersection
     			if ( ! box1 ) {
 
-    				box1 = _box1;
-    				arrayToBox( BOUNDING_DATA_INDEX( c1 ), float32Array, box1 );
+    				box1 = cachedBox1;
+    				arrayToBox( c1, float32Array, box1 );
 
     			}
 
-    			const isC1Leaf = IS_LEAF( c1 * 2, uint16Array );
+    			const isC1Leaf = ( uint16Array[ c1 * 2 + 15 ] === 0xFFFF );
     			const c1Intersection = intersectsBoundsFunc( box1, isC1Leaf, score1, depth + 1, nodeIndexByteOffset + c1 );
 
     			let c1StopTraversal;
@@ -47858,12 +47769,16 @@
     					c1Intersection &&
     					shapecast(
     						c1,
+    						mesh,
     						geometry,
     						intersectsBoundsFunc,
     						intersectsRangeFunc,
     						nodeScoreFunc,
     						nodeIndexByteOffset,
-    						depth + 1
+    						depth + 1,
+    						triangle,
+    						cachedBox1,
+    						cachedBox2
     					);
 
     			}
@@ -47872,10 +47787,10 @@
 
     			// Check box 2 intersection
     			// cached box2 will have been overwritten by previous traversal
-    			box2 = _box2;
-    			arrayToBox( BOUNDING_DATA_INDEX( c2 ), float32Array, box2 );
+    			box2 = cachedBox2;
+    			arrayToBox( c2, float32Array, box2 );
 
-    			const isC2Leaf = IS_LEAF( c2 * 2, uint16Array );
+    			const isC2Leaf = ( uint16Array[ c2 * 2 + 15 ] === 0xFFFF );
     			const c2Intersection = intersectsBoundsFunc( box2, isC2Leaf, score2, depth + 1, nodeIndexByteOffset + c2 );
 
     			let c2StopTraversal;
@@ -47893,12 +47808,16 @@
     					c2Intersection &&
     					shapecast(
     						c2,
+    						mesh,
     						geometry,
     						intersectsBoundsFunc,
     						intersectsRangeFunc,
     						nodeScoreFunc,
     						nodeIndexByteOffset,
-    						depth + 1
+    						depth + 1,
+    						triangle,
+    						cachedBox1,
+    						cachedBox2
     					);
 
     			}
@@ -47936,11 +47855,12 @@
     			}
 
     			obb.set( otherGeometry.boundingBox.min, otherGeometry.boundingBox.max, geometryToBvh );
+    			obb.update();
     			cachedObb = obb;
 
     		}
 
-    		const isLeaf = IS_LEAF( nodeIndex16, uint16Array );
+    		const isLeaf = ( uint16Array[ nodeIndex16 + 15 ] === 0xFFFF );
     		if ( isLeaf ) {
 
     			const thisGeometry = geometry;
@@ -47950,8 +47870,8 @@
     			const index = otherGeometry.index;
     			const pos = otherGeometry.attributes.position;
 
-    			const offset = OFFSET( nodeIndex32, uint32Array );
-    			const count = COUNT( nodeIndex16, uint16Array );
+    			const offset = uint32Array[ nodeIndex32 + 6 ];
+    			const count = uint16Array[ nodeIndex16 + 14 ];
 
     			// get the inverse of the geometry matrix so we can transform our triangles into the
     			// geometry space we're trying to test. We assume there are fewer triangles being checked
@@ -47960,9 +47880,9 @@
 
     			if ( otherGeometry.boundsTree ) {
 
-    				arrayToBox( BOUNDING_DATA_INDEX( nodeIndex32 ), float32Array, obb2 );
+    				arrayToBox( nodeIndex32, float32Array, obb2 );
     				obb2.matrix.copy( invertedMat );
-    				obb2.needsUpdate = true;
+    				obb2.update();
 
     				cachedMesh.geometry = otherGeometry;
     				const res = otherGeometry.boundsTree.shapecast( cachedMesh, {
@@ -47974,13 +47894,13 @@
     						tri.a.applyMatrix4( geometryToBvh );
     						tri.b.applyMatrix4( geometryToBvh );
     						tri.c.applyMatrix4( geometryToBvh );
-    						tri.needsUpdate = true;
+    						tri.update();
 
     						for ( let i = offset * 3, l = ( count + offset ) * 3; i < l; i += 3 ) {
 
     							// this triangle needs to be transformed into the current BVH coordinate frame
     							setTriangle( triangle2, i, thisIndex, thisPos );
-    							triangle2.needsUpdate = true;
+    							triangle2.update();
     							if ( tri.intersectsTriangle( triangle2 ) ) {
 
     								return true;
@@ -48007,12 +47927,12 @@
     					triangle.a.applyMatrix4( invertedMat );
     					triangle.b.applyMatrix4( invertedMat );
     					triangle.c.applyMatrix4( invertedMat );
-    					triangle.needsUpdate = true;
+    					triangle.update();
 
     					for ( let i2 = 0, l2 = index.count; i2 < l2; i2 += 3 ) {
 
     						setTriangle( triangle2, i2, index, pos );
-    						triangle2.needsUpdate = true;
+    						triangle2.update();
 
     						if ( triangle.intersectsTriangle( triangle2 ) ) {
 
@@ -48031,14 +47951,14 @@
     			const left = nodeIndex32 + 8;
     			const right = uint32Array[ nodeIndex32 + 6 ];
 
-    			arrayToBox( BOUNDING_DATA_INDEX( left ), float32Array, boundingBox );
+    			arrayToBox( left, float32Array, boundingBox );
     			const leftIntersection =
     				cachedObb.intersectsBox( boundingBox ) &&
     				intersectsGeometry( left, mesh, geometry, otherGeometry, geometryToBvh, cachedObb );
 
     			if ( leftIntersection ) return true;
 
-    			arrayToBox( BOUNDING_DATA_INDEX( right ), float32Array, boundingBox );
+    			arrayToBox( right, float32Array, boundingBox );
     			const rightIntersection =
     				cachedObb.intersectsBox( boundingBox ) &&
     				intersectsGeometry( right, mesh, geometry, otherGeometry, geometryToBvh, cachedObb );
@@ -48098,13 +48018,12 @@
     const SKIP_GENERATION = Symbol( 'skip tree generation' );
 
     const obb = new OrientedBox();
-    const obb2 = new OrientedBox();
     const temp = new Vector3();
+    const tri2 = new SeparatingAxisTriangle();
     const temp1 = new Vector3();
     const temp2 = new Vector3();
     const tempBox = new Box3();
     const triangle = new SeparatingAxisTriangle();
-    const triangle2 = new SeparatingAxisTriangle();
 
     class MeshBVH {
 
@@ -48153,6 +48072,10 @@
     		if ( ! geometry.isBufferGeometry ) {
 
     			throw new Error( 'MeshBVH: Only BufferGeometries are supported.' );
+
+    		} else if ( geometry.attributes.position.isInterleavedBufferAttribute ) {
+
+    			throw new Error( 'MeshBVH: InterleavedBufferAttribute is not supported for the position attribute.' );
 
     		} else if ( geometry.index && geometry.index.isInterleavedBufferAttribute ) {
 
@@ -48213,18 +48136,7 @@
 
     		const geometry = this.geometry;
     		const indexArr = geometry.index.array;
-    		const posAttr = geometry.attributes.position;
-    		const posArr = posAttr.array;
-
-    		// support for an interleaved position buffer
-    		const bufferOffset = posAttr.offset || 0;
-    		let stride = 3;
-    		if ( posAttr.isInterleavedBufferAttribute ) {
-
-    			stride = posAttr.data.stride;
-
-    		}
-
+    		const posArr = geometry.attributes.position.array;
     		let buffer, uint32Array, uint16Array, float32Array;
     		let byteOffset = 0;
     		const roots = this._roots;
@@ -48257,10 +48169,10 @@
     				let maxz = - Infinity;
     				for ( let i = 3 * offset, l = 3 * ( offset + count ); i < l; i ++ ) {
 
-    					const index = indexArr[ i ] * stride + bufferOffset;
-    					const x = posArr[ index + 0 ];
-    					const y = posArr[ index + 1 ];
-    					const z = posArr[ index + 2 ];
+    					const index3 = indexArr[ i ] * 3;
+    					const x = posArr[ index3 + 0 ];
+    					const y = posArr[ index3 + 1 ];
+    					const z = posArr[ index3 + 2 ];
 
     					if ( x < minx ) minx = x;
     					if ( x > maxx ) maxx = x;
@@ -48396,24 +48308,11 @@
     	raycast( mesh, raycaster, ray, intersects ) {
 
     		const geometry = this.geometry;
-    		const localIntersects = intersects ? [] : null;
     		for ( const root of this._roots ) {
 
     			setBuffer( root );
-    			raycast( 0, mesh, geometry, raycaster, ray, localIntersects );
+    			raycast( 0, mesh, geometry, raycaster, ray, intersects );
     			clearBuffer();
-
-    		}
-
-    		if ( intersects ) {
-
-    			for ( let i = 0, l = localIntersects.length; i < l; i ++ ) {
-
-    				delete localIntersects[ i ].localPoint;
-
-    			}
-
-    			intersects.push( ...localIntersects );
 
     		}
 
@@ -48437,11 +48336,6 @@
 
     		}
 
-    		if ( closestResult ) {
-
-    			delete closestResult.localPoint;
-
-    		}
 
     		return closestResult;
 
@@ -48551,7 +48445,7 @@
     		for ( const root of this._roots ) {
 
     			setBuffer( root );
-    			result = shapecast( 0, geometry, intersectsBounds, intersectsRange, boundsTraverseOrder, byteOffset );
+    			result = shapecast( 0, mesh, geometry, intersectsBounds, intersectsRange, boundsTraverseOrder, byteOffset );
     			clearBuffer();
 
     			if ( result ) {
@@ -48572,7 +48466,7 @@
     	intersectsBox( mesh, box, boxToMesh ) {
 
     		obb.set( box.min, box.max, boxToMesh );
-    		obb.needsUpdate = true;
+    		obb.update();
 
     		return this.shapecast(
     			mesh,
@@ -48605,13 +48499,10 @@
     		}
 
     		obb.set( otherGeometry.boundingBox.min, otherGeometry.boundingBox.max, geometryToBvh );
-    		obb.needsUpdate = true;
+    		obb.update();
 
-    		const geometry = this.geometry;
-    		const pos = geometry.attributes.position;
-    		const index = geometry.index;
-    		const otherPos = otherGeometry.attributes.position;
-    		const otherIndex = otherGeometry.index;
+    		const pos = otherGeometry.attributes.position;
+    		const index = otherGeometry.index;
 
     		let tempTarget1 = null;
     		let tempTarget2 = null;
@@ -48628,7 +48519,6 @@
     		}
 
     		let closestDistance = Infinity;
-    		obb2.matrix.copy( geometryToBvh ).invert();
     		this.shapecast(
     			mesh,
     			{
@@ -48641,146 +48531,68 @@
 
     				intersectsBounds: ( box, isLeaf, score ) => {
 
-    					if ( score < closestDistance && score < maxThreshold ) {
+    					return score < closestDistance && score < maxThreshold;
 
-    						// if we know the triangles of this bounds will be intersected next then
-    						// save the bounds to use during triangle checks.
-    						if ( isLeaf ) {
+    				},
 
-    							obb2.min.copy( box.min );
-    							obb2.max.copy( box.max );
-    							obb2.needsUpdate = true;
+    				intersectsTriangle: tri => {
+
+    					if ( tri.needsUpdate ) {
+
+    						tri.update();
+
+    					}
+
+    					const sphere1 = tri.sphere;
+    					for ( let i2 = 0, l2 = index.count; i2 < l2; i2 += 3 ) {
+
+    						setTriangle( tri2, i2, index, pos );
+    						tri2.a.applyMatrix4( geometryToBvh );
+    						tri2.b.applyMatrix4( geometryToBvh );
+    						tri2.c.applyMatrix4( geometryToBvh );
+    						tri2.sphere.setFromPoints( tri2.points );
+
+    						const sphere2 = tri2.sphere;
+    						const sphereDist = sphere2.center.distanceTo( sphere1.center ) - sphere2.radius - sphere1.radius;
+    						if ( sphereDist > closestDistance ) {
+
+    							continue;
 
     						}
 
-    						return true;
+    						tri2.update();
+
+    						const dist = tri.distanceToTriangle( tri2, tempTarget1, tempTarget2 );
+    						if ( dist < closestDistance ) {
+
+    							if ( target1 ) {
+
+    								target1.copy( tempTarget1 );
+
+    							}
+
+    							if ( target2 ) {
+
+    								target2.copy( tempTarget2 );
+
+    							}
+
+    							closestDistance = dist;
+
+    						}
+
+    						// stop traversal if we find a point that's under the given threshold
+    						if ( dist < minThreshold ) {
+
+    							return true;
+
+    						}
 
     					}
 
     					return false;
 
-    				},
-
-    				intersectsRange: ( offset, count ) => {
-
-    					if ( otherGeometry.boundsTree ) {
-
-    						// if the other geometry has a bvh then use the accelerated path where we use shapecast to find
-    						// the closest bounds in the other geometry to check.
-    						return otherGeometry.boundsTree.shapecast(
-    							null,
-    							{
-    								boundsTraverseOrder: box => {
-
-    									return obb2.distanceToBox( box, Math.min( closestDistance, maxThreshold ) );
-
-    								},
-
-    								intersectsBounds: ( box, isLeaf, score ) => {
-
-    									return score < closestDistance && score < maxThreshold;
-
-    								},
-
-    								intersectsRange: ( otherOffset, otherCount ) => {
-
-    									for ( let i2 = otherOffset * 3, l2 = ( otherOffset + otherCount ) * 3; i2 < l2; i2 += 3 ) {
-
-    										setTriangle( triangle2, i2, otherIndex, otherPos );
-    										triangle2.a.applyMatrix4( geometryToBvh );
-    										triangle2.b.applyMatrix4( geometryToBvh );
-    										triangle2.c.applyMatrix4( geometryToBvh );
-    										triangle2.needsUpdate = true;
-
-    										for ( let i = offset * 3, l = ( offset + count ) * 3; i < l; i += 3 ) {
-
-    											setTriangle( triangle, i, index, pos );
-    											triangle.needsUpdate = true;
-
-    											const dist = triangle.distanceToTriangle( triangle2, tempTarget1, tempTarget2 );
-    											if ( dist < closestDistance ) {
-
-    												if ( target1 ) {
-
-    													target1.copy( tempTarget1 );
-
-    												}
-
-    												if ( target2 ) {
-
-    													target2.copy( tempTarget2 );
-
-    												}
-
-    												closestDistance = dist;
-
-    											}
-
-    											// stop traversal if we find a point that's under the given threshold
-    											if ( dist < minThreshold ) {
-
-    												return true;
-
-    											}
-
-    										}
-
-    									}
-
-    								},
-    							}
-    						);
-
-    					} else {
-
-    						// If no bounds tree then we'll just check every triangle.
-    						const triCount = otherIndex ? otherIndex.count : otherPos.count;
-    						for ( let i2 = 0, l2 = triCount; i2 < l2; i2 += 3 ) {
-
-    							setTriangle( triangle2, i2, otherIndex, otherPos );
-    							triangle2.a.applyMatrix4( geometryToBvh );
-    							triangle2.b.applyMatrix4( geometryToBvh );
-    							triangle2.c.applyMatrix4( geometryToBvh );
-    							triangle2.needsUpdate = true;
-
-    							for ( let i = offset * 3, l = ( offset + count ) * 3; i < l; i += 3 ) {
-
-    								setTriangle( triangle, i, index, pos );
-    								triangle.needsUpdate = true;
-
-    								const dist = triangle.distanceToTriangle( triangle2, tempTarget1, tempTarget2 );
-    								if ( dist < closestDistance ) {
-
-    									if ( target1 ) {
-
-    										target1.copy( tempTarget1 );
-
-    									}
-
-    									if ( target2 ) {
-
-    										target2.copy( tempTarget2 );
-
-    									}
-
-    									closestDistance = dist;
-
-    								}
-
-    								// stop traversal if we find a point that's under the given threshold
-    								if ( dist < minThreshold ) {
-
-    									return true;
-
-    								}
-
-    							}
-
-    						}
-
-    					}
-
-    				},
+    				}
 
     			}
 
@@ -85733,6 +85545,14 @@
 
       getAndClearErrors(_modelId) {}
 
+      notifyProgress(loaded, total) {
+        if (this.state.onProgress)
+          this.state.onProgress({
+            loaded,
+            total
+          });
+      }
+
       async newIfcModel(buffer) {
         const data = new Uint8Array(buffer);
         this.currentWebIfcID = await this.state.api.OpenModel(data, this.state.webIfcSettings);
@@ -85780,7 +85600,13 @@
 
       async saveAllPlacedGeometriesByMaterial() {
         const flatMeshes = await this.state.api.LoadAllGeometry(this.currentWebIfcID);
-        for (let i = 0; i < flatMeshes.size(); i++) {
+        const size = flatMeshes.size();
+        let counter = 0;
+        for (let i = 0; i < size; i++) {
+          if (i > counter) {
+            this.notifyProgress(i, size);
+            counter += Math.trunc(size / 10);
+          }
           const flatMesh = flatMeshes.get(i);
           const placedGeom = flatMesh.geometries;
           for (let j = 0; j < placedGeom.size(); j++) {
@@ -85892,18 +85718,7 @@
         this.BVH = BVH;
       }
 
-      dispose() {
-        this.BVH = null;
-        const items = Object.values(this.selected);
-        items.forEach(item => {
-          const mesh = item.mesh;
-          mesh.geometry.dispose();
-          Array.isArray(mesh.material) ?
-            mesh.material.forEach(mat => mat.dispose()) :
-            mesh.material.dispose();
-        });
-        this.selected = {};
-      }
+      dispose() {}
 
       getSubset(modelID, material) {
         const currentMat = this.matIDNoConfig(modelID, material);
@@ -87446,7 +87261,7 @@
 
       processCoordinates(modelID) {
         const attributes = this.getAttributes(modelID);
-        const ids = Array. from (attributes.expressID.array);
+        const ids = Array.from(attributes.expressID.array);
         this.expressIDCoordinatesMap[modelID] = {};
         for (let i = 0; i < ids.length; i++) {
           if (!this.expressIDCoordinatesMap[modelID][ids[i]]) {
@@ -87616,6 +87431,7 @@
       WorkerActions["LoadAllGeometry"] = "LoadAllGeometry";
       WorkerActions["GetFlatMesh"] = "GetFlatMesh";
       WorkerActions["SetWasmPath"] = "SetWasmPath";
+      WorkerActions["parse"] = "parse";
       WorkerActions["getExpressId"] = "getExpressId";
       WorkerActions["initializeProperties"] = "initializeProperties";
       WorkerActions["getAllItemsOfType"] = "getAllItemsOfType";
@@ -87630,6 +87446,7 @@
       WorkerAPIs["workerState"] = "workerState";
       WorkerAPIs["webIfc"] = "webIfc";
       WorkerAPIs["properties"] = "properties";
+      WorkerAPIs["parser"] = "parser";
     })(WorkerAPIs || (WorkerAPIs = {}));
 
     class Vector {
@@ -87706,6 +87523,137 @@
 
     }
 
+    class SerializedMaterial {
+
+      constructor(material) {
+        this.color = [material.color.r, material.color.g, material.color.b];
+        this.opacity = material.opacity;
+        this.transparent = material.transparent;
+      }
+
+    }
+
+    class MaterialReconstructor {
+
+      static new(material) {
+        return new MeshLambertMaterial({
+          color: new Color(material.color[0], material.color[1], material.color[2]),
+          opacity: material.opacity,
+          transparent: material.transparent
+        });
+      }
+
+    }
+
+    class SerializedGeometry {
+
+      constructor(geometry) {
+        var _a,
+          _b,
+          _c,
+          _d;
+        this.position = ((_a = geometry.attributes.position) === null || _a === void 0 ? void 0 : _a.array) || [];
+        this.normal = ((_b = geometry.attributes.normal) === null || _b === void 0 ? void 0 : _b.array) || [];
+        this.expressID = ((_c = geometry.attributes.expressID) === null || _c === void 0 ? void 0 : _c.array) || [];
+        this.index = ((_d = geometry.index) === null || _d === void 0 ? void 0 : _d.array) || [];
+        this.groups = geometry.groups;
+      }
+
+    }
+
+    class GeometryReconstructor {
+
+      static new(serialized) {
+        const geom = new BufferGeometry();
+        GeometryReconstructor.set(geom, 'expressID', new Uint32Array(serialized.expressID), 1);
+        GeometryReconstructor.set(geom, 'position', new Float32Array(serialized.position), 3);
+        GeometryReconstructor.set(geom, 'normal', new Float32Array(serialized.normal), 3);
+        geom.setIndex(Array. from (serialized.index));
+        geom.groups = serialized.groups;
+        return geom;
+      }
+
+      static set(geom, name, data, size) {
+        if (data.length > 0) {
+          geom.setAttribute(name, new BufferAttribute(data, size));
+        }
+      }
+
+    }
+
+    class SerializedMesh {
+
+      constructor(model) {
+        this.materials = [];
+        this.modelID = model.modelID;
+        this.geometry = new SerializedGeometry(model.geometry);
+        if (Array.isArray(model.material)) {
+          model.material.forEach(mat => {
+            this.materials.push(new SerializedMaterial(mat));
+          });
+        } else {
+          this.materials.push(new SerializedMaterial(model.material));
+        }
+      }
+
+    }
+
+    class MeshReconstructor {
+
+      static new(serialized) {
+        const model = new IFCModel();
+        model.modelID = serialized.modelID;
+        model.geometry = GeometryReconstructor.new(serialized.geometry);
+        MeshReconstructor.getMaterials(serialized, model);
+        return model;
+      }
+
+      static getMaterials(serialized, model) {
+        model.material = [];
+        const mats = model.material;
+        serialized.materials.forEach(mat => {
+          mats.push(MaterialReconstructor.new(mat));
+        });
+      }
+
+    }
+
+    class SerializedGeomsByMaterials {
+
+      constructor(geoms) {
+        const matIDs = Object.keys(geoms);
+        matIDs.forEach(id => {
+          this[id] = {};
+          this[id].material = new SerializedMaterial(geoms[id].material);
+          this[id].geometries = {};
+          const expressIDs = Object.keys(geoms[id].geometries).map(key => parseInt(key));
+          expressIDs.forEach(expressID => {
+            this[id].geometries[expressID] = new SerializedGeometry(geoms[id].geometries[expressID]);
+          });
+        });
+      }
+
+    }
+
+    class GeomsByMaterialsReconstructor {
+
+      static new(serialized) {
+        const geomsByMat = {};
+        const matIDs = Object.keys(serialized);
+        matIDs.forEach(id => {
+          geomsByMat[id] = {};
+          geomsByMat[id].material = MaterialReconstructor.new(serialized[id].material);
+          geomsByMat[id].geometries = {};
+          const expressIDs = Object.keys(serialized[id].geometries).map(id => parseInt(id));
+          expressIDs.forEach(expressID => {
+            geomsByMat[id].geometries[expressID] = GeometryReconstructor.new(serialized[id].geometries[expressID]);
+          });
+        });
+        return geomsByMat;
+      }
+
+    }
+
     class Serializer {
 
       serializeVector(vector) {
@@ -87765,6 +87713,22 @@
 
       reconstructFlatMeshVector(vector) {
         return new FlatMeshVector(this, vector);
+      }
+
+      serializeIfcModel(model) {
+        return new SerializedMesh(model);
+      }
+
+      reconstructIfcModel(model) {
+        return MeshReconstructor.new(model);
+      }
+
+      serializeGeometriesByMaterials(geoms) {
+        return new SerializedGeomsByMaterials(geoms);
+      }
+
+      reconstructGeometriesByMaterials(geoms) {
+        return GeomsByMaterialsReconstructor.new(geoms);
       }
 
     }
@@ -87980,7 +87944,7 @@
       }
 
       async StreamAllMeshes(modelID, meshCallback) {
-        this.handler.callbacks[this.handler.requestID] = {
+        this.handler.callbackHandlers[this.handler.requestID] = {
           action: meshCallback,
           serializer: this.serializer.reconstructFlatMesh
         };
@@ -87990,7 +87954,7 @@
       }
 
       async StreamAllMeshesWithTypes(modelID, types, meshCallback) {
-        this.handler.callbacks[this.handler.requestID] = {
+        this.handler.callbackHandlers[this.handler.requestID] = {
           action: meshCallback,
           serializer: this.serializer.reconstructFlatMesh
         };
@@ -88071,20 +88035,147 @@
 
     }
 
+    var DBOperation;
+    (function(DBOperation) {
+      DBOperation[DBOperation["transferIfcModel"] = 0] = "transferIfcModel";
+      DBOperation[DBOperation["transferIndividualItems"] = 1] = "transferIndividualItems";
+    })(DBOperation || (DBOperation = {}));
+
+    class IndexedDatabase {
+
+      save(item, id) {
+        const open = IndexedDatabase.openOrCreateDB(id);
+        this.createSchema(open, id);
+        return new Promise((resolve, reject) => {
+          open.onsuccess = () => this.saveItem(item, open, id, resolve);
+        });
+      }
+
+      async load(id) {
+        const open = IndexedDatabase.openOrCreateDB(id);
+        return new Promise((resolve, reject) => {
+          open.onsuccess = () => this.loadItem(open, id, resolve);
+        });
+      }
+
+      createSchema(open, id) {
+        open.onupgradeneeded = function() {
+          const db = open.result;
+          db.createObjectStore(id.toString(), {
+            keyPath: "id"
+          });
+        };
+      }
+
+      saveItem(item, open, id, resolve) {
+        const {db, tx, store} = IndexedDatabase.getDBItems(open, id);
+        item.id = id;
+        store.put(item);
+        tx.oncomplete = () => IndexedDatabase.closeDB(db, tx, resolve);
+      }
+
+      loadItem(open, id, resolve) {
+        const {db, tx, store} = IndexedDatabase.getDBItems(open, id);
+        const item = store.get(id);
+        const callback = () => {
+          delete item.result.id;
+          resolve(item.result);
+        };
+        tx.oncomplete = () => IndexedDatabase.closeDB(db, tx, callback);
+      }
+
+      static getDBItems(open, id) {
+        const db = open.result;
+        const tx = db.transaction(id.toString(), "readwrite");
+        const store = tx.objectStore(id.toString());
+        return {
+          db,
+          tx,
+          store
+        };
+      }
+
+      static openOrCreateDB(id) {
+        return indexedDB.open(id.toString(), 1);
+      }
+
+      static closeDB(db, tx, resolve) {
+        db.close();
+        resolve("success");
+      }
+
+    }
+
+    class ParserHandler {
+
+      constructor(handler, serializer, BVH, IDB) {
+        this.handler = handler;
+        this.serializer = serializer;
+        this.BVH = BVH;
+        this.IDB = IDB;
+        this.API = WorkerAPIs.parser;
+      }
+
+      async parse(buffer) {
+        this.handler.onprogressHandlers[this.handler.requestID] = (progress) => {
+          if (this.handler.state.onProgress)
+            this.handler.state.onProgress(progress);
+        };
+        this.handler.serializeHandlers[this.handler.requestID] = async (result) => {
+          this.updateState(result.modelID);
+          await this.getItems(result.modelID);
+          return this.getModel();
+        };
+        return this.handler.request(this.API, WorkerActions.parse, {
+          buffer
+        });
+      }
+
+      getAndClearErrors(_modelId) {}
+
+      updateState(modelID) {
+        this.handler.state.models[modelID] = {
+          modelID: modelID,
+          mesh: {},
+          items: {},
+          types: {},
+          jsonData: {}
+        };
+      }
+
+      async getItems(modelID) {
+        const items = await this.IDB.load(DBOperation.transferIndividualItems);
+        this.handler.state.models[modelID].items = this.serializer.reconstructGeometriesByMaterials(items);
+      }
+
+      async getModel() {
+        const serializedModel = await this.IDB.load(DBOperation.transferIfcModel);
+        const model = this.serializer.reconstructIfcModel(serializedModel);
+        this.BVH.applyThreeMeshBVH(model.geometry);
+        this.handler.state.models[model.modelID].mesh = model;
+        return model;
+      }
+
+    }
+
     class IFCWorkerHandler {
 
-      constructor(state) {
+      constructor(state, BVH) {
         this.state = state;
+        this.BVH = BVH;
         this.requestID = 0;
         this.rejectHandlers = {};
         this.resolveHandlers = {};
         this.serializeHandlers = {};
-        this.callbacks = {};
+        this.callbackHandlers = {};
+        this.onprogressHandlers = {};
         this.serializer = new Serializer();
+        this.IDB = new IndexedDatabase();
         this.workerPath = this.state.worker.path;
         this.ifcWorker = new Worker(this.workerPath);
         this.ifcWorker.onmessage = (data) => this.handleResponse(data);
         this.properties = new PropertyHandler(this);
+        this.parser = new ParserHandler(this, this.serializer, this.BVH, this.IDB);
         this.webIfc = new WebIfcHandler(this, this.serializer);
         this.workerState = new WorkerStateHandler(this);
       }
@@ -88095,7 +88186,8 @@
           action,
           args,
           id: this.requestID,
-          result: undefined
+          result: undefined,
+          onProgress: false
         };
         return new Promise((resolve, reject) => {
           this.resolveHandlers[this.requestID] = resolve;
@@ -88111,35 +88203,46 @@
 
       handleResponse(event) {
         const data = event.data;
-        const id = data.id;
+        if (data.onProgress) {
+          this.resolveOnProgress(data);
+          return;
+        }
+        this.callHandlers(data);
+        delete this.resolveHandlers[data.id];
+        delete this.rejectHandlers[data.id];
+        delete this.onprogressHandlers[data.id];
+      }
+
+      callHandlers(data) {
         try {
           this.resolveSerializations(data);
           this.resolveCallbacks(data);
-          this.resolveHandlers[id](data.result);
+          this.resolveHandlers[data.id](data.result);
         } catch (error) {
-          this.rejectHandlers[id](data.result);
+          this.rejectHandlers[data.id](error);
         }
-        delete this.resolveHandlers[id];
-        delete this.rejectHandlers[id];
+      }
+
+      resolveOnProgress(data) {
+        if (this.onprogressHandlers[data.id]) {
+          data.result = this.onprogressHandlers[data.id](data.result);
+        }
       }
 
       resolveSerializations(data) {
-        const id = data.id;
-        if (this.serializeHandlers[id]) {
-          data.result = this.serializeHandlers[id](data.result);
-          delete this.serializeHandlers[id];
+        if (this.serializeHandlers[data.id]) {
+          data.result = this.serializeHandlers[data.id](data.result);
+          delete this.serializeHandlers[data.id];
         }
       }
 
       resolveCallbacks(data) {
-        const id = data.id;
-        if (this.callbacks[id]) {
+        if (this.callbackHandlers[data.id]) {
           let callbackParameter = data.result;
-          if (this.callbacks[id].serializer) {
-            callbackParameter = this.callbacks[id].serializer(data.result);
+          if (this.callbackHandlers[data.id].serializer) {
+            callbackParameter = this.callbackHandlers[data.id].serializer(data.result);
           }
-          this.callbacks[id].action(callbackParameter);
-          delete this.callbacks[id];
+          this.callbackHandlers[data.id].action(callbackParameter);
         }
       }
 
@@ -88172,6 +88275,10 @@
         this.state.useJSON ? await this.disposeMemory() : await this.types.getAllTypes(this.worker);
         this.hider.processCoordinates(model.modelID);
         return model;
+      }
+
+      setOnProgress(onProgress) {
+        this.state.onProgress = onProgress;
       }
 
       getAndClearErrors(modelID) {
@@ -88324,9 +88431,10 @@
       }
 
       async initializeWorkers() {
-        this.worker = new IFCWorkerHandler(this.state);
+        this.worker = new IFCWorkerHandler(this.state, this.BVH);
         this.state.api = this.worker.webIfc;
         this.properties = this.worker.properties;
+        this.parser = this.worker.parser;
         await this.worker.workerState.updateStateUseJson();
       }
 
@@ -88342,6 +88450,7 @@
       load(url, onLoad, onProgress, onError) {
         const scope = this;
         const loader = new FileLoader(scope.manager);
+        this.onProgress = onProgress;
         loader.setPath(scope.path);
         loader.setResponseType('arraybuffer');
         loader.setRequestHeader(scope.requestHeader);
@@ -106000,13 +106109,26 @@
       USE_FAST_BOOLS: false
     });
     // viewer.IFC.loader.ifcManager.useJSONData();
-    // viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
-    viewer.IFC.loader.ifcManager.loadJsonDataFromWorker(0, '01.json');
+    viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+    // viewer.IFC.loader.ifcManager.loadJsonDataFromWorker(0, '01.json');
 
     //Setup loader
     const loadIfc = async (event) => {
+      const overlay = document.getElementById("loading-overlay");
+      const progressText = document.getElementById("loading-progress");
+
+      overlay.classList.remove("hidden");
+      progressText.innerText = `Loading`;
+
+      viewer.IFC.loader.ifcManager.setOnProgress((event) => {
+        const percentage = Math.floor((event.loaded * 100) / event.total);
+        progressText.innerText = `Loaded ${percentage}%`;
+      });
+
       await viewer.IFC.loadIfc(event.target.files[0], false);
+      overlay.classList.add("hidden");
     };
+
 
     const inputElement = document.createElement('input');
     inputElement.setAttribute('type', 'file');

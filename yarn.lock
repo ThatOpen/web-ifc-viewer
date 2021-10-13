@@ -5146,19 +5146,24 @@ walker@^1.0.7:
   dependencies:
     makeerror "1.0.x"
 
-web-ifc-three@^0.0.67:
-  version "0.0.67"
-  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.67.tgz#43e278490066897255b2acc027d895d9a86dd691"
-  integrity sha512-yPtDxhcmR9k1B6JROc1PM/h0Dxp9bYNVSySDke9/y+NYQD54kRqrDdyG0uLSBoI5rqExEoifUBBag7aXycqL4A==
+web-ifc-three@^0.0.68:
+  version "0.0.68"
+  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.68.tgz#e21ae111d85cede64865b2ba0da30b540be140b0"
+  integrity sha512-2nMYDWoIV6h/5+bOmHr72YcV9wt6AqrMiCW9t98OTDibyXjUjeIAwoE+msOxoPv4iSDpOpqxTdQCE29Mad9hhA==
   dependencies:
     "@types/three" "^0.131.0"
     three-mesh-bvh "^0.3.7"
-    web-ifc "^0.0.24"
+    web-ifc "^0.0.25"
 
 web-ifc@^0.0.24:
   version "0.0.24"
   resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.24.tgz#804bb7bb6245f52e913dce638ffe33969cc31740"
   integrity sha512-9AH/LTbPxY1UaFZlwzYL+XuEwfQoROEf0WVz+UmmoTAVsIINq6DbmuiWSyDecWCBYdbanpQoNgJhG5fThWAzMA==
+
+web-ifc@^0.0.25:
+  version "0.0.25"
+  resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.25.tgz#386b7ce9b7eb6e0ed2998ff72b234d6a71c2de53"
+  integrity sha512-FutpMKz8UtTkSjRD20sfebVOj+vrAKn9vLumaL6MkcjVjsSHhpnelHM7OvUAcZFeNwV69yTme9YAwOuPVZ2n+Q==
 
 webidl-conversions@^5.0.0:
   version "5.0.0"

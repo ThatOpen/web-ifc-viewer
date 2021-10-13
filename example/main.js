@@ -14,13 +14,26 @@ viewer.IFC.loader.ifcManager.applyWebIfcConfig({
   USE_FAST_BOOLS: false
 });
 // viewer.IFC.loader.ifcManager.useJSONData();
-// viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
-viewer.IFC.loader.ifcManager.loadJsonDataFromWorker(0, '01.json');
+viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+// viewer.IFC.loader.ifcManager.loadJsonDataFromWorker(0, '01.json');
 
 //Setup loader
 const loadIfc = async (event) => {
+  const overlay = document.getElementById("loading-overlay");
+  const progressText = document.getElementById("loading-progress");
+
+  overlay.classList.remove("hidden")
+  progressText.innerText = `Loading`;
+
+  viewer.IFC.loader.ifcManager.setOnProgress((event) => {
+    const percentage = Math.floor((event.loaded * 100) / event.total);
+    progressText.innerText = `Loaded ${percentage}%`;
+  })
+
   await viewer.IFC.loadIfc(event.target.files[0], false);
+  overlay.classList.add("hidden")
 };
+
 
 const inputElement = document.createElement('input');
 inputElement.setAttribute('type', 'file');
@@ -98,3 +111,4 @@ dropBoxButton.addEventListener('click', () => {
   dropBoxButton.blur();
   viewer.openDropboxWindow();
 });
+

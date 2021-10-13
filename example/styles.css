@@ -81,3 +81,25 @@ html, body {
     right: 0;
     width: 300px;
 }
+
+.loading-overlay {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f1f1f150;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading-progress {
+    color: white;
+}
+
+.hidden {
+    display: none;
+}

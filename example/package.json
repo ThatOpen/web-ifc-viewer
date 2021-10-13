@@ -2,14 +2,15 @@
   "name": "web-ifc-viewer-basic-example",
   "private": true,
   "type": "module",
-  "version": "1.0.89",
+  "version": "1.0.90",
   "description": "A basic html example for web-ifc-viewer",
   "main": "index.html",
   "scripts": {
-    "build": "rollup -c && npm run copy-wasm",
+    "build": "rollup -c && npm run copy-wasm && npm run copy-worker",
     "watch": "rollup -c -w",
     "update-example": "yarn remove web-ifc-viewer && yarn remove web-ifc-viewer",
     "copy-wasm": "cpy ../node_modules/web-ifc/web-ifc.wasm files/",
+    "copy-worker": "cpy ../node_modules/web-ifc-three/IFCWorker.js files/",
     "start": "serve"
   },
   "author": "",
@@ -24,6 +25,6 @@
     "stats.js": "^0.17.0",
     "three": "^0.132.2",
     "web-ifc": "^0.0.24",
-    "web-ifc-viewer": "1.0.88"
+    "web-ifc-viewer": "1.0.90"
   }
 }
