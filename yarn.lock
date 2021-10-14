@@ -5155,11 +5155,6 @@ web-ifc-three@^0.0.68:
     three-mesh-bvh "^0.3.7"
     web-ifc "^0.0.25"
 
-web-ifc@^0.0.24:
-  version "0.0.24"
-  resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.24.tgz#804bb7bb6245f52e913dce638ffe33969cc31740"
-  integrity sha512-9AH/LTbPxY1UaFZlwzYL+XuEwfQoROEf0WVz+UmmoTAVsIINq6DbmuiWSyDecWCBYdbanpQoNgJhG5fThWAzMA==
-
 web-ifc@^0.0.25:
   version "0.0.25"
   resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.25.tgz#386b7ce9b7eb6e0ed2998ff72b234d6a71c2de53"
