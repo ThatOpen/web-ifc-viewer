@@ -1,25 +1,33 @@
 import { Vector2, WebGLRenderer } from 'three';
 import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer';
-import { IfcComponent, Context } from '../../base-types';
+import { Context, IfcComponent } from '../../../base-types';
+import { IfcPostproduction } from './postproduction';
 
 export class IfcRenderer extends IfcComponent {
-  renderer = new WebGLRenderer({ antialias: true });
+  renderer = new WebGLRenderer({
+    powerPreference: 'high-performance',
+    antialias: false,
+    stencil: false,
+    depth: false
+  });
   renderer2D = new CSS2DRenderer();
   private readonly container: HTMLElement;
   private readonly context: Context;
+  postProduction: IfcPostproduction;
 
   constructor(context: Context) {
     super(context);
     this.context = context;
     this.container = context.options.container;
     this.setupRenderers();
+    this.postProduction = new IfcPostproduction(this.context, this.renderer);
     this.adjustRendererSize();
   }
 
   update(_delta: number) {
     const scene = this.context.getScene();
     const camera = this.context.getCamera();
-    this.renderer.render(scene, camera);
+    this.postProduction.render();
     this.renderer2D.render(scene, camera);
   }
 
@@ -30,6 +38,7 @@ export class IfcRenderer extends IfcComponent {
   adjustRendererSize() {
     this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
     this.renderer2D.setSize(this.container.clientWidth, this.container.clientHeight);
+    this.postProduction.setSize(this.container.clientWidth, this.container.clientHeight);
   }
 
   private setupRenderers() {

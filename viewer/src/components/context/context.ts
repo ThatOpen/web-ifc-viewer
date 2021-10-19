@@ -1,16 +1,11 @@
 import { Clock, Mesh, Object3D, Plane, Vector2, Vector3 } from 'three';
-import {
-  Context,
-  IfcComponent,
-  Items,
-  NavigationModes,
-  ViewerOptions
-} from '../../base-types';
+import { Context, IfcComponent, Items, NavigationModes, ViewerOptions } from '../../base-types';
 import { IfcCamera } from './camera/camera';
 import { IfcRaycaster } from './raycaster';
-import { IfcRenderer } from './renderer';
+import { IfcRenderer } from './renderer/renderer';
 import { IfcScene } from './scene';
 import { Animator } from './animator';
+import { IfcEvent, IfcEvents } from './ifcEvent';
 
 export class IfcContext implements Context {
   options: ViewerOptions;
@@ -18,19 +13,25 @@ export class IfcContext implements Context {
   ifcCamera: IfcCamera;
 
   private readonly ifcScene: IfcScene;
-  private readonly ifcRenderer: IfcRenderer;
   private readonly clippingPlanes: Plane[];
   private readonly clock: Clock;
   private readonly ifcCaster: IfcRaycaster;
   private readonly ifcAnimator: Animator;
 
+  readonly renderer: IfcRenderer;
+  readonly events: IfcEvents;
+
   constructor(options: ViewerOptions) {
     if (!options.container) throw new Error('Could not get container element!');
     this.options = options;
+    this.events = new IfcEvents();
     this.items = this.newItems();
     this.ifcScene = new IfcScene(this);
-    this.ifcRenderer = new IfcRenderer(this);
+    this.renderer = new IfcRenderer(this);
+
     this.ifcCamera = new IfcCamera(this);
+    this.events.publish(IfcEvent.onCameraReady);
+
     this.clippingPlanes = [];
     this.ifcCaster = new IfcRaycaster(this);
     this.clock = new Clock(true);
@@ -44,11 +45,11 @@ export class IfcContext implements Context {
   }
 
   getRenderer() {
-    return this.ifcRenderer.renderer;
+    return this.renderer.renderer;
   }
 
   getRenderer2D() {
-    return this.ifcRenderer.renderer2D;
+    return this.renderer.renderer2D;
   }
 
   getCamera() {
@@ -122,7 +123,7 @@ export class IfcContext implements Context {
 
   updateAspect() {
     this.ifcCamera.updateAspect();
-    this.ifcRenderer.adjustRendererSize();
+    this.renderer.adjustRendererSize();
   }
 
   private render = () => {

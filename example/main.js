@@ -38,9 +38,13 @@ inputElement.classList.add('hidden');
 inputElement.addEventListener('change', loadIfc, false);
 document.body.appendChild(inputElement);
 
+let togglePostProduction = false;
 const handleKeyDown = (event) => {
   if (event.code === 'Delete') {
     viewer.removeClippingPlane();
+  } else if (event.code === 'KeyP') {
+    viewer.context.renderer.postProduction.ssaoEffect.ssaoMaterial.uniforms.intensity.value = togglePostProduction ? 10 : 0;
+    togglePostProduction = !togglePostProduction;
   }
 };
 

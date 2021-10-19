@@ -11,9 +11,9 @@ import {
   Camera
 } from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
-import { Context, IfcComponent } from '../../../base-types';
+import { Context } from '../../../base-types';
 
-export class IfcDimensionLine extends IfcComponent {
+export class IfcDimensionLine {
   private readonly context: Context;
   private readonly camera: Camera;
   private readonly labelClassName: string;
@@ -54,7 +54,6 @@ export class IfcDimensionLine extends IfcComponent {
     className: string,
     endpointScale: Vector3
   ) {
-    super(context);
     this.context = context;
     this.labelClassName = className;
 

@@ -668,6 +668,11 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
+"@types/dat.gui@^0.7.7":
+  version "0.7.7"
+  resolved "https://registry.yarnpkg.com/@types/dat.gui/-/dat.gui-0.7.7.tgz#2125aedfaa190364c5a50b0447858a7e159aea2e"
+  integrity sha512-CxLCme0He5Jk3uQwfO/fGZMyNhb/ypANzqX0yU9lviBQMlen5SOvQTBQ/Cd9x5mFlUAK5Tk8RgvTyLj1nYkz+w==
+
 "@types/estree@*":
   version "0.0.49"
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.49.tgz#3facb98ebcd4114a4ecef74e0de2175b56fd4464"
@@ -1617,6 +1622,11 @@ cssstyle@^2.3.0:
   integrity sha512-AZL67abkUzIuvcHqk7c09cezpGNcxUxU4Ioi/05xHk4DQeTkWmGYftIE6ctU6AEt+Gn4n1lDStOtj7FKycP71A==
   dependencies:
     cssom "~0.3.6"
+
+dat.gui@^0.7.7:
+  version "0.7.7"
+  resolved "https://registry.yarnpkg.com/dat.gui/-/dat.gui-0.7.7.tgz#7f96dbd21621a76385203659aebfa264ee6ae89b"
+  integrity sha512-sRl/28gF/XRC5ywC9I4zriATTsQcpSsRG7seXCPnTkK8/EQMIbCu5NPMpICLGxX9ZEUvcXR3ArLYCtgreFoMDw==
 
 data-urls@^2.0.0:
   version "2.0.0"
@@ -4140,6 +4150,11 @@ posix-character-classes@^0.1.0:
   resolved "https://registry.yarnpkg.com/posix-character-classes/-/posix-character-classes-0.1.1.tgz#01eac0fe3b5af71a2a6c02feabb8c1fef7e00eab"
   integrity sha1-AerA/jta9xoqbAL+q7jB/vfgDqs=
 
+postprocessing@^6.23.1:
+  version "6.23.1"
+  resolved "https://registry.yarnpkg.com/postprocessing/-/postprocessing-6.23.1.tgz#9e76488b7bed37c41e30530ebd8d338c9f3e3016"
+  integrity sha512-HUSR5x50onDmw+1OqZvKE+qb9Lth1Y7pQcQHDH7IcgSMyp7Flvy2aKhZVhNgJQGnZY9qU0gFSVHEgnVuC+1/pw==
+
 prelude-ls@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.2.1.tgz#debc6489d7a6e6b0e7611888cec880337d316396"
@@ -5146,10 +5161,10 @@ walker@^1.0.7:
   dependencies:
     makeerror "1.0.x"
 
-web-ifc-three@^0.0.68:
-  version "0.0.68"
-  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.68.tgz#e21ae111d85cede64865b2ba0da30b540be140b0"
-  integrity sha512-2nMYDWoIV6h/5+bOmHr72YcV9wt6AqrMiCW9t98OTDibyXjUjeIAwoE+msOxoPv4iSDpOpqxTdQCE29Mad9hhA==
+web-ifc-three@^0.0.69:
+  version "0.0.69"
+  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.69.tgz#392865cdd98a56aaaf9fbcb417c8e51070ee2c85"
+  integrity sha512-yDtdRYg22fOQkyeGZkNCjYOuQLdOlXNN4/2Dfs1qPCSleqslYtTaZf/U1qS97T6nE9fRzB2RsP6HDOXXdVIapA==
   dependencies:
     "@types/three" "^0.131.0"
     three-mesh-bvh "^0.3.7"

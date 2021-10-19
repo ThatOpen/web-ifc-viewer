@@ -18,6 +18,8 @@ import { OrbitControl } from './components/context/camera/OrbitControl';
 import { FirstPersonControl } from './components/context/camera/FirstPersonControl';
 import { IfcCamera } from './components/context/camera/camera';
 import { LiteEvent } from './utils/LiteEvent';
+import { IfcEvents } from './components/context/ifcEvent';
+import { IfcRenderer } from './components/context/renderer/renderer';
 
 export interface MouseButtons {
   left: MOUSE;
@@ -73,6 +75,9 @@ export interface Context {
   items: Items;
   options: ViewerOptions;
 
+  events: IfcEvents;
+  renderer: IfcRenderer;
+
   getScene: () => Scene;
   getCamera: () => Camera;
   getRenderer: () => Renderer;
@@ -98,9 +103,11 @@ export abstract class IfcComponent implements Component {
     context.addComponent(this);
   }
 
-  update(_delta: number) {}
+  update(_delta: number) {
+  }
 
-  dispose() {}
+  dispose() {
+  }
 }
 
 export interface fpsControl {
