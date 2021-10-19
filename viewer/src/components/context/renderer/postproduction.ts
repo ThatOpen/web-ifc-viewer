@@ -7,7 +7,7 @@ import {
   SSAOEffect
   // @ts-ignore
 } from 'postprocessing';
-import { WebGLRenderer } from 'three';
+import { Camera, Scene, WebGLRenderer } from 'three';
 import { IfcEvent } from '../ifcEvent';
 import { Context } from '../../../base-types';
 
@@ -29,10 +29,7 @@ export class IfcPostproduction {
   }
 
   private setupEvents() {
-    this.context.events.subscribe(IfcEvent.onCameraReady, () => {
-      const scene = this.context.getScene();
-      const camera = this.context.getCamera();
-
+    const createPasses = (scene: Scene, camera: Camera) => {
       const normalPass = new NormalPass(scene, camera, {
         resolutionScale: 1.0
       });
@@ -64,9 +61,24 @@ export class IfcPostproduction {
       const effectPass = new EffectPass(camera, this.ssaoEffect);
       effectPass.renderToScreen = true;
 
-      this.composer.addPass(renderPass);
-      this.composer.addPass(normalPass);
-      this.composer.addPass(effectPass);
+      return [renderPass, normalPass, effectPass];
+    };
+
+    const setupPasses = (scene: Scene, camera: Camera) => {
+      const passes = createPasses(scene, camera);
+      passes.forEach((pass) => this.composer.addPass(pass));
+    };
+
+    this.context.events.subscribe(IfcEvent.onCameraReady, () => {
+      const scene = this.context.getScene();
+      const camera = this.context.ifcCamera;
+
+      camera.onChangeProjection.on((camera) => {
+        this.composer.removeAllPasses();
+        setupPasses(this.context.getScene(), camera);
+      });
+
+      setupPasses(scene, camera.activeCamera);
 
       // this.gui.add(ssaoEffect, 'samples', 1, 32, 1);
       // this.gui.add(ssaoEffect, 'rings', 1, 16, 1);

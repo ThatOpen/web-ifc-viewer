@@ -92896,9 +92896,7 @@
             this.composer.setSize(width, height);
         }
         setupEvents() {
-            this.context.events.subscribe(IfcEvent.onCameraReady, () => {
-                const scene = this.context.getScene();
-                const camera = this.context.getCamera();
+            const createPasses = (scene, camera) => {
                 const normalPass = new NormalPass(scene, camera, {
                     resolutionScale: 1.0
                 });
@@ -92925,9 +92923,20 @@
                 const renderPass = new RenderPass(scene, camera);
                 const effectPass = new EffectPass(camera, this.ssaoEffect);
                 effectPass.renderToScreen = true;
-                this.composer.addPass(renderPass);
-                this.composer.addPass(normalPass);
-                this.composer.addPass(effectPass);
+                return [renderPass, normalPass, effectPass];
+            };
+            const setupPasses = (scene, camera) => {
+                const passes = createPasses(scene, camera);
+                passes.forEach((pass) => this.composer.addPass(pass));
+            };
+            this.context.events.subscribe(IfcEvent.onCameraReady, () => {
+                const scene = this.context.getScene();
+                const camera = this.context.ifcCamera;
+                camera.onChangeProjection.on((camera) => {
+                    this.composer.removeAllPasses();
+                    setupPasses(this.context.getScene(), camera);
+                });
+                setupPasses(scene, camera.activeCamera);
                 // this.gui.add(ssaoEffect, 'samples', 1, 32, 1);
                 // this.gui.add(ssaoEffect, 'rings', 1, 16, 1);
                 // this.gui.add(ssaoEffect, 'radius', 1e-6, 1.0, 0.001);
@@ -108088,6 +108097,8 @@
       } else if (event.code === 'KeyP') {
         viewer.context.renderer.postProduction.ssaoEffect.ssaoMaterial.uniforms.intensity.value = togglePostProduction ? 10 : 0;
         togglePostProduction = !togglePostProduction;
+      }else  if(event.code === "KeyO") {
+        viewer.context.getIfcCamera().toggleProjection();
       }
     };
 

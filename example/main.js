@@ -45,6 +45,8 @@ const handleKeyDown = (event) => {
   } else if (event.code === 'KeyP') {
     viewer.context.renderer.postProduction.ssaoEffect.ssaoMaterial.uniforms.intensity.value = togglePostProduction ? 10 : 0;
     togglePostProduction = !togglePostProduction;
+  }else  if(event.code === "KeyO") {
+    viewer.context.getIfcCamera().toggleProjection();
   }
 };
 
