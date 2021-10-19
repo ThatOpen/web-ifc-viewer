@@ -554,14 +554,6 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@parametricos/bcf-js@^0.1.2":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@parametricos/bcf-js/-/bcf-js-0.1.3.tgz#aecb248f641567e39db63b1741a5e8678f3ba6e9"
-  integrity sha512-tJdYssZV6Is+ij/ZyZzcPiVd98qjGxs5Muq0se4XjhrtmbDsbeW5XAjWK98o6LlJvj0brpYcuT+/hCZdSBebtw==
-  dependencies:
-    fast-xml-parser "^3.17.5"
-    unzipit "^1.3.5"
-
 "@rollup/plugin-commonjs@^19.0.0":
   version "19.0.0"
   resolved "https://registry.yarnpkg.com/@rollup/plugin-commonjs/-/plugin-commonjs-19.0.0.tgz#8c3e71f9a66908e60d70cc1be205834ef3e45f71"
@@ -2224,11 +2216,6 @@ fast-url-parser@1.1.3:
   integrity sha1-9K8+qfNNiicc9YrSs3WfQx8LMY0=
   dependencies:
     punycode "^1.3.2"
-
-fast-xml-parser@^3.17.5:
-  version "3.19.0"
-  resolved "https://registry.yarnpkg.com/fast-xml-parser/-/fast-xml-parser-3.19.0.tgz#cb637ec3f3999f51406dd8ff0e6fc4d83e520d01"
-  integrity sha512-4pXwmBplsCPv8FOY1WRakF970TjNGnGnfbOnLqjlYvMiF1SR3yOHyxMR/YCXpPTOspNF5gwudqktIP4VsWkvBg==
 
 fastq@^1.6.0:
   version "1.11.0"
@@ -5076,13 +5063,6 @@ unset-value@^1.0.0:
     has-value "^0.3.1"
     isobject "^3.0.0"
 
-unzipit@^1.3.5:
-  version "1.3.5"
-  resolved "https://registry.yarnpkg.com/unzipit/-/unzipit-1.3.5.tgz#3ee48a478a3b7e248d65d3bc0bb189a8d63c3ce1"
-  integrity sha512-GNJVu1nkQYaw9ploGIuXzrP9bE6y+/V748P3RsMn8W0fHEEkecwd+SHwKH9jXOSuBAKTEOqqF66k0GfFQZ1ReA==
-  dependencies:
-    uzip-module "^1.0.2"
-
 update-check@1.5.2:
   version "1.5.2"
   resolved "https://registry.yarnpkg.com/update-check/-/update-check-1.5.2.tgz#2fe09f725c543440b3d7dabe8971f2d5caaedc28"
@@ -5107,11 +5087,6 @@ use@^3.1.0:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
   integrity sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==
-
-uzip-module@^1.0.2:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/uzip-module/-/uzip-module-1.0.3.tgz#6bbabe2a3efea5d5a4a47479f523a571de3427ce"
-  integrity sha512-AMqwWZaknLM77G+VPYNZLEruMGWGzyigPK3/Whg99B3S6vGHuqsyl5ZrOv1UUF3paGK1U6PM0cnayioaryg/fA==
 
 v8-compile-cache@^2.0.3:
   version "2.3.0"
@@ -5161,10 +5136,10 @@ walker@^1.0.7:
   dependencies:
     makeerror "1.0.x"
 
-web-ifc-three@^0.0.69:
-  version "0.0.69"
-  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.69.tgz#392865cdd98a56aaaf9fbcb417c8e51070ee2c85"
-  integrity sha512-yDtdRYg22fOQkyeGZkNCjYOuQLdOlXNN4/2Dfs1qPCSleqslYtTaZf/U1qS97T6nE9fRzB2RsP6HDOXXdVIapA==
+web-ifc-three@^0.0.71:
+  version "0.0.71"
+  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.71.tgz#b6eb0f9045169da0abe8a9f78eb9d7aea8dab849"
+  integrity sha512-9wclzXpmlSZbSOEib8yyis7x2GvNKo6Jn7Oa+DiCwA/lRYse8nYbBdJ9AEvirgnHX3QtB5NTZOG0ScJzJlDK/Q==
   dependencies:
     "@types/three" "^0.131.0"
     three-mesh-bvh "^0.3.7"

@@ -85954,27 +85954,30 @@
         return await this.getProperty(modelID, elementID, recursive, PropsNames.materials);
       }
 
-      getSpatialNode(modelID, node, treeChunks, includeProperties) {
-        this.getChildren(modelID, node, treeChunks, PropsNames.aggregates, includeProperties);
-        this.getChildren(modelID, node, treeChunks, PropsNames.spatial, includeProperties);
+      async getSpatialNode(modelID, node, treeChunks, includeProperties) {
+        await this.getChildren(modelID, node, treeChunks, PropsNames.aggregates, includeProperties);
+        await this.getChildren(modelID, node, treeChunks, PropsNames.spatial, includeProperties);
       }
 
-      getChildren(modelID, node, treeChunks, propNames, includeProperties) {
+      async getChildren(modelID, node, treeChunks, propNames, includeProperties) {
         const children = treeChunks[node.expressID];
         if (children == undefined)
           return;
         const prop = propNames.key;
-        node[prop] = children.map((child) => {
+        const nodes = [];
+        for (let i = 0; i < children.length; i++) {
+          const child = children[i];
           let node = this.newNode(modelID, child);
           if (includeProperties) {
-            const properties = this.getItemProperties(modelID, node.expressID);
+            const properties = await this.getItemProperties(modelID, node.expressID);
             node = {
               ...node, ...properties
             };
           }
-          this.getSpatialNode(modelID, node, treeChunks, includeProperties);
-          return node;
-        });
+          await this.getSpatialNode(modelID, node, treeChunks, includeProperties);
+          nodes.push(node);
+        }
+        node[prop] = nodes;
       }
 
       newNode(modelID, id) {
@@ -86189,7 +86192,7 @@
         const allLines = await this.state.api.GetLineIDsWithType(modelID, IFCPROJECT);
         const projectID = allLines.get(0);
         const project = WebIfcPropertyManager.newIfcProject(projectID);
-        this.getSpatialNode(modelID, project, chunks, includeProperties);
+        await this.getSpatialNode(modelID, project, chunks, includeProperties);
         return project;
       }
 
@@ -87075,7 +87078,7 @@
         const projectsIDs = await this.getAllItemsOfType(modelID, IFCPROJECT, false);
         const projectID = projectsIDs[0];
         const project = JSONPropertyManager.newIfcProject(projectID);
-        this.getSpatialNode(modelID, project, chunks, includeProperties);
+        await this.getSpatialNode(modelID, project, chunks, includeProperties);
         return {
           ...project
         };
@@ -87221,7 +87224,7 @@
         if (!this.state.useJSON && includeProperties) {
           console.warn('Including properties in getSpatialStructure with the JSON workflow disabled can lead to poor performance.');
         }
-        return this.currentProps.getSpatialStructure(modelID, includeProperties);
+        return await this.currentProps.getSpatialStructure(modelID, includeProperties);
       }
 
       updateCurrentProps() {
