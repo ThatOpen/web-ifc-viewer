@@ -90,7 +90,7 @@ export interface Context {
   ifcCamera: IfcCamera;
 
   fitToFrame: () => void;
-  toggleCameraControls: (active: boolean) => void;
+  toggleCameraControls: (active: boolean, options?: any) => void;
   addComponent: (component: Component) => void;
   addClippingPlane: (plane: Plane) => void;
   removeClippingPlane: (plane: Plane) => void;

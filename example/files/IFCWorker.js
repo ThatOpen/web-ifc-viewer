@@ -42088,6 +42088,7 @@ var WorkerActions;
     WorkerActions["GetFlatMesh"] = "GetFlatMesh";
     WorkerActions["SetWasmPath"] = "SetWasmPath";
     WorkerActions["parse"] = "parse";
+    WorkerActions["setupOptionalCategories"] = "setupOptionalCategories";
     WorkerActions["getExpressId"] = "getExpressId";
     WorkerActions["initializeProperties"] = "initializeProperties";
     WorkerActions["getAllItemsOfType"] = "getAllItemsOfType";
@@ -80289,8 +80290,15 @@ class IFCParser {
         this.state = state;
         this.BVH = BVH;
         this.loadedModels = 0;
+        this.optionalCategories = {
+            [IFCSPACE]: true,
+            [IFCOPENINGELEMENT]: false
+        };
         this.currentWebIfcID = -1;
         this.currentModelID = -1;
+    }
+    async setupOptionalCategories(config) {
+        this.optionalCategories = config;
     }
     async parse(buffer) {
         if (this.state.api.wasmModule === undefined)
@@ -80344,7 +80352,7 @@ class IFCParser {
         return { geometry, materials };
     }
     async saveAllPlacedGeometriesByMaterial() {
-        await this.getAllIfcSpaces();
+        await this.addOptionalCategories();
         const flatMeshes = await this.state.api.LoadAllGeometry(this.currentWebIfcID);
         const size = flatMeshes.size();
         let counter = 0;
@@ -80360,8 +80368,16 @@ class IFCParser {
             }
         }
     }
-    async getAllIfcSpaces() {
-        await this.state.api.StreamAllMeshesWithTypes(this.currentWebIfcID, [IFCSPACE], async (mesh) => {
+    async addOptionalCategories() {
+        const optionalTypes = [];
+        for (let key in this.optionalCategories) {
+            if (this.optionalCategories.hasOwnProperty(key)) {
+                const category = parseInt(key);
+                if (this.optionalCategories[category])
+                    optionalTypes.push(category);
+            }
+        }
+        await this.state.api.StreamAllMeshesWithTypes(this.currentWebIfcID, optionalTypes, async (mesh) => {
             const geometries = mesh.geometries;
             const size = geometries.size();
             for (let j = 0; j < size; j++) {
@@ -80370,11 +80386,15 @@ class IFCParser {
         });
     }
     async savePlacedGeometry(placedGeometry, id) {
+        const geometry = await this.getGeometry(placedGeometry);
+        this.saveGeometryByMaterial(geometry, placedGeometry, id);
+    }
+    async getGeometry(placedGeometry) {
         const geometry = await this.getBufferGeometry(placedGeometry);
         geometry.computeVertexNormals();
         const matrix = IFCParser.getMeshMatrix(placedGeometry.flatTransformation);
         geometry.applyMatrix4(matrix);
-        this.saveGeometryByMaterial(geometry, placedGeometry, id);
+        return geometry;
     }
     async getBufferGeometry(placed) {
         const geometry = await this.state.api.GetGeometry(this.currentWebIfcID, placed.geometryExpressID);
@@ -80514,6 +80534,13 @@ class ParserWorker {
                 throw new Error(ErrorRootStateNotAvailable);
             this.parser = new IFCParser(this.worker.state, this.BVH);
         }
+    }
+    setupOptionalCategories(data) {
+        this.initializeParser();
+        if (this.parser === undefined)
+            throw new Error(ErrorParserNotAvailable);
+        this.parser.setupOptionalCategories(data.args.config);
+        this.worker.post(data);
     }
     async parse(data) {
         this.initializeParser();

@@ -20,11 +20,10 @@ export class IfcCamera extends IfcComponent {
 
   navMode: NavModeManager;
   currentNavMode: NavigationMode;
-
-  private readonly context: Context;
   public readonly onChange = new LiteEvent<any>();
   public readonly onUnlock = new LiteEvent<any>();
   public readonly onChangeProjection = new LiteEvent<Camera>();
+  private readonly context: Context;
 
   constructor(context: Context) {
     super(context);
@@ -77,6 +76,14 @@ export class IfcCamera extends IfcComponent {
       : this.navMode[NavigationModes.Orbit].activeCamera;
   }
 
+  get projection() {
+    return this.navMode[NavigationModes.Orbit].projection;
+  }
+
+  set projection(projection: CameraProjections) {
+    this.navMode[NavigationModes.Orbit].projection = projection;
+  }
+
   updateAspect() {
     const dims = this.context.getDimensions();
     const aspect = dims.x / dims.y;
@@ -116,25 +123,22 @@ export class IfcCamera extends IfcComponent {
     orbitControls.setOrbitControlsButtons(buttons);
   }
 
-  toggleCameraControls(active: boolean) {
-    this.currentNavMode.toggle(active);
+  toggleCameraControls(active: boolean, options?: any) {
+    this.currentNavMode.toggle(active, options);
   }
 
   toggleProjection() {
     this.navMode[NavigationModes.Orbit].toggleProjection();
   }
 
-  set projection(projection: CameraProjections) {
-    this.currentNavMode.projection = projection;
-  }
-
-  get projection() {
-    return this.currentNavMode.projection;
-  }
-
   targetItem(mesh: Mesh, duration = 1) {
     const orbitControls = this.setOrbitControls();
     orbitControls.targetItem(mesh, duration);
+  }
+
+  goTo(position: Vector3, target: Vector3, duration = 0) {
+    const orbitControls = this.setOrbitControls();
+    orbitControls.goTo(position, target, duration);
   }
 
   goToHomeView() {

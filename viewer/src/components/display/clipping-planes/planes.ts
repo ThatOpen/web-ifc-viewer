@@ -98,7 +98,7 @@ export class IfcPlane extends IfcComponent {
     });
     this.controls.addEventListener('dragging-changed', (event) => {
       this.visible = !event.value;
-      this.context.toggleCameraControls(this.visible);
+      this.context.toggleCameraControls(this.visible, { preventOrbitAdjustment: true });
       if (event.value) onStart();
       else onEnd();
     });

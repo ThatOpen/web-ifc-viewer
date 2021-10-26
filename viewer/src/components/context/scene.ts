@@ -3,6 +3,7 @@ import { IfcComponent, ViewerOptions, Context } from '../../base-types';
 
 export class IfcScene extends IfcComponent {
   scene: Scene;
+  defaultBackgroundColor = new Color(0xa9a9a9);
 
   constructor(context: Context) {
     super(context);
@@ -20,7 +21,7 @@ export class IfcScene extends IfcComponent {
   }
 
   private setupScene(options?: ViewerOptions) {
-    this.scene.background = options?.backgroundColor || new Color(0xa9a9a9);
+    this.scene.background = options?.backgroundColor || this.defaultBackgroundColor;
   }
 
   private setupLights() {

@@ -1,7 +1,7 @@
 import { CameraProjections, IfcViewerAPI, NavigationModes } from 'web-ifc-viewer';
 import { createSideMenuButton } from './utils/gui-creator';
-import { IFCWALLSTANDARDCASE } from 'three/examples/jsm/loaders/ifc/web-ifc-api';
-import { Vector3 } from 'three';
+import { IFCSPACE, IFCSTAIR, IFCCOLUMN, IFCWALLSTANDARDCASE, IFCWALL, IFCSLAB, IFCOPENINGELEMENT } from 'web-ifc';
+import { BackSide, Vector3, Plane, MeshBasicMaterial, EdgesGeometry, LineBasicMaterial, LineSegments, Color } from 'three';
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container });
@@ -28,8 +28,67 @@ const loadIfc = async (event) => {
     progressText.innerText = `Loaded ${percentage}%`;
   })
 
-  await viewer.IFC.loadIfc(event.target.files[0], false);
-  overlay.classList.add("hidden")
+  viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
+    [IFCSPACE]: false,
+    [IFCOPENINGELEMENT]: false
+  })
+
+  const model = await viewer.IFC.loadIfc(event.target.files[0], false);
+  overlay.classList.add("hidden");
+
+  // model.material.forEach(mat => {
+  //  mat.polygonOffset = true;
+  //  mat.polygonOffsetFactor = 1;
+  //  mat.polygonOffsetUnits = 1;
+  // })
+
+//   const planes = viewer.context.getClippingPlanes();
+//   // const backModelGeom = model.geometry.clone();
+//
+//   const wallsStandard = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
+//   const walls = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCWALL, false);
+//   const stairs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCSTAIR, false);
+//   const columns = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCCOLUMN, false);
+//   // const slabs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCSLAB, false);
+//
+//   const subset = viewer.IFC.loader.ifcManager.createSubset({
+//     modelID: 0,
+//     ids: [...walls, ...wallsStandard, ...stairs, ...columns],
+//     scene: viewer.context.getScene(),
+//     removePrevious: true,
+//     material: new MeshBasicMaterial({
+//       color: 0x000000,
+//       side: BackSide,
+//       clippingPlanes: planes,
+//       polygonOffset: true,
+//       polygonOffsetFactor: -1,
+//       polygonOffsetUnits: 1})
+//   });
+//
+//   subset.position.y += 0.1;
+//
+//   if(subset) subset.geometry.computeVertexNormals();
+//
+//
+//   // mesh
+//   const whiteMaterial = new MeshBasicMaterial( {
+//     color: 0xffffff,
+//     polygonOffset: true,
+//     polygonOffsetFactor: 1,
+//     polygonOffsetUnits: 1,
+//     clippingPlanes: planes
+//   } );
+//
+//   model.material = model.material.map(mat => whiteMaterial)
+//
+// // wireframe
+//   const thresholdAngle = 45;
+//
+//   const geo = new EdgesGeometry( model.geometry );
+//   const mat = new LineBasicMaterial( { color: 0x000000, clippingPlanes: planes } );
+//   const wireframe = new LineSegments( geo, mat );
+//   model.add( wireframe );
+
 };
 
 const inputElement = document.createElement('input');
@@ -38,17 +97,34 @@ inputElement.classList.add('hidden');
 inputElement.addEventListener('change', loadIfc, false);
 document.body.appendChild(inputElement);
 
-let togglePostProduction = false;
 const handleKeyDown = (event) => {
   if (event.code === 'Delete') {
     viewer.removeClippingPlane();
-  } else if (event.code === 'KeyP') {
-    viewer.context.renderer.postProduction.ssaoEffect.ssaoMaterial.uniforms.intensity.value = togglePostProduction ? 10 : 0;
-    togglePostProduction = !togglePostProduction;
-  }else  if(event.code === "KeyO") {
-    viewer.context.getIfcCamera().toggleProjection();
   }
+  // if(event.code === "KeyO") {
+  //   viewer.context.getIfcCamera().toggleProjection();
+  // } if(event.code === "KeyN") {
+  //   viewer.context.ifcCamera.setNavigationMode(NavigationModes.FirstPerson);
+  // }  if(event.code === "KeyM") {
+  //   viewer.context.ifcCamera.setNavigationMode(NavigationModes.Orbit);
+  // }
+  // if(event.code === "KeyR") {
+  //   // saveAsImage();
+  //   viewer.context.renderer.usePostproduction = !viewer.context.renderer.usePostproduction;
+  // }
+  // if(event.code === "KeyC") {
+  //   const camera = viewer.context.ifcCamera;
+  //   camera.goTo(new Vector3(0, 20, 0), new Vector3(0,0,0));
+  // }
 };
+
+// function saveAsImage() {
+//   const imgData = viewer.context.renderer.newScreenshot();
+//   const img = document.createElement('img');
+//   img.src = imgData;
+//   document.body.appendChild(img);
+// }
+
 
 window.onmousemove = viewer.IFC.prePickIfcItem;
 window.onkeydown = handleKeyDown;

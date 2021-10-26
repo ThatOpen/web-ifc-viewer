@@ -15,15 +15,14 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
   controls: PointerLockControls;
   enabled = false;
   readonly mode = NavigationModes.FirstPerson;
-
+  public readonly onChange = new LiteEvent();
+  public readonly onUnlock = new LiteEvent();
+  public readonly onChangeProjection = new LiteEvent<Camera>();
   private prevTime = performance.now();
   private velocity = new Vector3();
   private direction = new Vector3();
   private speed = 200;
-
-  public readonly onChange = new LiteEvent();
-  public readonly onUnlock = new LiteEvent();
-  public readonly onChangeProjection = new LiteEvent<Camera>();
+  private ifcCamera: IfcCamera;
 
   private keyBinding = {
     forward: {
@@ -62,6 +61,7 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
 
   constructor(context: Context, camera: Camera, ifcCamera: IfcCamera) {
     super(context);
+    this.ifcCamera = ifcCamera;
     this.controls = new PointerLockControls(camera, context.getDomElement());
     this.controls.addEventListener('unlock', (event: any) => {
       ifcCamera.setNavigationMode(NavigationModes.Orbit);
@@ -73,7 +73,14 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
     context.getScene().add(this.controls.getObject());
   }
 
+  get projection() {
+    return CameraProjections.Perspective;
+  }
+
   toggle(active: boolean) {
+    if (active && this.ifcCamera.projection === CameraProjections.Orthographic) {
+      this.ifcCamera.toggleProjection();
+    }
     this.enabled = active;
     if (active) this.enable();
     else this.disable();
@@ -86,10 +93,6 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
       this.move(delta);
       this.prevTime = currentTime;
     }
-  }
-
-  get projection() {
-    return CameraProjections.Perspective;
   }
 
   /**

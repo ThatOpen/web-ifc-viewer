@@ -1,14 +1,5 @@
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import {
-  Box3,
-  Camera,
-  MathUtils,
-  Mesh,
-  MOUSE,
-  OrthographicCamera,
-  PerspectiveCamera,
-  Vector3
-} from 'three';
+import { Box3, Camera, MathUtils, Mesh, MOUSE, OrthographicCamera, PerspectiveCamera, Vector3 } from 'three';
 import {
   CameraProjections,
   Context,
@@ -22,13 +13,12 @@ import { LiteEvent } from '../../../utils/LiteEvent';
 export class OrbitControl extends IfcComponent implements NavigationMode {
   orbitControls: OrbitControls;
   enabled = true;
-  private currentTarget = new Vector3();
+  currentCamera: Camera;
   readonly mode = NavigationModes.Orbit;
-
-  public readonly onChange = new LiteEvent();
-  public readonly onUnlock = new LiteEvent();
-  public readonly onChangeProjection = new LiteEvent<Camera>();
-
+  readonly onChange = new LiteEvent();
+  readonly onUnlock = new LiteEvent();
+  readonly onChangeProjection = new LiteEvent<Camera>();
+  private currentTarget = new Vector3();
   private startView = {
     target: new Vector3(),
     camera: new Vector3(20, 20, 20)
@@ -40,6 +30,8 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
     private orthographicCamera: OrthographicCamera
   ) {
     super(context);
+
+    this.currentCamera = this.perspectiveCamera;
 
     this.orbitControls = new OrbitControls(this.perspectiveCamera, context.getDomElement());
     // this.orbitControls.minDistance = 1;
@@ -76,34 +68,6 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
     this.startView.target = target;
   }
 
-  setOrbitControlsButtons(buttons: MouseButtons) {
-    this.orbitControls.mouseButtons = {
-      LEFT: buttons.left,
-      MIDDLE: buttons.middle,
-      RIGHT: buttons.right
-    };
-  }
-
-  update(_delta: number) {
-    if (this.enabled) {
-      this.orbitControls.update();
-    }
-  }
-
-  /**
-   * @deprecated Use onChange.on() instead.
-   */
-  submitOnChange(action: (event: any) => void) {
-    this.onChange.on(action);
-  }
-
-  /**
-   * @deprecated Use onChange.on() instead.
-   */
-  submitOnUnlock(action: (event: any) => void) {
-    this.onUnlock.on(action);
-  }
-
   get projection() {
     return this.activeCamera === this.perspectiveCamera
       ? CameraProjections.Perspective
@@ -138,12 +102,42 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
       this.orthographicCamera.position.copy(this.perspectiveCamera.position);
       this.orthographicCamera.quaternion.copy(this.perspectiveCamera.quaternion);
       this.orbitControls.object = this.orthographicCamera;
+      this.currentCamera = this.orthographicCamera;
     } else {
       this.perspectiveCamera.position.copy(this.orthographicCamera.position);
       this.perspectiveCamera.quaternion.copy(this.orthographicCamera.quaternion);
       this.perspectiveCamera.updateProjectionMatrix();
       this.orbitControls.object = this.perspectiveCamera;
+      this.currentCamera = this.perspectiveCamera;
     }
+  }
+
+  setOrbitControlsButtons(buttons: MouseButtons) {
+    this.orbitControls.mouseButtons = {
+      LEFT: buttons.left,
+      MIDDLE: buttons.middle,
+      RIGHT: buttons.right
+    };
+  }
+
+  update(_delta: number) {
+    if (this.enabled) {
+      this.orbitControls.update();
+    }
+  }
+
+  /**
+   * @deprecated Use onChange.on() instead.
+   */
+  submitOnChange(action: (event: any) => void) {
+    this.onChange.on(action);
+  }
+
+  /**
+   * @deprecated Use onChange.on() instead.
+   */
+  submitOnUnlock(action: (event: any) => void) {
+    this.onUnlock.on(action);
   }
 
   toggleProjection() {
@@ -156,8 +150,9 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
     this.onChangeProjection.trigger(this.activeCamera);
   }
 
-  toggle(active: boolean) {
-    if (active) {
+  toggle(active: boolean, options?: any) {
+    const preventAdjustment = options !== undefined && options.preventOrbitAdjustment;
+    if (active && !preventAdjustment) {
       this.adjustTarget();
     }
     this.enabled = active;
@@ -172,6 +167,11 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
     this.context.getAnimator().move(this.perspectiveCamera.position, cameraEnd, duration);
     this.context.getAnimator().move(this.orbitControls.target, center, duration);
   };
+
+  goTo(position: Vector3, target: Vector3, duration: number) {
+    this.context.getAnimator().move(this.currentCamera.position, position, duration);
+    this.context.getAnimator().move(this.orbitControls.target, target, duration);
+  }
 
   goToHomeView() {
     this.context.getAnimator().move(this.perspectiveCamera.position, this.startView.camera);

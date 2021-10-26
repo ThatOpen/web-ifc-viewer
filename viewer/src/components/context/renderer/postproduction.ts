@@ -12,12 +12,28 @@ import { IfcEvent } from '../ifcEvent';
 import { Context } from '../../../base-types';
 
 export class IfcPostproduction {
-  composer: EffectComposer;
   ssaoEffect: SSAOEffect;
+  renderer: WebGLRenderer;
 
-  constructor(private context: Context, renderer: WebGLRenderer) {
+  composer: EffectComposer;
+
+  constructor(private context: Context, canvas: HTMLElement) {
     this.setupEvents();
-    this.composer = new EffectComposer(renderer);
+
+    this.renderer = new WebGLRenderer({
+      canvas,
+      powerPreference: 'high-performance',
+      antialias: false,
+      stencil: false,
+      depth: false
+    });
+
+    this.renderer.localClippingEnabled = true;
+    this.composer = new EffectComposer(this.renderer);
+  }
+
+  get domElement() {
+    return this.renderer.domElement;
   }
 
   render() {
@@ -79,41 +95,6 @@ export class IfcPostproduction {
       });
 
       setupPasses(scene, camera.activeCamera);
-
-      // this.gui.add(ssaoEffect, 'samples', 1, 32, 1);
-      // this.gui.add(ssaoEffect, 'rings', 1, 16, 1);
-      // this.gui.add(ssaoEffect, 'radius', 1e-6, 1.0, 0.001);
-      // this.gui.add(ssaoEffect, 'distanceScaling').onChange((value) => {
-      //   ssaoEffect.distanceScaling = value;
-      // });
-
-      // const effects = {
-      //   intensity: 0,
-      //   bias: 0,
-      //   fade: 0,
-      //   opacity: 1,
-      //   resolution: 0.25
-      // }
-
-      // this.gui.add(effects, 'intensity', 0, 10, 0.25).onChange((value) => {
-      //   ssaoEffect.ssaoMaterial.uniforms.intensity.value = value;
-      // });
-      //
-      // this.gui.add(effects, 'bias', 0, 1.0, 0.001).onChange((value) => {
-      //   ssaoEffect.ssaoMaterial.uniforms.bias.value = value;
-      // });
-      //
-      // this.gui.add(effects, 'fade', 0, 1.0, 0.001).onChange((value) => {
-      //   ssaoEffect.ssaoMaterial.uniforms.fade.value = value;
-      // });
-      //
-      // this.gui.add(effects, 'opacity', 0, 3.0, 0.1).onChange((value) => {
-      //   ssaoEffect.blendMode.opacity.value = value;
-      // });
-      //
-      // this.gui.add(effects, 'resolution', 0, 3.0, 0.25).onChange((value) => {
-      //   ssaoEffect.resolution.scale = value;
-      // });
     });
   }
 }

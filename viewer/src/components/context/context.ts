@@ -45,7 +45,7 @@ export class IfcContext implements Context {
   }
 
   getRenderer() {
-    return this.renderer.renderer;
+    return this.renderer.basicRenderer;
   }
 
   getRenderer2D() {
@@ -117,8 +117,8 @@ export class IfcContext implements Context {
     this.ifcCamera.navMode[NavigationModes.Orbit].fitModelToFrame();
   }
 
-  toggleCameraControls(active: boolean) {
-    this.ifcCamera.toggleCameraControls(active);
+  toggleCameraControls(active: boolean, options?: any) {
+    this.ifcCamera.toggleCameraControls(active, options);
   }
 
   updateAspect() {
