@@ -1,17 +1,17 @@
-import * as Stats from 'stats.js';
-import { IfcComponent, Context } from '../../base-types';
+import { IfcComponent } from '../../base-types';
 
 export class IfcStats extends IfcComponent {
-  stats: Stats;
+  stats?: any;
 
-  constructor(context: Context) {
-    super(context);
+  initializeStats(Stats: any) {
     this.stats = new Stats();
     this.stats.showPanel(0);
   }
 
   update(_delta: number) {
-    this.stats.update();
+    if (this.stats) {
+      this.stats.update();
+    }
   }
 
   addStats(css = '') {

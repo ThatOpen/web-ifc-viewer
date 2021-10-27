@@ -45501,32 +45501,15 @@
         }
     }
 
-    var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-    var stats_min$1 = {exports: {}};
-
-    (function (module, exports) {
-    // stats.js - http://github.com/mrdoob/stats.js
-    (function(f,e){module.exports=e();})(commonjsGlobal,function(){var f=function(){function e(a){c.appendChild(a.dom);return a}function u(a){for(var d=0;d<c.children.length;d++)c.children[d].style.display=d===a?"block":"none";l=a;}var l=0,c=document.createElement("div");c.style.cssText="position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000";c.addEventListener("click",function(a){a.preventDefault();
-    u(++l%c.children.length);},!1);var k=(performance||Date).now(),g=k,a=0,r=e(new f.Panel("FPS","#0ff","#002")),h=e(new f.Panel("MS","#0f0","#020"));if(self.performance&&self.performance.memory)var t=e(new f.Panel("MB","#f08","#201"));u(0);return {REVISION:16,dom:c,addPanel:e,showPanel:u,begin:function(){k=(performance||Date).now();},end:function(){a++;var c=(performance||Date).now();h.update(c-k,200);if(c>g+1E3&&(r.update(1E3*a/(c-g),100),g=c,a=0,t)){var d=performance.memory;t.update(d.usedJSHeapSize/
-    1048576,d.jsHeapSizeLimit/1048576);}return c},update:function(){k=this.end();},domElement:c,setMode:u}};f.Panel=function(e,f,l){var c=Infinity,k=0,g=Math.round,a=g(window.devicePixelRatio||1),r=80*a,h=48*a,t=3*a,v=2*a,d=3*a,m=15*a,n=74*a,p=30*a,q=document.createElement("canvas");q.width=r;q.height=h;q.style.cssText="width:80px;height:48px";var b=q.getContext("2d");b.font="bold "+9*a+"px Helvetica,Arial,sans-serif";b.textBaseline="top";b.fillStyle=l;b.fillRect(0,0,r,h);b.fillStyle=f;b.fillText(e,t,v);
-    b.fillRect(d,m,n,p);b.fillStyle=l;b.globalAlpha=.9;b.fillRect(d,m,n,p);return {dom:q,update:function(h,w){c=Math.min(c,h);k=Math.max(k,h);b.fillStyle=l;b.globalAlpha=1;b.fillRect(0,0,r,m);b.fillStyle=f;b.fillText(g(h)+" "+e+" ("+g(c)+"-"+g(k)+")",t,v);b.drawImage(q,d+a,m,n-a,p,d,m,n-a,p);b.fillRect(d+n-a,m,a,p);b.fillStyle=l;b.globalAlpha=.9;b.fillRect(d+n-a,m,a,g((1-h/w)*p));}}};return f});
-    }(stats_min$1));
-
-    var stats_min = stats_min$1.exports;
-
-    var Stats = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.assign(/*#__PURE__*/Object.create(null), stats_min$1.exports, {
-        'default': stats_min
-    }));
-
     class IfcStats extends IfcComponent {
-        constructor(context) {
-            super(context);
+        initializeStats(Stats) {
             this.stats = new Stats();
             this.stats.showPanel(0);
         }
         update(_delta) {
-            this.stats.update();
+            if (this.stats) {
+                this.stats.update();
+            }
         }
         addStats(css = '') {
             if (css.length > 0)
@@ -103157,10 +103140,14 @@
          *     this.loader.addStats('position:fixed;top:6rem;right:0px;z-index:1;');
          * ```
          * @css The css text to control where to locate the stats.
+         * @stats The stats.js API object
          */
-        addStats(css = '') {
+        addStats(css = '', stats) {
+            var _a, _b;
+            // @ts-ignore
             this.stats = new IfcStats(this.context);
-            this.stats.addStats(css);
+            (_a = this.stats) === null || _a === void 0 ? void 0 : _a.initializeStats(stats);
+            (_b = this.stats) === null || _b === void 0 ? void 0 : _b.addStats(css);
         }
         /**
          * Opens a dropbox window where the user can select their IFC models.

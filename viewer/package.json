@@ -1,6 +1,6 @@
 {
   "name": "web-ifc-viewer",
-  "version": "1.0.98",
+  "version": "1.0.100",
   "description": "IFC viewer",
   "main": "dist/index.js",
   "scripts": {
@@ -28,11 +28,9 @@
   "homepage": "https://github.com/agviegas/web-ifc-viewer",
   "dependencies": {
     "@types/dat.gui": "^0.7.7",
-    "@types/stats.js": "^0.17.0",
     "dat.gui": "^0.7.7",
     "gsap": "^3.7.1",
     "postprocessing": "^6.23.1",
-    "stats.js": "^0.17.0",
     "three-mesh-bvh": "^0.4.1",
     "web-ifc": "^0.0.25",
     "web-ifc-three": "^0.0.75"

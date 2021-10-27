@@ -60,10 +60,13 @@ export class IfcViewerAPI {
    *     this.loader.addStats('position:fixed;top:6rem;right:0px;z-index:1;');
    * ```
    * @css The css text to control where to locate the stats.
+   * @stats The stats.js API object
    */
-  addStats(css = '') {
+  addStats(css = '', stats?: any) {
+    // @ts-ignore
     this.stats = new IfcStats(this.context);
-    this.stats.addStats(css);
+    this.stats?.initializeStats(stats);
+    this.stats?.addStats(css);
   }
 
   /**
