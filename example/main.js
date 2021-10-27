@@ -15,6 +15,7 @@ viewer.IFC.loader.ifcManager.applyWebIfcConfig({
 });
 viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
 
+
 //Setup loader
 const loadIfc = async (event) => {
   const overlay = document.getElementById("loading-overlay");

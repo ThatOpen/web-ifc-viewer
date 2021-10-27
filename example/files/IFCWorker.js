@@ -42058,6 +42058,7 @@ class Serializer {
 var WorkerActions;
 (function (WorkerActions) {
     WorkerActions["updateStateUseJson"] = "updateStateUseJson";
+    WorkerActions["updateStateWebIfcSettings"] = "updateStateWebIfcSettings";
     WorkerActions["updateModelStateTypes"] = "updateModelStateTypes";
     WorkerActions["updateModelStateJsonData"] = "updateModelStateJsonData";
     WorkerActions["loadJsonDataFromWorker"] = "loadJsonDataFromWorker";
@@ -80227,6 +80228,12 @@ class StateWorker {
         this.worker.state.useJSON = data.args.useJson;
         this.worker.post(data);
     }
+    updateStateWebIfcSettings(data) {
+        if (!this.worker.state)
+            throw new Error(ErrorRootStateNotAvailable);
+        this.worker.state.webIfcSettings = data.args.webIfcSettings;
+        this.worker.post(data);
+    }
     updateModelStateJsonData(data) {
         if (!this.worker.state)
             throw new Error(ErrorRootStateNotAvailable);
@@ -80262,26 +80269,6 @@ class StateWorker {
             this.worker.state.models[modelID] = { modelID, mesh: {}, items: {}, types: {}, jsonData: {} };
         }
         return this.worker.state.models[modelID];
-    }
-}
-
-class BvhManager {
-    initializeMeshBVH(computeBoundsTree, disposeBoundsTree, acceleratedRaycast) {
-        this.computeBoundsTree = computeBoundsTree;
-        this.disposeBoundsTree = disposeBoundsTree;
-        this.acceleratedRaycast = acceleratedRaycast;
-        this.setupThreeMeshBVH();
-    }
-    applyThreeMeshBVH(geometry) {
-        if (this.computeBoundsTree)
-            geometry.computeBoundsTree();
-    }
-    setupThreeMeshBVH() {
-        if (!this.computeBoundsTree || !this.disposeBoundsTree || !this.acceleratedRaycast)
-            return;
-        BufferGeometry.prototype.computeBoundsTree = this.computeBoundsTree;
-        BufferGeometry.prototype.disposeBoundsTree = this.disposeBoundsTree;
-        Mesh.prototype.raycast = this.acceleratedRaycast;
     }
 }
 
@@ -80331,7 +80318,8 @@ class IFCParser {
     }
     generateAllGeometriesByMaterial() {
         const { geometry, materials } = this.getGeometryAndMaterials();
-        this.BVH.applyThreeMeshBVH(geometry);
+        if (this.BVH)
+            this.BVH.applyThreeMeshBVH(geometry);
         const mesh = new IFCModel(geometry, materials);
         mesh.modelID = this.currentModelID;
         this.state.models[this.currentModelID].mesh = mesh;
@@ -80521,10 +80509,9 @@ class IndexedDatabase {
 }
 
 class ParserWorker {
-    constructor(worker, serializer, BVH, IDB) {
+    constructor(worker, serializer, IDB) {
         this.worker = worker;
         this.serializer = serializer;
-        this.BVH = BVH;
         this.IDB = IDB;
         this.API = WorkerAPIs.parser;
     }
@@ -80532,7 +80519,7 @@ class ParserWorker {
         if (!this.parser) {
             if (!this.worker.state)
                 throw new Error(ErrorRootStateNotAvailable);
-            this.parser = new IFCParser(this.worker.state, this.BVH);
+            this.parser = new IFCParser(this.worker.state);
         }
     }
     setupOptionalCategories(data) {
@@ -80601,11 +80588,10 @@ class IFCWorker {
     constructor() {
         this.serializer = new Serializer();
         this.IDB = new IndexedDatabase();
-        this.BVH = new BvhManager();
         this.workerState = new StateWorker(this);
         this.webIfc = new WebIfcWorker(this, this.serializer);
         this.properties = new PropertyWorker(this);
-        this.parser = new ParserWorker(this, this.serializer, this.BVH, this.IDB);
+        this.parser = new ParserWorker(this, this.serializer, this.IDB);
     }
     initializeAPI(api) {
         this.state = {

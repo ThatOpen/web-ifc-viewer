@@ -85615,7 +85615,8 @@
 
       generateAllGeometriesByMaterial() {
         const {geometry, materials} = this.getGeometryAndMaterials();
-        this.BVH.applyThreeMeshBVH(geometry);
+        if (this.BVH)
+          this.BVH.applyThreeMeshBVH(geometry);
         const mesh = new IFCModel(geometry, materials);
         mesh.modelID = this.currentModelID;
         this.state.models[this.currentModelID].mesh = mesh;
@@ -87479,6 +87480,7 @@
     var WorkerActions;
     (function(WorkerActions) {
       WorkerActions["updateStateUseJson"] = "updateStateUseJson";
+      WorkerActions["updateStateWebIfcSettings"] = "updateStateWebIfcSettings";
       WorkerActions["updateModelStateTypes"] = "updateModelStateTypes";
       WorkerActions["updateModelStateJsonData"] = "updateModelStateJsonData";
       WorkerActions["loadJsonDataFromWorker"] = "loadJsonDataFromWorker";
@@ -88083,28 +88085,35 @@
         this.state = this.handler.state;
       }
 
-      updateStateUseJson() {
+      async updateStateUseJson() {
         const useJson = this.state.useJSON;
         return this.handler.request(this.API, WorkerActions.updateStateUseJson, {
           useJson
         });
       }
 
-      updateModelStateTypes(modelID, types) {
+      async updateStateWebIfcSettings() {
+        const webIfcSettings = this.state.webIfcSettings;
+        return this.handler.request(this.API, WorkerActions.updateStateWebIfcSettings, {
+          webIfcSettings
+        });
+      }
+
+      async updateModelStateTypes(modelID, types) {
         return this.handler.request(this.API, WorkerActions.updateModelStateTypes, {
           modelID,
           types
         });
       }
 
-      updateModelStateJsonData(modelID, jsonData) {
+      async updateModelStateJsonData(modelID, jsonData) {
         return this.handler.request(this.API, WorkerActions.updateModelStateJsonData, {
           modelID,
           jsonData
         });
       }
 
-      loadJsonDataFromWorker(modelID, path) {
+      async loadJsonDataFromWorker(modelID, path) {
         return this.handler.request(this.API, WorkerActions.loadJsonDataFromWorker, {
           modelID,
           path
@@ -88369,12 +88378,15 @@
         return this.parser.getAndClearErrors(modelID);
       }
 
-      setWasmPath(path) {
+      async setWasmPath(path) {
         this.state.api.SetWasmPath(path);
       }
 
-      applyWebIfcConfig(settings) {
+      async applyWebIfcConfig(settings) {
         this.state.webIfcSettings = settings;
+        if (this.state.worker.active && this.worker) {
+          await this.worker.workerState.updateStateWebIfcSettings();
+        }
       }
 
       async useWebWorkers(active, path) {
@@ -88520,6 +88532,7 @@
         this.properties = this.worker.properties;
         this.parser = this.worker.parser;
         await this.worker.workerState.updateStateUseJson();
+        await this.worker.workerState.updateStateWebIfcSettings();
       }
 
     }
@@ -103263,6 +103276,7 @@
       USE_FAST_BOOLS: false
     });
     viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+
 
     //Setup loader
     const loadIfc = async (event) => {
