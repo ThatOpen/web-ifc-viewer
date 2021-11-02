@@ -85560,13 +85560,13 @@
         this.optionalCategories = config;
       }
 
-      async parse(buffer, translationMatrix) {
+      async parse(buffer, coordinationMatrix) {
         if (this.state.api.wasmModule === undefined)
           await this.state.api.Init();
         await this.newIfcModel(buffer);
         this.loadedModels++;
-        if (translationMatrix) {
-          await this.state.api.SetGeometryTransformation(this.currentWebIfcID, translationMatrix.toArray());
+        if (coordinationMatrix) {
+          await this.state.api.SetGeometryTransformation(this.currentWebIfcID, coordinationMatrix);
         }
         return this.loadAllGeometry();
       }
@@ -88195,7 +88195,7 @@
         });
       }
 
-      async parse(buffer) {
+      async parse(buffer, coordinationMatrix) {
         this.handler.onprogressHandlers[this.handler.requestID] = (progress) => {
           if (this.handler.state.onProgress)
             this.handler.state.onProgress(progress);
@@ -88206,7 +88206,8 @@
           return this.getModel();
         };
         return this.handler.request(this.API, WorkerActions.parse, {
-          buffer
+          buffer,
+          coordinationMatrix
         });
       }
 
@@ -88352,8 +88353,9 @@
         return this.state.api;
       }
 
-      async parse(buffer, translationMatrix) {
-        const model = await this.parser.parse(buffer, translationMatrix);
+      async parse(buffer) {
+        var _a;
+        const model = await this.parser.parse(buffer, (_a = this.state.coordinationMatrix) === null || _a === void 0 ? void 0 : _a.toArray());
         model.setIFCManager(this);
         this.state.useJSON ? await this.disposeMemory() : await this.types.getAllTypes(this.worker);
         this.hider.processCoordinates(model.modelID);
@@ -88370,6 +88372,14 @@
 
       setOnProgress(onProgress) {
         this.state.onProgress = onProgress;
+      }
+
+      setupCoordinationMatrix(matrix) {
+        this.state.coordinationMatrix = matrix;
+      }
+
+      clearCoordinationMatrix() {
+        delete this.state.coordinationMatrix;
       }
 
       async applyWebIfcConfig(settings) {
@@ -88530,7 +88540,7 @@
         this.ifcManager = new IFCManager();
       }
 
-      load(url, onLoad, onProgress, onError, translationMatrix) {
+      load(url, onLoad, onProgress, onError) {
         const scope = this;
         const loader = new FileLoader(scope.manager);
         this.onProgress = onProgress;
@@ -88543,7 +88553,7 @@
             if (typeof buffer == 'string') {
               throw new Error('IFC files must be given as a buffer!');
             }
-            onLoad(await scope.parse(buffer, translationMatrix));
+            onLoad(await scope.parse(buffer));
           } catch (e) {
             if (onError) {
               onError(e);
@@ -88555,8 +88565,8 @@
         }, onProgress, onError);
       }
 
-      parse(buffer, translationMatrix) {
-        return this.ifcManager.parse(buffer, translationMatrix);
+      parse(buffer) {
+        return this.ifcManager.parse(buffer);
       }
 
     }

@@ -80287,13 +80287,13 @@ class IFCParser {
     async setupOptionalCategories(config) {
         this.optionalCategories = config;
     }
-    async parse(buffer, translationMatrix) {
+    async parse(buffer, coordinationMatrix) {
         if (this.state.api.wasmModule === undefined)
             await this.state.api.Init();
         await this.newIfcModel(buffer);
         this.loadedModels++;
-        if (translationMatrix) {
-            await this.state.api.SetGeometryTransformation(this.currentWebIfcID, translationMatrix.toArray());
+        if (coordinationMatrix) {
+            await this.state.api.SetGeometryTransformation(this.currentWebIfcID, coordinationMatrix);
         }
         return this.loadAllGeometry();
     }
@@ -80549,7 +80549,7 @@ class ParserWorker {
     async getResponse(data) {
         if (!this.parser)
             throw new Error(ErrorParserNotAvailable);
-        const ifcModel = await this.parser.parse(data.args.buffer);
+        const ifcModel = await this.parser.parse(data.args.buffer, data.args.coordinationMatrix);
         const serializedIfcModel = this.serializer.serializeIfcModel(ifcModel);
         data.result = { modelID: ifcModel.modelID };
         const serializedItems = this.getSerializedItems(ifcModel);
