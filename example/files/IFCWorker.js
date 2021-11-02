@@ -80287,11 +80287,14 @@ class IFCParser {
     async setupOptionalCategories(config) {
         this.optionalCategories = config;
     }
-    async parse(buffer) {
+    async parse(buffer, translationMatrix) {
         if (this.state.api.wasmModule === undefined)
             await this.state.api.Init();
         await this.newIfcModel(buffer);
         this.loadedModels++;
+        if (translationMatrix) {
+            await this.state.api.SetGeometryTransformation(this.currentWebIfcID, translationMatrix.toArray());
+        }
         return this.loadAllGeometry();
     }
     getAndClearErrors(_modelId) {
@@ -80459,7 +80462,7 @@ var DBOperation;
     DBOperation[DBOperation["transferIndividualItems"] = 1] = "transferIndividualItems";
 })(DBOperation || (DBOperation = {}));
 class IndexedDatabase {
-    save(item, id) {
+    async save(item, id) {
         const open = IndexedDatabase.openOrCreateDB(id);
         this.createSchema(open, id);
         return new Promise((resolve, reject) => {

@@ -85560,11 +85560,14 @@
         this.optionalCategories = config;
       }
 
-      async parse(buffer) {
+      async parse(buffer, translationMatrix) {
         if (this.state.api.wasmModule === undefined)
           await this.state.api.Init();
         await this.newIfcModel(buffer);
         this.loadedModels++;
+        if (translationMatrix) {
+          await this.state.api.SetGeometryTransformation(this.currentWebIfcID, translationMatrix.toArray());
+        }
         return this.loadAllGeometry();
       }
 
@@ -88113,7 +88116,7 @@
 
     class IndexedDatabase {
 
-      save(item, id) {
+      async save(item, id) {
         const open = IndexedDatabase.openOrCreateDB(id);
         this.createSchema(open, id);
         return new Promise((resolve, reject) => {
@@ -88345,24 +88348,28 @@
         this.cleaner = new MemoryCleaner(this.state);
       }
 
-      async parse(buffer) {
-        const model = await this.parser.parse(buffer);
+      get ifcAPI() {
+        return this.state.api;
+      }
+
+      async parse(buffer, translationMatrix) {
+        const model = await this.parser.parse(buffer, translationMatrix);
         model.setIFCManager(this);
         this.state.useJSON ? await this.disposeMemory() : await this.types.getAllTypes(this.worker);
         this.hider.processCoordinates(model.modelID);
         return model;
       }
 
-      setOnProgress(onProgress) {
-        this.state.onProgress = onProgress;
-      }
-
-      getAndClearErrors(modelID) {
-        return this.parser.getAndClearErrors(modelID);
-      }
-
       async setWasmPath(path) {
         this.state.api.SetWasmPath(path);
+      }
+
+      setupThreeMeshBVH(computeBoundsTree, disposeBoundsTree, acceleratedRaycast) {
+        this.BVH.initializeMeshBVH(computeBoundsTree, disposeBoundsTree, acceleratedRaycast);
+      }
+
+      setOnProgress(onProgress) {
+        this.state.onProgress = onProgress;
       }
 
       async applyWebIfcConfig(settings) {
@@ -88412,20 +88419,6 @@
         if (this.state.worker.active) {
           await ((_a = this.worker) === null || _a === void 0 ? void 0 : _a.workerState.loadJsonDataFromWorker(modelID, path));
         }
-      }
-
-      async disposeMemory() {
-        var _a;
-        if (this.state.worker.active) {
-          await ((_a = this.worker) === null || _a === void 0 ? void 0 : _a.Close());
-        } else {
-          this.state.api = null;
-          this.state.api = new IfcAPI();
-        }
-      }
-
-      setupThreeMeshBVH(computeBoundsTree, disposeBoundsTree, acceleratedRaycast) {
-        this.BVH.initializeMeshBVH(computeBoundsTree, disposeBoundsTree, acceleratedRaycast);
       }
 
       close(modelID, scene) {
@@ -88496,10 +88489,6 @@
         this.hider.showAllItems(modelID);
       }
 
-      get ifcAPI() {
-        return this.state.api;
-      }
-
       releaseAllMemory() {
         this.subsets.dispose();
         this.hider.dispose();
@@ -88507,6 +88496,20 @@
         this.state.api = null;
         this.state.models = null;
         this.state = null;
+      }
+
+      async disposeMemory() {
+        var _a;
+        if (this.state.worker.active) {
+          await ((_a = this.worker) === null || _a === void 0 ? void 0 : _a.Close());
+        } else {
+          this.state.api = null;
+          this.state.api = new IfcAPI();
+        }
+      }
+
+      getAndClearErrors(modelID) {
+        return this.parser.getAndClearErrors(modelID);
       }
 
       async initializeWorkers() {
@@ -88527,7 +88530,7 @@
         this.ifcManager = new IFCManager();
       }
 
-      load(url, onLoad, onProgress, onError) {
+      load(url, onLoad, onProgress, onError, translationMatrix) {
         const scope = this;
         const loader = new FileLoader(scope.manager);
         this.onProgress = onProgress;
@@ -88540,7 +88543,7 @@
             if (typeof buffer == 'string') {
               throw new Error('IFC files must be given as a buffer!');
             }
-            onLoad(await scope.parse(buffer));
+            onLoad(await scope.parse(buffer, translationMatrix));
           } catch (e) {
             if (onError) {
               onError(e);
@@ -88552,8 +88555,8 @@
         }, onProgress, onError);
       }
 
-      parse(buffer) {
-        return this.ifcManager.parse(buffer);
+      parse(buffer, translationMatrix) {
+        return this.ifcManager.parse(buffer, translationMatrix);
       }
 
     }
