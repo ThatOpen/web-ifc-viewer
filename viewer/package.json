@@ -28,6 +28,7 @@
   "homepage": "https://github.com/agviegas/web-ifc-viewer",
   "dependencies": {
     "@types/dat.gui": "^0.7.7",
+    "camera-controls": "^1.33.1",
     "dat.gui": "^0.7.7",
     "gsap": "^3.7.1",
     "postprocessing": "^6.23.1",

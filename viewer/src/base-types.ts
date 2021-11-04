@@ -14,8 +14,8 @@ import {
 } from 'three';
 import { IfcMesh } from 'web-ifc-three/IFC/BaseDefinitions';
 import { Animator } from './components/context/animator';
-import { OrbitControl } from './components/context/camera/OrbitControl';
-import { FirstPersonControl } from './components/context/camera/FirstPersonControl';
+import { OrbitControl } from './components/context/camera/orbit-control';
+import { FirstPersonControl } from './components/context/camera/first-person-control';
 import { IfcCamera } from './components/context/camera/camera';
 import { LiteEvent } from './utils/LiteEvent';
 import { IfcEvents } from './components/context/ifcEvent';
@@ -103,11 +103,9 @@ export abstract class IfcComponent implements Component {
     context.addComponent(this);
   }
 
-  update(_delta: number) {
-  }
+  update(_delta: number) {}
 
-  dispose() {
-  }
+  dispose() {}
 }
 
 export interface fpsControl {

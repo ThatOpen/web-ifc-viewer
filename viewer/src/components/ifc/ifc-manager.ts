@@ -310,12 +310,14 @@ export class IfcManager extends IfcComponent {
   }
 
   private initializeDefMaterial(color: number, opacity: number) {
+    const planes = this.context.getClippingPlanes();
     return new MeshLambertMaterial({
       color,
       opacity,
       transparent: true,
       depthTest: false,
-      side: DoubleSide
+      side: DoubleSide,
+      clippingPlanes: planes
     });
   }
 }

@@ -9,8 +9,8 @@ import {
   NavModeManager
 } from '../../../base-types';
 import { LiteEvent } from '../../../utils/LiteEvent';
-import { FirstPersonControl } from './FirstPersonControl';
-import { OrbitControl } from './OrbitControl';
+import { FirstPersonControl } from './first-person-control';
+import { OrbitControl } from './orbit-control';
 
 const frustumSize = 50;
 
@@ -65,9 +65,9 @@ export class IfcCamera extends IfcComponent {
     });
   }
 
-  get target() {
+    get controls() {
     const orbitControls = this.navMode[NavigationModes.Orbit];
-    return orbitControls.target;
+    return orbitControls.cameraControls;
   }
 
   get activeCamera() {

@@ -1,5 +1,22 @@
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { Box3, Camera, MathUtils, Mesh, MOUSE, OrthographicCamera, PerspectiveCamera, Vector3 } from 'three';
+// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import {
+  Box3,
+  Camera,
+  MathUtils,
+  Matrix4,
+  Mesh,
+  MOUSE,
+  OrthographicCamera,
+  PerspectiveCamera,
+  Quaternion,
+  Raycaster,
+  Sphere,
+  Spherical,
+  Vector2,
+  Vector3,
+  Vector4
+} from 'three';
+import CameraControls from 'camera-controls';
 import {
   CameraProjections,
   Context,
@@ -10,15 +27,34 @@ import {
 } from '../../../base-types';
 import { LiteEvent } from '../../../utils/LiteEvent';
 
+const subsetOfTHREE = {
+  MOUSE,
+  Vector2,
+  Vector3,
+  Vector4,
+  Quaternion,
+  Matrix4,
+  Spherical,
+  Box3,
+  Sphere,
+  Raycaster,
+  MathUtils: {
+    DEG2RAD: MathUtils.DEG2RAD,
+    clamp: MathUtils.clamp
+  }
+};
+
 export class OrbitControl extends IfcComponent implements NavigationMode {
-  orbitControls: OrbitControls;
   enabled = true;
   currentCamera: Camera;
+
+  readonly cameraControls: CameraControls;
   readonly mode = NavigationModes.Orbit;
   readonly onChange = new LiteEvent();
   readonly onUnlock = new LiteEvent();
   readonly onChangeProjection = new LiteEvent<Camera>();
   private currentTarget = new Vector3();
+
   private startView = {
     target: new Vector3(),
     camera: new Vector3(20, 20, 20)
@@ -31,36 +67,50 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
   ) {
     super(context);
 
-    this.currentCamera = this.perspectiveCamera;
+    CameraControls.install({ THREE: subsetOfTHREE });
 
-    this.orbitControls = new OrbitControls(this.perspectiveCamera, context.getDomElement());
+    this.currentCamera = this.perspectiveCamera;
+    this.cameraControls = new CameraControls(perspectiveCamera, context.getDomElement());
+
+    // this.orbitControls = new OrbitControls(this.perspectiveCamera, context.getDomElement());
     // this.orbitControls.minDistance = 1;
     // this.orbitControls.maxDistance = 500;
     // this.orbitControls.minZoom = 1;
     // this.orbitControls.maxZoom = 500;
 
-    this.orbitControls.addEventListener('change', (event) => {
-      this.currentTarget.copy(this.orbitControls.target);
-      this.onChange.trigger(event);
-    });
+    // this.orbitControls.addEventListener('change', (event) => {
+    //   this.currentTarget.copy(this.orbitControls.target);
+    //   this.onChange.trigger(event);
+    // });
 
     this.setupOrbitControls();
   }
 
+  // get panningOnly() {
+  //   return !this.orbitControls.enableRotate;
+  // }
+  //
+  // set panningOnly(active: boolean) {
+  //   this.orbitControls.enableRotate = !active;
+  // }
+
   get activeCamera() {
-    return this.orbitControls.object;
+    // return this.orbitControls.object;
+    return this.cameraControls.camera;
   }
 
   get target() {
-    return this.orbitControls.target;
+    const target = new Vector3();
+    this.cameraControls.getTarget(target);
+    return target;
   }
 
   set minDistance(min: number) {
-    this.orbitControls.minDistance = min;
+    this.cameraControls.minDistance = min;
   }
 
   set maxDistance(max: number) {
-    this.orbitControls.maxDistance = max;
+    this.cameraControls.maxDistance = max;
   }
 
   set homeView({ camera, target }: { camera: Vector3; target: Vector3 }) {
@@ -101,29 +151,36 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
 
       this.orthographicCamera.position.copy(this.perspectiveCamera.position);
       this.orthographicCamera.quaternion.copy(this.perspectiveCamera.quaternion);
-      this.orbitControls.object = this.orthographicCamera;
+
+      this.cameraControls.camera = this.orthographicCamera;
+      this.cameraControls.mouseButtons.wheel = CameraControls.ACTION.ZOOM;
+
       this.currentCamera = this.orthographicCamera;
     } else {
       this.perspectiveCamera.position.copy(this.orthographicCamera.position);
       this.perspectiveCamera.quaternion.copy(this.orthographicCamera.quaternion);
       this.perspectiveCamera.updateProjectionMatrix();
-      this.orbitControls.object = this.perspectiveCamera;
+
+      this.cameraControls.camera = this.perspectiveCamera;
+      this.cameraControls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
+
       this.currentCamera = this.perspectiveCamera;
     }
   }
 
-  setOrbitControlsButtons(buttons: MouseButtons) {
-    this.orbitControls.mouseButtons = {
-      LEFT: buttons.left,
-      MIDDLE: buttons.middle,
-      RIGHT: buttons.right
-    };
+  setOrbitControlsButtons(_buttons: MouseButtons) {
+    // this.orbitControls.mouseButtons = {
+    //   LEFT: buttons.left,
+    //   MIDDLE: buttons.middle,
+    //   RIGHT: buttons.right
+    // };
   }
 
   update(_delta: number) {
-    if (this.enabled) {
-      this.orbitControls.update();
-    }
+    // if (this.enabled) {
+    //   this.orbitControls.update();
+    // }
+    this.cameraControls.update(_delta);
   }
 
   /**
@@ -153,32 +210,36 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
   toggle(active: boolean, options?: any) {
     const preventAdjustment = options !== undefined && options.preventOrbitAdjustment;
     if (active && !preventAdjustment) {
-      this.adjustTarget();
+      // this.adjustTarget();
     }
     this.enabled = active;
-    this.orbitControls.enabled = active;
+    this.cameraControls.enabled = active;
   }
 
-  targetItem = (mesh: Mesh, duration: number) => {
+  async targetItem(mesh: Mesh, duration: number) {
     const center = this.context.getCenter(mesh);
     const cameraEnd = new Vector3()
       .subVectors(this.perspectiveCamera.position, this.currentTarget)
       .add(center);
     this.context.getAnimator().move(this.perspectiveCamera.position, cameraEnd, duration);
-    this.context.getAnimator().move(this.orbitControls.target, center, duration);
-  };
+    // this.context.getAnimator().move(this.orbitControls.target, center, duration);
+    await this.cameraControls.setTarget(center.x, center.y, center.z);
+  }
 
-  goTo(position: Vector3, target: Vector3, duration: number) {
+  async goTo(position: Vector3, target: Vector3, duration: number) {
     this.context.getAnimator().move(this.currentCamera.position, position, duration);
-    this.context.getAnimator().move(this.orbitControls.target, target, duration);
+    // this.context.getAnimator().move(this.orbitControls.target, target, duration);
+    await this.cameraControls.setTarget(target.x, target.y, target.z);
   }
 
-  goToHomeView() {
+  async goToHomeView() {
     this.context.getAnimator().move(this.perspectiveCamera.position, this.startView.camera);
-    this.context.getAnimator().move(this.orbitControls.target, this.startView.target);
+    const target = this.startView.target;
+    await this.cameraControls.setTarget(target.x, target.y, target.z);
+    // this.context.getAnimator().move(this.orbitControls.target, this.startView.target);
   }
 
-  fitModelToFrame() {
+  async fitModelToFrame() {
     if (!this.enabled) return;
     const { boxCenter, distance } = this.getBoxCenterAndDistance();
     const direction = new Vector3()
@@ -187,7 +248,7 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
       .normalize();
     this.perspectiveCamera.position.copy(direction.multiplyScalar(distance).add(boxCenter));
     this.perspectiveCamera.updateProjectionMatrix();
-    this.orbitControls.target.set(boxCenter.x, boxCenter.y, boxCenter.z);
+    await this.cameraControls.setTarget(boxCenter.x, boxCenter.y, boxCenter.z);
   }
 
   private getBoxCenterAndDistance() {
@@ -202,25 +263,31 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
     return { boxCenter, distance };
   }
 
-  private adjustTarget() {
-    const cameraDir = new Vector3();
-    this.activeCamera.getWorldDirection(cameraDir);
-    cameraDir.multiplyScalar(20);
-    const center = new Vector3().addVectors(cameraDir, this.activeCamera.position);
-    this.orbitControls.target.set(center.x, center.y, center.z);
-  }
+  // private adjustTarget() {
+  //   const cameraDir = new Vector3();
+  //   this.activeCamera.getWorldDirection(cameraDir);
+  //   cameraDir.multiplyScalar(20);
+  //   const center = new Vector3().addVectors(cameraDir, this.activeCamera.position);
+  //   this.orbitControls.target.set(center.x, center.y, center.z);
+  // }
 
-  private setupOrbitControls() {
-    this.orbitControls.enableDamping = true;
-    this.orbitControls.dampingFactor *= 2;
-    this.orbitControls.target.set(0, 0, 0);
-    const panWithMMB = this.context.options.panWithMMB || true;
-    if (panWithMMB) {
-      this.orbitControls.mouseButtons = {
-        RIGHT: MOUSE.RIGHT,
-        MIDDLE: MOUSE.RIGHT,
-        LEFT: MOUSE.LEFT
-      };
-    }
+  private async setupOrbitControls() {
+    // this.orbitControls.enableDamping = true;
+    // this.orbitControls.dampingFactor *= 2;
+    // this.orbitControls.target.set(0, 0, 0);
+    // const panWithMMB = this.context.options.panWithMMB || true;
+    // if (panWithMMB) {
+    //   this.orbitControls.mouseButtons = {
+    //     RIGHT: MOUSE.RIGHT,
+    //     MIDDLE: MOUSE.RIGHT,
+    //     LEFT: MOUSE.LEFT
+    //   };
+    // }
+    this.cameraControls.dampingFactor *= 2;
+    this.cameraControls.dollyToCursor = true;
+    this.cameraControls.infinityDolly = true;
+    this.cameraControls.minDistance = 1;
+    this.cameraControls.truckSpeed *= 1.5;
+    await this.cameraControls.setTarget(0, 0, 0);
   }
 }
