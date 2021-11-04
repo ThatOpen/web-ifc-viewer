@@ -3,7 +3,7 @@ import {
   Color,
   ConeGeometry,
   Intersection,
-  LineBasicMaterial,
+  LineDashedMaterial,
   Mesh,
   MeshBasicMaterial,
   Vector3
@@ -23,7 +23,7 @@ export class IfcDimensions extends IfcComponent {
   private enabled = false;
   private preview = false;
   private dragging = false;
-  snapDistance = 5;
+  snapDistance = 0.25;
 
   // Measures
   private arrowHeight = 0.2;
@@ -31,11 +31,18 @@ export class IfcDimensions extends IfcComponent {
   private baseScale = new Vector3(1, 1, 1);
 
   // Geometries
-  private endpoint: BufferGeometry;
-  private previewElement: CSS2DObject;
+  private readonly endpoint: BufferGeometry;
+  private readonly previewElement: CSS2DObject;
 
   // Materials
-  private lineMaterial = new LineBasicMaterial({ color: 0x000000, linewidth: 2, depthTest: false });
+  private lineMaterial = new LineDashedMaterial({
+    color: 0x000000,
+    linewidth: 2,
+    depthTest: false,
+    dashSize: 0.2,
+    gapSize: 0.2
+  });
+
   private endpointsMaterial = new MeshBasicMaterial({ color: 0x000000, depthTest: false });
 
   // Temp variables
@@ -224,7 +231,7 @@ export class IfcDimensions extends IfcComponent {
       closestVertex = vertex;
       closestDistance = intersects.point.distanceTo(vertex);
     });
-    return vertexFound ? closestVertex : null;
+    return vertexFound ? closestVertex : intersects.point;
   }
 
   private getVertices(intersects: Intersection) {

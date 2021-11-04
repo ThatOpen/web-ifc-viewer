@@ -98608,6 +98608,7 @@
             this.textLabel.element.textContent = this.getTextContent();
             this.center = this.getCenter();
             this.textLabel.position.set(this.center.x, this.center.y, this.center.z);
+            this.line.computeLineDistances();
         }
         removeFromScene() {
             this.context.getScene().remove(this.root);
@@ -98689,13 +98690,19 @@
             this.enabled = false;
             this.preview = false;
             this.dragging = false;
-            this.snapDistance = 5;
+            this.snapDistance = 0.25;
             // Measures
             this.arrowHeight = 0.2;
             this.arrowRadius = 0.05;
             this.baseScale = new Vector3(1, 1, 1);
             // Materials
-            this.lineMaterial = new LineBasicMaterial({ color: 0x000000, linewidth: 2, depthTest: false });
+            this.lineMaterial = new LineDashedMaterial({
+                color: 0x000000,
+                linewidth: 2,
+                depthTest: false,
+                dashSize: 0.2,
+                gapSize: 0.2
+            });
             this.endpointsMaterial = new MeshBasicMaterial({ color: 0x000000, depthTest: false });
             // Temp variables
             this.startPoint = new Vector3();
@@ -98866,7 +98873,7 @@
                 closestVertex = vertex;
                 closestDistance = intersects.point.distanceTo(vertex);
             });
-            return vertexFound ? closestVertex : null;
+            return vertexFound ? closestVertex : intersects.point;
         }
         getVertices(intersects) {
             const mesh = intersects.object;
@@ -103277,7 +103284,6 @@
     });
     viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
 
-
     //Setup loader
     const loadIfc = async (event) => {
       const overlay = document.getElementById("loading-overlay");
@@ -103360,9 +103366,12 @@
     inputElement.addEventListener('change', loadIfc, false);
     document.body.appendChild(inputElement);
 
+    viewer.dimensions.previewActive = true;
+
     const handleKeyDown = (event) => {
       if (event.code === 'Delete') {
         viewer.removeClippingPlane();
+        viewer.dimensions.delete();
       }
       // if(event.code === "KeyO") {
       //   viewer.context.getIfcCamera().toggleProjection();

@@ -15,7 +15,6 @@ viewer.IFC.loader.ifcManager.applyWebIfcConfig({
 });
 viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
 
-
 //Setup loader
 const loadIfc = async (event) => {
   const overlay = document.getElementById("loading-overlay");
@@ -98,9 +97,12 @@ inputElement.classList.add('hidden');
 inputElement.addEventListener('change', loadIfc, false);
 document.body.appendChild(inputElement);
 
+viewer.dimensions.previewActive = true;
+
 const handleKeyDown = (event) => {
   if (event.code === 'Delete') {
     viewer.removeClippingPlane();
+    viewer.dimensions.delete()
   }
   // if(event.code === "KeyO") {
   //   viewer.context.getIfcCamera().toggleProjection();

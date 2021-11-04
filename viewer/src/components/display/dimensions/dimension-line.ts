@@ -126,6 +126,7 @@ export class IfcDimensionLine {
     this.textLabel.element.textContent = this.getTextContent();
     this.center = this.getCenter();
     this.textLabel.position.set(this.center.x, this.center.y, this.center.z);
+    this.line.computeLineDistances();
   }
 
   removeFromScene() {
