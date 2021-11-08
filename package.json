@@ -1,13 +1,13 @@
 {
   "name": "web-ifc-viewer-root",
   "description": "IFC viewer",
-  "version": "1.0.102",
+  "version": "1.0.103",
   "private": true,
   "author": "agviegas",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/agviegas/web-ifc-viewer.git"
+    "url": "git+https://github.com/ifcjs/web-ifc-viewer.git"
   },
   "scripts": {
     "init-repo": "yarn && npm run build",
