@@ -1,9 +1,25 @@
-import { Camera, Mesh, OrthographicCamera, PerspectiveCamera, Vector3 } from 'three';
+import {
+  Box3,
+  Camera,
+  MathUtils,
+  Matrix4,
+  Mesh,
+  MOUSE,
+  OrthographicCamera,
+  PerspectiveCamera,
+  Quaternion,
+  Raycaster,
+  Sphere,
+  Spherical,
+  Vector2,
+  Vector3,
+  Vector4
+} from 'three';
+import CameraControls from 'camera-controls';
 import {
   CameraProjections,
   Context,
   IfcComponent,
-  MouseButtons,
   NavigationMode,
   NavigationModes,
   NavModeManager
@@ -11,19 +27,39 @@ import {
 import { LiteEvent } from '../../../utils/LiteEvent';
 import { FirstPersonControl } from './first-person-control';
 import { OrbitControl } from './orbit-control';
+import { ProjectionManager } from './projection-manager';
+
+const subsetOfTHREE = {
+  MOUSE,
+  Vector2,
+  Vector3,
+  Vector4,
+  Quaternion,
+  Matrix4,
+  Spherical,
+  Box3,
+  Sphere,
+  Raycaster,
+  MathUtils: {
+    DEG2RAD: MathUtils.DEG2RAD,
+    clamp: MathUtils.clamp
+  }
+};
 
 const frustumSize = 50;
 
 export class IfcCamera extends IfcComponent {
-  perspectiveCamera: PerspectiveCamera;
-  orthographicCamera: OrthographicCamera;
+  readonly perspectiveCamera: PerspectiveCamera;
+  readonly orthographicCamera: OrthographicCamera;
+  readonly cameraControls: CameraControls;
 
   navMode: NavModeManager;
   currentNavMode: NavigationMode;
+
   public readonly onChange = new LiteEvent<any>();
-  public readonly onUnlock = new LiteEvent<any>();
   public readonly onChangeProjection = new LiteEvent<Camera>();
   private readonly context: Context;
+  private readonly projectionManager: ProjectionManager;
 
   constructor(context: Context) {
     super(context);
@@ -32,6 +68,7 @@ export class IfcCamera extends IfcComponent {
     const dims = this.context.getDimensions();
     const aspect = dims.x / dims.y;
     this.perspectiveCamera = new PerspectiveCamera(45, aspect, 0.1, 1000);
+
     this.orthographicCamera = new OrthographicCamera(
       (frustumSize * aspect) / -2,
       (frustumSize * aspect) / 2,
@@ -40,19 +77,14 @@ export class IfcCamera extends IfcComponent {
       0.1,
       1000
     );
-    this.setupCamera();
+    this.setupCameras();
+
+    CameraControls.install({ THREE: subsetOfTHREE });
+    this.cameraControls = new CameraControls(this.perspectiveCamera, context.getDomElement());
 
     this.navMode = {
-      [NavigationModes.Orbit]: new OrbitControl(
-        this.context,
-        this.perspectiveCamera,
-        this.orthographicCamera
-      ),
-      [NavigationModes.FirstPerson]: new FirstPersonControl(
-        this.context,
-        this.perspectiveCamera,
-        this
-      )
+      [NavigationModes.Orbit]: new OrbitControl(this.context, this),
+      [NavigationModes.FirstPerson]: new FirstPersonControl(this.context, this)
     };
 
     this.currentNavMode = this.navMode[NavigationModes.Orbit];
@@ -60,42 +92,42 @@ export class IfcCamera extends IfcComponent {
 
     Object.values(this.navMode).forEach((mode) => {
       mode.onChange.on(this.onChange.trigger);
-      mode.onUnlock.on(this.onUnlock.trigger);
       mode.onChangeProjection.on(this.onChangeProjection.trigger);
     });
-  }
 
-    get controls() {
-    const orbitControls = this.navMode[NavigationModes.Orbit];
-    return orbitControls.cameraControls;
-  }
-
-  get activeCamera() {
-    return this.currentNavMode.mode === NavigationModes.FirstPerson
-      ? this.perspectiveCamera
-      : this.navMode[NavigationModes.Orbit].activeCamera;
+    this.projectionManager = new ProjectionManager(context, this);
+    this.setupControls();
   }
 
   get projection() {
-    return this.navMode[NavigationModes.Orbit].projection;
+    return this.projectionManager.projection;
   }
 
   set projection(projection: CameraProjections) {
-    this.navMode[NavigationModes.Orbit].projection = projection;
+    this.projectionManager.projection = projection;
+  }
+
+  /**
+   * @deprecated Use cameraControls instead.
+   */
+  get controls() {
+    return this.cameraControls;
+  }
+
+  get activeCamera() {
+    return this.projectionManager.activeCamera;
+  }
+
+  update(_delta: number) {
+    super.update(_delta);
+    this.cameraControls.update(_delta);
   }
 
   updateAspect() {
     const dims = this.context.getDimensions();
-    const aspect = dims.x / dims.y;
-
     this.perspectiveCamera.aspect = dims.x / dims.y;
     this.perspectiveCamera.updateProjectionMatrix();
-
-    this.orthographicCamera.left = (-frustumSize * aspect) / 2;
-    this.orthographicCamera.right = (frustumSize * aspect) / 2;
-    this.orthographicCamera.top = frustumSize / 2;
-    this.orthographicCamera.bottom = -frustumSize / 2;
-    this.orthographicCamera.updateProjectionMatrix();
+    this.setOrthoCameraAspect(dims);
   }
 
   /**
@@ -105,22 +137,11 @@ export class IfcCamera extends IfcComponent {
     this.onChange.on(action);
   }
 
-  /**
-   * @deprecated Use onUnlock.on() instead.
-   */
-  submitOnUnlock(action: (event: any) => void) {
-    this.onUnlock.on(action);
-  }
-
   setNavigationMode(mode: NavigationModes) {
+    if (this.currentNavMode.mode === mode) return;
     this.currentNavMode.toggle(false);
     this.currentNavMode = this.navMode[mode];
     this.currentNavMode.toggle(true);
-  }
-
-  setOrbitControlsButtons(buttons: MouseButtons) {
-    const orbitControls = this.setOrbitControls();
-    orbitControls.setOrbitControlsButtons(buttons);
   }
 
   toggleCameraControls(active: boolean, options?: any) {
@@ -128,48 +149,46 @@ export class IfcCamera extends IfcComponent {
   }
 
   toggleProjection() {
-    this.navMode[NavigationModes.Orbit].toggleProjection();
+    const isOrto = this.projection === CameraProjections.Orthographic;
+    this.projection = isOrto ? CameraProjections.Perspective : CameraProjections.Orthographic;
+    this.onChangeProjection.trigger(this.activeCamera);
   }
 
-  targetItem(mesh: Mesh, duration = 1) {
-    const orbitControls = this.setOrbitControls();
-    orbitControls.targetItem(mesh, duration);
+  async targetItem(mesh: Mesh) {
+    const center = this.context.getCenter(mesh);
+    await this.cameraControls.moveTo(center.x, center.y, center.z, true);
   }
 
-  goTo(position: Vector3, target: Vector3, duration = 0) {
-    const orbitControls = this.setOrbitControls();
-    orbitControls.goTo(position, target, duration);
+  private setOrthoCameraAspect(dims: Vector2) {
+    const aspect = dims.x / dims.y;
+    this.orthographicCamera.left = (-frustumSize * aspect) / 2;
+    this.orthographicCamera.right = (frustumSize * aspect) / 2;
+    this.orthographicCamera.top = frustumSize / 2;
+    this.orthographicCamera.bottom = -frustumSize / 2;
+    this.orthographicCamera.updateProjectionMatrix();
   }
 
-  goToHomeView() {
-    const orbitControls = this.setOrbitControls();
-    orbitControls.goToHomeView();
+  // private setOrbitControls() {
+  //   this.setNavigationMode(NavigationModes.Orbit);
+  //   return this.currentNavMode as OrbitControl;
+  // }
+
+  private setupCameras() {
+    this.setCameraPositionAndTarget(this.perspectiveCamera);
+    this.setCameraPositionAndTarget(this.perspectiveCamera);
   }
 
-  setHomeView(camera: Vector3, target: Vector3) {
-    const orbitControls = this.navMode[NavigationModes.Orbit];
-    orbitControls.homeView = { camera, target };
+  private setCameraPositionAndTarget(camera: Camera) {
+    camera.position.z = 10;
+    camera.position.y = 10;
+    camera.position.x = 10;
+    camera.lookAt(new Vector3(0, 0, 0));
   }
 
-  unlock() {
-    const firstPerson = this.navMode[NavigationModes.FirstPerson];
-    firstPerson.controls.unlock();
-  }
-
-  private setOrbitControls() {
-    this.setNavigationMode(NavigationModes.Orbit);
-    return this.currentNavMode as OrbitControl;
-  }
-
-  private setupCamera() {
-    this.perspectiveCamera.position.z = 10;
-    this.perspectiveCamera.position.y = 10;
-    this.perspectiveCamera.position.x = 10;
-    this.perspectiveCamera.lookAt(new Vector3(0, 0, 0));
-
-    this.orthographicCamera.position.z = 10;
-    this.orthographicCamera.position.y = 10;
-    this.orthographicCamera.position.x = 10;
-    this.orthographicCamera.lookAt(new Vector3(0, 0, 0));
+  private setupControls() {
+    this.cameraControls.dampingFactor = 0.1;
+    this.cameraControls.dollyToCursor = true;
+    this.cameraControls.infinityDolly = true;
+    this.cameraControls.setTarget(0, 0, 0);
   }
 }

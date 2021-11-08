@@ -41,9 +41,7 @@ export interface NavigationMode {
   mode: NavigationModes;
   toggle: (active: boolean, options?: any) => void;
   enabled: boolean;
-  projection: CameraProjections;
   onChange: LiteEvent<any>;
-  onUnlock: LiteEvent<any>;
   onChangeProjection: LiteEvent<Camera>;
 }
 
@@ -57,7 +55,6 @@ export interface ViewerOptions {
   preselectMaterial?: Material;
   selectMaterial?: Material;
   backgroundColor?: Color;
-  panWithMMB?: boolean;
 }
 
 interface Component {

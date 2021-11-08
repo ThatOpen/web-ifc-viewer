@@ -20,7 +20,7 @@ export class IfcSelection extends IfcComponent {
     this.modelID = -1;
   }
 
-  pick = async (item: Intersection, focusSelection = false, duration?: number) => {
+  pick = async (item: Intersection, focusSelection = false) => {
     if (this.selected === item.faceIndex || item.faceIndex == null) return null;
     this.selected = item.faceIndex;
     const mesh = item.object as IfcMesh;
@@ -29,7 +29,7 @@ export class IfcSelection extends IfcComponent {
     this.removeSelectionOfOtherModel(mesh);
     this.modelID = mesh.modelID;
     this.newSelection([id]);
-    if (focusSelection) this.focusSelection(duration);
+    if (focusSelection) this.focusSelection();
     return { modelID: this.modelID, id };
   };
 
@@ -38,10 +38,10 @@ export class IfcSelection extends IfcComponent {
     this.loader.ifcManager.removeSubset(this.modelID, this.scene, this.material);
   }
 
-  pickByID = (modelID: number, ids: number[], focusSelection = false, duration?: number) => {
+  pickByID = (modelID: number, ids: number[], focusSelection = false) => {
     this.modelID = modelID;
     this.newSelection(ids);
-    if (focusSelection) this.focusSelection(duration);
+    if (focusSelection) this.focusSelection();
   };
 
   newSelection = (ids: number[]) => {
@@ -63,9 +63,9 @@ export class IfcSelection extends IfcComponent {
     }
   }
 
-  private focusSelection(duration?: number) {
+  private focusSelection() {
     if (this.mesh) {
-      this.context.ifcCamera.targetItem(this.mesh, duration);
+      this.context.ifcCamera.targetItem(this.mesh);
     }
   }
 }

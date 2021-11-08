@@ -159,12 +159,11 @@ export class IfcManager extends IfcComponent {
   /**
    * Highlights the item pointed by the cursor and gets is properties.
    * @focusSelection If true, animate the perspectiveCamera to focus the current selection
-   * @duration The length of the perspectiveCamera animation in seconds
    */
-  pickIfcItem = async (focusSelection = false, duration?: number) => {
+  pickIfcItem = async (focusSelection = false) => {
     const found = this.context.castRayIfc();
     if (!found) return null;
-    const result = await this.selection.pick(found, focusSelection, duration);
+    const result = await this.selection.pick(found, focusSelection);
     if (result == null || result.modelID == null || result.id == null) return null;
     return result;
   };
@@ -172,12 +171,11 @@ export class IfcManager extends IfcComponent {
   /**
    * Highlights the item pointed by the cursor and gets is properties, without applying any material to it.
    * @focusSelection If true, animate the perspectiveCamera to focus the current selection
-   * @duration The length of the perspectiveCamera animation in seconds
    */
-  highlightIfcItem = async (focusSelection = false, duration?: number) => {
+  highlightIfcItem = async (focusSelection = false) => {
     const found = this.context.castRayIfc();
     if (!found) return null;
-    const result = await this.highlight.pick(found, focusSelection, duration);
+    const result = await this.highlight.pick(found, focusSelection);
     if (result == null || result.modelID == null || result.id == null) return null;
     return result;
   };
@@ -190,28 +188,25 @@ export class IfcManager extends IfcComponent {
   pickIfcItemsByID = (
     modelID: number,
     ids: number[],
-    focusSelection = false,
-    duration?: number
+    focusSelection = false
   ) => {
-    this.selection.pickByID(modelID, ids, focusSelection, duration);
+    this.selection.pickByID(modelID, ids, focusSelection);
   };
 
   prepickIfcItemsByID = (
     modelID: number,
     ids: number[],
-    focusSelection = false,
-    duration?: number
+    focusSelection = false
   ) => {
-    this.preselection.pickByID(modelID, ids, focusSelection, duration);
+    this.preselection.pickByID(modelID, ids, focusSelection);
   };
 
   highlightIfcItemsByID = (
     modelID: number,
     ids: number[],
-    focusSelection = false,
-    duration?: number
+    focusSelection = false
   ) => {
-    this.highlight.pickByID(modelID, ids, focusSelection, duration);
+    this.highlight.pickByID(modelID, ids, focusSelection);
   };
 
   unpickIfcItems = () => {

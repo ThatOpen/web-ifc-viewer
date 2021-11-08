@@ -43705,7 +43705,7 @@
     	Z: new Vector3( 0, 0, 1 )
     };
 
-    const _changeEvent$1 = { type: 'change' };
+    const _changeEvent = { type: 'change' };
     const _mouseDownEvent = { type: 'mouseDown' };
     const _mouseUpEvent = { type: 'mouseUp', mode: null };
     const _objectChangeEvent = { type: 'objectChange' };
@@ -43759,7 +43759,7 @@
     						_gizmo[ propName ] = value;
 
     						scope.dispatchEvent( { type: propName + '-changed', value: value } );
-    						scope.dispatchEvent( _changeEvent$1 );
+    						scope.dispatchEvent( _changeEvent );
 
     					}
 
@@ -44202,7 +44202,7 @@
 
     		}
 
-    		this.dispatchEvent( _changeEvent$1 );
+    		this.dispatchEvent( _changeEvent );
     		this.dispatchEvent( _objectChangeEvent );
 
     	}
@@ -88560,7 +88560,7 @@
             super(context);
             this.context = context;
             this.mesh = null;
-            this.pick = async (item, focusSelection = false, duration) => {
+            this.pick = async (item, focusSelection = false) => {
                 if (this.selected === item.faceIndex || item.faceIndex == null)
                     return null;
                 this.selected = item.faceIndex;
@@ -88572,14 +88572,14 @@
                 this.modelID = mesh.modelID;
                 this.newSelection([id]);
                 if (focusSelection)
-                    this.focusSelection(duration);
+                    this.focusSelection();
                 return { modelID: this.modelID, id };
             };
-            this.pickByID = (modelID, ids, focusSelection = false, duration) => {
+            this.pickByID = (modelID, ids, focusSelection = false) => {
                 this.modelID = modelID;
                 this.newSelection(ids);
                 if (focusSelection)
-                    this.focusSelection(duration);
+                    this.focusSelection();
             };
             this.newSelection = (ids) => {
                 const mesh = this.loader.ifcManager.createSubset({
@@ -88608,9 +88608,9 @@
                 this.loader.ifcManager.removeSubset(this.modelID, this.scene, this.material);
             }
         }
-        focusSelection(duration) {
+        focusSelection() {
             if (this.mesh) {
-                this.context.ifcCamera.targetItem(this.mesh, duration);
+                this.context.ifcCamera.targetItem(this.mesh);
             }
         }
     }
@@ -88705,13 +88705,12 @@
             /**
              * Highlights the item pointed by the cursor and gets is properties.
              * @focusSelection If true, animate the perspectiveCamera to focus the current selection
-             * @duration The length of the perspectiveCamera animation in seconds
              */
-            this.pickIfcItem = async (focusSelection = false, duration) => {
+            this.pickIfcItem = async (focusSelection = false) => {
                 const found = this.context.castRayIfc();
                 if (!found)
                     return null;
-                const result = await this.selection.pick(found, focusSelection, duration);
+                const result = await this.selection.pick(found, focusSelection);
                 if (result == null || result.modelID == null || result.id == null)
                     return null;
                 return result;
@@ -88719,13 +88718,12 @@
             /**
              * Highlights the item pointed by the cursor and gets is properties, without applying any material to it.
              * @focusSelection If true, animate the perspectiveCamera to focus the current selection
-             * @duration The length of the perspectiveCamera animation in seconds
              */
-            this.highlightIfcItem = async (focusSelection = false, duration) => {
+            this.highlightIfcItem = async (focusSelection = false) => {
                 const found = this.context.castRayIfc();
                 if (!found)
                     return null;
-                const result = await this.highlight.pick(found, focusSelection, duration);
+                const result = await this.highlight.pick(found, focusSelection);
                 if (result == null || result.modelID == null || result.id == null)
                     return null;
                 return result;
@@ -88735,14 +88733,14 @@
              * @modelID ID of the IFC model.
              * @id Express ID of the item.
              */
-            this.pickIfcItemsByID = (modelID, ids, focusSelection = false, duration) => {
-                this.selection.pickByID(modelID, ids, focusSelection, duration);
+            this.pickIfcItemsByID = (modelID, ids, focusSelection = false) => {
+                this.selection.pickByID(modelID, ids, focusSelection);
             };
-            this.prepickIfcItemsByID = (modelID, ids, focusSelection = false, duration) => {
-                this.preselection.pickByID(modelID, ids, focusSelection, duration);
+            this.prepickIfcItemsByID = (modelID, ids, focusSelection = false) => {
+                this.preselection.pickByID(modelID, ids, focusSelection);
             };
-            this.highlightIfcItemsByID = (modelID, ids, focusSelection = false, duration) => {
-                this.highlight.pickByID(modelID, ids, focusSelection, duration);
+            this.highlightIfcItemsByID = (modelID, ids, focusSelection = false) => {
+                this.highlight.pickByID(modelID, ids, focusSelection);
             };
             this.unpickIfcItems = () => {
                 this.selection.unpick();
@@ -89009,334 +89007,6 @@
             script.id = 'dropboxjs';
             script.setAttribute('data-app-key', 'iej3z16hhyca35a');
             document.getElementsByTagName('head')[0].appendChild(script);
-        }
-    }
-
-    // -------------------------------------------------------------------------------------------
-    // Credit to Jason Kleban: https://gist.github.com/JasonKleban/50cee44960c225ac1993c922563aa540
-    // -------------------------------------------------------------------------------------------
-    class LiteEvent {
-        constructor() {
-            this.handlers = [];
-            this.trigger = ((data) => {
-                // @ts-ignore
-                this.handlers.slice(0).forEach((h) => h(data));
-            });
-        }
-        on(handler) {
-            this.handlers.push(handler);
-        }
-        off(handler) {
-            this.handlers = this.handlers.filter((h) => h !== handler);
-        }
-        expose() {
-            return this;
-        }
-    }
-
-    const _euler = new Euler( 0, 0, 0, 'YXZ' );
-    const _vector$1 = new Vector3();
-
-    const _changeEvent = { type: 'change' };
-    const _lockEvent = { type: 'lock' };
-    const _unlockEvent = { type: 'unlock' };
-
-    const _PI_2 = Math.PI / 2;
-
-    class PointerLockControls extends EventDispatcher$1 {
-
-    	constructor( camera, domElement ) {
-
-    		super();
-
-    		if ( domElement === undefined ) {
-
-    			console.warn( 'THREE.PointerLockControls: The second parameter "domElement" is now mandatory.' );
-    			domElement = document.body;
-
-    		}
-
-    		this.domElement = domElement;
-    		this.isLocked = false;
-
-    		// Set to constrain the pitch of the camera
-    		// Range is 0 to Math.PI radians
-    		this.minPolarAngle = 0; // radians
-    		this.maxPolarAngle = Math.PI; // radians
-
-    		const scope = this;
-
-    		function onMouseMove( event ) {
-
-    			if ( scope.isLocked === false ) return;
-
-    			const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
-    			const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
-
-    			_euler.setFromQuaternion( camera.quaternion );
-
-    			_euler.y -= movementX * 0.002;
-    			_euler.x -= movementY * 0.002;
-
-    			_euler.x = Math.max( _PI_2 - scope.maxPolarAngle, Math.min( _PI_2 - scope.minPolarAngle, _euler.x ) );
-
-    			camera.quaternion.setFromEuler( _euler );
-
-    			scope.dispatchEvent( _changeEvent );
-
-    		}
-
-    		function onPointerlockChange() {
-
-    			if ( scope.domElement.ownerDocument.pointerLockElement === scope.domElement ) {
-
-    				scope.dispatchEvent( _lockEvent );
-
-    				scope.isLocked = true;
-
-    			} else {
-
-    				scope.dispatchEvent( _unlockEvent );
-
-    				scope.isLocked = false;
-
-    			}
-
-    		}
-
-    		function onPointerlockError() {
-
-    			console.error( 'THREE.PointerLockControls: Unable to use Pointer Lock API' );
-
-    		}
-
-    		this.connect = function () {
-
-    			scope.domElement.ownerDocument.addEventListener( 'mousemove', onMouseMove );
-    			scope.domElement.ownerDocument.addEventListener( 'pointerlockchange', onPointerlockChange );
-    			scope.domElement.ownerDocument.addEventListener( 'pointerlockerror', onPointerlockError );
-
-    		};
-
-    		this.disconnect = function () {
-
-    			scope.domElement.ownerDocument.removeEventListener( 'mousemove', onMouseMove );
-    			scope.domElement.ownerDocument.removeEventListener( 'pointerlockchange', onPointerlockChange );
-    			scope.domElement.ownerDocument.removeEventListener( 'pointerlockerror', onPointerlockError );
-
-    		};
-
-    		this.dispose = function () {
-
-    			this.disconnect();
-
-    		};
-
-    		this.getObject = function () { // retaining this method for backward compatibility
-
-    			return camera;
-
-    		};
-
-    		this.getDirection = function () {
-
-    			const direction = new Vector3( 0, 0, - 1 );
-
-    			return function ( v ) {
-
-    				return v.copy( direction ).applyQuaternion( camera.quaternion );
-
-    			};
-
-    		}();
-
-    		this.moveForward = function ( distance ) {
-
-    			// move forward parallel to the xz-plane
-    			// assumes camera.up is y-up
-
-    			_vector$1.setFromMatrixColumn( camera.matrix, 0 );
-
-    			_vector$1.crossVectors( camera.up, _vector$1 );
-
-    			camera.position.addScaledVector( _vector$1, distance );
-
-    		};
-
-    		this.moveRight = function ( distance ) {
-
-    			_vector$1.setFromMatrixColumn( camera.matrix, 0 );
-
-    			camera.position.addScaledVector( _vector$1, distance );
-
-    		};
-
-    		this.lock = function () {
-
-    			this.domElement.requestPointerLock();
-
-    		};
-
-    		this.unlock = function () {
-
-    			scope.domElement.ownerDocument.exitPointerLock();
-
-    		};
-
-    		this.connect();
-
-    	}
-
-    }
-
-    class FirstPersonControl extends IfcComponent {
-        constructor(context, camera, ifcCamera) {
-            super(context);
-            this.enabled = false;
-            this.mode = NavigationModes.FirstPerson;
-            this.onChange = new LiteEvent();
-            this.onUnlock = new LiteEvent();
-            this.onChangeProjection = new LiteEvent();
-            this.prevTime = performance.now();
-            this.velocity = new Vector3();
-            this.direction = new Vector3();
-            this.speed = 200;
-            this.keyBinding = {
-                forward: {
-                    active: false,
-                    keys: ['KeyW', 'ArrowUp']
-                },
-                back: {
-                    active: false,
-                    keys: ['KeyS', 'ArrowDown']
-                },
-                right: {
-                    active: false,
-                    keys: ['KeyD', 'ArrowRight']
-                },
-                left: {
-                    active: false,
-                    keys: ['KeyA', 'ArrowLeft']
-                },
-                up: {
-                    active: false,
-                    keys: ['KeyR']
-                },
-                down: {
-                    active: false,
-                    keys: ['KeyF']
-                }
-            };
-            this.controlsMap = {
-                [dimension.z]: [this.keyBinding.forward, this.keyBinding.back],
-                [dimension.x]: [this.keyBinding.right, this.keyBinding.left],
-                [dimension.y]: [this.keyBinding.up, this.keyBinding.down]
-            };
-            this.dimensions = [dimension.x, dimension.y, dimension.z];
-            this.onKeyDown = (event) => {
-                const found = this.getControl(event);
-                if (found)
-                    found.active = true;
-            };
-            this.onKeyUp = (event) => {
-                const found = this.getControl(event);
-                if (found)
-                    found.active = false;
-            };
-            this.ifcCamera = ifcCamera;
-            this.controls = new PointerLockControls(camera, context.getDomElement());
-            this.controls.addEventListener('unlock', (event) => {
-                ifcCamera.setNavigationMode(NavigationModes.Orbit);
-                this.onUnlock.trigger(event);
-            });
-            this.controls.addEventListener('change', (event) => {
-                this.onChange.trigger(event);
-            });
-            context.getScene().add(this.controls.getObject());
-        }
-        get projection() {
-            return CameraProjections.Perspective;
-        }
-        toggle(active) {
-            if (active && this.ifcCamera.projection === CameraProjections.Orthographic) {
-                this.ifcCamera.toggleProjection();
-            }
-            this.enabled = active;
-            if (active)
-                this.enable();
-            else
-                this.disable();
-        }
-        update(_delta) {
-            if (this.enabled && this.controls.isLocked) {
-                const currentTime = performance.now();
-                const delta = (currentTime - this.prevTime) / 1000;
-                this.move(delta);
-                this.prevTime = currentTime;
-            }
-        }
-        /**
-         * @deprecated Use onChange.on() instead.
-         */
-        submitOnChange(action) {
-            this.onChange.on(action);
-        }
-        /**
-         * @deprecated Use onChange.on() instead.
-         */
-        submitOnUnlock(action) {
-            this.onUnlock.on(action);
-        }
-        enable() {
-            if (!this.controls.isLocked)
-                this.controls.lock();
-            document.addEventListener('keydown', this.onKeyDown);
-            document.addEventListener('keyup', this.onKeyUp);
-        }
-        disable() {
-            if (this.controls.isLocked)
-                this.controls.unlock();
-            document.removeEventListener('keydown', this.onKeyDown);
-            document.removeEventListener('keyup', this.onKeyUp);
-        }
-        move(delta) {
-            this.applySmoothDeceleration(delta);
-            this.updateDirections();
-            this.updateVelocity(delta);
-            this.moveCamera(delta);
-        }
-        applySmoothDeceleration(delta) {
-            this.dimensions.forEach((dim) => {
-                this.velocity[dim] -= this.velocity[dim] * 10.0 * delta;
-            });
-        }
-        updateDirections() {
-            this.dimensions.forEach((dim) => this.updateDirection(dim));
-            this.direction.normalize(); // this ensures consistent movements in all directions
-        }
-        updateDirection(dim) {
-            const controls = this.controlsMap[dim];
-            const oneDirection = controls[0];
-            const oppositeDirection = controls[1];
-            this.direction[dim] = Number(oneDirection.active) - Number(oppositeDirection.active);
-        }
-        updateVelocity(delta) {
-            this.dimensions.forEach((dimension) => {
-                const controls = this.controlsMap[dimension];
-                const isActive = controls.find((control) => control.active);
-                if (isActive) {
-                    this.velocity[dimension] -= this.direction[dimension] * this.speed * delta;
-                }
-            });
-        }
-        moveCamera(delta) {
-            this.controls.moveRight(-this.velocity.x * delta);
-            this.controls.moveForward(-this.velocity.z * delta);
-            this.controls.getObject().position.y -= this.velocity.y * delta;
-        }
-        getControl(event) {
-            const controlValues = Object.values(this.keyBinding);
-            return controlValues.find((control) => control.keys.indexOf(event.code) > -1);
         }
     }
 
@@ -90848,7 +90518,189 @@
         return boundingSphere;
     }
 
+    // -------------------------------------------------------------------------------------------
+    // Credit to Jason Kleban: https://gist.github.com/JasonKleban/50cee44960c225ac1993c922563aa540
+    // -------------------------------------------------------------------------------------------
+    class LiteEvent {
+        constructor() {
+            this.handlers = [];
+            this.trigger = ((data) => {
+                // @ts-ignore
+                this.handlers.slice(0).forEach((h) => h(data));
+            });
+        }
+        on(handler) {
+            this.handlers.push(handler);
+        }
+        off(handler) {
+            this.handlers = this.handlers.filter((h) => h !== handler);
+        }
+        expose() {
+            return this;
+        }
+    }
+
+    class FirstPersonControl extends IfcComponent {
+        constructor(context, ifcCamera) {
+            super(context);
+            this.ifcCamera = ifcCamera;
+            this.mode = NavigationModes.FirstPerson;
+            this.enabled = false;
+            this.onChange = new LiteEvent();
+            this.onChangeProjection = new LiteEvent();
+        }
+        toggle(active) {
+            this.enabled = active;
+            if (active) {
+                if (this.ifcCamera.projection !== CameraProjections.Perspective) {
+                    this.ifcCamera.setNavigationMode(NavigationModes.Orbit);
+                    return;
+                }
+                this.setupFirstPersonCamera();
+            }
+        }
+        setupFirstPersonCamera() {
+            const controls = this.ifcCamera.cameraControls;
+            const cameraPosition = new Vector3();
+            controls.camera.getWorldPosition(cameraPosition);
+            const newTargetPosition = new Vector3();
+            controls.distance--;
+            controls.camera.getWorldPosition(newTargetPosition);
+            controls.minDistance = 1;
+            controls.maxDistance = 1;
+            controls.distance = 1;
+            controls.moveTo(newTargetPosition.x, newTargetPosition.y, newTargetPosition.z);
+            this.ifcCamera.cameraControls.truckSpeed = 50;
+            controls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
+            controls.touches.two = CameraControls.ACTION.TOUCH_ZOOM_TRUCK;
+        }
+    }
+
     // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+    class OrbitControl extends IfcComponent {
+        constructor(context, ifcCamera) {
+            super(context);
+            this.context = context;
+            this.ifcCamera = ifcCamera;
+            this.enabled = true;
+            this.mode = NavigationModes.Orbit;
+            this.onChange = new LiteEvent();
+            this.onUnlock = new LiteEvent();
+            this.onChangeProjection = new LiteEvent();
+            this.activateOrbitControls();
+        }
+        /**
+         * @deprecated Use cameraControls.getTarget.
+         */
+        get target() {
+            const target = new Vector3();
+            this.ifcCamera.cameraControls.getTarget(target);
+            return target;
+        }
+        toggle(active) {
+            this.enabled = active;
+            if (active) {
+                this.activateOrbitControls();
+            }
+        }
+        async fitModelToFrame() {
+            if (!this.enabled)
+                return;
+            const scene = this.context.getScene();
+            const box = new Box3().setFromObject(scene.children[scene.children.length - 1]);
+            const sceneSize = new Vector3();
+            box.getSize(sceneSize);
+            const sceneCenter = new Vector3();
+            box.getCenter(sceneCenter);
+            const nearFactor = 0.5;
+            const radius = Math.max(sceneSize.x, sceneSize.y, sceneSize.z) * nearFactor;
+            const sphere = new Sphere(sceneCenter, radius);
+            await this.ifcCamera.cameraControls.fitToSphere(sphere, true);
+        }
+        activateOrbitControls() {
+            const controls = this.ifcCamera.cameraControls;
+            controls.minDistance = 1;
+            controls.maxDistance = 300;
+            this.ifcCamera.cameraControls.truckSpeed = 2;
+        }
+    }
+
+    class ProjectionManager {
+        constructor(context, ifcCamera) {
+            this.context = context;
+            this.previousDistance = -1;
+            this.cameras = ifcCamera;
+            this.currentCamera = ifcCamera.perspectiveCamera;
+            this.currentProjection = CameraProjections.Perspective;
+        }
+        get activeCamera() {
+            return this.currentCamera;
+        }
+        get projection() {
+            return this.currentProjection;
+        }
+        set projection(projection) {
+            if (this.projection === projection)
+                return;
+            if (projection === CameraProjections.Orthographic) {
+                this.setOrthoCamera();
+            }
+            else {
+                this.setPerspectiveCamera();
+            }
+        }
+        setOrthoCamera() {
+            // Matching orthographic camera to perspective camera
+            // Resource: https://stackoverflow.com/questions/48758959/what-is-required-to-convert-threejs-perspective-camera-to-orthographic
+            if (this.cameras.currentNavMode.mode === NavigationModes.FirstPerson)
+                return;
+            this.previousDistance = this.cameras.cameraControls.distance;
+            this.cameras.cameraControls.distance = 200;
+            const { width, height } = this.getDims();
+            this.setupOrthoCamera(height, width);
+            this.currentCamera = this.cameras.orthographicCamera;
+            this.currentProjection = CameraProjections.Orthographic;
+        }
+        getDims() {
+            const lineOfSight = new Vector3();
+            this.cameras.perspectiveCamera.getWorldDirection(lineOfSight);
+            const target = new Vector3();
+            this.cameras.cameraControls.getTarget(target);
+            const distance = target.clone().sub(this.cameras.perspectiveCamera.position);
+            const depth = distance.dot(lineOfSight);
+            const dims = this.context.getDimensions();
+            const aspect = dims.x / dims.y;
+            const fov = this.cameras.perspectiveCamera.fov;
+            const height = depth * 2 * Math.atan((fov * (Math.PI / 180)) / 2);
+            const width = height * aspect;
+            return { width, height };
+        }
+        setupOrthoCamera(height, width) {
+            this.cameras.cameraControls.mouseButtons.wheel = CameraControls.ACTION.ZOOM;
+            this.cameras.orthographicCamera.zoom = 1;
+            this.cameras.orthographicCamera.left = width / -2;
+            this.cameras.orthographicCamera.right = width / 2;
+            this.cameras.orthographicCamera.top = height / 2;
+            this.cameras.orthographicCamera.bottom = height / -2;
+            this.cameras.orthographicCamera.updateProjectionMatrix();
+            this.cameras.orthographicCamera.position.copy(this.cameras.perspectiveCamera.position);
+            this.cameras.orthographicCamera.quaternion.copy(this.cameras.perspectiveCamera.quaternion);
+            this.cameras.cameraControls.camera = this.cameras.orthographicCamera;
+        }
+        setPerspectiveCamera() {
+            this.cameras.cameraControls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
+            this.cameras.perspectiveCamera.position.copy(this.cameras.orthographicCamera.position);
+            this.cameras.perspectiveCamera.quaternion.copy(this.cameras.orthographicCamera.quaternion);
+            this.cameras.perspectiveCamera.updateProjectionMatrix();
+            this.cameras.cameraControls.camera = this.cameras.perspectiveCamera;
+            this.cameras.cameraControls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
+            this.currentCamera = this.cameras.perspectiveCamera;
+            this.currentProjection = CameraProjections.Perspective;
+            this.cameras.cameraControls.distance = this.previousDistance;
+            this.cameras.cameraControls.zoomTo(1);
+        }
+    }
+
     const subsetOfTHREE = {
         MOUSE,
         Vector2,
@@ -90865,261 +90717,57 @@
             clamp: MathUtils.clamp
         }
     };
-    class OrbitControl extends IfcComponent {
-        constructor(context, perspectiveCamera, orthographicCamera) {
-            super(context);
-            this.context = context;
-            this.perspectiveCamera = perspectiveCamera;
-            this.orthographicCamera = orthographicCamera;
-            this.enabled = true;
-            this.mode = NavigationModes.Orbit;
-            this.onChange = new LiteEvent();
-            this.onUnlock = new LiteEvent();
-            this.onChangeProjection = new LiteEvent();
-            this.currentTarget = new Vector3();
-            this.startView = {
-                target: new Vector3(),
-                camera: new Vector3(20, 20, 20)
-            };
-            CameraControls.install({ THREE: subsetOfTHREE });
-            this.currentCamera = this.perspectiveCamera;
-            this.cameraControls = new CameraControls(perspectiveCamera, context.getDomElement());
-            // this.orbitControls = new OrbitControls(this.perspectiveCamera, context.getDomElement());
-            // this.orbitControls.minDistance = 1;
-            // this.orbitControls.maxDistance = 500;
-            // this.orbitControls.minZoom = 1;
-            // this.orbitControls.maxZoom = 500;
-            // this.orbitControls.addEventListener('change', (event) => {
-            //   this.currentTarget.copy(this.orbitControls.target);
-            //   this.onChange.trigger(event);
-            // });
-            this.setupOrbitControls();
-        }
-        // get panningOnly() {
-        //   return !this.orbitControls.enableRotate;
-        // }
-        //
-        // set panningOnly(active: boolean) {
-        //   this.orbitControls.enableRotate = !active;
-        // }
-        get activeCamera() {
-            // return this.orbitControls.object;
-            return this.cameraControls.camera;
-        }
-        get target() {
-            const target = new Vector3();
-            this.cameraControls.getTarget(target);
-            return target;
-        }
-        set minDistance(min) {
-            this.cameraControls.minDistance = min;
-        }
-        set maxDistance(max) {
-            this.cameraControls.maxDistance = max;
-        }
-        set homeView({ camera, target }) {
-            this.startView.camera = camera;
-            this.startView.target = target;
-        }
-        get projection() {
-            return this.activeCamera === this.perspectiveCamera
-                ? CameraProjections.Perspective
-                : CameraProjections.Orthographic;
-        }
-        set projection(projection) {
-            if (this.projection === projection)
-                return;
-            if (projection === CameraProjections.Orthographic) {
-                // Matching orthographic camera to perspective camera
-                // Resource: https://stackoverflow.com/questions/48758959/what-is-required-to-convert-threejs-perspective-camera-to-orthographic
-                const lineOfSight = new Vector3();
-                this.perspectiveCamera.getWorldDirection(lineOfSight);
-                const distance = this.target.clone().sub(this.perspectiveCamera.position);
-                const depth = distance.dot(lineOfSight);
-                const dims = this.context.getDimensions();
-                const aspect = dims.x / dims.y;
-                const height = depth * 2 * Math.atan((this.perspectiveCamera.fov * (Math.PI / 180)) / 2);
-                const width = height * aspect;
-                this.orthographicCamera.zoom = 1;
-                this.orthographicCamera.left = width / -2;
-                this.orthographicCamera.right = width / 2;
-                this.orthographicCamera.top = height / 2;
-                this.orthographicCamera.bottom = height / -2;
-                this.orthographicCamera.updateProjectionMatrix();
-                this.orthographicCamera.position.copy(this.perspectiveCamera.position);
-                this.orthographicCamera.quaternion.copy(this.perspectiveCamera.quaternion);
-                this.cameraControls.camera = this.orthographicCamera;
-                this.cameraControls.mouseButtons.wheel = CameraControls.ACTION.ZOOM;
-                this.currentCamera = this.orthographicCamera;
-            }
-            else {
-                this.perspectiveCamera.position.copy(this.orthographicCamera.position);
-                this.perspectiveCamera.quaternion.copy(this.orthographicCamera.quaternion);
-                this.perspectiveCamera.updateProjectionMatrix();
-                this.cameraControls.camera = this.perspectiveCamera;
-                this.cameraControls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
-                this.currentCamera = this.perspectiveCamera;
-            }
-        }
-        setOrbitControlsButtons(_buttons) {
-            // this.orbitControls.mouseButtons = {
-            //   LEFT: buttons.left,
-            //   MIDDLE: buttons.middle,
-            //   RIGHT: buttons.right
-            // };
-        }
-        update(_delta) {
-            // if (this.enabled) {
-            //   this.orbitControls.update();
-            // }
-            this.cameraControls.update(_delta);
-        }
-        /**
-         * @deprecated Use onChange.on() instead.
-         */
-        submitOnChange(action) {
-            this.onChange.on(action);
-        }
-        /**
-         * @deprecated Use onChange.on() instead.
-         */
-        submitOnUnlock(action) {
-            this.onUnlock.on(action);
-        }
-        toggleProjection() {
-            if (this.activeCamera === this.perspectiveCamera) {
-                this.projection = CameraProjections.Orthographic;
-            }
-            else {
-                this.projection = CameraProjections.Perspective;
-            }
-            this.onChangeProjection.trigger(this.activeCamera);
-        }
-        toggle(active, options) {
-            options !== undefined && options.preventOrbitAdjustment;
-            this.enabled = active;
-            this.cameraControls.enabled = active;
-        }
-        async targetItem(mesh, duration) {
-            const center = this.context.getCenter(mesh);
-            const cameraEnd = new Vector3()
-                .subVectors(this.perspectiveCamera.position, this.currentTarget)
-                .add(center);
-            this.context.getAnimator().move(this.perspectiveCamera.position, cameraEnd, duration);
-            // this.context.getAnimator().move(this.orbitControls.target, center, duration);
-            await this.cameraControls.setTarget(center.x, center.y, center.z);
-        }
-        async goTo(position, target, duration) {
-            this.context.getAnimator().move(this.currentCamera.position, position, duration);
-            // this.context.getAnimator().move(this.orbitControls.target, target, duration);
-            await this.cameraControls.setTarget(target.x, target.y, target.z);
-        }
-        async goToHomeView() {
-            this.context.getAnimator().move(this.perspectiveCamera.position, this.startView.camera);
-            const target = this.startView.target;
-            await this.cameraControls.setTarget(target.x, target.y, target.z);
-            // this.context.getAnimator().move(this.orbitControls.target, this.startView.target);
-        }
-        async fitModelToFrame() {
-            if (!this.enabled)
-                return;
-            const { boxCenter, distance } = this.getBoxCenterAndDistance();
-            const direction = new Vector3()
-                .subVectors(this.perspectiveCamera.position, boxCenter)
-                .multiply(new Vector3(1, 0, 1))
-                .normalize();
-            this.perspectiveCamera.position.copy(direction.multiplyScalar(distance).add(boxCenter));
-            this.perspectiveCamera.updateProjectionMatrix();
-            await this.cameraControls.setTarget(boxCenter.x, boxCenter.y, boxCenter.z);
-        }
-        getBoxCenterAndDistance() {
-            const scene = this.context.getScene();
-            const box = new Box3().setFromObject(scene.children[scene.children.length - 1]);
-            const boxSize = box.getSize(new Vector3()).length();
-            const boxCenter = box.getCenter(new Vector3());
-            const halfSizeToFitOnScreen = boxSize * 0.5;
-            const halfFovY = MathUtils.degToRad(this.perspectiveCamera.fov * 0.5);
-            const distance = halfSizeToFitOnScreen / Math.tan(halfFovY);
-            return { boxCenter, distance };
-        }
-        // private adjustTarget() {
-        //   const cameraDir = new Vector3();
-        //   this.activeCamera.getWorldDirection(cameraDir);
-        //   cameraDir.multiplyScalar(20);
-        //   const center = new Vector3().addVectors(cameraDir, this.activeCamera.position);
-        //   this.orbitControls.target.set(center.x, center.y, center.z);
-        // }
-        async setupOrbitControls() {
-            // this.orbitControls.enableDamping = true;
-            // this.orbitControls.dampingFactor *= 2;
-            // this.orbitControls.target.set(0, 0, 0);
-            // const panWithMMB = this.context.options.panWithMMB || true;
-            // if (panWithMMB) {
-            //   this.orbitControls.mouseButtons = {
-            //     RIGHT: MOUSE.RIGHT,
-            //     MIDDLE: MOUSE.RIGHT,
-            //     LEFT: MOUSE.LEFT
-            //   };
-            // }
-            this.cameraControls.dampingFactor *= 2;
-            this.cameraControls.dollyToCursor = true;
-            this.cameraControls.infinityDolly = true;
-            this.cameraControls.minDistance = 1;
-            this.cameraControls.truckSpeed *= 1.5;
-            await this.cameraControls.setTarget(0, 0, 0);
-        }
-    }
-
     const frustumSize = 50;
     class IfcCamera extends IfcComponent {
         constructor(context) {
             super(context);
             this.onChange = new LiteEvent();
-            this.onUnlock = new LiteEvent();
             this.onChangeProjection = new LiteEvent();
             this.context = context;
             const dims = this.context.getDimensions();
             const aspect = dims.x / dims.y;
             this.perspectiveCamera = new PerspectiveCamera(45, aspect, 0.1, 1000);
             this.orthographicCamera = new OrthographicCamera((frustumSize * aspect) / -2, (frustumSize * aspect) / 2, frustumSize / 2, frustumSize / -2, 0.1, 1000);
-            this.setupCamera();
+            this.setupCameras();
+            CameraControls.install({ THREE: subsetOfTHREE });
+            this.cameraControls = new CameraControls(this.perspectiveCamera, context.getDomElement());
             this.navMode = {
-                [NavigationModes.Orbit]: new OrbitControl(this.context, this.perspectiveCamera, this.orthographicCamera),
-                [NavigationModes.FirstPerson]: new FirstPersonControl(this.context, this.perspectiveCamera, this)
+                [NavigationModes.Orbit]: new OrbitControl(this.context, this),
+                [NavigationModes.FirstPerson]: new FirstPersonControl(this.context, this)
             };
             this.currentNavMode = this.navMode[NavigationModes.Orbit];
             this.currentNavMode.toggle(true, { preventTargetAdjustment: true });
             Object.values(this.navMode).forEach((mode) => {
                 mode.onChange.on(this.onChange.trigger);
-                mode.onUnlock.on(this.onUnlock.trigger);
                 mode.onChangeProjection.on(this.onChangeProjection.trigger);
             });
-        }
-        get controls() {
-            const orbitControls = this.navMode[NavigationModes.Orbit];
-            return orbitControls.cameraControls;
-        }
-        get activeCamera() {
-            return this.currentNavMode.mode === NavigationModes.FirstPerson
-                ? this.perspectiveCamera
-                : this.navMode[NavigationModes.Orbit].activeCamera;
+            this.projectionManager = new ProjectionManager(context, this);
+            this.setupControls();
         }
         get projection() {
-            return this.navMode[NavigationModes.Orbit].projection;
+            return this.projectionManager.projection;
         }
         set projection(projection) {
-            this.navMode[NavigationModes.Orbit].projection = projection;
+            this.projectionManager.projection = projection;
+        }
+        /**
+         * @deprecated Use cameraControls instead.
+         */
+        get controls() {
+            return this.cameraControls;
+        }
+        get activeCamera() {
+            return this.projectionManager.activeCamera;
+        }
+        update(_delta) {
+            super.update(_delta);
+            this.cameraControls.update(_delta);
         }
         updateAspect() {
             const dims = this.context.getDimensions();
-            const aspect = dims.x / dims.y;
             this.perspectiveCamera.aspect = dims.x / dims.y;
             this.perspectiveCamera.updateProjectionMatrix();
-            this.orthographicCamera.left = (-frustumSize * aspect) / 2;
-            this.orthographicCamera.right = (frustumSize * aspect) / 2;
-            this.orthographicCamera.top = frustumSize / 2;
-            this.orthographicCamera.bottom = -frustumSize / 2;
-            this.orthographicCamera.updateProjectionMatrix();
+            this.setOrthoCameraAspect(dims);
         }
         /**
          * @deprecated Use onChange.on() instead.
@@ -91127,60 +90775,52 @@
         submitOnChange(action) {
             this.onChange.on(action);
         }
-        /**
-         * @deprecated Use onUnlock.on() instead.
-         */
-        submitOnUnlock(action) {
-            this.onUnlock.on(action);
-        }
         setNavigationMode(mode) {
+            if (this.currentNavMode.mode === mode)
+                return;
             this.currentNavMode.toggle(false);
             this.currentNavMode = this.navMode[mode];
             this.currentNavMode.toggle(true);
-        }
-        setOrbitControlsButtons(buttons) {
-            const orbitControls = this.setOrbitControls();
-            orbitControls.setOrbitControlsButtons(buttons);
         }
         toggleCameraControls(active, options) {
             this.currentNavMode.toggle(active, options);
         }
         toggleProjection() {
-            this.navMode[NavigationModes.Orbit].toggleProjection();
+            const isOrto = this.projection === CameraProjections.Orthographic;
+            this.projection = isOrto ? CameraProjections.Perspective : CameraProjections.Orthographic;
+            this.onChangeProjection.trigger(this.activeCamera);
         }
-        targetItem(mesh, duration = 1) {
-            const orbitControls = this.setOrbitControls();
-            orbitControls.targetItem(mesh, duration);
+        async targetItem(mesh) {
+            const center = this.context.getCenter(mesh);
+            await this.cameraControls.moveTo(center.x, center.y, center.z, true);
         }
-        goTo(position, target, duration = 0) {
-            const orbitControls = this.setOrbitControls();
-            orbitControls.goTo(position, target, duration);
+        setOrthoCameraAspect(dims) {
+            const aspect = dims.x / dims.y;
+            this.orthographicCamera.left = (-frustumSize * aspect) / 2;
+            this.orthographicCamera.right = (frustumSize * aspect) / 2;
+            this.orthographicCamera.top = frustumSize / 2;
+            this.orthographicCamera.bottom = -frustumSize / 2;
+            this.orthographicCamera.updateProjectionMatrix();
         }
-        goToHomeView() {
-            const orbitControls = this.setOrbitControls();
-            orbitControls.goToHomeView();
+        // private setOrbitControls() {
+        //   this.setNavigationMode(NavigationModes.Orbit);
+        //   return this.currentNavMode as OrbitControl;
+        // }
+        setupCameras() {
+            this.setCameraPositionAndTarget(this.perspectiveCamera);
+            this.setCameraPositionAndTarget(this.perspectiveCamera);
         }
-        setHomeView(camera, target) {
-            const orbitControls = this.navMode[NavigationModes.Orbit];
-            orbitControls.homeView = { camera, target };
+        setCameraPositionAndTarget(camera) {
+            camera.position.z = 10;
+            camera.position.y = 10;
+            camera.position.x = 10;
+            camera.lookAt(new Vector3(0, 0, 0));
         }
-        unlock() {
-            const firstPerson = this.navMode[NavigationModes.FirstPerson];
-            firstPerson.controls.unlock();
-        }
-        setOrbitControls() {
-            this.setNavigationMode(NavigationModes.Orbit);
-            return this.currentNavMode;
-        }
-        setupCamera() {
-            this.perspectiveCamera.position.z = 10;
-            this.perspectiveCamera.position.y = 10;
-            this.perspectiveCamera.position.x = 10;
-            this.perspectiveCamera.lookAt(new Vector3(0, 0, 0));
-            this.orthographicCamera.position.z = 10;
-            this.orthographicCamera.position.y = 10;
-            this.orthographicCamera.position.x = 10;
-            this.orthographicCamera.lookAt(new Vector3(0, 0, 0));
+        setupControls() {
+            this.cameraControls.dampingFactor = 0.1;
+            this.cameraControls.dollyToCursor = true;
+            this.cameraControls.infinityDolly = true;
+            this.cameraControls.setTarget(0, 0, 0);
         }
     }
 
@@ -103582,7 +103222,7 @@
     viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
 
 
-    //Setup loader
+    // Setup loader
     const loadIfc = async (event) => {
       const overlay = document.getElementById('loading-overlay');
       const progressText = document.getElementById('loading-progress');
@@ -103602,64 +103242,66 @@
 
       // viewer.context.renderer.usePostproduction = true;
 
-      const model = await viewer.IFC.loadIfc(event.target.files[0], false);
+      const model = await viewer.IFC.loadIfc(event.target.files[0], true);
       if (!model) return;
       overlay.classList.add('hidden');
+    };
 
-      model.material.forEach(mat => {
-       mat.polygonOffset = true;
-       mat.polygonOffsetFactor = 1;
-       mat.polygonOffsetUnits = 1;
-      });
+      // model.material.forEach(mat => {
+      //  mat.polygonOffset = true;
+      //  mat.polygonOffsetFactor = 1;
+      //  mat.polygonOffsetUnits = 1;
+      // })
 
-      const planes = viewer.context.getClippingPlanes();
+      // const planes = viewer.context.getClippingPlanes();
+      //
+      // const wallsStandard = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
+      // const walls = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCWALL, false);
+      // // const stairs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCSTAIR, false);
+      // const columns = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCCOLUMN, false);
+      // // const slabs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCSLAB, false);
 
-      const wallsStandard = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
-      const walls = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCWALL, false);
-      // const stairs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCSTAIR, false);
-      const columns = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCCOLUMN, false);
-      // const slabs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCSLAB, false);
+      // const subset = viewer.IFC.loader.ifcManager.createSubset({
+      //   modelID: 0,
+      //   ids: [...walls, ...wallsStandard, ...columns],
+      //   scene: viewer.context.getScene(),
+      //   removePrevious: true,
+      //   material: new MeshBasicMaterial({
+      //     color: 0x000000,
+      //     side: BackSide,
+      //     clippingPlanes: planes,
+      //     polygonOffset: true,
+      //     polygonOffsetFactor: -1,
+      //     polygonOffsetUnits: 1})
+      // });
+      //
+      //
+      // subset.position.y += 0.1;
 
-      const subset = viewer.IFC.loader.ifcManager.createSubset({
-        modelID: 0,
-        ids: [...walls, ...wallsStandard, ...columns],
-        scene: viewer.context.getScene(),
-        removePrevious: true,
-        material: new MeshBasicMaterial({
-          color: 0x000000,
-          side: BackSide,
-          clippingPlanes: planes,
-          polygonOffset: true,
-          polygonOffsetFactor: -1,
-          polygonOffsetUnits: 1})
-      });
-
-      subset.position.y += 0.1;
-
-      if(subset) subset.geometry.computeVertexNormals();
+      // if(subset) subset.geometry.computeVertexNormals();
 
 
       // viewer.context.scene.removeModel(model);
-      viewer.context.scene.addModel(subset);
+      // viewer.context.scene.addModel(subset);
 
       // mesh
-      const whiteMaterial = new MeshBasicMaterial( {
-        color: 0xffffff,
-        polygonOffset: true,
-        polygonOffsetFactor: 1,
-        polygonOffsetUnits: 1,
-        clippingPlanes: planes
-      } );
-
-      model.material = model.material.map(mat => whiteMaterial);
+      // const whiteMaterial = new MeshBasicMaterial( {
+      //   color: 0xffffff,
+      //   polygonOffset: true,
+      //   polygonOffsetFactor: 1,
+      //   polygonOffsetUnits: 1,
+      //   clippingPlanes: planes
+      // } );
+      //
+      // model.material = model.material.map(mat => whiteMaterial)
 
     // wireframe
-      const geo = new EdgesGeometry( model.geometry );
-      const mat = new LineBasicMaterial( { color: 0x000000, clippingPlanes: planes } );
-      const wireframe = new LineSegments( geo, mat );
-      console.log(wireframe);
-      model.add( wireframe );
-    };
+    //   const geo = new EdgesGeometry( model.geometry );
+    //   const mat = new LineBasicMaterial( { color: 0x000000, clippingPlanes: planes } );
+    //   const wireframe = new LineSegments( geo, mat );
+    //   console.log(wireframe);
+    //   model.add( wireframe );
+    // };
 
     const inputElement = document.createElement('input');
     inputElement.setAttribute('type', 'file');
@@ -103667,8 +103309,10 @@
     inputElement.addEventListener('change', loadIfc, false);
     document.body.appendChild(inputElement);
 
+    // viewer.IFC.loadIfcUrl('test.ifc', true);
+
     const baseRotation = Math.PI / 2;
-    const controls = viewer.context.ifcCamera.controls;
+    const controls = viewer.context.ifcCamera.cameraControls;
 
     const handleKeyDown = (event) => {
       if (event.code === 'Delete') {
@@ -103681,7 +103325,10 @@
         controls.setLookAt(0, 10, 0, 0, 0, 0, true);
       }
       if (event.code === 'KeyP') {
-        viewer.context.ifcCamera.panningOnly = true;
+        viewer.context.ifcCamera.setNavigationMode(NavigationModes.FirstPerson);
+      }
+      if (event.code === 'KeyL') {
+        viewer.context.ifcCamera.setNavigationMode(NavigationModes.Orbit);
       }
       if (event.code === 'KeyR') {
         controls.rotateAzimuthTo(baseRotation, true);
@@ -103692,7 +103339,8 @@
     window.onmousemove = viewer.IFC.prePickIfcItem;
     window.onkeydown = handleKeyDown;
     window.ondblclick = async () => {
-      viewer.clipper.createPlane();
+      // viewer.clipper.createPlane();
+      viewer.IFC.pickIfcItem(true);
     };
 
     //Setup UI
