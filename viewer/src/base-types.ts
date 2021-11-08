@@ -14,8 +14,8 @@ import {
 } from 'three';
 import { IfcMesh } from 'web-ifc-three/IFC/BaseDefinitions';
 import { Animator } from './components/context/animator';
-import { OrbitControl } from './components/context/camera/OrbitControl';
-import { FirstPersonControl } from './components/context/camera/FirstPersonControl';
+import { OrbitControl } from './components/context/camera/orbit-control';
+import { FirstPersonControl } from './components/context/camera/first-person-control';
 import { IfcCamera } from './components/context/camera/camera';
 import { LiteEvent } from './utils/LiteEvent';
 import { IfcEvents } from './components/context/ifcEvent';
@@ -41,9 +41,7 @@ export interface NavigationMode {
   mode: NavigationModes;
   toggle: (active: boolean, options?: any) => void;
   enabled: boolean;
-  projection: CameraProjections;
   onChange: LiteEvent<any>;
-  onUnlock: LiteEvent<any>;
   onChangeProjection: LiteEvent<Camera>;
 }
 
@@ -57,7 +55,6 @@ export interface ViewerOptions {
   preselectMaterial?: Material;
   selectMaterial?: Material;
   backgroundColor?: Color;
-  panWithMMB?: boolean;
 }
 
 interface Component {
@@ -103,11 +100,9 @@ export abstract class IfcComponent implements Component {
     context.addComponent(this);
   }
 
-  update(_delta: number) {
-  }
+  update(_delta: number) {}
 
-  dispose() {
-  }
+  dispose() {}
 }
 
 export interface fpsControl {

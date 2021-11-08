@@ -1343,6 +1343,11 @@ camelcase@^6.2.0:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-6.2.0.tgz#924af881c9d525ac9d87f40d964e5cea982a1809"
   integrity sha512-c7wVvbw3f37nuobQNtgsgG9POC9qMbNuMQmTCqZv23b6MIz0fcYpBiOlv9gEN/hdLdnZTDQhg6e9Dq5M1vKvfg==
 
+camera-controls@^1.33.1:
+  version "1.33.1"
+  resolved "https://registry.yarnpkg.com/camera-controls/-/camera-controls-1.33.1.tgz#0f4815919f04da6b0427f530566dfe6ea17f4568"
+  integrity sha512-+l0LgV+w0G4GAtwiSahHLj7rCqzVMSa+/BHE3+aE7vdku2B9QF8CXgDSlCH9cBt2TZeg+WQSkRPeIYwjvtjdPw==
+
 caniuse-lite@^1.0.30001219:
   version "1.0.30001241"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001241.tgz#cd3fae47eb3d7691692b406568d7a3e5b23c7598"
@@ -1776,6 +1781,11 @@ domexception@^2.0.1:
   integrity sha512-yxJ2mFy/sibVQlu5qHjOkf9J3K6zgmCxgJ94u2EdvDOV09H+32LtRswEcUsmUWN72pVLOEnTSRaIVVzVQgS0dg==
   dependencies:
     webidl-conversions "^5.0.0"
+
+dxf-writer@^1.11.0:
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/dxf-writer/-/dxf-writer-1.11.0.tgz#846d528650413504bf3e9c88065b4823084a9e58"
+  integrity sha512-v9DqrN8hE6IrimI9DLHP6BN69K72MhmtNmlcnuN/embQPEmPAURy73s+O50JOPj3XrbP12aS3HqPOxoji7XH+A==
 
 electron-to-chromium@^1.3.723:
   version "1.3.765"

@@ -1,11 +1,12 @@
 import { AmbientLight, Color, DirectionalLight, Object3D, Scene } from 'three';
+import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
 import { IfcComponent, ViewerOptions, Context } from '../../base-types';
 
 export class IfcScene extends IfcComponent {
   scene: Scene;
   defaultBackgroundColor = new Color(0xa9a9a9);
 
-  constructor(context: Context) {
+  constructor(private context: Context) {
     super(context);
     this.scene = new Scene();
     this.setupScene(context.options);
@@ -18,6 +19,17 @@ export class IfcScene extends IfcComponent {
 
   remove(item: Object3D) {
     this.scene.remove(item);
+  }
+
+  addModel(model: IFCModel) {
+    this.context.items.pickableIfcModels.push(model);
+    this.scene.add(model);
+  }
+
+  removeModel(model: IFCModel) {
+    const index = this.context.items.pickableIfcModels.indexOf(model);
+    if (index >= 0) this.context.items.pickableIfcModels.splice(index, 1);
+    if (model.parent) model.parent.remove(model);
   }
 
   private setupScene(options?: ViewerOptions) {

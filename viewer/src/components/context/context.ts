@@ -11,22 +11,20 @@ export class IfcContext implements Context {
   options: ViewerOptions;
   items: Items;
   ifcCamera: IfcCamera;
-
-  private readonly ifcScene: IfcScene;
+  readonly scene: IfcScene;
+  readonly renderer: IfcRenderer;
+  readonly events: IfcEvents;
   private readonly clippingPlanes: Plane[];
   private readonly clock: Clock;
   private readonly ifcCaster: IfcRaycaster;
   private readonly ifcAnimator: Animator;
-
-  readonly renderer: IfcRenderer;
-  readonly events: IfcEvents;
 
   constructor(options: ViewerOptions) {
     if (!options.container) throw new Error('Could not get container element!');
     this.options = options;
     this.events = new IfcEvents();
     this.items = this.newItems();
-    this.ifcScene = new IfcScene(this);
+    this.scene = new IfcScene(this);
     this.renderer = new IfcRenderer(this);
 
     this.ifcCamera = new IfcCamera(this);
@@ -41,7 +39,7 @@ export class IfcContext implements Context {
   }
 
   getScene() {
-    return this.ifcScene.scene;
+    return this.scene.scene;
   }
 
   getRenderer() {
