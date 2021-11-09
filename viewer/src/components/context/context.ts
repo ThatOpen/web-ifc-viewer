@@ -115,8 +115,8 @@ export class IfcContext implements Context {
     this.ifcCamera.navMode[NavigationModes.Orbit].fitModelToFrame();
   }
 
-  toggleCameraControls(active: boolean, options?: any) {
-    this.ifcCamera.toggleCameraControls(active, options);
+  toggleCameraControls(active: boolean) {
+    this.ifcCamera.toggleCameraControls(active);
   }
 
   updateAspect() {

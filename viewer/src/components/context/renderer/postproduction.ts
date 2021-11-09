@@ -12,10 +12,10 @@ import { IfcEvent } from '../ifcEvent';
 import { Context } from '../../../base-types';
 
 export class IfcPostproduction {
-  ssaoEffect: SSAOEffect;
+  ssaoEffect: any;
   renderer: WebGLRenderer;
 
-  composer: EffectComposer;
+  composer: any;
 
   constructor(private context: Context, canvas: HTMLElement) {
     this.setupEvents();

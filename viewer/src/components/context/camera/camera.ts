@@ -25,9 +25,10 @@ import {
   NavModeManager
 } from '../../../base-types';
 import { LiteEvent } from '../../../utils/LiteEvent';
-import { FirstPersonControl } from './first-person-control';
-import { OrbitControl } from './orbit-control';
+import { FirstPersonControl } from './controls/first-person-control';
+import { OrbitControl } from './controls/orbit-control';
 import { ProjectionManager } from './projection-manager';
+import { PlanControl } from './controls/plan-control';
 
 const subsetOfTHREE = {
   MOUSE,
@@ -84,7 +85,8 @@ export class IfcCamera extends IfcComponent {
 
     this.navMode = {
       [NavigationModes.Orbit]: new OrbitControl(this.context, this),
-      [NavigationModes.FirstPerson]: new FirstPersonControl(this.context, this)
+      [NavigationModes.FirstPerson]: new FirstPersonControl(this.context, this),
+      [NavigationModes.Plan]: new PlanControl(this.context, this)
     };
 
     this.currentNavMode = this.navMode[NavigationModes.Orbit];
@@ -144,8 +146,8 @@ export class IfcCamera extends IfcComponent {
     this.currentNavMode.toggle(true);
   }
 
-  toggleCameraControls(active: boolean, options?: any) {
-    this.currentNavMode.toggle(active, options);
+  toggleCameraControls(active: boolean) {
+    this.cameraControls.enabled = active;
   }
 
   toggleProjection() {

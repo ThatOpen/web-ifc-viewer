@@ -5,9 +5,9 @@ import {
   IfcComponent,
   NavigationMode,
   NavigationModes
-} from '../../../base-types';
-import { LiteEvent } from '../../../utils/LiteEvent';
-import { IfcCamera } from './camera';
+} from '../../../../base-types';
+import { LiteEvent } from '../../../../utils/LiteEvent';
+import { IfcCamera } from '../camera';
 
 export class OrbitControl extends IfcComponent implements NavigationMode {
   enabled = true;

@@ -14,12 +14,13 @@ import {
 } from 'three';
 import { IfcMesh } from 'web-ifc-three/IFC/BaseDefinitions';
 import { Animator } from './components/context/animator';
-import { OrbitControl } from './components/context/camera/orbit-control';
-import { FirstPersonControl } from './components/context/camera/first-person-control';
+import { OrbitControl } from './components/context/camera/controls/orbit-control';
+import { FirstPersonControl } from './components/context/camera/controls/first-person-control';
 import { IfcCamera } from './components/context/camera/camera';
 import { LiteEvent } from './utils/LiteEvent';
 import { IfcEvents } from './components/context/ifcEvent';
 import { IfcRenderer } from './components/context/renderer/renderer';
+import { PlanControl } from './components/context/camera/controls/plan-control';
 
 export interface MouseButtons {
   left: MOUSE;
@@ -29,7 +30,8 @@ export interface MouseButtons {
 
 export enum NavigationModes {
   Orbit,
-  FirstPerson
+  FirstPerson,
+  Plan
 }
 
 export enum CameraProjections {
@@ -48,6 +50,7 @@ export interface NavigationMode {
 export interface NavModeManager {
   [NavigationModes.Orbit]: OrbitControl;
   [NavigationModes.FirstPerson]: FirstPersonControl;
+  [NavigationModes.Plan]: PlanControl;
 }
 
 export interface ViewerOptions {

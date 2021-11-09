@@ -1,15 +1,20 @@
 import CameraControls from 'camera-controls';
 import { Camera, Vector3 } from 'three';
-import { CameraProjections, Context, IfcComponent, NavigationMode, NavigationModes } from '../../../base-types';
-import { IfcCamera } from './camera';
-import { LiteEvent } from '../../../utils/LiteEvent';
+import {
+  CameraProjections,
+  Context,
+  IfcComponent,
+  NavigationMode,
+  NavigationModes
+} from '../../../../base-types';
+import { IfcCamera } from '../camera';
+import { LiteEvent } from '../../../../utils/LiteEvent';
 
 export class FirstPersonControl extends IfcComponent implements NavigationMode {
   readonly mode = NavigationModes.FirstPerson;
   enabled = false;
   onChange = new LiteEvent<any>();
   onChangeProjection = new LiteEvent<Camera>();
-
 
   constructor(context: Context, private ifcCamera: IfcCamera) {
     super(context);

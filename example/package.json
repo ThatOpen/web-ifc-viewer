@@ -24,7 +24,7 @@
   "dependencies": {
     "dxf-writer": "^1.11.0",
     "three": "^0.132.2",
-    "web-ifc": "^0.0.25",
+    "web-ifc": "^0.0.28",
     "web-ifc-viewer": "1.0.102"
   }
 }

@@ -16,13 +16,13 @@ import {
 } from 'three';
 
 const container = document.getElementById('viewer-container');
-const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255, 255) });
+const viewer = new IfcViewerAPI({ container });
 viewer.addAxes();
-viewer.addGrid(300, 300);
+viewer.addGrid();
 viewer.IFC.setWasmPath('files/');
 viewer.IFC.loader.ifcManager.applyWebIfcConfig({
   COORDINATE_TO_ORIGIN: true,
-  USE_FAST_BOOLS: false
+  USE_FAST_BOOLS: true
 });
 viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
 
@@ -140,15 +140,15 @@ const handleKeyDown = (event) => {
     controls.rotateAzimuthTo(baseRotation, true);
   }
   if (event.code === 'KeyK') {
-    // ExportToSVG('Hi.dxf');
+    viewer.context.ifcCamera.setNavigationMode(NavigationModes.Plan);
   }
 };
 
 window.onmousemove = viewer.IFC.prePickIfcItem;
 window.onkeydown = handleKeyDown;
 window.ondblclick = async () => {
-  // viewer.clipper.createPlane();
-  viewer.IFC.pickIfcItem(true);
+  viewer.clipper.createPlane();
+  // viewer.IFC.pickIfcItem(true);
 };
 
 //Setup UI
