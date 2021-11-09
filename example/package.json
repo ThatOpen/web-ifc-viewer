@@ -2,7 +2,7 @@
   "name": "web-ifc-viewer-basic-example",
   "private": true,
   "type": "module",
-  "version": "1.0.103",
+  "version": "1.0.104",
   "description": "A basic html example for web-ifc-viewer",
   "main": "index.html",
   "scripts": {
@@ -25,6 +25,6 @@
     "dxf-writer": "^1.11.0",
     "three": "^0.132.2",
     "web-ifc": "^0.0.25",
-    "web-ifc-viewer": "1.0.103"
+    "web-ifc-viewer": "1.0.104"
   }
 }
