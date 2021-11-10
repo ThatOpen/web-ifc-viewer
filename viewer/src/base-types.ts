@@ -21,6 +21,7 @@ import { LiteEvent } from './utils/LiteEvent';
 import { IfcEvents } from './components/context/ifcEvent';
 import { IfcRenderer } from './components/context/renderer/renderer';
 import { PlanControl } from './components/context/camera/controls/plan-control';
+import { IfcScene } from './components/context/scene';
 
 export interface MouseButtons {
   left: MOUSE;
@@ -77,6 +78,7 @@ export interface Context {
 
   events: IfcEvents;
   renderer: IfcRenderer;
+  scene: IfcScene;
 
   getScene: () => Scene;
   getCamera: () => Camera;

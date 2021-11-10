@@ -26,7 +26,10 @@ export class IfcClipper extends IfcComponent {
 
   set active(state) {
     this.enabled = state;
-    this.planes.forEach((plane) => plane.setVisibility(state));
+    this.planes.forEach((plane) => {
+      plane.setVisibility(state);
+      plane.active = state;
+    });
     this.updateMaterials();
   }
 
@@ -50,6 +53,7 @@ export class IfcClipper extends IfcComponent {
     this.planes.push(plane);
     this.context.addClippingPlane(plane.plane);
     this.updateMaterials();
+    return plane;
   };
 
   deletePlane = (plane?: IfcPlane) => {
@@ -68,13 +72,15 @@ export class IfcClipper extends IfcComponent {
   };
 
   deleteAllPlanes = () => {
-    this.planes.forEach((plane) => {
-      plane.removeFromScene();
-      this.context.removeClippingPlane(plane.plane);
-    });
+    this.planes.forEach((plane) => plane.removeFromScene());
     this.planes = [];
     this.updateMaterials();
   };
+
+  setPlaneActive(plane: IfcPlane, active: boolean) {
+    plane.active = active;
+    this.updateMaterials();
+  }
 
   private pickPlane = () => {
     const planeMeshes = this.planes.map((p) => p.planeMesh);
@@ -148,7 +154,7 @@ export class IfcClipper extends IfcComponent {
   };
 
   private updateMaterial(mesh: Mesh) {
-    const activePlanes = this.planes.filter((plane) => plane.visible);
+    const activePlanes = this.planes.filter((plane) => plane.active);
     if (!Array.isArray(mesh.material)) {
       mesh.material.clippingPlanes = activePlanes.map((e) => e.plane);
       return;
