@@ -116492,8 +116492,8 @@
         [IFCOPENINGELEMENT]: false
       });
 
-      await viewer.IFC.loadIfc(event.target.files[0], true);
-      // model.material.forEach(mat => mat.side = 2);
+      const model = await viewer.IFC.loadIfc(event.target.files[0], true);
+      model.material.forEach(mat => mat.side = 2);
 
       // createFill();
       // viewer.edges.create("01", 0, new LineBasicMaterial({color: 0x000000}), new MeshBasicMaterial({color: 0xffffff, side: 2}));
