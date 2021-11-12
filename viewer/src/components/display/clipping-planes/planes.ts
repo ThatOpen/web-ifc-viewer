@@ -12,18 +12,20 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import { Context, IfcComponent } from '../../../base-types';
 
 export class IfcPlane extends IfcComponent {
-  readonly arrowBoundingBox = new Mesh();
-  readonly plane: Plane;
-  readonly planeMesh: Mesh;
-  visible: boolean;
-
-  private static hiddenMaterial = new MeshBasicMaterial({ visible: false });
   static planeMaterial = new MeshBasicMaterial({
     color: 0xffff00,
     side: DoubleSide,
     transparent: true,
     opacity: 0.2
   });
+  private static hiddenMaterial = new MeshBasicMaterial({ visible: false });
+  readonly arrowBoundingBox = new Mesh();
+  readonly plane: Plane;
+  readonly planeMesh: Mesh;
+
+  visible = true;
+  active = true;
+
   readonly controls: TransformControls;
   public readonly normal: Vector3;
   public readonly origin: Vector3;
@@ -44,7 +46,6 @@ export class IfcPlane extends IfcComponent {
     this.context = context;
     this.plane = new Plane();
     this.planeMesh = this.getPlaneMesh();
-    this.visible = true;
     this.normal = normal;
     this.origin = origin;
     this.helper = this.createHelper();
@@ -63,6 +64,7 @@ export class IfcPlane extends IfcComponent {
     const scene = this.context.getScene();
     scene.remove(this.helper);
     scene.remove(this.controls);
+    this.context.removeClippingPlane(this.plane);
   };
 
   private newTransformControls() {

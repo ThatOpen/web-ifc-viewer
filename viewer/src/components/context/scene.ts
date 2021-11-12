@@ -22,12 +22,15 @@ export class IfcScene extends IfcComponent {
   }
 
   addModel(model: IFCModel) {
+    this.context.items.ifcModels.push(model);
     this.context.items.pickableIfcModels.push(model);
     this.scene.add(model);
   }
 
   removeModel(model: IFCModel) {
-    const index = this.context.items.pickableIfcModels.indexOf(model);
+    let index = this.context.items.ifcModels.indexOf(model);
+    if (index >= 0) this.context.items.ifcModels.splice(index, 1);
+    index = this.context.items.pickableIfcModels.indexOf(model);
     if (index >= 0) this.context.items.pickableIfcModels.splice(index, 1);
     if (model.parent) model.parent.remove(model);
   }

@@ -8,17 +8,21 @@ import {
   IfcClipper,
   DropboxAPI,
   IfcStats,
-  IfcEdges
+  Edges,
+  SectionFillManager,
+  IfcDimensions
 } from './components';
-import { IfcDimensions } from './components/display/dimensions/dimensions';
 import { GLTFManager } from './components/import-export/glTF';
+import { PlanManager } from './components/display/plans/plan-manager';
 
 export class IfcViewerAPI {
   public context: IfcContext;
   IFC: IfcManager;
   clipper: IfcClipper;
+  plans: PlanManager;
+  fills: SectionFillManager;
   dimensions: IfcDimensions;
-  edges: IfcEdges;
+  edges: Edges;
   gltf: GLTFManager;
   stats?: IfcStats;
   grid?: IfcGrid;
@@ -30,8 +34,10 @@ export class IfcViewerAPI {
     this.context = new IfcContext(options);
     this.IFC = new IfcManager(this.context);
     this.clipper = new IfcClipper(this.context);
+    this.plans = new PlanManager(this.IFC, this.context, this.clipper);
+    this.fills = new SectionFillManager(this.IFC, this.context);
     this.dimensions = new IfcDimensions(this.context);
-    this.edges = new IfcEdges(this.context);
+    this.edges = new Edges(this.context);
     this.gltf = new GLTFManager(this.context);
   }
 
@@ -207,6 +213,5 @@ export class IfcViewerAPI {
    * Needs to be implemented yet
    */
   releaseAllMemory() {
-
   }
 }

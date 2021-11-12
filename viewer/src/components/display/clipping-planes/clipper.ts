@@ -1,4 +1,4 @@
-import { Object3D, Vector3, Matrix3, Intersection, Mesh } from 'three';
+import { Object3D, Vector3, Matrix3, Intersection, Mesh, Plane } from 'three';
 import { IfcComponent, Context } from '../../../base-types';
 import { IfcPlane } from './planes';
 
@@ -26,7 +26,10 @@ export class IfcClipper extends IfcComponent {
 
   set active(state) {
     this.enabled = state;
-    this.planes.forEach((plane) => plane.setVisibility(state));
+    this.planes.forEach((plane) => {
+      plane.setVisibility(state);
+      plane.active = state;
+    });
     this.updateMaterials();
   }
 
@@ -50,6 +53,7 @@ export class IfcClipper extends IfcComponent {
     this.planes.push(plane);
     this.context.addClippingPlane(plane.plane);
     this.updateMaterials();
+    return plane;
   };
 
   deletePlane = (plane?: IfcPlane) => {
@@ -68,13 +72,15 @@ export class IfcClipper extends IfcComponent {
   };
 
   deleteAllPlanes = () => {
-    this.planes.forEach((plane) => {
-      plane.removeFromScene();
-      this.context.removeClippingPlane(plane.plane);
-    });
+    this.planes.forEach((plane) => plane.removeFromScene());
     this.planes = [];
     this.updateMaterials();
   };
+
+  setPlaneActive(plane: IfcPlane, active: boolean) {
+    plane.active = active;
+    this.updateMaterials();
+  }
 
   private pickPlane = () => {
     const planeMeshes = this.planes.map((p) => p.planeMesh);
@@ -139,22 +145,25 @@ export class IfcClipper extends IfcComponent {
   };
 
   private updateMaterials = () => {
+    const planes = this.context.getClippingPlanes();
+    planes.length = 0;
+    const active = this.planes.filter((plane) => plane.active).map((plane) => plane.plane);
+    planes.push(...active);
     // Applying clipping to IfcObjects only. This could be improved.
     this.context.items.ifcModels.forEach((obj: Object3D) => {
       const mesh = obj as Mesh;
-      if (mesh.material) this.updateMaterial(mesh);
-      if (mesh.userData.wireframe) this.updateMaterial(mesh.userData.wireframe);
+      if (mesh.material) this.updateMaterial(mesh, planes);
+      if (mesh.userData.wireframe) this.updateMaterial(mesh.userData.wireframe, planes);
     });
   };
 
-  private updateMaterial(mesh: Mesh) {
-    const activePlanes = this.planes.filter((plane) => plane.visible);
+  private updateMaterial(mesh: Mesh, planes: Plane[]) {
     if (!Array.isArray(mesh.material)) {
-      mesh.material.clippingPlanes = activePlanes.map((e) => e.plane);
+      mesh.material.clippingPlanes = planes;
       return;
     }
     mesh.material.forEach((m) => {
-      m.clippingPlanes = activePlanes.map((e) => e.plane);
+      m.clippingPlanes = planes;
     });
   }
 }
