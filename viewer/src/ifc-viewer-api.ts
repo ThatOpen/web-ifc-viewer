@@ -8,7 +8,7 @@ import {
   IfcClipper,
   DropboxAPI,
   IfcStats,
-  EdgesManager,
+  Edges,
   SectionFillManager,
   IfcDimensions
 } from './components';
@@ -22,7 +22,7 @@ export class IfcViewerAPI {
   plans: PlanManager;
   fills: SectionFillManager;
   dimensions: IfcDimensions;
-  edges: EdgesManager;
+  edges: Edges;
   gltf: GLTFManager;
   stats?: IfcStats;
   grid?: IfcGrid;
@@ -34,10 +34,10 @@ export class IfcViewerAPI {
     this.context = new IfcContext(options);
     this.IFC = new IfcManager(this.context);
     this.clipper = new IfcClipper(this.context);
-    this.plans = new PlanManager(this.context, this.clipper);
+    this.plans = new PlanManager(this.IFC, this.context, this.clipper);
     this.fills = new SectionFillManager(this.IFC, this.context);
     this.dimensions = new IfcDimensions(this.context);
-    this.edges = new EdgesManager(this.context);
+    this.edges = new Edges(this.context);
     this.gltf = new GLTFManager(this.context);
   }
 

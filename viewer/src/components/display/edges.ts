@@ -3,10 +3,10 @@ import {
   EdgesGeometry, Material
 } from 'three';
 import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
-import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial';
 import { Context } from '../../base-types';
 
-export class EdgesManager {
+export class Edges {
+  threshold = 30;
   private readonly edges: {
     [name: string]: {
       edges: LineSegments;
@@ -27,17 +27,25 @@ export class EdgesManager {
     material.polygonOffsetUnits = 1;
   }
 
+  getAll() {
+    return Object.keys(this.edges);
+  }
+
   get(name: string) {
     return this.edges[name];
   }
 
-  create(name: string, modelID: number, lineMaterial: LineMaterial, material?: Material) {
+  // TODO: Implement ids to create filtered edges / edges by floor plan
+  create(name: string, modelID: number, lineMaterial: Material, material?: Material) {
     const model = this.context.items.ifcModels.find(
       (model) => model.modelID === modelID
     ) as IFCModel;
     if (!model) return;
+    const planes = this.context.getClippingPlanes();
+    lineMaterial.clippingPlanes = planes;
+    if (material) material.clippingPlanes = planes;
     this.setupModelMaterials(model);
-    const geo = new EdgesGeometry(model.geometry);
+    const geo = new EdgesGeometry(model.geometry, this.threshold);
     lineMaterial.clippingPlanes = this.context.getClippingPlanes();
     this.edges[name] = {
       edges: new LineSegments(geo, lineMaterial),
@@ -64,9 +72,9 @@ export class EdgesManager {
 
   private setupModelMaterials(model: IFCModel) {
     if (Array.isArray(model.material)) {
-      model.material.forEach((mat) => EdgesManager.setupModelMaterial(mat));
+      model.material.forEach((mat) => Edges.setupModelMaterial(mat));
       return;
     }
-    EdgesManager.setupModelMaterial(model.material);
+    Edges.setupModelMaterial(model.material);
   }
 }
