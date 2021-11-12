@@ -4,8 +4,9 @@ import { IFCSPACE, IFCSTAIR, IFCCOLUMN, IFCWALLSTANDARDCASE, IFCWALL, IFCSLAB, I
 import {
   Vector3,
   MeshBasicMaterial,
+  LineBasicMaterial
 } from 'three';
-import { updateModel } from './edges';
+import { updateModel } from './conditional-lines/edges';
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container });
@@ -13,13 +14,14 @@ viewer.addAxes();
 viewer.addGrid();
 viewer.IFC.setWasmPath('files/');
 viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-  COORDINATE_TO_ORIGIN: true,
+  COORDINATE_TO_ORIGIN: false,
   USE_FAST_BOOLS: true
 });
 viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
 
 
 // Setup loader
+let fill;
 const loadIfc = async (event) => {
   const overlay = document.getElementById('loading-overlay');
   const progressText = document.getElementById('loading-progress');
@@ -37,8 +39,12 @@ const loadIfc = async (event) => {
     [IFCOPENINGELEMENT]: false
   });
 
-  const model = await viewer.IFC.loadIfc(event.target.files[0], true);
-  if (!model) return;
+  await viewer.IFC.loadIfc(event.target.files[0], true);
+  // model.material.forEach(mat => mat.side = 2);
+
+  // createFill();
+  // viewer.edges.create("01", 0, new LineBasicMaterial({color: 0x000000}), new MeshBasicMaterial({color: 0xffffff, side: 2}));
+
   overlay.classList.add('hidden');
 }
 
@@ -57,10 +63,17 @@ document.body.appendChild(inputElement);
 //   const columns = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCCOLUMN, false);
 //   const slabs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCSLAB, false);
 //   const ids = [...walls, ...wallsStandard, ...columns, ...slabs, ...stairs];
-//   const fill = viewer.fills.create('example', 0, ids, new MeshBasicMaterial({color: 0xffffff}));
+//   fill = viewer.fills.create('example', 0, ids, new MeshBasicMaterial({color: 0x000000}));
 //   if(fill) {
 //     fill.position.y += 0.01;
 //   }
+//   fill.visible = false;
+// }
+
+// async function goToFirstFloor() {
+//   await viewer.plans.computeAllPlanViews(0);
+//   const firstFloor = viewer.plans.getAll()[0];
+//   await viewer.plans.goTo(firstFloor);
 // }
 
 const handleKeyDown = (event) => {
@@ -71,33 +84,26 @@ const handleKeyDown = (event) => {
   if (event.code === 'KeyO') {
     viewer.context.getIfcCamera().toggleProjection();
   }
-  if (event.code === 'KeyC') {
-    viewer.plans.create({
-      name: '01',
-      camera: new Vector3(0, 10, 0),
-      target: new Vector3(0, 0, 0),
-      normal: new Vector3(0, -1, 0),
-      point: new Vector3(0, 2, 0)
-    });
-    viewer.plans.goTo("01");
+  if (event.code === 'KeyR') {
+    viewer.context.renderer.usePostproduction = !viewer.context.renderer.usePostproduction;
   }
-  if (event.code === 'KeyF') {
-    // createFill();
-    loadLines();
-  }
+  // if (event.code === 'KeyC') {
+  //   goToFirstFloor();
+  //   viewer.edges.toggle("01");
+  //   fill.visible = true;
+  // }
+  // if (event.code === 'KeyE') {
+  //   viewer.plans.exitPlanView(true);
+  //   viewer.edges.toggle("01");
+  //   fill.visible = false;
+  // }
 };
-
-async function loadLines() {
-  const model = await viewer.IFC.loadIfcUrl('test.ifc');
-  if(!model) return;
-  const scene = viewer.context.getScene();
-  updateModel(model, scene);
-}
 
 window.onmousemove = viewer.IFC.prePickIfcItem;
 window.onkeydown = handleKeyDown;
 window.ondblclick = async () => {
   viewer.clipper.createPlane();
+
   // viewer.IFC.pickIfcItem(true);
 };
 
