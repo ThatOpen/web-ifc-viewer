@@ -9,8 +9,8 @@ export class PlanControl extends IfcComponent implements NavigationMode {
   onChange = new LiteEvent<any>();
   onChangeProjection = new LiteEvent<Camera>();
 
-  private readonly defaultAzimuthSpeed;
-  private readonly defaultPolarSpeed;
+  private readonly defaultAzimuthSpeed: number;
+  private readonly defaultPolarSpeed: number;
 
   constructor(context: Context, private ifcCamera: IfcCamera) {
     super(context);
