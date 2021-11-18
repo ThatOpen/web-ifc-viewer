@@ -10,6 +10,8 @@ import {
 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 import { Context, IfcComponent } from '../../../base-types';
+import { ClippingEdges } from './clipping-edges';
+import { IfcManager } from '../../ifc';
 
 export class IfcPlane extends IfcComponent {
   static planeMaterial = new MeshBasicMaterial({
@@ -31,10 +33,12 @@ export class IfcPlane extends IfcComponent {
   public readonly origin: Vector3;
   public readonly helper: Object3D;
   private readonly planeSize: number;
-  private context: Context;
+  private readonly edges: ClippingEdges;
+  private readonly context: Context;
 
   constructor(
     context: Context,
+    ifc: IfcManager,
     origin: Vector3,
     normal: Vector3,
     onStartDragging: Function,
@@ -52,6 +56,8 @@ export class IfcPlane extends IfcComponent {
     this.controls = this.newTransformControls();
     this.setupEvents(onStartDragging, onEndDragging);
     this.plane.setFromNormalAndCoplanarPoint(normal, origin);
+    this.edges = new ClippingEdges(this.context, this.plane, ifc);
+    this.edges.updateEdges();
   }
 
   setVisibility(visible: boolean) {
@@ -64,6 +70,7 @@ export class IfcPlane extends IfcComponent {
     const scene = this.context.getScene();
     scene.remove(this.helper);
     scene.remove(this.controls);
+    this.edges.remove();
     this.context.removeClippingPlane(this.plane);
   };
 
@@ -101,6 +108,9 @@ export class IfcPlane extends IfcComponent {
     this.controls.addEventListener('dragging-changed', (event) => {
       this.visible = !event.value;
       this.context.toggleCameraControls(this.visible);
+      if (this.visible) {
+        this.edges.updateEdges();
+      }
       if (event.value) onStart();
       else onEnd();
     });

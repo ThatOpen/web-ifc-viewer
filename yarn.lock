@@ -4842,10 +4842,10 @@ three-mesh-bvh@^0.3.7:
   resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.3.7.tgz#39a05d2d53f66b5df486d08622801a1850734934"
   integrity sha512-veRJRj0mY2rBj9yRZVg/E98wd6e7AzqzTq/+6ispY6m50gYuGitUNih2dRQzbkMcwRECLURvuudb9BFW3/swAw==
 
-three-mesh-bvh@^0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.4.1.tgz#ba0bf1dac7cbd41f2132c8446545c8ad9fbeb892"
-  integrity sha512-1ALlGVjArZpi0SdqZhjwFA3DZHgBF/Uo4LnL8G7PczI7rpOoBK87CaBL073DVrrbIE4OONJvpq/PEzluKoRHbg==
+three-mesh-bvh@^0.5.2:
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.5.2.tgz#6d435330e4aa686dcdbf70330c8eb5dd42b12737"
+  integrity sha512-DAKWujkp8xpSBqGiIsZbZC1utxAbYBg0SShQk9LdOG/xWWl1/OLK76eXDGfov47trl3L7PUTHi0hhRvZdVro1Q==
 
 three@^0.132.2:
   version "0.132.2"
@@ -5145,15 +5145,15 @@ web-ifc-three@^0.0.81:
     three-mesh-bvh "^0.3.7"
     web-ifc "^0.0.28"
 
-web-ifc@0.0.28, web-ifc@^0.0.28:
+web-ifc@^0.0.28:
   version "0.0.28"
   resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.28.tgz#660acc9b30d6b7521cd70192f887f87c98df83f8"
   integrity sha512-KEIuiZL8SUA3W7pdwsJm54MQ8AM5jk3zgC5K9fLb+tLZSg3UR9JxGcWGam3ZHc/HkAVR+2gH0uc3yofBkI0Kfw==
 
-web-ifc@^0.0.25:
-  version "0.0.25"
-  resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.25.tgz#386b7ce9b7eb6e0ed2998ff72b234d6a71c2de53"
-  integrity sha512-FutpMKz8UtTkSjRD20sfebVOj+vrAKn9vLumaL6MkcjVjsSHhpnelHM7OvUAcZFeNwV69yTme9YAwOuPVZ2n+Q==
+web-ifc@^0.0.29:
+  version "0.0.29"
+  resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.29.tgz#3d0a71da4a6560a74d6c635da7382e6c704ada0b"
+  integrity sha512-EY5YWPvK7dvJH7A+NGZJ8PUkrrmjB8I9SrvpwSUoUOPEQGHxB2JemIiCHj04iY995QsTgpx55KFTA9jgHJwEIA==
 
 webidl-conversions@^5.0.0:
   version "5.0.0"

@@ -32,8 +32,8 @@
     "dat.gui": "^0.7.7",
     "gsap": "^3.7.1",
     "postprocessing": "^6.23.1",
-    "three-mesh-bvh": "^0.4.1",
-    "web-ifc": "0.0.28",
+    "three-mesh-bvh": "^0.5.2",
+    "web-ifc": "^0.0.29",
     "web-ifc-three": "^0.0.81"
   },
   "devDependencies": {

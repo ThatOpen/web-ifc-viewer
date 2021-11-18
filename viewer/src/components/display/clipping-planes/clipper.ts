@@ -1,6 +1,7 @@
 import { Object3D, Vector3, Matrix3, Intersection, Mesh, Plane } from 'three';
 import { IfcComponent, Context } from '../../../base-types';
 import { IfcPlane } from './planes';
+import { IfcManager } from '../../ifc';
 
 export class IfcClipper extends IfcComponent {
   dragging: boolean;
@@ -11,10 +12,12 @@ export class IfcClipper extends IfcComponent {
   planeSize = 5;
   private enabled: boolean;
   private readonly context: Context;
+  private readonly ifc: IfcManager;
 
-  constructor(context: Context) {
+  constructor(context: Context, ifc: IfcManager) {
     super(context);
     this.context = context;
+    this.ifc = ifc;
     this.enabled = false;
     this.dragging = false;
     this.planes = [];
@@ -44,6 +47,7 @@ export class IfcClipper extends IfcComponent {
   createFromNormalAndCoplanarPoint = (normal: Vector3, point: Vector3) => {
     const plane = new IfcPlane(
       this.context,
+      this.ifc,
       point,
       normal,
       this.activateDragging,
@@ -128,6 +132,7 @@ export class IfcClipper extends IfcComponent {
   private newPlane(intersection: Intersection, worldNormal: Vector3) {
     return new IfcPlane(
       this.context,
+      this.ifc,
       intersection.point,
       worldNormal,
       this.activateDragging,
