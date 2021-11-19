@@ -4837,11 +4837,6 @@ text-table@^0.2.0:
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=
 
-three-mesh-bvh@^0.3.7:
-  version "0.3.7"
-  resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.3.7.tgz#39a05d2d53f66b5df486d08622801a1850734934"
-  integrity sha512-veRJRj0mY2rBj9yRZVg/E98wd6e7AzqzTq/+6ispY6m50gYuGitUNih2dRQzbkMcwRECLURvuudb9BFW3/swAw==
-
 three-mesh-bvh@^0.5.2:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.5.2.tgz#6d435330e4aa686dcdbf70330c8eb5dd42b12737"
@@ -5136,19 +5131,14 @@ walker@^1.0.7:
   dependencies:
     makeerror "1.0.x"
 
-web-ifc-three@^0.0.81:
-  version "0.0.81"
-  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.81.tgz#785463150e248ed77d671fa9e020e15915a01ffa"
-  integrity sha512-Pyd1m69g7ceEgmCzCDlmVaLoA03sOdiTw6MHDxwS+9CDtWjP99IA9pJRPVCVNFTu9YaZbaILbPJ6PNjAzpVhcw==
+web-ifc-three@^0.0.83:
+  version "0.0.83"
+  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.83.tgz#112187d714af0f427ffcb22d6f67619c2739d588"
+  integrity sha512-31rzlEbzOfP3WoHZXEWLk4bgHg3xDbCJBlx1qkc1Sn9Edpdkyvf/2TXo3DVysf8g64w95G4x9XAdEdvlLDo5BA==
   dependencies:
     "@types/three" "^0.131.0"
-    three-mesh-bvh "^0.3.7"
-    web-ifc "^0.0.28"
-
-web-ifc@^0.0.28:
-  version "0.0.28"
-  resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.28.tgz#660acc9b30d6b7521cd70192f887f87c98df83f8"
-  integrity sha512-KEIuiZL8SUA3W7pdwsJm54MQ8AM5jk3zgC5K9fLb+tLZSg3UR9JxGcWGam3ZHc/HkAVR+2gH0uc3yofBkI0Kfw==
+    three-mesh-bvh "^0.5.2"
+    web-ifc "^0.0.29"
 
 web-ifc@^0.0.29:
   version "0.0.29"

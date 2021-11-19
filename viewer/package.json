@@ -34,7 +34,7 @@
     "postprocessing": "^6.23.1",
     "three-mesh-bvh": "^0.5.2",
     "web-ifc": "^0.0.29",
-    "web-ifc-three": "^0.0.81"
+    "web-ifc-three": "^0.0.83"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",

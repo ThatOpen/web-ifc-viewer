@@ -2,7 +2,7 @@ import { IfcViewerAPI } from 'web-ifc-viewer';
 import { createSideMenuButton } from './utils/gui-creator';
 import { IFCSPACE, IFCOPENINGELEMENT, IFCWALLSTANDARDCASE, IFCWALL, IFCSTAIR, IFCCOLUMN, IFCSLAB } from 'web-ifc';
 import {MeshBasicMaterial, LineBasicMaterial, Color} from 'three';
-import { fillSection } from './section-fill';
+// import { fillSection } from './section-fill';
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255, 255) });
@@ -87,7 +87,7 @@ const handleKeyDown = async (event) => {
   if(event.code === 'KeyD') {
     // exportDXF();
     const scene = viewer.context.getScene();
-    fillSection(scene);
+    // fillSection(scene);
   }
   if (event.code === 'KeyF') {
     fill.visible = true;
@@ -109,14 +109,8 @@ window.onkeydown = handleKeyDown;
 window.ondblclick = async () => {
   viewer.clipper.createPlane();
 
-  test();
   // viewer.IFC.pickIfcItem(true);
 };
-
-async function test() {
-  const items = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
-  console.log(items);
-}
 
 //Setup UI
 const loadButton = createSideMenuButton('./resources/folder-icon.svg');

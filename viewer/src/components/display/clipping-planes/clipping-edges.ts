@@ -7,21 +7,23 @@ import {
   DynamicDrawUsage,
   Line3,
   LineSegments,
-  Matrix4,
+  Matrix4, Mesh, MeshBasicMaterial,
   Plane,
   Vector3
 } from 'three';
+import { IFCWALLSTANDARDCASE } from 'web-ifc';
+import { MeshBVH } from 'three-mesh-bvh';
 import { Context } from '../../../base-types';
 import { IfcManager } from '../../ifc';
 
-// export interface Style {
-//   categories: number[];
-//   material: LineMaterial;
-//   generatorGeometry?: BufferGeometry;
-//   model?: BufferGeometry;
-//   thickLineGeometry?: LineSegmentsGeometry;
-//   thickEdges?: LineSegments2;
-// }
+export interface Style {
+  categories: number[];
+  material: LineMaterial;
+  generatorGeometry: BufferGeometry;
+  model: BufferGeometry;
+  thickLineGeometry: LineSegmentsGeometry;
+  thickEdges: LineSegments2;
+}
 //
 // export interface StyleList {
 //   [styleName: string]: Style;
@@ -46,8 +48,10 @@ export class ClippingEdges {
   //   }
   // };
 
-  private readonly basicEdges: LineSegments;
+
+
   private readonly generatorGeometry: BufferGeometry;
+  private readonly basicEdges: LineSegments;
   private readonly thickEdges: LineSegments2;
   private readonly thickMaterial: LineMaterial;
   private readonly thickLineGeometry: LineSegmentsGeometry;
@@ -130,11 +134,31 @@ export class ClippingEdges {
     this.thickLineGeometry.dispose();
   }
 
-  updateEdges() {
+  async updateEdges() {
     const model = this.context.items.ifcModels[0];
-    if (!model.geometry || !model.geometry.boundsTree) return;
 
-    this.inverseMatrix.copy(model.matrixWorld).invert();
+    const walls = await this.ifc.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
+    const scene = this.context.getScene();
+    const subset = this.ifc.loader.ifcManager.createSubset({
+      modelID: 0,
+      ids: walls,
+      material: new MeshBasicMaterial({ visible: false }),
+      scene,
+      removePrevious: true
+    });
+
+    if (!subset) return;
+
+    subset.geometry.boundsTree = new MeshBVH(subset.geometry, { maxLeafTris: 3 });
+
+    // if (!model.geometry || !model.geometry.boundsTree) return;
+    this.drawEdges(subset, model);
+  }
+
+  private drawEdges(subset: Mesh, model: Mesh) {
+    if (!subset.geometry.boundsTree) return;
+
+    this.inverseMatrix.copy(subset.matrixWorld).invert();
     this.localPlane.copy(this.clippingPlane).applyMatrix4(this.inverseMatrix);
 
     let index = 0;
@@ -142,13 +166,13 @@ export class ClippingEdges {
     // @ts-ignore
     posAttr.array.fill(0);
 
-    model.geometry.boundsTree.shapecast({
-      intersectsBounds: (box) => {
+    subset.geometry.boundsTree.shapecast({
+      intersectsBounds: (box: any) => {
         return this.localPlane.intersectsBox(box) as any;
       },
 
       // @ts-ignore
-      intersectsTriangle: (tri) => {
+      intersectsTriangle: (tri: any) => {
         // check each triangle edge to see if it intersects with the plane. If so then
         // add it to the list of segments.
         let count = 0;
