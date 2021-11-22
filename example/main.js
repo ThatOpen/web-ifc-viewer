@@ -2,6 +2,7 @@ import { IfcViewerAPI } from 'web-ifc-viewer';
 import { createSideMenuButton } from './utils/gui-creator';
 import { IFCSPACE, IFCOPENINGELEMENT, IFCWALLSTANDARDCASE, IFCWALL, IFCSTAIR, IFCCOLUMN, IFCSLAB } from 'web-ifc';
 import {MeshBasicMaterial, LineBasicMaterial, Color} from 'three';
+import { exportDXF } from './dxf';
 // import { fillSection } from './section-fill';
 
 const container = document.getElementById('viewer-container');
@@ -59,12 +60,12 @@ async function createFill() {
   const columns = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCCOLUMN, false);
   const slabs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCSLAB, false);
   const ids = [...walls, ...wallsStandard, ...columns, ...stairs, ...slabs];
-  fill = viewer.fills.create('example', 0, ids, new MeshBasicMaterial({color: 0xffffff}));
+  fill = viewer.fills.create('example', 0, ids, new MeshBasicMaterial({color: 0x888888}));
   fill.renderOrder = 2;
   if(fill) {
     fill.position.y += 0.01;
   }
-  fill.visible = false;
+  // fill.visible = false;
 }
 
 async function goToFirstFloor() {
@@ -85,8 +86,8 @@ const handleKeyDown = async (event) => {
     viewer.context.renderer.usePostproduction = !viewer.context.renderer.usePostproduction;
   }
   if(event.code === 'KeyD') {
-    // exportDXF();
-    const scene = viewer.context.getScene();
+    exportDXF();
+    // const scene = viewer.context.getScene();
     // fillSection(scene);
   }
   if (event.code === 'KeyF') {
@@ -94,8 +95,8 @@ const handleKeyDown = async (event) => {
   }
   if (event.code === 'KeyC') {
     await createFill();
-    await goToFirstFloor();
-    viewer.edges.toggle("01");
+    // await goToFirstFloor();
+    // viewer.edges.toggle("01");
   }
   if (event.code === 'KeyE') {
     viewer.plans.exitPlanView(true);

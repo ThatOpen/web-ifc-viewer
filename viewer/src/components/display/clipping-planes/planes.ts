@@ -104,13 +104,11 @@ export class IfcPlane extends IfcComponent {
   private setupEvents(onStart: Function, onEnd: Function) {
     this.controls.addEventListener('change', () => {
       this.plane.setFromNormalAndCoplanarPoint(this.normal, this.helper.position);
+      this.edges.updateEdges();
     });
     this.controls.addEventListener('dragging-changed', (event) => {
       this.visible = !event.value;
       this.context.toggleCameraControls(this.visible);
-      if (this.visible) {
-        this.edges.updateEdges();
-      }
       if (event.value) onStart();
       else onEnd();
     });

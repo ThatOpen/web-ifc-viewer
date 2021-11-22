@@ -7,54 +7,55 @@ import {
   DynamicDrawUsage,
   Line3,
   LineSegments,
-  Matrix4, Mesh, MeshBasicMaterial,
+  Matrix4,
+  Mesh,
+  MeshBasicMaterial,
   Plane,
   Vector3
 } from 'three';
-import { IFCWALLSTANDARDCASE } from 'web-ifc';
+import {
+  IFCDOOR,
+  IFCMEMBER,
+  IFCPLATE,
+  IFCSLAB,
+  IFCWALL,
+  IFCWALLSTANDARDCASE,
+  IFCWINDOW
+} from 'web-ifc';
 import { MeshBVH } from 'three-mesh-bvh';
+import { IfcMesh } from 'web-ifc-three/IFC/BaseDefinitions';
 import { Context } from '../../../base-types';
 import { IfcManager } from '../../ifc';
 
 export interface Style {
   categories: number[];
-  material: LineMaterial;
   generatorGeometry: BufferGeometry;
-  model: BufferGeometry;
-  thickLineGeometry: LineSegmentsGeometry;
-  thickEdges: LineSegments2;
+  model: IfcMesh;
+  modelID: number;
+  // thickLineGeometry: LineSegmentsGeometry;
+  // thickEdges: LineSegments2;
+  subset: Mesh;
 }
-//
-// export interface StyleList {
-//   [styleName: string]: Style;
-// }
 
-// Source: https://gkjohnson.github.io/three-mesh-bvh/example/bundle/clippedEdges.html
+export interface StyleList {
+  [styleName: string]: Style;
+}
+
+export interface EdgesItems {
+  [styleName: string]: {
+    thickLineGeometry: LineSegmentsGeometry;
+    thickEdges: LineSegments2;
+  };
+}
+
 export class ClippingEdges {
-  // static readonly styles: StyleList = {
-  //   thick: {
-  //     categories: [IFCWALL, IFCWALLSTANDARDCASE, IFCSLAB, IFCROOF],
-  //     material: new LineMaterial({
-  //       color: 0x000000,
-  //       linewidth: 0.001
-  //     })
-  //   },
-  //   thin: {
-  //     categories: [IFCDOOR, IFCWINDOW, IFCPLATE, IFCMEMBER],
-  //     material: new LineMaterial({
-  //       color: 0x000000,
-  //       linewidth: 0.001
-  //     })
-  //   }
-  // };
+  static readonly styles: StyleList = {};
 
+  private static invisibleMaterial = new MeshBasicMaterial({ visible: false });
+  private static defaultMaterial = new LineMaterial({ color: 0x000000, linewidth: 0.001 });
 
-
-  private readonly generatorGeometry: BufferGeometry;
   private readonly basicEdges: LineSegments;
-  private readonly thickEdges: LineSegments2;
-  private readonly thickMaterial: LineMaterial;
-  private readonly thickLineGeometry: LineSegmentsGeometry;
+  edges: EdgesItems = {};
 
   private inverseMatrix = new Matrix4();
   private localPlane = new Plane();
@@ -62,111 +63,115 @@ export class ClippingEdges {
   private tempVector = new Vector3();
 
   constructor(private context: Context, private clippingPlane: Plane, public ifc: IfcManager) {
-    const planes = this.context.getClippingPlanes();
-    this.generatorGeometry = new BufferGeometry();
     this.basicEdges = new LineSegments();
-    this.thickLineGeometry = new LineSegmentsGeometry();
-    this.thickMaterial = new LineMaterial({
-      color: 0x000000,
-      linewidth: 0.001,
-      clippingPlanes: planes
-    });
-    this.thickEdges = new LineSegments2(this.thickLineGeometry, this.thickMaterial);
-    this.initializeEdgesGeometry();
-    this.initializeEdgesObject();
+    this.newGeneratorGeometry();
   }
 
-  // async regenerateStyles(stylesNames = Object.keys(ClippingEdges.styles)) {
-  //   // for (let i = 0; i < stylesNames.length; i++) {
-  //
-  //   const styleName = stylesNames[0];
-  //   const currentStyle = ClippingEdges.styles[styleName];
-  //   if (currentStyle.generatorGeometry) {
-  //     currentStyle.generatorGeometry.dispose();
-  //   }
-  //
-  //   const ids: number[] = [];
-  //   for (let j = 0; j < currentStyle.categories.length; j++) {
-  //     const category = currentStyle.categories[j];
-  //     // eslint-disable-next-line no-await-in-loop
-  //     const found = await this.ifc.loader.ifcManager.getAllItemsOfType(0, category, false);
-  //     ids.push(...found);
-  //   }
-  //
-  //   if (ids.length === 0) return;
-  //
-  //   const subset = this.ifc.loader.ifcManager.createSubset({
-  //     modelID: 0,
-  //     ids,
-  //     scene: new Object3D(),
-  //     removePrevious: true,
-  //     customId: `styles - ${styleName}`
-  //   });
-  //
-  //   currentStyle.material.polygonOffset = true;
-  //   currentStyle.material.polygonOffsetFactor = -2;
-  //   currentStyle.material.polygonOffsetUnits = 1;
-  //
-  //   if (subset && subset.geometry) currentStyle.model = subset.geometry;
-  //   if (!currentStyle.thickLineGeometry)
-  //     currentStyle.thickLineGeometry = new LineSegmentsGeometry();
-  //   if (!currentStyle.thickEdges) {
-  //     currentStyle.thickEdges = new LineSegments2();
-  //     currentStyle.thickEdges.renderOrder = 3;
-  //     currentStyle.thickEdges.material = currentStyle.material;
-  //   }
-  //
-  //   if (!currentStyle.generatorGeometry) {
-  //     currentStyle.generatorGeometry = new BufferGeometry();
-  //     const linePosAttr = new BufferAttribute(new Float32Array(300000), 3, false);
-  //     linePosAttr.setUsage(DynamicDrawUsage);
-  //     currentStyle.generatorGeometry.setAttribute('position', linePosAttr);
-  //   }
-  //
-  //   // const model = this.context.items.ifcModels[0];
-  //   this.updateEdges(subset, currentStyle);
-  //   // }
-  // }
-
   remove() {
-    this.generatorGeometry.dispose();
-    this.thickEdges.removeFromParent();
-    this.thickLineGeometry.dispose();
+    // this.generatorGeometry.dispose();
+    // this.thickEdges.removeFromParent();
+    // this.thickLineGeometry.dispose();
   }
 
   async updateEdges() {
     const model = this.context.items.ifcModels[0];
+    if (Object.keys(ClippingEdges.styles).length === 0) {
+      await this.newStyle(
+        model.modelID,
+        'thick',
+        [IFCWALLSTANDARDCASE, IFCWALL, IFCSLAB],
+        new LineMaterial({ color: 0x000000, linewidth: 0.0015 })
+      );
 
-    const walls = await this.ifc.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
-    const scene = this.context.getScene();
-    const subset = this.ifc.loader.ifcManager.createSubset({
-      modelID: 0,
-      ids: walls,
-      material: new MeshBasicMaterial({ visible: false }),
-      scene,
-      removePrevious: true
+      await this.newStyle(
+        model.modelID,
+        'thin',
+        [IFCWINDOW, IFCPLATE, IFCMEMBER, IFCDOOR],
+        new LineMaterial({ color: 0x333333, linewidth: 0.001 })
+      );
+    }
+    Object.keys(ClippingEdges.styles).forEach((style) => {
+      this.drawEdges(ClippingEdges.styles[style], model);
     });
-
-    if (!subset) return;
-
-    subset.geometry.boundsTree = new MeshBVH(subset.geometry, { maxLeafTris: 3 });
-
-    // if (!model.geometry || !model.geometry.boundsTree) return;
-    this.drawEdges(subset, model);
   }
 
-  private drawEdges(subset: Mesh, model: Mesh) {
-    if (!subset.geometry.boundsTree) return;
+  async newStyle(
+    modelID: number,
+    styleName: string,
+    categories: number[],
+    material = ClippingEdges.defaultMaterial
+  ) {
+    const generatorGeometry = this.newGeneratorGeometry();
+    const thickLineGeometry = new LineSegmentsGeometry();
+    material.clippingPlanes = this.context.getClippingPlanes();
+    ClippingEdges.styles[styleName] = {
+      modelID,
+      categories,
+      generatorGeometry,
+      thickLineGeometry,
+      model: this.context.items.ifcModels[modelID],
+      thickEdges: this.newThickEdges(thickLineGeometry, material),
+      subset: await this.newSubset(styleName, modelID, categories)
+    };
+  }
 
-    this.inverseMatrix.copy(subset.matrixWorld).invert();
+  private async newSubset(styleName: string, modelID: number, categories: number[]) {
+    const subset = this.ifc.loader.ifcManager.createSubset({
+      modelID,
+      customId: `${styleName}`,
+      material: ClippingEdges.invisibleMaterial,
+      removePrevious: true,
+      scene: this.context.getScene(),
+      ids: await this.getItemIDs(modelID, categories)
+    });
+    if (subset) {
+      subset.geometry.boundsTree = new MeshBVH(subset.geometry, { maxLeafTris: 3 });
+      return subset;
+    }
+    throw new Error(`Subset could not be created for the following style: ${styleName}`);
+  }
+
+  private async getItemIDs(modelID: number, categories: number[]) {
+    const ids: number[] = [];
+    for (let j = 0; j < categories.length; j++) {
+      // eslint-disable-next-line no-await-in-loop
+      const found = await this.ifc.getAllItemsOfType(modelID, categories[j], false);
+      ids.push(...found);
+    }
+    return ids;
+  }
+
+  private newThickEdges(thickLineGeometry: LineSegmentsGeometry, material: LineMaterial) {
+    const thickEdges = new LineSegments2(thickLineGeometry, material);
+    thickEdges.material.polygonOffset = true;
+    thickEdges.material.polygonOffsetFactor = -2;
+    thickEdges.material.polygonOffsetUnits = 1;
+    thickEdges.renderOrder = 3;
+    return thickEdges;
+  }
+
+  private newGeneratorGeometry() {
+    // create line geometry with enough data to hold 100000 segments
+    const generatorGeometry = new BufferGeometry();
+    const linePosAttr = new BufferAttribute(new Float32Array(300000), 3, false);
+    linePosAttr.setUsage(DynamicDrawUsage);
+    generatorGeometry.setAttribute('position', linePosAttr);
+    return generatorGeometry;
+  }
+
+  // Source: https://gkjohnson.github.io/three-mesh-bvh/example/bundle/clippedEdges.html
+  private drawEdges(style: Style, model: Mesh) {
+    if (!style.subset.geometry.boundsTree) return;
+
+    this.inverseMatrix.copy(style.subset.matrixWorld).invert();
     this.localPlane.copy(this.clippingPlane).applyMatrix4(this.inverseMatrix);
 
     let index = 0;
-    const posAttr = this.generatorGeometry.attributes.position;
+    const posAttr = style.generatorGeometry.attributes.position;
     // @ts-ignore
     posAttr.array.fill(0);
 
-    subset.geometry.boundsTree.shapecast({
+    style.subset.geometry.boundsTree.shapecast({
       intersectsBounds: (box: any) => {
         return this.localPlane.intersectsBox(box) as any;
       },
@@ -180,8 +185,8 @@ export class ClippingEdges {
         this.tempLine.end.copy(tri.b);
         if (this.localPlane.intersectLine(this.tempLine, this.tempVector)) {
           posAttr.setXYZ(index, this.tempVector.x, this.tempVector.y, this.tempVector.z);
-          index++;
           count++;
+          index++;
         }
 
         this.tempLine.start.copy(tri.b);
@@ -209,32 +214,14 @@ export class ClippingEdges {
     });
 
     // set the draw range to only the new segments and offset the lines so they don't intersect with the geometry
-    this.thickEdges.geometry.setDrawRange(0, index);
-    this.thickEdges.position.copy(this.clippingPlane.normal).multiplyScalar(0.0001);
+    style.thickEdges.geometry.setDrawRange(0, index);
+    style.thickEdges.position.copy(this.clippingPlane.normal).multiplyScalar(0.0001);
     posAttr.needsUpdate = true;
 
-    // @ts-ignore
-    window.asdfasdf = this.generatorGeometry.attributes;
-
-    this.basicEdges.geometry = this.generatorGeometry;
-    this.thickEdges.geometry = this.thickLineGeometry.fromLineSegments(this.basicEdges);
-    if (this.thickEdges.parent !== model) {
-      model.add(this.thickEdges);
+    this.basicEdges.geometry = style.generatorGeometry;
+    style.thickEdges.geometry = style.thickLineGeometry.fromLineSegments(this.basicEdges);
+    if (style.thickEdges.parent !== model) {
+      model.add(style.thickEdges);
     }
-  }
-
-  private initializeEdgesObject() {
-    this.thickEdges.material.polygonOffset = true;
-    this.thickEdges.material.polygonOffsetFactor = -2;
-    this.thickEdges.material.polygonOffsetUnits = 1;
-    this.thickEdges.renderOrder = 3;
-  }
-
-  private initializeEdgesGeometry() {
-    // create line geometry with enough data to hold 100000 segments
-    const linePosAttr = new BufferAttribute(new Float32Array(300000), 3, false);
-    linePosAttr.setUsage(DynamicDrawUsage);
-    this.generatorGeometry.setAttribute('position', linePosAttr);
-    this.basicEdges.geometry = this.generatorGeometry;
   }
 }
