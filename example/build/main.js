@@ -116555,9 +116555,15 @@
     window.onmousemove = viewer.IFC.prePickIfcItem;
     window.onkeydown = handleKeyDown;
     window.ondblclick = async () => {
-      viewer.clipper.createPlane();
-
-      // viewer.IFC.pickIfcItem(true);
+      if(viewer.clipper.active) {
+        viewer.clipper.createPlane();
+      } else {
+        const result = await viewer.IFC.pickIfcItem(true);
+        if(!result) return;
+        const {modelID, id} = result;
+        const props = await viewer.IFC.getProperties(modelID, id, true, false);
+        console.log(props);
+      }
     };
 
     //Setup UI
