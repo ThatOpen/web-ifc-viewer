@@ -14,7 +14,7 @@ viewer.addAxes();
 viewer.addGrid();
 viewer.IFC.setWasmPath('files/');
 viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-  COORDINATE_TO_ORIGIN: false,
+  COORDINATE_TO_ORIGIN: true,
   USE_FAST_BOOLS: true
 });
 viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
