@@ -15,6 +15,7 @@ import {
 } from 'three';
 import {
   IFCDOOR,
+  IFCFURNISHINGELEMENT,
   IFCMEMBER,
   IFCPLATE,
   IFCSLAB,
@@ -32,8 +33,8 @@ export interface Style {
   generatorGeometry: BufferGeometry;
   model: IfcMesh;
   modelID: number;
-  // thickLineGeometry: LineSegmentsGeometry;
-  // thickEdges: LineSegments2;
+  thickLineGeometry: LineSegmentsGeometry;
+  thickEdges: LineSegments2;
   subset: Mesh;
 }
 
@@ -86,7 +87,7 @@ export class ClippingEdges {
       await this.newStyle(
         model.modelID,
         'thin',
-        [IFCWINDOW, IFCPLATE, IFCMEMBER, IFCDOOR],
+        [IFCWINDOW, IFCPLATE, IFCMEMBER, IFCDOOR, IFCFURNISHINGELEMENT],
         new LineMaterial({ color: 0x333333, linewidth: 0.001 })
       );
     }
@@ -118,7 +119,7 @@ export class ClippingEdges {
   private async newSubset(styleName: string, modelID: number, categories: number[]) {
     const subset = this.ifc.loader.ifcManager.createSubset({
       modelID,
-      customId: `${styleName}`,
+      customID: `${styleName}`,
       material: ClippingEdges.invisibleMaterial,
       removePrevious: true,
       scene: this.context.getScene(),

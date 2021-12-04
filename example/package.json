@@ -22,10 +22,12 @@
     "serve": "^11.3.2"
   },
   "dependencies": {
+    "@types/three": "^0.134.0",
     "dxf-writer": "^1.11.0",
+    "jspdf": "^2.4.0",
     "three": "^0.132.2",
     "three-mesh-bvh": "^0.5.2",
-    "web-ifc": "^0.0.29",
+    "web-ifc": "^0.0.30",
     "web-ifc-viewer": "1.0.105"
   }
 }

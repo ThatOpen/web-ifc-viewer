@@ -28388,7 +28388,7 @@
     const _ray$1 = /*@__PURE__*/ new Ray();
     const _sphere$1$1 = /*@__PURE__*/ new Sphere();
 
-    class Line$2 extends Object3D {
+    class Line extends Object3D {
 
     	constructor( geometry = new BufferGeometry(), material = new LineBasicMaterial() ) {
 
@@ -28622,12 +28622,12 @@
 
     }
 
-    Line$2.prototype.isLine = true;
+    Line.prototype.isLine = true;
 
     const _start$2 = /*@__PURE__*/ new Vector3();
     const _end$2 = /*@__PURE__*/ new Vector3();
 
-    class LineSegments extends Line$2 {
+    class LineSegments extends Line {
 
     	constructor( geometry, material ) {
 
@@ -28682,7 +28682,7 @@
 
     LineSegments.prototype.isLineSegments = true;
 
-    class LineLoop extends Line$2 {
+    class LineLoop extends Line {
 
     	constructor( geometry, material ) {
 
@@ -44732,16 +44732,16 @@
     				[ new Mesh( new OctahedronGeometry( 0.01, 2 ), matHelper ), null, null, null, 'helper' ]
     			],
     			DELTA: [
-    				[ new Line$2( TranslateHelperGeometry(), matHelper ), null, null, null, 'helper' ]
+    				[ new Line( TranslateHelperGeometry(), matHelper ), null, null, null, 'helper' ]
     			],
     			X: [
-    				[ new Line$2( lineGeometry, matHelper.clone() ), [ - 1e3, 0, 0 ], null, [ 1e6, 1, 1 ], 'helper' ]
+    				[ new Line( lineGeometry, matHelper.clone() ), [ - 1e3, 0, 0 ], null, [ 1e6, 1, 1 ], 'helper' ]
     			],
     			Y: [
-    				[ new Line$2( lineGeometry, matHelper.clone() ), [ 0, - 1e3, 0 ], [ 0, 0, Math.PI / 2 ], [ 1e6, 1, 1 ], 'helper' ]
+    				[ new Line( lineGeometry, matHelper.clone() ), [ 0, - 1e3, 0 ], [ 0, 0, Math.PI / 2 ], [ 1e6, 1, 1 ], 'helper' ]
     			],
     			Z: [
-    				[ new Line$2( lineGeometry, matHelper.clone() ), [ 0, 0, - 1e3 ], [ 0, - Math.PI / 2, 0 ], [ 1e6, 1, 1 ], 'helper' ]
+    				[ new Line( lineGeometry, matHelper.clone() ), [ 0, 0, - 1e3 ], [ 0, - Math.PI / 2, 0 ], [ 1e6, 1, 1 ], 'helper' ]
     			]
     		};
 
@@ -44765,7 +44765,7 @@
 
     		const helperRotate = {
     			AXIS: [
-    				[ new Line$2( lineGeometry, matHelper.clone() ), [ - 1e3, 0, 0 ], null, [ 1e6, 1, 1 ], 'helper' ]
+    				[ new Line( lineGeometry, matHelper.clone() ), [ - 1e3, 0, 0 ], null, [ 1e6, 1, 1 ], 'helper' ]
     			]
     		};
 
@@ -44846,13 +44846,13 @@
 
     		const helperScale = {
     			X: [
-    				[ new Line$2( lineGeometry, matHelper.clone() ), [ - 1e3, 0, 0 ], null, [ 1e6, 1, 1 ], 'helper' ]
+    				[ new Line( lineGeometry, matHelper.clone() ), [ - 1e3, 0, 0 ], null, [ 1e6, 1, 1 ], 'helper' ]
     			],
     			Y: [
-    				[ new Line$2( lineGeometry, matHelper.clone() ), [ 0, - 1e3, 0 ], [ 0, 0, Math.PI / 2 ], [ 1e6, 1, 1 ], 'helper' ]
+    				[ new Line( lineGeometry, matHelper.clone() ), [ 0, - 1e3, 0 ], [ 0, 0, Math.PI / 2 ], [ 1e6, 1, 1 ], 'helper' ]
     			],
     			Z: [
-    				[ new Line$2( lineGeometry, matHelper.clone() ), [ 0, 0, - 1e3 ], [ 0, - Math.PI / 2, 0 ], [ 1e6, 1, 1 ], 'helper' ]
+    				[ new Line( lineGeometry, matHelper.clone() ), [ 0, 0, - 1e3 ], [ 0, - Math.PI / 2, 0 ], [ 1e6, 1, 1 ], 'helper' ]
     			]
     		};
 
@@ -47199,7 +47199,7 @@
               function receiveInstance(instance, module2) {
                 var exports3 = instance.exports;
                 Module["asm"] = exports3;
-                wasmTable = Module["asm"]["qa"];
+                wasmTable = Module["asm"]["pa"];
                 wasmModule = module2;
                 if (!ENVIRONMENT_IS_PTHREAD) {
                   var numWorkersToLoad = PThread.unusedWorkers.length;
@@ -47253,11 +47253,11 @@
             }
             var tempDouble;
             var tempI64;
-            var ASM_CONSTS = { 41585: function($0, $1) {
+            var ASM_CONSTS = { 41793: function($0, $1) {
               setTimeout(function() {
                 _do_emscripten_dispatch_to_thread($0, $1);
               }, 0);
-            }, 41663: function() {
+            }, 41871: function() {
               throw "Canceled!";
             } };
             function initPthreadsJS() {
@@ -49733,60 +49733,9 @@
             }, get64: function(low, high) {
               return low;
             } };
-            function ___sys_fcntl64(fd, cmd, varargs) {
-              if (ENVIRONMENT_IS_PTHREAD)
-                return _emscripten_proxy_to_main_thread_js(2, 1, fd, cmd, varargs);
-              SYSCALLS.varargs = varargs;
-              try {
-                var stream = SYSCALLS.getStreamFromFD(fd);
-                switch (cmd) {
-                  case 0: {
-                    var arg = SYSCALLS.get();
-                    if (arg < 0) {
-                      return -28;
-                    }
-                    var newStream;
-                    newStream = FS.open(stream.path, stream.flags, 0, arg);
-                    return newStream.fd;
-                  }
-                  case 1:
-                  case 2:
-                    return 0;
-                  case 3:
-                    return stream.flags;
-                  case 4: {
-                    var arg = SYSCALLS.get();
-                    stream.flags |= arg;
-                    return 0;
-                  }
-                  case 12: {
-                    var arg = SYSCALLS.get();
-                    var offset = 0;
-                    GROWABLE_HEAP_I16()[arg + offset >> 1] = 2;
-                    return 0;
-                  }
-                  case 13:
-                  case 14:
-                    return 0;
-                  case 16:
-                  case 8:
-                    return -28;
-                  case 9:
-                    setErrNo(28);
-                    return -1;
-                  default: {
-                    return -28;
-                  }
-                }
-              } catch (e) {
-                if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError))
-                  abort(e);
-                return -e.errno;
-              }
-            }
             function ___sys_ioctl(fd, op, varargs) {
               if (ENVIRONMENT_IS_PTHREAD)
-                return _emscripten_proxy_to_main_thread_js(3, 1, fd, op, varargs);
+                return _emscripten_proxy_to_main_thread_js(2, 1, fd, op, varargs);
               SYSCALLS.varargs = varargs;
               try {
                 var stream = SYSCALLS.getStreamFromFD(fd);
@@ -49844,7 +49793,7 @@
             }
             function ___sys_open(path, flags, varargs) {
               if (ENVIRONMENT_IS_PTHREAD)
-                return _emscripten_proxy_to_main_thread_js(4, 1, path, flags, varargs);
+                return _emscripten_proxy_to_main_thread_js(3, 1, path, flags, varargs);
               SYSCALLS.varargs = varargs;
               try {
                 var pathname = SYSCALLS.getStr(path);
@@ -51646,7 +51595,7 @@
             }
             function _emscripten_set_canvas_element_size_main_thread(target, width, height) {
               if (ENVIRONMENT_IS_PTHREAD)
-                return _emscripten_proxy_to_main_thread_js(5, 1, target, width, height);
+                return _emscripten_proxy_to_main_thread_js(4, 1, target, width, height);
               return _emscripten_set_canvas_element_size_calling_thread(target, width, height);
             }
             function _emscripten_set_canvas_element_size(target, width, height) {
@@ -51837,7 +51786,7 @@
             }
             function _environ_get(__environ, environ_buf) {
               if (ENVIRONMENT_IS_PTHREAD)
-                return _emscripten_proxy_to_main_thread_js(6, 1, __environ, environ_buf);
+                return _emscripten_proxy_to_main_thread_js(5, 1, __environ, environ_buf);
               try {
                 var bufSize = 0;
                 getEnvStrings().forEach(function(string, i) {
@@ -51855,7 +51804,7 @@
             }
             function _environ_sizes_get(penviron_count, penviron_buf_size) {
               if (ENVIRONMENT_IS_PTHREAD)
-                return _emscripten_proxy_to_main_thread_js(7, 1, penviron_count, penviron_buf_size);
+                return _emscripten_proxy_to_main_thread_js(6, 1, penviron_count, penviron_buf_size);
               try {
                 var strings = getEnvStrings();
                 GROWABLE_HEAP_I32()[penviron_count >> 2] = strings.length;
@@ -51873,7 +51822,7 @@
             }
             function _fd_close(fd) {
               if (ENVIRONMENT_IS_PTHREAD)
-                return _emscripten_proxy_to_main_thread_js(8, 1, fd);
+                return _emscripten_proxy_to_main_thread_js(7, 1, fd);
               try {
                 var stream = SYSCALLS.getStreamFromFD(fd);
                 FS.close(stream);
@@ -51886,7 +51835,7 @@
             }
             function _fd_read(fd, iov, iovcnt, pnum) {
               if (ENVIRONMENT_IS_PTHREAD)
-                return _emscripten_proxy_to_main_thread_js(9, 1, fd, iov, iovcnt, pnum);
+                return _emscripten_proxy_to_main_thread_js(8, 1, fd, iov, iovcnt, pnum);
               try {
                 var stream = SYSCALLS.getStreamFromFD(fd);
                 var num = SYSCALLS.doReadv(stream, iov, iovcnt);
@@ -51900,7 +51849,7 @@
             }
             function _fd_seek(fd, offset_low, offset_high, whence, newOffset) {
               if (ENVIRONMENT_IS_PTHREAD)
-                return _emscripten_proxy_to_main_thread_js(10, 1, fd, offset_low, offset_high, whence, newOffset);
+                return _emscripten_proxy_to_main_thread_js(9, 1, fd, offset_low, offset_high, whence, newOffset);
               try {
                 var stream = SYSCALLS.getStreamFromFD(fd);
                 var HIGH_OFFSET = 4294967296;
@@ -51922,7 +51871,7 @@
             }
             function _fd_write(fd, iov, iovcnt, pnum) {
               if (ENVIRONMENT_IS_PTHREAD)
-                return _emscripten_proxy_to_main_thread_js(11, 1, fd, iov, iovcnt, pnum);
+                return _emscripten_proxy_to_main_thread_js(10, 1, fd, iov, iovcnt, pnum);
               try {
                 var stream = SYSCALLS.getStreamFromFD(fd);
                 var num = SYSCALLS.doWritev(stream, iov, iovcnt);
@@ -52342,7 +52291,7 @@
             UnboundTypeError = Module["UnboundTypeError"] = extendError(Error, "UnboundTypeError");
             init_emval();
             var GLctx;
-            var proxiedFunctionTable = [null, _atexit, ___sys_fcntl64, ___sys_ioctl, ___sys_open, _emscripten_set_canvas_element_size_main_thread, _environ_get, _environ_sizes_get, _fd_close, _fd_read, _fd_seek, _fd_write];
+            var proxiedFunctionTable = [null, _atexit, ___sys_ioctl, ___sys_open, _emscripten_set_canvas_element_size_main_thread, _environ_get, _environ_sizes_get, _fd_close, _fd_read, _fd_seek, _fd_write];
             function intArrayFromString(stringy, dontAddNull, length) {
               var len = length > 0 ? length : lengthBytesUTF8(stringy) + 1;
               var u8array = new Array(len);
@@ -52355,126 +52304,126 @@
               __ATINIT__.push({ func: function() {
                 ___wasm_call_ctors();
               } });
-            var asmLibraryArg = { "p": ___assert_fail, "P": ___cxa_allocate_exception, "O": ___cxa_throw, "K": ___sys_fcntl64, "ha": ___sys_ioctl, "ia": ___sys_open, "na": __embind_finalize_value_array, "w": __embind_finalize_value_object, "ka": __embind_register_bool, "z": __embind_register_class, "y": __embind_register_class_constructor, "e": __embind_register_class_function, "ja": __embind_register_emval, "ma": __embind_register_enum, "E": __embind_register_enum_value, "M": __embind_register_float, "i": __embind_register_function, "s": __embind_register_integer, "q": __embind_register_memory_view, "N": __embind_register_std_string, "F": __embind_register_std_wstring, "oa": __embind_register_value_array, "l": __embind_register_value_array_element, "x": __embind_register_value_object, "h": __embind_register_value_object_field, "la": __embind_register_void, "$": __emscripten_notify_thread_queue, "u": __emval_as, "pa": __emval_call, "b": __emval_decref, "_": __emval_get_global, "r": __emval_get_property, "o": __emval_incref, "ba": __emval_instanceof, "Q": __emval_is_number, "G": __emval_new_array, "j": __emval_new_cstring, "A": __emval_new_object, "t": __emval_run_destructors, "m": __emval_set_property, "g": __emval_take_value, "I": _abort, "fa": _clock_gettime, "B": _emscripten_asm_const_int, "aa": _emscripten_check_blocking_allowed, "H": _emscripten_conditional_set_current_thread_status, "k": _emscripten_futex_wait, "n": _emscripten_futex_wake, "d": _emscripten_get_now, "D": _emscripten_is_main_browser_thread, "C": _emscripten_is_main_runtime_thread, "U": _emscripten_memcpy_big, "W": _emscripten_receive_on_main_thread_js, "v": _emscripten_resize_heap, "X": _emscripten_set_canvas_element_size, "f": _emscripten_set_current_thread_status, "Y": _emscripten_webgl_create_context, "da": _environ_get, "ea": _environ_sizes_get, "L": _fd_close, "ga": _fd_read, "R": _fd_seek, "J": _fd_write, "T": initPthreadsJS, "a": wasmMemory || Module["wasmMemory"], "V": _pthread_cleanup_push, "Z": _pthread_create, "c": _pthread_self, "S": _setTempRet0, "ca": _strftime_l };
+            var asmLibraryArg = { "p": ___assert_fail, "H": ___cxa_allocate_exception, "G": ___cxa_throw, "ha": ___sys_ioctl, "ia": ___sys_open, "na": __embind_finalize_value_array, "w": __embind_finalize_value_object, "ka": __embind_register_bool, "z": __embind_register_class, "y": __embind_register_class_constructor, "e": __embind_register_class_function, "ja": __embind_register_emval, "ma": __embind_register_enum, "E": __embind_register_enum_value, "N": __embind_register_float, "i": __embind_register_function, "u": __embind_register_integer, "q": __embind_register_memory_view, "O": __embind_register_std_string, "F": __embind_register_std_wstring, "oa": __embind_register_value_array, "l": __embind_register_value_array_element, "x": __embind_register_value_object, "h": __embind_register_value_object_field, "la": __embind_register_void, "$": __emscripten_notify_thread_queue, "s": __emval_as, "P": __emval_call, "b": __emval_decref, "Z": __emval_get_global, "t": __emval_get_property, "o": __emval_incref, "ba": __emval_instanceof, "Q": __emval_is_number, "I": __emval_new_array, "j": __emval_new_cstring, "A": __emval_new_object, "r": __emval_run_destructors, "m": __emval_set_property, "g": __emval_take_value, "K": _abort, "fa": _clock_gettime, "B": _emscripten_asm_const_int, "aa": _emscripten_check_blocking_allowed, "J": _emscripten_conditional_set_current_thread_status, "k": _emscripten_futex_wait, "n": _emscripten_futex_wake, "d": _emscripten_get_now, "D": _emscripten_is_main_browser_thread, "C": _emscripten_is_main_runtime_thread, "U": _emscripten_memcpy_big, "W": _emscripten_receive_on_main_thread_js, "v": _emscripten_resize_heap, "X": _emscripten_set_canvas_element_size, "f": _emscripten_set_current_thread_status, "Y": _emscripten_webgl_create_context, "da": _environ_get, "ea": _environ_sizes_get, "M": _fd_close, "ga": _fd_read, "R": _fd_seek, "L": _fd_write, "T": initPthreadsJS, "a": wasmMemory || Module["wasmMemory"], "V": _pthread_cleanup_push, "_": _pthread_create, "c": _pthread_self, "S": _setTempRet0, "ca": _strftime_l };
             createWasm();
             var ___wasm_call_ctors = Module["___wasm_call_ctors"] = function() {
-              return (___wasm_call_ctors = Module["___wasm_call_ctors"] = Module["asm"]["ra"]).apply(null, arguments);
+              return (___wasm_call_ctors = Module["___wasm_call_ctors"] = Module["asm"]["qa"]).apply(null, arguments);
             };
             Module["_main"] = function() {
-              return (Module["_main"] = Module["asm"]["sa"]).apply(null, arguments);
+              return (Module["_main"] = Module["asm"]["ra"]).apply(null, arguments);
             };
             var _malloc = Module["_malloc"] = function() {
-              return (_malloc = Module["_malloc"] = Module["asm"]["ta"]).apply(null, arguments);
+              return (_malloc = Module["_malloc"] = Module["asm"]["sa"]).apply(null, arguments);
             };
             var _free = Module["_free"] = function() {
-              return (_free = Module["_free"] = Module["asm"]["ua"]).apply(null, arguments);
+              return (_free = Module["_free"] = Module["asm"]["ta"]).apply(null, arguments);
             };
             var ___getTypeName = Module["___getTypeName"] = function() {
-              return (___getTypeName = Module["___getTypeName"] = Module["asm"]["va"]).apply(null, arguments);
+              return (___getTypeName = Module["___getTypeName"] = Module["asm"]["ua"]).apply(null, arguments);
             };
             Module["___embind_register_native_and_builtin_types"] = function() {
-              return (Module["___embind_register_native_and_builtin_types"] = Module["asm"]["wa"]).apply(null, arguments);
+              return (Module["___embind_register_native_and_builtin_types"] = Module["asm"]["va"]).apply(null, arguments);
             };
             var ___errno_location = Module["___errno_location"] = function() {
-              return (___errno_location = Module["___errno_location"] = Module["asm"]["xa"]).apply(null, arguments);
+              return (___errno_location = Module["___errno_location"] = Module["asm"]["wa"]).apply(null, arguments);
             };
             var _emscripten_get_global_libc = Module["_emscripten_get_global_libc"] = function() {
-              return (_emscripten_get_global_libc = Module["_emscripten_get_global_libc"] = Module["asm"]["ya"]).apply(null, arguments);
+              return (_emscripten_get_global_libc = Module["_emscripten_get_global_libc"] = Module["asm"]["xa"]).apply(null, arguments);
             };
             Module["___em_js__initPthreadsJS"] = function() {
-              return (Module["___em_js__initPthreadsJS"] = Module["asm"]["za"]).apply(null, arguments);
+              return (Module["___em_js__initPthreadsJS"] = Module["asm"]["ya"]).apply(null, arguments);
             };
             var stackSave = Module["stackSave"] = function() {
-              return (stackSave = Module["stackSave"] = Module["asm"]["Aa"]).apply(null, arguments);
+              return (stackSave = Module["stackSave"] = Module["asm"]["za"]).apply(null, arguments);
             };
             var stackRestore = Module["stackRestore"] = function() {
-              return (stackRestore = Module["stackRestore"] = Module["asm"]["Ba"]).apply(null, arguments);
+              return (stackRestore = Module["stackRestore"] = Module["asm"]["Aa"]).apply(null, arguments);
             };
             var stackAlloc = Module["stackAlloc"] = function() {
-              return (stackAlloc = Module["stackAlloc"] = Module["asm"]["Ca"]).apply(null, arguments);
+              return (stackAlloc = Module["stackAlloc"] = Module["asm"]["Ba"]).apply(null, arguments);
             };
             var _emscripten_stack_set_limits = Module["_emscripten_stack_set_limits"] = function() {
-              return (_emscripten_stack_set_limits = Module["_emscripten_stack_set_limits"] = Module["asm"]["Da"]).apply(null, arguments);
+              return (_emscripten_stack_set_limits = Module["_emscripten_stack_set_limits"] = Module["asm"]["Ca"]).apply(null, arguments);
             };
             var _memalign = Module["_memalign"] = function() {
-              return (_memalign = Module["_memalign"] = Module["asm"]["Ea"]).apply(null, arguments);
+              return (_memalign = Module["_memalign"] = Module["asm"]["Da"]).apply(null, arguments);
             };
             Module["_emscripten_main_browser_thread_id"] = function() {
-              return (Module["_emscripten_main_browser_thread_id"] = Module["asm"]["Fa"]).apply(null, arguments);
+              return (Module["_emscripten_main_browser_thread_id"] = Module["asm"]["Ea"]).apply(null, arguments);
             };
             var ___pthread_tsd_run_dtors = Module["___pthread_tsd_run_dtors"] = function() {
-              return (___pthread_tsd_run_dtors = Module["___pthread_tsd_run_dtors"] = Module["asm"]["Ga"]).apply(null, arguments);
+              return (___pthread_tsd_run_dtors = Module["___pthread_tsd_run_dtors"] = Module["asm"]["Fa"]).apply(null, arguments);
             };
             var _emscripten_main_thread_process_queued_calls = Module["_emscripten_main_thread_process_queued_calls"] = function() {
-              return (_emscripten_main_thread_process_queued_calls = Module["_emscripten_main_thread_process_queued_calls"] = Module["asm"]["Ha"]).apply(null, arguments);
+              return (_emscripten_main_thread_process_queued_calls = Module["_emscripten_main_thread_process_queued_calls"] = Module["asm"]["Ga"]).apply(null, arguments);
             };
             Module["_emscripten_current_thread_process_queued_calls"] = function() {
-              return (Module["_emscripten_current_thread_process_queued_calls"] = Module["asm"]["Ia"]).apply(null, arguments);
+              return (Module["_emscripten_current_thread_process_queued_calls"] = Module["asm"]["Ha"]).apply(null, arguments);
             };
             var _emscripten_register_main_browser_thread_id = Module["_emscripten_register_main_browser_thread_id"] = function() {
-              return (_emscripten_register_main_browser_thread_id = Module["_emscripten_register_main_browser_thread_id"] = Module["asm"]["Ja"]).apply(null, arguments);
+              return (_emscripten_register_main_browser_thread_id = Module["_emscripten_register_main_browser_thread_id"] = Module["asm"]["Ia"]).apply(null, arguments);
             };
             var _do_emscripten_dispatch_to_thread = Module["_do_emscripten_dispatch_to_thread"] = function() {
-              return (_do_emscripten_dispatch_to_thread = Module["_do_emscripten_dispatch_to_thread"] = Module["asm"]["Ka"]).apply(null, arguments);
+              return (_do_emscripten_dispatch_to_thread = Module["_do_emscripten_dispatch_to_thread"] = Module["asm"]["Ja"]).apply(null, arguments);
             };
             Module["_emscripten_async_run_in_main_thread"] = function() {
-              return (Module["_emscripten_async_run_in_main_thread"] = Module["asm"]["La"]).apply(null, arguments);
+              return (Module["_emscripten_async_run_in_main_thread"] = Module["asm"]["Ka"]).apply(null, arguments);
             };
             Module["_emscripten_sync_run_in_main_thread"] = function() {
-              return (Module["_emscripten_sync_run_in_main_thread"] = Module["asm"]["Ma"]).apply(null, arguments);
+              return (Module["_emscripten_sync_run_in_main_thread"] = Module["asm"]["La"]).apply(null, arguments);
             };
             Module["_emscripten_sync_run_in_main_thread_0"] = function() {
-              return (Module["_emscripten_sync_run_in_main_thread_0"] = Module["asm"]["Na"]).apply(null, arguments);
+              return (Module["_emscripten_sync_run_in_main_thread_0"] = Module["asm"]["Ma"]).apply(null, arguments);
             };
             Module["_emscripten_sync_run_in_main_thread_1"] = function() {
-              return (Module["_emscripten_sync_run_in_main_thread_1"] = Module["asm"]["Oa"]).apply(null, arguments);
+              return (Module["_emscripten_sync_run_in_main_thread_1"] = Module["asm"]["Na"]).apply(null, arguments);
             };
             Module["_emscripten_sync_run_in_main_thread_2"] = function() {
-              return (Module["_emscripten_sync_run_in_main_thread_2"] = Module["asm"]["Pa"]).apply(null, arguments);
+              return (Module["_emscripten_sync_run_in_main_thread_2"] = Module["asm"]["Oa"]).apply(null, arguments);
             };
             Module["_emscripten_sync_run_in_main_thread_xprintf_varargs"] = function() {
-              return (Module["_emscripten_sync_run_in_main_thread_xprintf_varargs"] = Module["asm"]["Qa"]).apply(null, arguments);
+              return (Module["_emscripten_sync_run_in_main_thread_xprintf_varargs"] = Module["asm"]["Pa"]).apply(null, arguments);
             };
             Module["_emscripten_sync_run_in_main_thread_3"] = function() {
-              return (Module["_emscripten_sync_run_in_main_thread_3"] = Module["asm"]["Ra"]).apply(null, arguments);
+              return (Module["_emscripten_sync_run_in_main_thread_3"] = Module["asm"]["Qa"]).apply(null, arguments);
             };
             var _emscripten_sync_run_in_main_thread_4 = Module["_emscripten_sync_run_in_main_thread_4"] = function() {
-              return (_emscripten_sync_run_in_main_thread_4 = Module["_emscripten_sync_run_in_main_thread_4"] = Module["asm"]["Sa"]).apply(null, arguments);
+              return (_emscripten_sync_run_in_main_thread_4 = Module["_emscripten_sync_run_in_main_thread_4"] = Module["asm"]["Ra"]).apply(null, arguments);
             };
             Module["_emscripten_sync_run_in_main_thread_5"] = function() {
-              return (Module["_emscripten_sync_run_in_main_thread_5"] = Module["asm"]["Ta"]).apply(null, arguments);
+              return (Module["_emscripten_sync_run_in_main_thread_5"] = Module["asm"]["Sa"]).apply(null, arguments);
             };
             Module["_emscripten_sync_run_in_main_thread_6"] = function() {
-              return (Module["_emscripten_sync_run_in_main_thread_6"] = Module["asm"]["Ua"]).apply(null, arguments);
+              return (Module["_emscripten_sync_run_in_main_thread_6"] = Module["asm"]["Ta"]).apply(null, arguments);
             };
             Module["_emscripten_sync_run_in_main_thread_7"] = function() {
-              return (Module["_emscripten_sync_run_in_main_thread_7"] = Module["asm"]["Va"]).apply(null, arguments);
+              return (Module["_emscripten_sync_run_in_main_thread_7"] = Module["asm"]["Ua"]).apply(null, arguments);
             };
             var _emscripten_run_in_main_runtime_thread_js = Module["_emscripten_run_in_main_runtime_thread_js"] = function() {
-              return (_emscripten_run_in_main_runtime_thread_js = Module["_emscripten_run_in_main_runtime_thread_js"] = Module["asm"]["Wa"]).apply(null, arguments);
+              return (_emscripten_run_in_main_runtime_thread_js = Module["_emscripten_run_in_main_runtime_thread_js"] = Module["asm"]["Va"]).apply(null, arguments);
             };
             var __emscripten_call_on_thread = Module["__emscripten_call_on_thread"] = function() {
-              return (__emscripten_call_on_thread = Module["__emscripten_call_on_thread"] = Module["asm"]["Xa"]).apply(null, arguments);
+              return (__emscripten_call_on_thread = Module["__emscripten_call_on_thread"] = Module["asm"]["Wa"]).apply(null, arguments);
             };
             Module["_emscripten_tls_init"] = function() {
-              return (Module["_emscripten_tls_init"] = Module["asm"]["Ya"]).apply(null, arguments);
+              return (Module["_emscripten_tls_init"] = Module["asm"]["Xa"]).apply(null, arguments);
             };
             Module["dynCall_jiji"] = function() {
-              return (Module["dynCall_jiji"] = Module["asm"]["Za"]).apply(null, arguments);
+              return (Module["dynCall_jiji"] = Module["asm"]["Ya"]).apply(null, arguments);
             };
             Module["dynCall_viijii"] = function() {
-              return (Module["dynCall_viijii"] = Module["asm"]["_a"]).apply(null, arguments);
+              return (Module["dynCall_viijii"] = Module["asm"]["Za"]).apply(null, arguments);
             };
             Module["dynCall_iiiiiijj"] = function() {
-              return (Module["dynCall_iiiiiijj"] = Module["asm"]["$a"]).apply(null, arguments);
+              return (Module["dynCall_iiiiiijj"] = Module["asm"]["_a"]).apply(null, arguments);
             };
             Module["dynCall_iiiiij"] = function() {
-              return (Module["dynCall_iiiiij"] = Module["asm"]["ab"]).apply(null, arguments);
+              return (Module["dynCall_iiiiij"] = Module["asm"]["$a"]).apply(null, arguments);
             };
             Module["dynCall_iiiiijj"] = function() {
-              return (Module["dynCall_iiiiijj"] = Module["asm"]["bb"]).apply(null, arguments);
+              return (Module["dynCall_iiiiijj"] = Module["asm"]["ab"]).apply(null, arguments);
             };
-            var _main_thread_futex = Module["_main_thread_futex"] = 51720;
+            var _main_thread_futex = Module["_main_thread_futex"] = 51928;
             Module["addRunDependency"] = addRunDependency;
             Module["removeRunDependency"] = removeRunDependency;
             Module["FS_createPath"] = FS.createPath;
@@ -53136,7 +53085,7 @@
               function receiveInstance(instance, module2) {
                 var exports3 = instance.exports;
                 Module["asm"] = exports3;
-                wasmTable = Module["asm"]["ca"];
+                wasmTable = Module["asm"]["ba"];
                 removeRunDependency();
               }
               addRunDependency();
@@ -53270,10 +53219,6 @@
               var info = new ExceptionInfo(ptr);
               info.init(type, destructor);
               throw ptr;
-            }
-            function setErrNo(value) {
-              HEAP32[___errno_location() >>> 2] = value;
-              return value;
             }
             var PATH = { splitPath: function(filename) {
               var splitPathRe = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
@@ -55352,55 +55297,6 @@
             }, get64: function(low, high) {
               return low;
             } };
-            function ___sys_fcntl64(fd, cmd, varargs) {
-              SYSCALLS.varargs = varargs;
-              try {
-                var stream = SYSCALLS.getStreamFromFD(fd);
-                switch (cmd) {
-                  case 0: {
-                    var arg = SYSCALLS.get();
-                    if (arg < 0) {
-                      return -28;
-                    }
-                    var newStream;
-                    newStream = FS.open(stream.path, stream.flags, 0, arg);
-                    return newStream.fd;
-                  }
-                  case 1:
-                  case 2:
-                    return 0;
-                  case 3:
-                    return stream.flags;
-                  case 4: {
-                    var arg = SYSCALLS.get();
-                    stream.flags |= arg;
-                    return 0;
-                  }
-                  case 12: {
-                    var arg = SYSCALLS.get();
-                    var offset = 0;
-                    HEAP16[arg + offset >>> 1] = 2;
-                    return 0;
-                  }
-                  case 13:
-                  case 14:
-                    return 0;
-                  case 16:
-                  case 8:
-                    return -28;
-                  case 9:
-                    setErrNo(28);
-                    return -1;
-                  default: {
-                    return -28;
-                  }
-                }
-              } catch (e) {
-                if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError))
-                  abort(e);
-                return -e.errno;
-              }
-            }
             function ___sys_ioctl(fd, op, varargs) {
               SYSCALLS.varargs = varargs;
               try {
@@ -56952,6 +56848,10 @@
                 return performance.now();
               };
             var _emscripten_get_now_is_monotonic = true;
+            function setErrNo(value) {
+              HEAP32[___errno_location() >>> 2] = value;
+              return value;
+            }
             function _clock_gettime(clk_id, tp) {
               var now;
               if (clk_id === 0) {
@@ -57389,43 +57289,43 @@
             __ATINIT__.push({ func: function() {
               ___wasm_call_ctors();
             } });
-            var asmLibraryArg = { "x": ___assert_fail, "H": ___cxa_allocate_exception, "G": ___cxa_throw, "C": ___sys_fcntl64, "V": ___sys_ioctl, "W": ___sys_open, "$": __embind_finalize_value_array, "q": __embind_finalize_value_object, "Y": __embind_register_bool, "t": __embind_register_class, "s": __embind_register_class_constructor, "c": __embind_register_class_function, "X": __embind_register_emval, "_": __embind_register_enum, "v": __embind_register_enum_value, "E": __embind_register_float, "f": __embind_register_function, "m": __embind_register_integer, "k": __embind_register_memory_view, "F": __embind_register_std_string, "w": __embind_register_std_wstring, "aa": __embind_register_value_array, "h": __embind_register_value_array_element, "r": __embind_register_value_object, "e": __embind_register_value_object_field, "Z": __embind_register_void, "o": __emval_as, "ba": __emval_call, "b": __emval_decref, "J": __emval_get_global, "l": __emval_get_property, "j": __emval_incref, "N": __emval_instanceof, "I": __emval_is_number, "y": __emval_new_array, "g": __emval_new_cstring, "u": __emval_new_object, "n": __emval_run_destructors, "i": __emval_set_property, "d": __emval_take_value, "A": _abort, "T": _clock_gettime, "M": _emscripten_memcpy_big, "p": _emscripten_resize_heap, "R": _environ_get, "S": _environ_sizes_get, "D": _fd_close, "U": _fd_read, "K": _fd_seek, "B": _fd_write, "a": wasmMemory, "z": _pthread_mutexattr_destroy, "P": _pthread_mutexattr_init, "O": _pthread_mutexattr_settype, "L": _setTempRet0, "Q": _strftime_l };
+            var asmLibraryArg = { "z": ___assert_fail, "y": ___cxa_allocate_exception, "x": ___cxa_throw, "V": ___sys_ioctl, "W": ___sys_open, "$": __embind_finalize_value_array, "q": __embind_finalize_value_object, "Y": __embind_register_bool, "t": __embind_register_class, "s": __embind_register_class_constructor, "c": __embind_register_class_function, "X": __embind_register_emval, "_": __embind_register_enum, "v": __embind_register_enum_value, "F": __embind_register_float, "f": __embind_register_function, "o": __embind_register_integer, "k": __embind_register_memory_view, "G": __embind_register_std_string, "w": __embind_register_std_wstring, "aa": __embind_register_value_array, "h": __embind_register_value_array_element, "r": __embind_register_value_object, "e": __embind_register_value_object_field, "Z": __embind_register_void, "m": __emval_as, "H": __emval_call, "b": __emval_decref, "J": __emval_get_global, "n": __emval_get_property, "j": __emval_incref, "N": __emval_instanceof, "I": __emval_is_number, "A": __emval_new_array, "g": __emval_new_cstring, "u": __emval_new_object, "l": __emval_run_destructors, "i": __emval_set_property, "d": __emval_take_value, "C": _abort, "T": _clock_gettime, "M": _emscripten_memcpy_big, "p": _emscripten_resize_heap, "R": _environ_get, "S": _environ_sizes_get, "E": _fd_close, "U": _fd_read, "K": _fd_seek, "D": _fd_write, "a": wasmMemory, "B": _pthread_mutexattr_destroy, "P": _pthread_mutexattr_init, "O": _pthread_mutexattr_settype, "L": _setTempRet0, "Q": _strftime_l };
             createWasm();
             var ___wasm_call_ctors = Module["___wasm_call_ctors"] = function() {
-              return (___wasm_call_ctors = Module["___wasm_call_ctors"] = Module["asm"]["da"]).apply(null, arguments);
+              return (___wasm_call_ctors = Module["___wasm_call_ctors"] = Module["asm"]["ca"]).apply(null, arguments);
             };
             Module["_main"] = function() {
-              return (Module["_main"] = Module["asm"]["ea"]).apply(null, arguments);
+              return (Module["_main"] = Module["asm"]["da"]).apply(null, arguments);
             };
             var _malloc = Module["_malloc"] = function() {
-              return (_malloc = Module["_malloc"] = Module["asm"]["fa"]).apply(null, arguments);
+              return (_malloc = Module["_malloc"] = Module["asm"]["ea"]).apply(null, arguments);
             };
             var _free = Module["_free"] = function() {
-              return (_free = Module["_free"] = Module["asm"]["ga"]).apply(null, arguments);
+              return (_free = Module["_free"] = Module["asm"]["fa"]).apply(null, arguments);
             };
             var ___getTypeName = Module["___getTypeName"] = function() {
-              return (___getTypeName = Module["___getTypeName"] = Module["asm"]["ha"]).apply(null, arguments);
+              return (___getTypeName = Module["___getTypeName"] = Module["asm"]["ga"]).apply(null, arguments);
             };
             Module["___embind_register_native_and_builtin_types"] = function() {
-              return (Module["___embind_register_native_and_builtin_types"] = Module["asm"]["ia"]).apply(null, arguments);
+              return (Module["___embind_register_native_and_builtin_types"] = Module["asm"]["ha"]).apply(null, arguments);
             };
             var ___errno_location = Module["___errno_location"] = function() {
-              return (___errno_location = Module["___errno_location"] = Module["asm"]["ja"]).apply(null, arguments);
+              return (___errno_location = Module["___errno_location"] = Module["asm"]["ia"]).apply(null, arguments);
             };
             Module["dynCall_jiji"] = function() {
-              return (Module["dynCall_jiji"] = Module["asm"]["ka"]).apply(null, arguments);
+              return (Module["dynCall_jiji"] = Module["asm"]["ja"]).apply(null, arguments);
             };
             Module["dynCall_viijii"] = function() {
-              return (Module["dynCall_viijii"] = Module["asm"]["la"]).apply(null, arguments);
+              return (Module["dynCall_viijii"] = Module["asm"]["ka"]).apply(null, arguments);
             };
             Module["dynCall_iiiiiijj"] = function() {
-              return (Module["dynCall_iiiiiijj"] = Module["asm"]["ma"]).apply(null, arguments);
+              return (Module["dynCall_iiiiiijj"] = Module["asm"]["la"]).apply(null, arguments);
             };
             Module["dynCall_iiiiij"] = function() {
-              return (Module["dynCall_iiiiij"] = Module["asm"]["na"]).apply(null, arguments);
+              return (Module["dynCall_iiiiij"] = Module["asm"]["ma"]).apply(null, arguments);
             };
             Module["dynCall_iiiiijj"] = function() {
-              return (Module["dynCall_iiiiijj"] = Module["asm"]["oa"]).apply(null, arguments);
+              return (Module["dynCall_iiiiijj"] = Module["asm"]["na"]).apply(null, arguments);
             };
             Module["addRunDependency"] = addRunDependency;
             Module["removeRunDependency"] = removeRunDependency;
@@ -70238,19 +70138,19 @@
       }
     };
     var IfcExtendedProperties = class {
-      constructor(expressID, type, Name, Description, Properties) {
+      constructor(expressID, type, Name, Description, Properties2) {
         this.expressID = expressID;
         this.type = type;
         this.Name = Name;
         this.Description = Description;
-        this.Properties = Properties;
+        this.Properties = Properties2;
       }
       static FromTape(expressID, type, tape) {
         let ptr = 0;
         let Name = tape[ptr++];
         let Description = tape[ptr++];
-        let Properties = tape[ptr++];
-        return new IfcExtendedProperties(expressID, type, Name, Description, Properties);
+        let Properties2 = tape[ptr++];
+        return new IfcExtendedProperties(expressID, type, Name, Description, Properties2);
       }
       ToTape() {
         let args = [];
@@ -74650,21 +74550,21 @@
       }
     };
     var IfcMaterialProperties = class {
-      constructor(expressID, type, Name, Description, Properties, Material) {
+      constructor(expressID, type, Name, Description, Properties2, Material) {
         this.expressID = expressID;
         this.type = type;
         this.Name = Name;
         this.Description = Description;
-        this.Properties = Properties;
+        this.Properties = Properties2;
         this.Material = Material;
       }
       static FromTape(expressID, type, tape) {
         let ptr = 0;
         let Name = tape[ptr++];
         let Description = tape[ptr++];
-        let Properties = tape[ptr++];
+        let Properties2 = tape[ptr++];
         let Material = tape[ptr++];
-        return new IfcMaterialProperties(expressID, type, Name, Description, Properties, Material);
+        return new IfcMaterialProperties(expressID, type, Name, Description, Properties2, Material);
       }
       ToTape() {
         let args = [];
@@ -77340,21 +77240,21 @@
       }
     };
     var IfcProfileProperties = class {
-      constructor(expressID, type, Name, Description, Properties, ProfileDefinition) {
+      constructor(expressID, type, Name, Description, Properties2, ProfileDefinition) {
         this.expressID = expressID;
         this.type = type;
         this.Name = Name;
         this.Description = Description;
-        this.Properties = Properties;
+        this.Properties = Properties2;
         this.ProfileDefinition = ProfileDefinition;
       }
       static FromTape(expressID, type, tape) {
         let ptr = 0;
         let Name = tape[ptr++];
         let Description = tape[ptr++];
-        let Properties = tape[ptr++];
+        let Properties2 = tape[ptr++];
         let ProfileDefinition = tape[ptr++];
-        return new IfcProfileProperties(expressID, type, Name, Description, Properties, ProfileDefinition);
+        return new IfcProfileProperties(expressID, type, Name, Description, Properties2, ProfileDefinition);
       }
       ToTape() {
         let args = [];
@@ -88998,19 +88898,373 @@
       }
     };
 
+    // dist/helpers/ifc-elements.ts
+    var IfcElements2 = {
+      103090709: "IFCPROJECT",
+      4097777520: "IFCSITE",
+      4031249490: "IFCBUILDING",
+      3124254112: "IFCBUILDINGSTOREY",
+      3856911033: "IFCSPACE",
+      1674181508: "IFCANNOTATION",
+      25142252: "IFCCONTROLLER",
+      32344328: "IFCBOILER",
+      76236018: "IFCLAMP",
+      90941305: "IFCPUMP",
+      177149247: "IFCAIRTERMINALBOX",
+      182646315: "IFCFLOWINSTRUMENT",
+      263784265: "IFCFURNISHINGELEMENT",
+      264262732: "IFCELECTRICGENERATOR",
+      277319702: "IFCAUDIOVISUALAPPLIANCE",
+      310824031: "IFCPIPEFITTING",
+      331165859: "IFCSTAIR",
+      342316401: "IFCDUCTFITTING",
+      377706215: "IFCMECHANICALFASTENER",
+      395920057: "IFCDOOR",
+      402227799: "IFCELECTRICMOTOR",
+      413509423: "IFCSYSTEMFURNITUREELEMENT",
+      484807127: "IFCEVAPORATOR",
+      486154966: "IFCWINDOWSTANDARDCASE",
+      629592764: "IFCLIGHTFIXTURE",
+      630975310: "IFCUNITARYCONTROLELEMENT",
+      635142910: "IFCCABLECARRIERFITTING",
+      639361253: "IFCCOIL",
+      647756555: "IFCFASTENER",
+      707683696: "IFCFLOWSTORAGEDEVICE",
+      738039164: "IFCPROTECTIVEDEVICE",
+      753842376: "IFCBEAM",
+      812556717: "IFCTANK",
+      819412036: "IFCFILTER",
+      843113511: "IFCCOLUMN",
+      862014818: "IFCELECTRICDISTRIBUTIONBOARD",
+      900683007: "IFCFOOTING",
+      905975707: "IFCCOLUMNSTANDARDCASE",
+      926996030: "IFCVOIDINGFEATURE",
+      979691226: "IFCREINFORCINGBAR",
+      987401354: "IFCFLOWSEGMENT",
+      1003880860: "IFCELECTRICTIMECONTROL",
+      1051757585: "IFCCABLEFITTING",
+      1052013943: "IFCDISTRIBUTIONCHAMBERELEMENT",
+      1062813311: "IFCDISTRIBUTIONCONTROLELEMENT",
+      1073191201: "IFCMEMBER",
+      1095909175: "IFCBUILDINGELEMENTPROXY",
+      1156407060: "IFCPLATESTANDARDCASE",
+      1162798199: "IFCSWITCHINGDEVICE",
+      1329646415: "IFCSHADINGDEVICE",
+      1335981549: "IFCDISCRETEACCESSORY",
+      1360408905: "IFCDUCTSILENCER",
+      1404847402: "IFCSTACKTERMINAL",
+      1426591983: "IFCFIRESUPPRESSIONTERMINAL",
+      1437502449: "IFCMEDICALDEVICE",
+      1509553395: "IFCFURNITURE",
+      1529196076: "IFCSLAB",
+      1620046519: "IFCTRANSPORTELEMENT",
+      1634111441: "IFCAIRTERMINAL",
+      1658829314: "IFCENERGYCONVERSIONDEVICE",
+      1677625105: "IFCCIVILELEMENT",
+      1687234759: "IFCPILE",
+      1904799276: "IFCELECTRICAPPLIANCE",
+      1911478936: "IFCMEMBERSTANDARDCASE",
+      1945004755: "IFCDISTRIBUTIONELEMENT",
+      1973544240: "IFCCOVERING",
+      1999602285: "IFCSPACEHEATER",
+      2016517767: "IFCROOF",
+      2056796094: "IFCAIRTOAIRHEATRECOVERY",
+      2058353004: "IFCFLOWCONTROLLER",
+      2068733104: "IFCHUMIDIFIER",
+      2176052936: "IFCJUNCTIONBOX",
+      2188021234: "IFCFLOWMETER",
+      2223149337: "IFCFLOWTERMINAL",
+      2262370178: "IFCRAILING",
+      2272882330: "IFCCONDENSER",
+      2295281155: "IFCPROTECTIVEDEVICETRIPPINGUNIT",
+      2320036040: "IFCREINFORCINGMESH",
+      2347447852: "IFCTENDONANCHOR",
+      2391383451: "IFCVIBRATIONISOLATOR",
+      2391406946: "IFCWALL",
+      2474470126: "IFCMOTORCONNECTION",
+      2769231204: "IFCVIRTUALELEMENT",
+      2814081492: "IFCENGINE",
+      2906023776: "IFCBEAMSTANDARDCASE",
+      2938176219: "IFCBURNER",
+      2979338954: "IFCBUILDINGELEMENTPART",
+      3024970846: "IFCRAMP",
+      3026737570: "IFCTUBEBUNDLE",
+      3027962421: "IFCSLABSTANDARDCASE",
+      3040386961: "IFCDISTRIBUTIONFLOWELEMENT",
+      3053780830: "IFCSANITARYTERMINAL",
+      3079942009: "IFCOPENINGSTANDARDCASE",
+      3087945054: "IFCALARM",
+      3101698114: "IFCSURFACEFEATURE",
+      3127900445: "IFCSLABELEMENTEDCASE",
+      3132237377: "IFCFLOWMOVINGDEVICE",
+      3171933400: "IFCPLATE",
+      3221913625: "IFCCOMMUNICATIONSAPPLIANCE",
+      3242481149: "IFCDOORSTANDARDCASE",
+      3283111854: "IFCRAMPFLIGHT",
+      3296154744: "IFCCHIMNEY",
+      3304561284: "IFCWINDOW",
+      3310460725: "IFCELECTRICFLOWSTORAGEDEVICE",
+      3319311131: "IFCHEATEXCHANGER",
+      3415622556: "IFCFAN",
+      3420628829: "IFCSOLARDEVICE",
+      3493046030: "IFCGEOGRAPHICELEMENT",
+      3495092785: "IFCCURTAINWALL",
+      3508470533: "IFCFLOWTREATMENTDEVICE",
+      3512223829: "IFCWALLSTANDARDCASE",
+      3518393246: "IFCDUCTSEGMENT",
+      3571504051: "IFCCOMPRESSOR",
+      3588315303: "IFCOPENINGELEMENT",
+      3612865200: "IFCPIPESEGMENT",
+      3640358203: "IFCCOOLINGTOWER",
+      3651124850: "IFCPROJECTIONELEMENT",
+      3694346114: "IFCOUTLET",
+      3747195512: "IFCEVAPORATIVECOOLER",
+      3758799889: "IFCCABLECARRIERSEGMENT",
+      3824725483: "IFCTENDON",
+      3825984169: "IFCTRANSFORMER",
+      3902619387: "IFCCHILLER",
+      4074379575: "IFCDAMPER",
+      4086658281: "IFCSENSOR",
+      4123344466: "IFCELEMENTASSEMBLY",
+      4136498852: "IFCCOOLEDBEAM",
+      4156078855: "IFCWALLELEMENTEDCASE",
+      4175244083: "IFCINTERCEPTOR",
+      4207607924: "IFCVALVE",
+      4217484030: "IFCCABLESEGMENT",
+      4237592921: "IFCWASTETERMINAL",
+      4252922144: "IFCSTAIRFLIGHT",
+      4278956645: "IFCFLOWFITTING",
+      4288193352: "IFCACTUATOR",
+      4292641817: "IFCUNITARYEQUIPMENT",
+      3009204131: "IFCGRID"
+    };
+
+    // dist/helpers/properties.ts
+    var PropsNames$1 = {
+      aggregates: {
+        name: IFCRELAGGREGATES,
+        relating: "RelatingObject",
+        related: "RelatedObjects",
+        key: "children"
+      },
+      spatial: {
+        name: IFCRELCONTAINEDINSPATIALSTRUCTURE,
+        relating: "RelatingStructure",
+        related: "RelatedElements",
+        key: "children"
+      },
+      psets: {
+        name: IFCRELDEFINESBYPROPERTIES,
+        relating: "RelatingPropertyDefinition",
+        related: "RelatedObjects",
+        key: "hasPsets"
+      },
+      materials: {
+        name: IFCRELASSOCIATESMATERIAL,
+        relating: "RelatingMaterial",
+        related: "RelatedObjects",
+        key: "hasMaterial"
+      },
+      type: {
+        name: IFCRELDEFINESBYTYPE,
+        relating: "RelatingType",
+        related: "RelatedObjects",
+        key: "hasType"
+      }
+    };
+    var Properties = class {
+      constructor(api) {
+        this.api = api;
+      }
+      getItemProperties(modelID, id, recursive = false) {
+        return __async(this, null, function* () {
+          return this.api.GetLine(modelID, id, recursive);
+        });
+      }
+      getPropertySets(modelID, elementID, recursive = false) {
+        return __async(this, null, function* () {
+          return yield this.getProperty(modelID, elementID, recursive, PropsNames$1.psets);
+        });
+      }
+      getTypeProperties(modelID, elementID, recursive = false) {
+        return __async(this, null, function* () {
+          return yield this.getProperty(modelID, elementID, recursive, PropsNames$1.type);
+        });
+      }
+      getMaterialsProperties(modelID, elementID, recursive = false) {
+        return __async(this, null, function* () {
+          return yield this.getProperty(modelID, elementID, recursive, PropsNames$1.materials);
+        });
+      }
+      getSpatialStructure(modelID, includeProperties) {
+        return __async(this, null, function* () {
+          yield this.getAllTypesOfModel(modelID);
+          const chunks = yield this.getSpatialTreeChunks(modelID);
+          const allLines = yield this.api.GetLineIDsWithType(modelID, IFCPROJECT);
+          const projectID = allLines.get(0);
+          const project = Properties.newIfcProject(projectID);
+          yield this.getSpatialNode(modelID, project, chunks, includeProperties);
+          this.cleanupTypes();
+          return project;
+        });
+      }
+      getAllItemsOfType(modelID, type, verbose) {
+        return __async(this, null, function* () {
+          let items = [];
+          const lines = yield this.api.GetLineIDsWithType(modelID, type);
+          for (let i = 0; i < lines.size(); i++)
+            items.push(lines.get(i));
+          if (!verbose)
+            return items;
+          const result = [];
+          for (let i = 0; i < items.length; i++) {
+            result.push(yield this.api.GetLine(modelID, items[i]));
+          }
+          return result;
+        });
+      }
+      getProperty(modelID, elementID, recursive = false, propName) {
+        return __async(this, null, function* () {
+          const propSetIds = yield this.getAllRelatedItemsOfType(modelID, elementID, propName);
+          const result = [];
+          for (let i = 0; i < propSetIds.length; i++) {
+            result.push(yield this.api.GetLine(modelID, propSetIds[i], recursive));
+          }
+          return result;
+        });
+      }
+      getChunks(modelID, chunks, propNames) {
+        return __async(this, null, function* () {
+          const relation = yield this.api.GetLineIDsWithType(modelID, propNames.name);
+          for (let i = 0; i < relation.size(); i++) {
+            const rel = yield this.api.GetLine(modelID, relation.get(i), false);
+            this.saveChunk(chunks, propNames, rel);
+          }
+        });
+      }
+      static isRelated(id, rel, propNames) {
+        const relatedItems = rel[propNames.related];
+        if (Array.isArray(relatedItems)) {
+          const values = relatedItems.map((item) => item.value);
+          return values.includes(id);
+        }
+        return relatedItems.value === id;
+      }
+      static newIfcProject(id) {
+        return {
+          expressID: id,
+          type: "IFCPROJECT",
+          children: []
+        };
+      }
+      getSpatialNode(modelID, node, treeChunks, includeProperties) {
+        return __async(this, null, function* () {
+          yield this.getChildren(modelID, node, treeChunks, PropsNames$1.aggregates, includeProperties);
+          yield this.getChildren(modelID, node, treeChunks, PropsNames$1.spatial, includeProperties);
+        });
+      }
+      getChildren(modelID, node, treeChunks, propNames, includeProperties) {
+        return __async(this, null, function* () {
+          const children = treeChunks[node.expressID];
+          if (children == void 0)
+            return;
+          const prop = propNames.key;
+          const nodes = [];
+          for (let i = 0; i < children.length; i++) {
+            const child = children[i];
+            let node2 = this.newNode(child);
+            if (includeProperties) {
+              const properties = yield this.getItemProperties(modelID, node2.expressID);
+              node2 = __spreadValues(__spreadValues({}, properties), node2);
+            }
+            yield this.getSpatialNode(modelID, node2, treeChunks, includeProperties);
+            nodes.push(node2);
+          }
+          node[prop] = nodes;
+        });
+      }
+      newNode(id) {
+        const typeName = this.getNodeType(id);
+        return {
+          expressID: id,
+          type: typeName,
+          children: []
+        };
+      }
+      getNodeType(id) {
+        const typeID = this.types[id];
+        return IfcElements2[typeID];
+      }
+      getSpatialTreeChunks(modelID) {
+        return __async(this, null, function* () {
+          const treeChunks = {};
+          yield this.getChunks(modelID, treeChunks, PropsNames$1.aggregates);
+          yield this.getChunks(modelID, treeChunks, PropsNames$1.spatial);
+          return treeChunks;
+        });
+      }
+      saveChunk(chunks, propNames, rel) {
+        const relating = rel[propNames.relating].value;
+        const related = rel[propNames.related].map((r) => r.value);
+        if (chunks[relating] == void 0) {
+          chunks[relating] = related;
+        } else {
+          chunks[relating] = chunks[relating].concat(related);
+        }
+      }
+      getRelated(rel, propNames, IDs) {
+        const element = rel[propNames.relating];
+        if (!Array.isArray(element))
+          IDs.push(element.value);
+        else
+          element.forEach((ele) => IDs.push(ele.value));
+      }
+      getAllRelatedItemsOfType(modelID, id, propNames) {
+        return __async(this, null, function* () {
+          const lines = yield this.api.GetLineIDsWithType(modelID, propNames.name);
+          const IDs = [];
+          for (let i = 0; i < lines.size(); i++) {
+            const rel = yield this.api.GetLine(modelID, lines.get(i));
+            const isRelated = Properties.isRelated(id, rel, propNames);
+            if (isRelated)
+              this.getRelated(rel, propNames, IDs);
+          }
+          return IDs;
+        });
+      }
+      cleanupTypes() {
+        this.types = {};
+      }
+      getAllTypesOfModel(modelID) {
+        return __async(this, null, function* () {
+          const result = {};
+          const elements = Object.keys(IfcElements2).map((e) => parseInt(e));
+          for (let i = 0; i < elements.length; i++) {
+            const element = elements[i];
+            const lines = yield this.api.GetLineIDsWithType(modelID, element);
+            const size = lines.size();
+            for (let i2 = 0; i2 < size; i2++)
+              result[lines.get(i2)] = element;
+          }
+          this.types = result;
+        });
+      }
+    };
+
     // dist/web-ifc-api.ts
     var WebIFCWasm;
-    if (self.crossOriginIsolated) {
+    if (typeof self !== "undefined" && self.crossOriginIsolated) {
       WebIFCWasm = require_web_ifc_mt();
     } else {
       WebIFCWasm = require_web_ifc();
     }
-    var IfcAPI = class {
+    var IfcAPI2 = class {
       constructor() {
         this.wasmModule = void 0;
         this.fs = void 0;
         this.wasmPath = "";
         this.ifcGuidMap = new Map();
+        this.properties = new Properties(this);
       }
       Init(customLocateFileHandler) {
         return __async(this, null, function* () {
@@ -89029,7 +89283,6 @@
         });
       }
       OpenModel(data, settings) {
-        this.wasmModule["FS_createDataFile"]("/", "filename", data, true, true, true);
         let s = __spreadValues({
           COORDINATE_TO_ORIGIN: false,
           USE_FAST_BOOLS: false,
@@ -89038,8 +89291,15 @@
           CIRCLE_SEGMENTS_HIGH: 12,
           BOOL_ABORT_THRESHOLD: 1e4
         }, settings);
-        let result = this.wasmModule.OpenModel(s);
-        this.wasmModule["FS_unlink"]("/filename");
+        let offsetInSrc = 0;
+        let result = this.wasmModule.OpenModel(s, (destPtr, destSize) => {
+          let srcSize = Math.min(data.byteLength - offsetInSrc, destSize);
+          let dest = this.wasmModule.HEAPU8.subarray(destPtr, destPtr + destSize);
+          let src = data.subarray(offsetInSrc, offsetInSrc + srcSize);
+          dest.set(src);
+          offsetInSrc += srcSize;
+          return srcSize;
+        });
         return result;
       }
       CreateModel(settings) {
@@ -93211,6 +93471,7 @@
             this.context = context;
             this.clippingPlane = clippingPlane;
             this.ifc = ifc;
+            this.edges = {};
             this.inverseMatrix = new Matrix4();
             this.localPlane = new Plane();
             this.tempLine = new Line3();
@@ -93227,7 +93488,7 @@
             const model = this.context.items.ifcModels[0];
             if (Object.keys(ClippingEdges.styles).length === 0) {
                 await this.newStyle(model.modelID, 'thick', [IFCWALLSTANDARDCASE, IFCWALL, IFCSLAB], new LineMaterial({ color: 0x000000, linewidth: 0.0015 }));
-                await this.newStyle(model.modelID, 'thin', [IFCWINDOW, IFCPLATE, IFCMEMBER, IFCDOOR], new LineMaterial({ color: 0x333333, linewidth: 0.001 }));
+                await this.newStyle(model.modelID, 'thin', [IFCWINDOW, IFCPLATE, IFCMEMBER, IFCDOOR, IFCFURNISHINGELEMENT], new LineMaterial({ color: 0x333333, linewidth: 0.001 }));
             }
             Object.keys(ClippingEdges.styles).forEach((style) => {
                 this.drawEdges(ClippingEdges.styles[style], model);
@@ -93250,7 +93511,7 @@
         async newSubset(styleName, modelID, categories) {
             const subset = this.ifc.loader.ifcManager.createSubset({
                 modelID,
-                customId: `${styleName}`,
+                customID: `${styleName}`,
                 material: ClippingEdges.invisibleMaterial,
                 removePrevious: true,
                 scene: this.context.getScene(),
@@ -93973,7 +94234,7 @@
             this.length = this.getLength();
             this.center = this.getCenter();
             this.axis = new BufferGeometry().setFromPoints([start, end]);
-            this.line = new Line$2(this.axis, this.lineMaterial);
+            this.line = new Line(this.axis, this.lineMaterial);
             this.root.add(this.line);
             this.endpoint = endpointGeometry;
             this.addEndpointMeshes();
@@ -94639,50 +94900,6 @@
 
     }
 
-    const IdAttrName = 'expressID';
-    const merge = (geoms, createGroups = false) => {
-      return mergeBufferGeometries(geoms, createGroups);
-    };
-    const newFloatAttr = (data, size) => {
-      return new BufferAttribute(new Float32Array(data), size);
-    };
-    const newIntAttr = (data, size) => {
-      return new BufferAttribute(new Uint32Array(data), size);
-    };
-    const DEFAULT = 'default';
-    const PropsNames = {
-      aggregates: {
-        name: IFCRELAGGREGATES,
-        relating: 'RelatingObject',
-        related: 'RelatedObjects',
-        key: 'children'
-      },
-      spatial: {
-        name: IFCRELCONTAINEDINSPATIALSTRUCTURE,
-        relating: 'RelatingStructure',
-        related: 'RelatedElements',
-        key: 'children'
-      },
-      psets: {
-        name: IFCRELDEFINESBYPROPERTIES,
-        relating: 'RelatingPropertyDefinition',
-        related: 'RelatedObjects',
-        key: 'hasPsets'
-      },
-      materials: {
-        name: IFCRELASSOCIATESMATERIAL,
-        relating: 'RelatingMaterial',
-        related: 'RelatedObjects',
-        key: 'hasMaterial'
-      },
-      type: {
-        name: IFCRELDEFINESBYTYPE,
-        relating: 'RelatingType',
-        related: 'RelatedObjects',
-        key: 'hasType'
-      }
-    };
-
     let modelIdCounter = 0;
     const nullIfcManagerErrorMessage = 'IfcManager is null!';
 
@@ -94775,30 +94992,6 @@
         return this.ifcManager.createSubset(modelConfig);
       }
 
-      hideItems(ids) {
-        if (this.ifcManager === null)
-          throw new Error(nullIfcManagerErrorMessage);
-        this.ifcManager.hideItems(this.modelID, ids);
-      }
-
-      hideAllItems() {
-        if (this.ifcManager === null)
-          throw new Error(nullIfcManagerErrorMessage);
-        this.ifcManager.hideAllItems(this.modelID);
-      }
-
-      showItems(ids) {
-        if (this.ifcManager === null)
-          throw new Error(nullIfcManagerErrorMessage);
-        this.ifcManager.showItems(this.modelID, ids);
-      }
-
-      showAllItems() {
-        if (this.ifcManager === null)
-          throw new Error(nullIfcManagerErrorMessage);
-        this.ifcManager.showAllItems(this.modelID);
-      }
-
     }
 
     class IFCParser {
@@ -94811,6 +95004,7 @@
           [IFCSPACE]: true,
           [IFCOPENINGELEMENT]: false
         };
+        this.geometriesByMaterials = {};
         this.currentWebIfcID = -1;
         this.currentModelID = -1;
       }
@@ -94827,7 +95021,7 @@
         if (coordinationMatrix) {
           await this.state.api.SetGeometryTransformation(this.currentWebIfcID, coordinationMatrix);
         }
-        return this.loadAllGeometry();
+        return this.loadAllGeometry(this.currentWebIfcID);
       }
 
       getAndClearErrors(_modelId) {}
@@ -94847,177 +95041,445 @@
         this.state.models[this.currentModelID] = {
           modelID: this.currentModelID,
           mesh: {},
-          items: {},
           types: {},
           jsonData: {}
         };
       }
 
-      async loadAllGeometry() {
-        await this.saveAllPlacedGeometriesByMaterial();
-        return this.generateAllGeometriesByMaterial();
+      async loadAllGeometry(modelID) {
+        this.state.api.StreamAllMeshes(modelID, (mesh) => {
+          const placedGeometries = mesh.geometries;
+          const size = placedGeometries.size();
+          for (let i = 0; i < size; i++) {
+            const placedGeometry = placedGeometries.get(i);
+            let itemMesh = this.getPlacedGeometry(modelID, mesh.expressID, placedGeometry);
+            let geom = itemMesh.geometry.applyMatrix4(itemMesh.matrix);
+            this.storeGeometryByMaterial(placedGeometry.color, geom);
+          }
+        });
+        const geometries = [];
+        const materials = [];
+        Object.keys(this.geometriesByMaterials).forEach((key) => {
+          const geometriesByMaterial = this.geometriesByMaterials[key].geometries;
+          const merged = mergeBufferGeometries(geometriesByMaterial);
+          materials.push(this.geometriesByMaterials[key].material);
+          geometries.push(merged);
+        });
+        const combinedGeometry = mergeBufferGeometries(geometries, true);
+        this.cleanUpGeometryMemory(geometries);
+        if (this.BVH)
+          this.BVH.applyThreeMeshBVH(combinedGeometry);
+        const model = new IFCModel(combinedGeometry, materials);
+        this.state.models[this.currentModelID].mesh = model;
+        return model;
       }
 
-      generateAllGeometriesByMaterial() {
-        const {geometry, materials} = this.getGeometryAndMaterials();
-        if (this.BVH)
-          this.BVH.applyThreeMeshBVH(geometry);
-        const mesh = new IFCModel(geometry, materials);
-        mesh.modelID = this.currentModelID;
-        this.state.models[this.currentModelID].mesh = mesh;
+      getPlacedGeometry(modelID, expressID, placedGeometry) {
+        const geometry = this.getBufferGeometry(modelID, expressID, placedGeometry);
+        const mesh = new Mesh(geometry);
+        mesh.matrix = this.getMeshMatrix(placedGeometry.flatTransformation);
+        mesh.matrixAutoUpdate = false;
         return mesh;
       }
 
-      getGeometryAndMaterials() {
-        const items = this.state.models[this.currentModelID].items;
-        const mergedByMaterial = [];
-        const materials = [];
-        for (let materialID in items) {
-          if (items.hasOwnProperty(materialID)) {
-            materials.push(items[materialID].material);
-            const geometries = Object.values(items[materialID].geometries);
-            mergedByMaterial.push(merge(geometries));
-          }
+      getBufferGeometry(modelID, expressID, placedGeometry) {
+        const geometry = this.state.api.GetGeometry(modelID, placedGeometry.geometryExpressID);
+        const verts = this.state.api.GetVertexArray(geometry.GetVertexData(), geometry.GetVertexDataSize());
+        const indices = this.state.api.GetIndexArray(geometry.GetIndexData(), geometry.GetIndexDataSize());
+        const buffer = this.ifcGeometryToBuffer(expressID, verts, indices);
+        geometry.delete();
+        return buffer;
+      }
+
+      storeGeometryByMaterial(color, geometry) {
+        let colID = `${color.x}${color.y}${color.z}${color.w}`;
+        if (this.geometriesByMaterials[colID]) {
+          this.geometriesByMaterials[colID].geometries.push(geometry);
+          return;
         }
-        const geometry = merge(mergedByMaterial, true);
-        return {
-          geometry,
-          materials
+        const col = new Color(color.x, color.y, color.z);
+        const material = new MeshLambertMaterial({
+          color: col,
+          side: DoubleSide
+        });
+        material.transparent = color.w !== 1;
+        if (material.transparent)
+          material.opacity = color.w;
+        this.geometriesByMaterials[colID] = {
+          material,
+          geometries: [geometry]
         };
       }
 
-      async saveAllPlacedGeometriesByMaterial() {
-        await this.addOptionalCategories();
-        const flatMeshes = await this.state.api.LoadAllGeometry(this.currentWebIfcID);
-        const size = flatMeshes.size();
-        let counter = 0;
-        for (let i = 0; i < size; i++) {
-          if (i > counter) {
-            this.notifyProgress(i, size);
-            counter += Math.trunc(size / 10);
-          }
-          const flatMesh = flatMeshes.get(i);
-          const placedGeom = flatMesh.geometries;
-          for (let j = 0; j < placedGeom.size(); j++) {
-            await this.savePlacedGeometry(placedGeom.get(j), flatMesh.expressID);
-          }
-        }
-      }
-
-      async addOptionalCategories() {
-        const optionalTypes = [];
-        for (let key in this.optionalCategories) {
-          if (this.optionalCategories.hasOwnProperty(key)) {
-            const category = parseInt(key);
-            if (this.optionalCategories[category])
-              optionalTypes.push(category);
-          }
-        }
-        await this.state.api.StreamAllMeshesWithTypes(this.currentWebIfcID, optionalTypes, async (mesh) => {
-          const geometries = mesh.geometries;
-          const size = geometries.size();
-          for (let j = 0; j < size; j++) {
-            await this.savePlacedGeometry(geometries.get(j), mesh.expressID);
-          }
-        });
-      }
-
-      async savePlacedGeometry(placedGeometry, id) {
-        const geometry = await this.getGeometry(placedGeometry);
-        this.saveGeometryByMaterial(geometry, placedGeometry, id);
-      }
-
-      async getGeometry(placedGeometry) {
-        const geometry = await this.getBufferGeometry(placedGeometry);
-        geometry.computeVertexNormals();
-        const matrix = IFCParser.getMeshMatrix(placedGeometry.flatTransformation);
-        geometry.applyMatrix4(matrix);
-        return geometry;
-      }
-
-      async getBufferGeometry(placed) {
-        const geometry = await this.state.api.GetGeometry(this.currentWebIfcID, placed.geometryExpressID);
-        const vertexData = await this.getVertices(geometry);
-        const indices = await this.getIndices(geometry);
-        const {vertices, normals} = IFCParser.extractVertexData(vertexData);
-        return IFCParser.ifcGeomToBufferGeom(vertices, normals, indices);
-      }
-
-      async getVertices(geometry) {
-        const vData = geometry.GetVertexData();
-        const vDataSize = geometry.GetVertexDataSize();
-        return this.state.api.GetVertexArray(vData, vDataSize);
-      }
-
-      async getIndices(geometry) {
-        const iData = geometry.GetIndexData();
-        const iDataSize = geometry.GetIndexDataSize();
-        return this.state.api.GetIndexArray(iData, iDataSize);
-      }
-
-      static getMeshMatrix(matrix) {
+      getMeshMatrix(matrix) {
         const mat = new Matrix4();
         mat.fromArray(matrix);
         return mat;
       }
 
-      static ifcGeomToBufferGeom(vertices, normals, indexData) {
+      ifcGeometryToBuffer(expressID, vertexData, indexData) {
         const geometry = new BufferGeometry();
-        geometry.setAttribute('position', newFloatAttr(vertices, 3));
-        geometry.setAttribute('normal', newFloatAttr(normals, 3));
+        const posFloats = new Float32Array(vertexData.length / 2);
+        const normFloats = new Float32Array(vertexData.length / 2);
+        const idAttribute = new Uint32Array(vertexData.length / 6);
+        for (let i = 0; i < vertexData.length; i += 6) {
+          posFloats[i / 2] = vertexData[i];
+          posFloats[i / 2 + 1] = vertexData[i + 1];
+          posFloats[i / 2 + 2] = vertexData[i + 2];
+          normFloats[i / 2] = vertexData[i + 3];
+          normFloats[i / 2 + 1] = vertexData[i + 4];
+          normFloats[i / 2 + 2] = vertexData[i + 5];
+          idAttribute[i / 6] = expressID;
+        }
+        geometry.setAttribute('position', new BufferAttribute(posFloats, 3));
+        geometry.setAttribute('normal', new BufferAttribute(normFloats, 3));
+        geometry.setAttribute('expressID', new BufferAttribute(idAttribute, 1));
         geometry.setIndex(new BufferAttribute(indexData, 1));
         return geometry;
       }
 
-      static extractVertexData(vertexData) {
-        const vertices = [];
-        const normals = [];
-        let isNormalData = false;
-        for (let i = 0; i < vertexData.length; i++) {
-          isNormalData ? normals.push(vertexData[i]) : vertices.push(vertexData[i]);
-          if ((i + 1) % 3 == 0)
-            isNormalData = !isNormalData;
-        }
-        return {
-          vertices,
-          normals
-        };
-      }
-
-      saveGeometryByMaterial(geom, placedGeom, id) {
-        const color = placedGeom.color;
-        const colorID = `${color.x}${color.y}${color.z}${color.w}`;
-        IFCParser.storeGeometryAttribute(id, geom);
-        this.createMaterial(colorID, color);
-        const item = this.state.models[this.currentModelID].items[colorID];
-        const currentGeom = item.geometries[id];
-        if (!currentGeom)
-          return (item.geometries[id] = geom);
-        item.geometries[id] = merge([currentGeom, geom]);
-      }
-
-      static storeGeometryAttribute(id, geometry) {
-        const size = geometry.attributes.position.count;
-        const idAttribute = new Array(size).fill(id);
-        geometry.setAttribute(IdAttrName, newIntAttr(idAttribute, 1));
-      }
-
-      createMaterial(colorID, color) {
-        const items = this.state.models[this.currentModelID].items;
-        if (items[colorID])
-          return;
-        const col = new Color(color.x, color.y, color.z);
-        const newMaterial = new MeshLambertMaterial({
-          color: col,
-          side: DoubleSide
+      cleanUpGeometryMemory(geometries) {
+        geometries.forEach(geometry => geometry.dispose());
+        Object.keys(this.geometriesByMaterials).forEach((materialID) => {
+          const geometriesByMaterial = this.geometriesByMaterials[materialID];
+          geometriesByMaterial.geometries.forEach(geometry => geometry.dispose());
+          geometriesByMaterial.geometries = [];
+          geometriesByMaterial.material = null;
         });
-        newMaterial.transparent = color.w !== 1;
-        if (newMaterial.transparent)
-          newMaterial.opacity = color.w;
-        items[colorID] = {
-          material: newMaterial,
-          geometries: {}
+        this.geometriesByMaterials = {};
+      }
+
+    }
+
+    class ItemsMap {
+
+      constructor(state) {
+        this.state = state;
+        this.map = {};
+      }
+
+      generateGeometryIndexMap(modelID) {
+        if (this.map[modelID])
+          return;
+        const geometry = this.getGeometry(modelID);
+        const items = this.newItemsMap(modelID, geometry);
+        for (const group of geometry.groups) {
+          this.fillItemsWithGroupInfo(group, geometry, items);
+        }
+      }
+
+      getSubsetID(modelID, material, customID = 'DEFAULT') {
+        const baseID = modelID;
+        const materialID = material ? material.uuid : 'DEFAULT';
+        return `${baseID} - ${materialID} - ${customID}`;
+      }
+
+      getGeometry(modelID) {
+        const geometry = this.state.models[modelID].mesh.geometry;
+        if (!geometry)
+          throw new Error('Model without geometry.');
+        if (!geometry.index)
+          throw new Error('Geometry must be indexed');
+        return geometry;
+      }
+
+      newItemsMap(modelID, geometry) {
+        const startIndices = geometry.index.array;
+        this.map[modelID] = {
+          indexCache: startIndices.slice(0, geometry.index.array.length),
+          map: new Map()
         };
+        return this.map[modelID];
+      }
+
+      fillItemsWithGroupInfo(group, geometry, items) {
+        let prevExpressID = -1;
+        const materialIndex = group.materialIndex;
+        const materialStart = group.start;
+        const materialEnd = materialStart + group.count - 1;
+        let objectStart = -1;
+        let objectEnd = -1;
+        for (let i = materialStart; i <= materialEnd; i++) {
+          const index = geometry.index.array[i];
+          const expressID = geometry.attributes.expressID.array[index];
+          if (prevExpressID === -1) {
+            prevExpressID = expressID;
+            objectStart = i;
+          }
+          const isEndOfMaterial = i === materialEnd;
+          if (isEndOfMaterial) {
+            const store = this.getMaterialStore(items.map, expressID, materialIndex);
+            store.push(objectStart, materialEnd);
+            break;
+          }
+          if (prevExpressID === expressID)
+            continue;
+          const store = this.getMaterialStore(items.map, prevExpressID, materialIndex);
+          objectEnd = i - 1;
+          store.push(objectStart, objectEnd);
+          prevExpressID = expressID;
+          objectStart = i;
+        }
+      }
+
+      getMaterialStore(map, id, matIndex) {
+        if (map.get(id) === undefined) {
+          map.set(id, {});
+        }
+        const storedIfcItem = map.get(id);
+        if (storedIfcItem === undefined)
+          throw new Error('Geometry map generation error');
+        if (storedIfcItem[matIndex] === undefined) {
+          storedIfcItem[matIndex] = [];
+        }
+        return storedIfcItem[matIndex];
+      }
+
+    }
+
+    class SubsetUtils {
+
+      static getAllIndicesOfGroup(modelID, ids, materialIndex, items, flatten = true) {
+        const indicesByGroup = [];
+        for (const expressID of ids) {
+          const entry = items.map.get(expressID);
+          if (!entry)
+            continue;
+          const value = entry[materialIndex];
+          if (!value)
+            continue;
+          SubsetUtils.getIndexChunk(value, indicesByGroup, materialIndex, items, flatten);
+        }
+        return indicesByGroup;
+      }
+
+      static getIndexChunk(value, indicesByGroup, materialIndex, items, flatten) {
+        const pairs = value.length / 2;
+        for (let pair = 0; pair < pairs; pair++) {
+          const pairIndex = pair * 2;
+          const start = value[pairIndex];
+          const end = value[pairIndex + 1];
+          for (let j = start; j <= end; j++) {
+            if (flatten)
+              indicesByGroup.push(items.indexCache[j]);
+            else {
+              if (!indicesByGroup[materialIndex])
+                indicesByGroup[materialIndex] = [];
+              indicesByGroup[materialIndex].push(items.indexCache[j]);
+            }
+          }
+        }
+      }
+
+    }
+
+    class SubsetCreator {
+
+      constructor(state, items, subsets) {
+        this.state = state;
+        this.items = items;
+        this.subsets = subsets;
+        this.tempIndex = [];
+      }
+
+      createSubset(config, subsetID) {
+        if (!this.items.map[config.modelID])
+          this.items.generateGeometryIndexMap(config.modelID);
+        if (!this.subsets[subsetID])
+          this.initializeSubset(config, subsetID);
+        this.filterIndices(config, subsetID);
+        this.constructSubsetByMaterial(config, subsetID);
+        config.ids.forEach(id => this.subsets[subsetID].ids.add(id));
+        this.subsets[subsetID].mesh.geometry.setIndex(this.tempIndex);
+        this.tempIndex.length = 0;
+        return this.subsets[subsetID].mesh;
+      }
+
+      initializeSubset(config, subsetID) {
+        const model = this.state.models[config.modelID].mesh;
+        const subsetGeom = new BufferGeometry();
+        this.initializeSubsetAttributes(subsetGeom, model);
+        if (!config.material)
+          this.initializeSubsetGroups(subsetGeom, model);
+        const mesh = new Mesh(subsetGeom, config.material || model.material);
+        this.subsets[subsetID] = {
+          ids: new Set(),
+          mesh
+        };
+        model.add(mesh);
+      }
+
+      initializeSubsetAttributes(subsetGeom, model) {
+        subsetGeom.setAttribute('position', model.geometry.attributes.position);
+        subsetGeom.setAttribute('normal', model.geometry.attributes.normal);
+        subsetGeom.setAttribute('expressID', model.geometry.attributes.expressID);
+        subsetGeom.setIndex([]);
+      }
+
+      initializeSubsetGroups(subsetGeom, model) {
+        subsetGeom.groups = JSON.parse(JSON.stringify(model.geometry.groups));
+        this.resetGroups(subsetGeom);
+      }
+
+      filterIndices(config, subsetID) {
+        const geometry = this.subsets[subsetID].mesh.geometry;
+        if (config.removePrevious) {
+          geometry.setIndex([]);
+          return this.resetGroups(geometry);
+        }
+        const previousIndices = geometry.index.array;
+        const previousIDs = this.subsets[subsetID].ids;
+        config.ids = config.ids.filter(id => !previousIDs.has(id));
+        this.tempIndex = Array.from(previousIndices);
+      }
+
+      constructSubsetByMaterial(config, subsetID) {
+        const model = this.state.models[config.modelID].mesh;
+        const newIndices = {
+          count: 0
+        };
+        for (let i = 0; i < model.geometry.groups.length; i++) {
+          this.insertNewIndices(config, subsetID, i, newIndices);
+        }
+      }
+
+      insertNewIndices(config, subsetID, materialIndex, newIndices) {
+        const items = this.items.map[config.modelID];
+        const indicesOfOneMaterial = SubsetUtils.getAllIndicesOfGroup(config.modelID, config.ids, materialIndex, items);
+        if (!config.material) {
+          this.insertIndicesAtGroup(subsetID, indicesOfOneMaterial, materialIndex, newIndices);
+        } else {
+          indicesOfOneMaterial.forEach(index => this.tempIndex.push(index));
+        }
+      }
+
+      insertIndicesAtGroup(subsetID, indicesByGroup, index, newIndices) {
+        const currentGroup = this.getCurrentGroup(subsetID, index);
+        currentGroup.start += newIndices.count;
+        let newIndicesPosition = currentGroup.start + currentGroup.count;
+        newIndices.count += indicesByGroup.length;
+        if (indicesByGroup.length > 0) {
+          let position = newIndicesPosition;
+          const batchSize = 125052;
+          for (let i = 0, x = 0; i < indicesByGroup.length; i += batchSize, x++) {
+            const offset = x * batchSize;
+            this.tempIndex.splice(position, 0, ...(indicesByGroup.slice(offset, offset + batchSize)));
+            position += batchSize;
+          }
+          currentGroup.count += indicesByGroup.length;
+        }
+      }
+
+      getCurrentGroup(subsetID, groupIndex) {
+        const geometry = this.subsets[subsetID].mesh.geometry;
+        return geometry.groups[groupIndex];
+      }
+
+      resetGroups(geometry) {
+        geometry.groups.forEach((group) => {
+          group.start = 0;
+          group.count = 0;
+        });
+      }
+
+    }
+
+    class SubsetItemsRemover {
+
+      constructor(state, items, subsets) {
+        this.state = state;
+        this.items = items;
+        this.subsets = subsets;
+      }
+
+      removeFromSubset(modelID, ids, subsetID, customID, material) {
+        if (!this.subsets[subsetID])
+          return;
+        ids = this.filterIndices(subsetID, ids);
+        if (ids.length === 0)
+          return;
+        const geometry = this.getGeometry(subsetID);
+        let previous = {
+          indices: Array.from(geometry.index.array).toString()
+        };
+        this.subtractIndicesByMaterial(modelID, subsetID, ids, previous, material != undefined);
+        this.updateIndices(subsetID, previous);
+        this.updateIDs(subsetID, ids);
+      }
+
+      getGeometry(subsetID) {
+        const geometry = this.subsets[subsetID].mesh.geometry;
+        if (!geometry.index)
+          throw new Error('The subset is not indexed');
+        return geometry;
+      }
+
+      filterIndices(subsetID, ids) {
+        const previousIDs = this.subsets[subsetID].ids;
+        return ids.filter(id => previousIDs.has(id));
+      }
+
+      subtractIndicesByMaterial(modelID, subsetID, ids, previous, material) {
+        let removedIndices = {
+          amount: 0
+        };
+        const model = this.state.models[modelID].mesh;
+        for (let i = 0; i < model.geometry.groups.length; i++) {
+          const items = this.items.map[modelID];
+          const indicesByGroup = SubsetUtils.getAllIndicesOfGroup(modelID, ids, i, items, false);
+          this.removeIndices(indicesByGroup, previous);
+          this.cleanUpResult(previous);
+          if (!material)
+            this.updateGroups(subsetID, i, removedIndices, indicesByGroup);
+        }
+      }
+
+      removeIndices(indicesByGroup, previous) {
+        const indicesStringByGroup = indicesByGroup.map(indices => indices.toString());
+        indicesStringByGroup.forEach(indices => {
+          if (previous.indices.includes(indices))
+            previous.indices = previous.indices.replace(indices, '');
+        });
+      }
+
+      cleanUpResult(previous) {
+        const commaAtStart = /^,/;
+        const commaAtEnd = /,$/;
+        if (commaAtStart.test(previous.indices))
+          previous.indices = previous.indices.replace(commaAtStart, '');
+        if (commaAtEnd.test(previous.indices))
+          previous.indices = previous.indices.replace(commaAtEnd, '');
+        if (previous.indices.includes(',,'))
+          previous.indices = previous.indices.replace(',,', ',');
+      }
+
+      updateGroups(subsetID, index, removedIndices, indicesByGroup) {
+        const geometry = this.getGeometry(subsetID);
+        const currentGroup = geometry.groups[index];
+        currentGroup.start -= removedIndices.amount;
+        let removedIndicesAmount = 0;
+        indicesByGroup.forEach(indices => removedIndicesAmount += indices.length);
+        currentGroup.count -= removedIndicesAmount;
+        removedIndices.amount += removedIndicesAmount;
+      }
+
+      updateIndices(subsetID, previous) {
+        const geometry = this.getGeometry(subsetID);
+        const noIndicesFound = previous.indices.length === 0;
+        let parsedIndices = noIndicesFound ? [] : this.parseIndices(previous);
+        geometry.setIndex(parsedIndices);
+      }
+
+      updateIDs(subsetID, ids) {
+        const subset = this.subsets[subsetID];
+        ids.forEach(id => {
+          if (subset.ids.has(id))
+            subset.ids.delete(id);
+        });
+      }
+
+      parseIndices(previous) {
+        return previous.indices.split(',').map((text) => parseInt(text, 10));
       }
 
     }
@@ -95025,191 +95487,84 @@
     class SubsetManager {
 
       constructor(state, BVH) {
-        this.selected = {};
+        this.subsets = {};
         this.state = state;
+        this.items = new ItemsMap(state);
         this.BVH = BVH;
+        this.subsetCreator = new SubsetCreator(state, this.items, this.subsets);
+        this.subsetItemsRemover = new SubsetItemsRemover(state, this.items, this.subsets);
       }
 
-      dispose() {}
-
       getSubset(modelID, material, customId) {
-        const currentMat = this.matIDNoConfig(modelID, material, customId);
-        return this.selected[currentMat].mesh || null;
+        const subsetID = this.getSubsetID(modelID, material, customId);
+        return this.subsets[subsetID].mesh;
       }
 
       removeSubset(modelID, parent, material, customId) {
-        const currentMat = this.matIDNoConfig(modelID, material, customId);
-        if (!this.selected[currentMat])
+        const subsetID = this.getSubsetID(modelID, material, customId);
+        const subset = this.subsets[subsetID];
+        if (!subset)
           return;
-        if (parent)
-          parent.remove(this.selected[currentMat].mesh);
-        delete this.selected[currentMat];
+        subset.mesh.geometry.dispose();
+        if (subset.mesh.parent)
+          subset.mesh.removeFromParent();
+        subset.mesh.geometry = null;
+        if (material)
+          material.dispose();
+        delete this.subsets[subsetID];
       }
 
       createSubset(config) {
-        this.checkConfigValid(config);
-        if (this.isPreviousSelection(config))
-          return;
-        if (this.isEasySelection(config))
-          return this.addToPreviousSelection(config);
-        this.updatePreviousSelection(config.scene, config);
-        return this.createSelectionInScene(config);
+        const subsetID = this.getSubsetID(config.modelID, config.material, config.customID);
+        return this.subsetCreator.createSubset(config, subsetID);
       }
 
-      createSelectionInScene(config) {
-        const filtered = this.filter(config);
-        const {geomsByMaterial, materials} = this.getGeomAndMat(filtered);
-        if (geomsByMaterial.length <= 0)
-          return null;
-        const isDefMaterial = this.isDefaultMat(config);
-        const geometry = this.getMergedGeometry(geomsByMaterial, isDefMaterial);
-        const mats = isDefMaterial ? materials : config.material;
-        this.BVH.applyThreeMeshBVH(geometry);
-        const mesh = new Mesh(geometry, mats);
-        this.selected[this.matID(config)].mesh = mesh;
-        mesh.modelID = config.modelID;
-        config.scene.add(mesh);
-        return mesh;
+      removeFromSubset(modelID, ids, customID, material) {
+        const subsetID = this.getSubsetID(modelID, material, customID);
+        this.subsetItemsRemover.removeFromSubset(modelID, ids, subsetID, customID, material);
       }
 
-      getMergedGeometry(geomsByMaterial, hasDefaultMaterial) {
-        return geomsByMaterial.length > 0
-          ? merge(geomsByMaterial, hasDefaultMaterial)
-          : new BufferGeometry();
-      }
-
-      checkConfigValid(config) {
-        this.checkValidConfigParam(config.scene);
-        this.checkValidConfigParam(config.modelID);
-        this.checkValidConfigParam(config.ids);
-        this.checkValidConfigParam(config.removePrevious);
-        if (config.ids.length <= 0) {
-          throw new Error('Error: config parameter ids cannot be empty');
-        }
-      }
-
-      checkValidConfigParam(item) {
-        if (item === undefined || item === null)
-          throw new Error(`Error with subset config parameter: ${item}`);
-      }
-
-      getGeomAndMat(filtered) {
-        const geomsByMaterial = [];
-        const materials = [];
-        for (let matID in filtered) {
-          let geoms = Object.values(filtered[matID].geometries);
-          geoms = geoms.filter(geom => Object.values(geom.attributes).length > 0);
-          if (!geoms.length)
-            continue;
-          materials.push(filtered[matID].material);
-          if (geoms.length > 1)
-            geomsByMaterial.push(merge(geoms));
-          else
-            geomsByMaterial.push(...geoms);
-        }
-        return {
-          geomsByMaterial,
-          materials
-        };
-      }
-
-      updatePreviousSelection(parent, config) {
-        const previous = this.selected[this.matID(config)];
-        if (!previous)
-          return this.newSelectionGroup(config);
-        parent.remove(previous.mesh);
-        config.removePrevious
-          ? (previous.ids = new Set(config.ids))
-          : config.ids.forEach((id) => previous.ids.add(id));
-      }
-
-      newSelectionGroup(config) {
-        this.selected[this.matID(config)] = {
-          ids: new Set(config.ids),
-          mesh: {}
-        };
-      }
-
-      isPreviousSelection(config) {
-        if (!this.selected[this.matID(config)])
-          return false;
-        if (this.containsIds(config))
-          return true;
-        const previousIds = this.selected[this.matID(config)].ids;
-        return JSON.stringify(config.ids) === JSON.stringify(previousIds);
-      }
-
-      containsIds(config) {
-        const newIds = config.ids;
-        const previous = Array.from(this.selected[this.matID(config)].ids);
-        return newIds.every((i => v => (i = previous.indexOf(v, i) + 1))(0));
-      }
-
-      addToPreviousSelection(config) {
-        const previous = this.selected[this.matID(config)];
-        const filtered = this.filter(config, new Set(config.ids));
-        const geometries = Object.values(filtered).map((i) => Object.values(i.geometries)).flat();
-        const previousGeom = previous.mesh.geometry;
-        previous.mesh.geometry = merge([previousGeom, ...geometries]);
-        config.ids.forEach((id) => previous.ids.add(id));
-      }
-
-      filter(config, itemsID) {
-        const ids = itemsID || this.selected[this.matID(config)].ids;
-        const items = this.state.models[config.modelID].items;
-        const filtered = {};
-        for (let matID in items) {
-          filtered[matID] = {
-            material: items[matID].material,
-            geometries: this.filterGeometries(ids, items[matID].geometries)
-          };
-        }
-        return filtered;
-      }
-
-      filterGeometries(selectedIDs, geometries) {
-        const ids = Array.from(selectedIDs);
-        return Object.keys(geometries)
-          .filter((key) => ids.includes(parseInt(key, 10)))
-          .reduce((obj, key) => {
-            return {
-              ...obj,
-              [key]: geometries[key]
-            };
-          }, {});
-      }
-
-      isEasySelection(config) {
-        const matID = this.matID(config);
-        if (!config.removePrevious && !this.isDefaultMat(config) && this.selected[matID])
-          return true;
-      }
-
-      isDefaultMat(config) {
-        const id = this.matIDNoConfig(config.modelID, undefined, config.customId);
-        const id2 = this.matID(config);
-        return id === id2;
-      }
-
-      matID(config) {
-        let name;
-        if (!config.material)
-          name = DEFAULT;
-        else
-          name = config.material.uuid;
-        name += ' - ' + (config.customId || "");
-        return name.concat(' - ').concat(config.modelID.toString());
-      }
-
-      matIDNoConfig(modelID, material, customId = "") {
-        let name = DEFAULT;
-        if (material)
-          name = material.uuid;
-        name += ' - ' + customId;
-        return name.concat(' - ').concat(modelID.toString());
+      getSubsetID(modelID, material, customID = 'DEFAULT') {
+        const baseID = modelID;
+        const materialID = material ? material.uuid : 'DEFAULT';
+        return `${baseID} - ${materialID} - ${customID}`;
       }
 
     }
+
+    const IdAttrName = 'expressID';
+    const PropsNames = {
+      aggregates: {
+        name: IFCRELAGGREGATES,
+        relating: 'RelatingObject',
+        related: 'RelatedObjects',
+        key: 'children'
+      },
+      spatial: {
+        name: IFCRELCONTAINEDINSPATIALSTRUCTURE,
+        relating: 'RelatingStructure',
+        related: 'RelatedElements',
+        key: 'children'
+      },
+      psets: {
+        name: IFCRELDEFINESBYPROPERTIES,
+        relating: 'RelatingPropertyDefinition',
+        related: 'RelatedObjects',
+        key: 'hasPsets'
+      },
+      materials: {
+        name: IFCRELASSOCIATESMATERIAL,
+        relating: 'RelatingMaterial',
+        related: 'RelatedObjects',
+        key: 'hasMaterial'
+      },
+      type: {
+        name: IFCRELDEFINESBYTYPE,
+        relating: 'RelatingType',
+        related: 'RelatedObjects',
+        key: 'hasType'
+      }
+    };
 
     class BasePropertyManager {
 
@@ -96567,161 +96922,6 @@
 
     }
 
-    class ItemsHider {
-
-      constructor(state) {
-        this.modelCoordinates = {};
-        this.expressIDCoordinatesMap = {};
-        this.state = state;
-      }
-
-      ;
-
-      dispose() {
-        this.modelCoordinates = {};
-        this.expressIDCoordinatesMap = {};
-      }
-
-      processCoordinates(modelID) {
-        const attributes = this.getAttributes(modelID);
-        const ids = Array.from(attributes.expressID.array);
-        this.expressIDCoordinatesMap[modelID] = {};
-        for (let i = 0; i < ids.length; i++) {
-          if (!this.expressIDCoordinatesMap[modelID][ids[i]]) {
-            this.expressIDCoordinatesMap[modelID][ids[i]] = [];
-          }
-          const current = this.expressIDCoordinatesMap[modelID];
-          current[ids[i]].push(3 * i);
-        }
-        this.initializeCoordinates(modelID);
-      }
-
-      hideItems(modelID, ids) {
-        this.editCoordinates(modelID, ids, true);
-      }
-
-      showItems(modelID, ids) {
-        this.editCoordinates(modelID, ids, false);
-      }
-
-      editCoordinates(modelID, ids, hide) {
-        const current = this.expressIDCoordinatesMap[modelID];
-        const indices = [];
-        ids.forEach((id) => {
-          if (current[id]) {
-            for (let i = 0; i < current[id].length; i++) {
-              indices.push(current[id][i]);
-            }
-          }
-        });
-        const coords = this.getCoordinates(modelID);
-        const initial = this.modelCoordinates[modelID];
-        if (hide)
-          indices.forEach(i => coords.set([0, 0, 0], i));
-        else
-          indices.forEach(i => coords.set([initial[i], initial[i + 1], initial[i + 2]], i));
-        this.getAttributes(modelID).position.needsUpdate = true;
-      }
-
-      showAllItems(modelID) {
-        if (this.modelCoordinates[modelID]) {
-          this.resetCoordinates(modelID);
-          this.getAttributes(modelID).position.needsUpdate = true;
-        }
-      }
-
-      hideAllItems(modelID) {
-        this.getCoordinates(modelID).fill(0);
-        this.getAttributes(modelID).position.needsUpdate = true;
-      }
-
-      initializeCoordinates(modelID) {
-        const coordinates = this.getCoordinates(modelID);
-        if (!this.modelCoordinates[modelID]) {
-          this.modelCoordinates[modelID] = new Float32Array(coordinates);
-        }
-      }
-
-      resetCoordinates(modelID) {
-        const initial = this.modelCoordinates[modelID];
-        this.getCoordinates(modelID).set(initial);
-      }
-
-      getCoordinates(modelID) {
-        return this.getAttributes(modelID).position.array;
-      }
-
-      getAttributes(modelID) {
-        return this.state.models[modelID].mesh.geometry.attributes;
-      }
-
-    }
-
-    class MemoryCleaner {
-
-      constructor(state) {
-        this.state = state;
-      }
-
-      ;
-
-      releaseAllModels() {
-        const models = Object.values(this.state.models);
-        models.forEach(model => {
-          this.releaseMeshModelMemory(model);
-          this.releaseJSONMemory(model);
-          this.releaseGeometryByMaterials(model);
-          model.types = null;
-        });
-      }
-
-      releaseGeometryByMaterials(model) {
-        const keys = Object.keys(model.items);
-        keys.forEach(key => {
-          const geomsByMat = model.items[key];
-          geomsByMat.material.dispose();
-          geomsByMat.material = null;
-          Object.values(geomsByMat.geometries).forEach(geom => geom.dispose());
-          geomsByMat.geometries = null;
-        });
-        model.items = null;
-      }
-
-      releaseJSONMemory(model) {
-        const keys = Object.keys(model.jsonData);
-        keys.forEach((key) => delete model.jsonData[parseInt(key)]
-        );
-        model.jsonData = null;
-      }
-
-      releaseMeshModelMemory(model) {
-        this.releaseMeshMemory(model.mesh);
-        model.mesh = null;
-      }
-
-      releaseMeshMemory(mesh) {
-        if (mesh.geometry) {
-          mesh.geometry.dispose();
-        }
-        if (mesh.parent) {
-          mesh.parent.remove(mesh);
-        }
-        if (mesh.material) {
-          Array.isArray(mesh.material) ?
-            mesh.material.forEach(mat => mat.dispose()) :
-            mesh.material.dispose();
-        }
-        if (mesh.children.length > 0) {
-          mesh.children.forEach(child => {
-            if (child.type === "Mesh")
-              this.releaseMeshMemory(child);
-            mesh.remove(child);
-          });
-        }
-      }
-
-    }
-
     var WorkerActions;
     (function(WorkerActions) {
       WorkerActions["updateStateUseJson"] = "updateStateUseJson";
@@ -96943,42 +97143,6 @@
 
     }
 
-    class SerializedGeomsByMaterials {
-
-      constructor(geoms) {
-        const matIDs = Object.keys(geoms);
-        matIDs.forEach(id => {
-          this[id] = {};
-          this[id].material = new SerializedMaterial(geoms[id].material);
-          this[id].geometries = {};
-          const expressIDs = Object.keys(geoms[id].geometries).map(key => parseInt(key));
-          expressIDs.forEach(expressID => {
-            this[id].geometries[expressID] = new SerializedGeometry(geoms[id].geometries[expressID]);
-          });
-        });
-      }
-
-    }
-
-    class GeomsByMaterialsReconstructor {
-
-      static new(serialized) {
-        const geomsByMat = {};
-        const matIDs = Object.keys(serialized);
-        matIDs.forEach(id => {
-          geomsByMat[id] = {};
-          geomsByMat[id].material = MaterialReconstructor.new(serialized[id].material);
-          geomsByMat[id].geometries = {};
-          const expressIDs = Object.keys(serialized[id].geometries).map(id => parseInt(id));
-          expressIDs.forEach(expressID => {
-            geomsByMat[id].geometries[expressID] = GeometryReconstructor.new(serialized[id].geometries[expressID]);
-          });
-        });
-        return geomsByMat;
-      }
-
-    }
-
     class Serializer {
 
       serializeVector(vector) {
@@ -97046,14 +97210,6 @@
 
       reconstructIfcModel(model) {
         return MeshReconstructor.new(model);
-      }
-
-      serializeGeometriesByMaterials(geoms) {
-        return new SerializedGeomsByMaterials(geoms);
-      }
-
-      reconstructGeometriesByMaterials(geoms) {
-        return GeomsByMaterialsReconstructor.new(geoms);
       }
 
     }
@@ -97461,7 +97617,6 @@
         };
         this.handler.serializeHandlers[this.handler.requestID] = async (result) => {
           this.updateState(result.modelID);
-          await this.getItems(result.modelID);
           return this.getModel();
         };
         return this.handler.request(this.API, WorkerActions.parse, {
@@ -97476,15 +97631,9 @@
         this.handler.state.models[modelID] = {
           modelID: modelID,
           mesh: {},
-          items: {},
           types: {},
           jsonData: {}
         };
-      }
-
-      async getItems(modelID) {
-        const items = await this.IDB.load(DBOperation.transferIndividualItems);
-        this.handler.state.models[modelID].items = this.serializer.reconstructGeometriesByMaterials(items);
       }
 
       async getModel() {
@@ -97592,7 +97741,7 @@
       constructor() {
         this.state = {
           models: [],
-          api: new IfcAPI(),
+          api: new IfcAPI2(),
           useJSON: false,
           worker: {
             active: false,
@@ -97604,8 +97753,6 @@
         this.subsets = new SubsetManager(this.state, this.BVH);
         this.properties = new PropertyManager(this.state);
         this.types = new TypeManager(this.state);
-        this.hider = new ItemsHider(this.state);
-        this.cleaner = new MemoryCleaner(this.state);
       }
 
       get ifcAPI() {
@@ -97617,7 +97764,6 @@
         const model = await this.parser.parse(buffer, (_a = this.state.coordinationMatrix) === null || _a === void 0 ? void 0 : _a.toArray());
         model.setIFCManager(this);
         this.state.useJSON ? await this.disposeMemory() : await this.types.getAllTypes(this.worker);
-        this.hider.processCoordinates(model.modelID);
         return model;
       }
 
@@ -97659,7 +97805,7 @@
           this.state.worker.path = path;
           await this.initializeWorkers();
         } else {
-          this.state.api = new IfcAPI();
+          this.state.api = new IfcAPI2();
         }
       }
 
@@ -97742,29 +97888,8 @@
         return this.subsets.createSubset(config);
       }
 
-      hideItems(modelID, ids) {
-        this.hider.hideItems(modelID, ids);
-      }
-
-      hideAllItems(modelID) {
-        this.hider.hideAllItems(modelID);
-      }
-
-      showItems(modelID, ids) {
-        this.hider.showItems(modelID, ids);
-      }
-
-      showAllItems(modelID) {
-        this.hider.showAllItems(modelID);
-      }
-
-      releaseAllMemory() {
-        this.subsets.dispose();
-        this.hider.dispose();
-        this.cleaner.releaseAllModels();
-        this.state.api = null;
-        this.state.models = null;
-        this.state = null;
+      removeFromSubset(modelID, ids, customID, material) {
+        return this.subsets.removeFromSubset(modelID, ids, customID, material);
       }
 
       async disposeMemory() {
@@ -97773,7 +97898,7 @@
           await ((_a = this.worker) === null || _a === void 0 ? void 0 : _a.Close());
         } else {
           this.state.api = null;
-          this.state.api = new IfcAPI();
+          this.state.api = new IfcAPI2();
         }
       }
 
@@ -97843,7 +97968,7 @@
                 const id = await this.loader.ifcManager.getExpressId(mesh.geometry, item.faceIndex);
                 if (id === undefined)
                     return null;
-                this.removeSelectionOfOtherModel(mesh);
+                this.hideSelection(mesh);
                 this.modelID = mesh.modelID;
                 this.newSelection([id]);
                 if (focusSelection)
@@ -97866,6 +97991,7 @@
                 });
                 if (mesh) {
                     this.mesh = mesh;
+                    this.mesh.visible = true;
                 }
             };
             this.scene = context.getScene();
@@ -97876,11 +98002,12 @@
         }
         unpick() {
             this.mesh = null;
-            this.loader.ifcManager.removeSubset(this.modelID, this.scene, this.material);
+            const model = this.context.items.ifcModels[this.modelID];
+            this.loader.ifcManager.removeSubset(this.modelID, model, this.material);
         }
-        removeSelectionOfOtherModel(mesh) {
-            if (this.modelID !== undefined && this.modelID !== (mesh === null || mesh === void 0 ? void 0 : mesh.modelID)) {
-                this.loader.ifcManager.removeSubset(this.modelID, this.scene, this.material);
+        hideSelection(mesh) {
+            if (this.mesh && this.modelID !== undefined && this.modelID !== (mesh === null || mesh === void 0 ? void 0 : mesh.modelID)) {
+                this.mesh.visible = false;
             }
         }
         focusSelection() {
@@ -97972,7 +98099,7 @@
             this.prePickIfcItem = () => {
                 const found = this.context.castRayIfc();
                 if (!found) {
-                    this.preselection.removeSelectionOfOtherModel();
+                    this.preselection.hideSelection();
                     return;
                 }
                 this.preselection.pick(found);
@@ -98026,19 +98153,16 @@
             this.unHighlightIfcItems = () => {
                 this.highlight.unpick();
             };
-            // TODO: Move to another file, cleanup
-            this.newMats = {};
             this.context = context;
             this.loader = new IFCLoader();
             this.setupThreeMeshBVH();
             this.visibility = new VisibilityManager(this.loader, this.context);
             this.defSelectMat = this.initializeDefMaterial(0xff33ff, 0.3);
             this.defPreselectMat = this.initializeDefMaterial(0xffccff, 0.5);
-            this.selectMat = context.options.selectMaterial || this.defSelectMat;
-            this.preselectMat = context.options.preselectMaterial || this.defPreselectMat;
-            this.preselection = new IfcSelection(context, this.loader, this.preselectMat);
-            this.selection = new IfcSelection(context, this.loader, this.selectMat);
-            this.highlight = new IfcSelection(context, this.loader);
+            this.defHighlightMat = this.initializeDefMaterial(0xffccff, 0.5);
+            this.preselection = new IfcSelection(context, this.loader, this.defPreselectMat);
+            this.selection = new IfcSelection(context, this.loader, this.defSelectMat);
+            this.highlight = new IfcSelection(context, this.loader, this.defHighlightMat);
         }
         /**
          * Loads the given IFC in the current scene.
@@ -98141,70 +98265,6 @@
          */
         getAllItemsOfType(modelID, type, verbose = false) {
             return this.loader.ifcManager.getAllItemsOfType(modelID, type, verbose);
-        }
-        /**
-         * Hides the selected items in the specified model
-         * @modelID ID of the IFC model.
-         * @ids Express ID of the elements.
-         */
-        hideItems(modelID, ids) {
-            this.loader.ifcManager.hideItems(modelID, ids);
-        }
-        /**
-         * Hides all the items of the specified model
-         * @modelID ID of the IFC model.
-         */
-        hideAllItems(modelID) {
-            this.loader.ifcManager.hideAllItems(modelID);
-        }
-        /**
-         * Shows all the items of the specified model
-         * @modelID ID of the IFC model.
-         * @ids Express ID of the elements.
-         */
-        showItems(modelID, ids) {
-            this.loader.ifcManager.showItems(modelID, ids);
-        }
-        /**
-         * Shows all the items of the specified model
-         * @modelID ID of the IFC model.
-         */
-        showAllItems(modelID) {
-            this.loader.ifcManager.showAllItems(modelID);
-        }
-        /**
-         * Makes an IFC model translucent
-         * @modelID ID of the IFC model.
-         * @translucent wether to activate or deactivate the translucency.
-         * @opacity the opacity of the translucent material.
-         * @selectable wether the translucent models are selectable with the mouse.
-         */
-        setModelTranslucency(modelID, translucent, opacity = 0.2, selectable = false) {
-            const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
-            if (!model)
-                return;
-            if (Array.isArray(model.material)) {
-                model.material.forEach((material) => {
-                    if (material.userData.opacity === undefined) {
-                        material.userData = { transparent: material.transparent, opacity: material.opacity };
-                    }
-                });
-                if (!this.newMats[modelID])
-                    this.newMats[modelID] = model.material.map((mat) => mat.clone());
-                const newMats = this.newMats[modelID];
-                newMats.forEach((mat) => {
-                    mat.opacity = translucent ? opacity : mat.userData.opacity;
-                    mat.transparent = translucent ? true : mat.userData.transparent;
-                });
-                model.material = newMats;
-            }
-            if (translucent && !selectable) {
-                const index = this.context.items.pickableIfcModels.indexOf(model);
-                this.context.items.pickableIfcModels.splice(index, 1);
-            }
-            else if (!this.context.items.pickableIfcModels.includes(model)) {
-                this.context.items.pickableIfcModels.push(model);
-            }
         }
         addIfcModel(ifcMesh) {
             this.context.items.ifcModels.push(ifcMesh);
@@ -110889,7 +110949,7 @@
 
     				} else if ( primitive.mode === WEBGL_CONSTANTS.LINE_STRIP ) {
 
-    					mesh = new Line$2( geometry, material );
+    					mesh = new Line( geometry, material );
 
     				} else if ( primitive.mode === WEBGL_CONSTANTS.LINE_LOOP ) {
 
@@ -111964,1476 +112024,7 @@
       return button;
     }
 
-    class DatabaseObject$l {
-        constructor(subclass = null)
-        {
-            /* Handle should be assigned externally by document instance */
-            this.handle = null;
-            this.ownerHandle = null;
-            this.subclassMarkers = [];
-            if (subclass) {
-                if (Array.isArray(subclass)) {
-                    for (const sc of subclass) {
-                        this.subclassMarkers.push(sc);
-                    }
-                } else {
-                    this.subclassMarkers.push(subclass);
-                }
-            }
-        }
-
-        toDxfString()
-        {
-            let s = "";
-            if (this.handle) {
-                s += `5\n${this.handle.toString(16)}\n`;
-            } else {
-                console.warn("No handle assigned to entity", this);
-            }
-            if (this.ownerHandle) {
-                s += `330\n${this.ownerHandle.toString(16)}\n`;
-            }
-            for (const marker of this.subclassMarkers) {
-                s += `100\n${marker}\n`;
-            }
-            return s
-        }
-    }
-
-    var DatabaseObject_1 = DatabaseObject$l;
-
-    const DatabaseObject$k = DatabaseObject_1;
-
-
-    class LineType$1 extends DatabaseObject$k
-    {
-        /**
-         * @param {string} name
-         * @param {string} description
-         * @param {array} elements - if elem > 0 it is a line, if elem < 0 it is gap, if elem == 0.0 it is a 
-         */
-        constructor(name, description, elements)
-        {
-            super(["AcDbSymbolTableRecord", "AcDbLinetypeTableRecord"]);
-            this.name = name;
-            this.description = description;
-            this.elements = elements;
-        }
-
-        /**
-         * @link https://www.autodesk.com/techpubs/autocad/acadr14/dxf/ltype_al_u05_c.htm
-         */
-        toDxfString()
-        {
-            let s = '0\nLTYPE\n';
-            s += super.toDxfString();
-            s += `2\n${this.name}\n`;
-            s += `3\n${this.description}\n`;
-            s += '70\n0\n';
-            s += '72\n65\n';
-            s += `73\n${this.elements.length}\n`;
-            s += `40\n${this.getElementsSum()}\n`;
-            for (const element of this.elements)
-            {
-                s += `49\n${element}\n`;
-                /* Complex linetype element type, mandatory for AutoCAD */
-                s += '74\n0\n';
-            }
-
-            return s;
-        }
-
-        getElementsSum()
-        {
-            let sum = 0;
-            for (let i = 0; i < this.elements.length; ++i)
-            {
-                sum += Math.abs(this.elements[i]);
-            }
-
-            return sum;
-        }
-    }
-
-    var LineType_1 = LineType$1;
-
-    const DatabaseObject$j = DatabaseObject_1;
-
-
-    class Layer$1 extends DatabaseObject$j
-    {
-        constructor(name, colorNumber, lineTypeName = null)
-        {
-            super(["AcDbSymbolTableRecord", "AcDbLayerTableRecord"]);
-            this.name = name;
-            this.colorNumber = colorNumber;
-            this.lineTypeName = lineTypeName;
-            this.shapes = [];
-            this.trueColor = -1;
-        }
-
-        toDxfString()
-        {
-            let s = '0\nLAYER\n';
-            s += super.toDxfString();
-            s += `2\n${this.name}\n`;
-            if (this.trueColor !== -1)
-            {
-                s += `420\n${this.trueColor}\n`;
-            }
-            else
-            {
-                s += `62\n${this.colorNumber}\n`;
-            }
-            s += '70\n0\n';
-            if (this.lineTypeName) {
-                s += `6\n${this.lineTypeName}\n`;
-            }
-            /* Hard-pointer handle to PlotStyleName object; seems mandatory, but any value seems OK,
-             * including 0.
-             */
-            s += "390\n1\n";
-            return s;
-        }
-
-        setTrueColor(color)
-        {
-            this.trueColor = color;
-        }
-
-        addShape(shape)
-        {
-            this.shapes.push(shape);
-            shape.layer = this;
-        }
-
-        getShapes()
-        {
-            return this.shapes;
-        }
-
-        shapesToDxf()
-        {
-            let s = '';
-            for (let i = 0; i < this.shapes.length; ++i)
-            {
-                s += this.shapes[i].toDxfString();
-            } 
-            
-            
-            return s;
-        }
-    }
-
-    var Layer_1 = Layer$1;
-
-    const DatabaseObject$i = DatabaseObject_1;
-
-
-    class Table$2 extends DatabaseObject$i {
-        constructor(name) {
-            super("AcDbSymbolTable");
-            this.name = name;
-            this.elements = [];
-        }
-
-        add(element) {
-            this.elements.push(element);
-        }
-
-        toDxfString()
-        {
-            let s = "0\nTABLE\n";
-            s += `2\n${this.name}\n`;
-            s += super.toDxfString();
-            s += `70\n${this.elements.length}\n`;
-            for (const element of this.elements) {
-                s += element.toDxfString();
-            }
-            s += "0\nENDTAB\n";
-            return s
-        }
-    }
-
-    var Table_1 = Table$2;
-
-    const DatabaseObject$h = DatabaseObject_1;
-    const Table$1 = Table_1;
-
-
-    class DimStyleTable$1 extends Table$1 {
-        constructor(name) {
-            super(name);
-            this.subclassMarkers.push("AcDbDimStyleTable");
-        }
-
-        toDxfString()
-        {
-            let s = "0\nTABLE\n";
-            s += `2\n${this.name}\n`;
-            s += DatabaseObject$h.prototype.toDxfString.call(this);
-            s += `70\n${this.elements.length}\n`;
-            /* DIMTOL */
-            s += "71\n1\n";
-            for (const element of this.elements) {
-                s += element.toDxfString();
-            }
-            s += "0\nENDTAB\n";
-            return s
-        }
-    }
-
-    var DimStyleTable_1 = DimStyleTable$1;
-
-    const DatabaseObject$g = DatabaseObject_1;
-
-
-    class TextStyle$1 extends DatabaseObject$g {
-        constructor(name) {
-            super(["AcDbSymbolTableRecord", "AcDbTextStyleTableRecord"]);
-            this.name = name;
-        }
-
-        toDxfString()
-        {
-            let s = "0\nSTYLE\n";
-            s += super.toDxfString();
-            s += `2\n${this.name}\n`;
-            /* No flags set */
-            s += "70\n0\n";
-            s += "40\n0\n";
-            s += "41\n1\n";
-            s += "50\n0\n";
-            s += "71\n0\n";
-            s += "42\n1\n";
-            s += `3\n${this.name}\n`;
-            s += "4\n\n";
-            return s
-        }
-    }
-
-    var TextStyle_1 = TextStyle$1;
-
-    const DatabaseObject$f = DatabaseObject_1;
-
-
-    class Viewport$1 extends DatabaseObject$f {
-        constructor(name, height)
-        {
-            super(["AcDbSymbolTableRecord", "AcDbViewportTableRecord"]);
-            this.name = name;
-            this.height = height;
-        }
-
-        toDxfString()
-        {
-            let s = "0\nVPORT\n";
-            s += super.toDxfString();
-            s += `2\n${this.name}\n`;
-            s += `40\n${this.height}\n`;
-            /* No flags set */
-            s += "70\n0\n";
-            return s
-        }
-    }
-
-    var Viewport_1 = Viewport$1;
-
-    const DatabaseObject$e = DatabaseObject_1;
-
-
-    class AppId$1 extends DatabaseObject$e {
-        constructor(name) {
-            super(["AcDbSymbolTableRecord", "AcDbRegAppTableRecord"]);
-            this.name = name;
-        }
-
-        toDxfString()
-        {
-            let s = "0\nAPPID\n";
-            s += super.toDxfString();
-            s += `2\n${this.name}\n`;
-            /* No flags set */
-            s += "70\n0\n";
-            return s
-        }
-    }
-
-    var AppId_1 = AppId$1;
-
-    const DatabaseObject$d = DatabaseObject_1;
-
-
-    class Block$1 extends DatabaseObject$d {
-        constructor(name)
-        {
-            super(["AcDbEntity", "AcDbBlockBegin"]);
-            this.name = name;
-            this.end = new DatabaseObject$d(["AcDbEntity","AcDbBlockEnd"]);
-            this.recordHandle = null;
-        }
-
-        /* Internal method to set handle value for block end separator entity. */
-        setEndHandle(handle) {
-            this.end.handle = handle;
-        }
-
-        /* Internal method to set handle value for block record in block records table. */
-        setRecordHandle(handle) {
-            this.recordHandle = handle;
-        }
-
-        //XXX need some API to add content
-
-        toDxfString()
-        {
-            let s = "0\nBLOCK\n";
-            s += super.toDxfString();
-            s += `2\n${this.name}\n`;
-            /* No flags set */
-            s += "70\n0\n";
-            /* Block top left corner */
-            s += "10\n0\n";
-            s += "20\n0\n";
-            s += "30\n0\n";
-            s += `3\n${this.name}\n`;
-            /* xref path name - nothing */
-            s += "1\n\n";
-
-            //XXX dump content here
-
-            s += "0\nENDBLK\n";
-            s += this.end.toDxfString();
-            return s
-        }
-    }
-
-    var Block_1 = Block$1;
-
-    const DatabaseObject$c = DatabaseObject_1;
-
-
-    class BlockRecord$1 extends DatabaseObject$c {
-        constructor(name) {
-            super(["AcDbSymbolTableRecord", "AcDbBlockTableRecord"]);
-            this.name = name;
-        }
-
-        toDxfString()
-        {
-            let s = "0\nBLOCK_RECORD\n";
-            s += super.toDxfString();
-            s += `2\n${this.name}\n`;
-            /* No flags set */
-            s += "70\n0\n";
-            /* Block explodability */
-            s += "280\n1\n";
-            /* Block scalability */
-            s += "281\n0\n";
-            return s
-        }
-    }
-
-    var BlockRecord_1 = BlockRecord$1;
-
-    const DatabaseObject$b = DatabaseObject_1;
-
-
-    class Dictionary$1 extends DatabaseObject$b {
-        constructor()
-        {
-            super("AcDbDictionary");
-            this.children = {};
-        }
-
-        addChildDictionary(name, dictionary) {
-            if (!this.handle) {
-                throw new Error("Handle must be set before adding children")
-            }
-            dictionary.ownerHandle = this.handle;
-            this.children[name] = dictionary;
-        }
-
-        toDxfString()
-        {
-            let s = "0\nDICTIONARY\n";
-            s += super.toDxfString();
-            /* Duplicate record cloning flag - keep existing */
-            s += "281\n1\n";
-            for (const [name, item] of Object.entries(this.children)) {
-                s += `3\n${name}\n`;
-                s += `350\n${item.handle.toString(16)}\n`;
-            }
-            for (const item of Object.values(this.children)) {
-                s += item.toDxfString();
-            }
-            return s
-        }
-    }
-
-    var Dictionary_1 = Dictionary$1;
-
-    const DatabaseObject$a = DatabaseObject_1;
-
-
-    class Line$1 extends DatabaseObject$a
-    {
-        constructor(x1, y1, x2, y2)
-        {
-            super(["AcDbEntity", "AcDbLine"]);
-            this.x1 = x1;
-            this.y1 = y1;
-            this.x2 = x2;
-            this.y2 = y2;
-        }
-
-        toDxfString()
-        {
-            //https://www.autodesk.com/techpubs/autocad/acadr14/dxf/line_al_u05_c.htm
-            let s = `0\nLINE\n`;
-            s += super.toDxfString();
-            s += `8\n${this.layer.name}\n`;
-            s += `10\n${this.x1}\n20\n${this.y1}\n30\n0\n`;
-            s += `11\n${this.x2}\n21\n${this.y2}\n31\n0\n`;
-            return s;
-        }
-    }
-
-    var Line_1 = Line$1;
-
-    const DatabaseObject$9 = DatabaseObject_1;
-
-
-    class Line3d$1 extends DatabaseObject$9
-    {
-        constructor(x1, y1, z1, x2, y2, z2)
-        {
-            super(["AcDbEntity", "AcDbLine"]);
-            this.x1 = x1;
-            this.y1 = y1;
-            this.z1 = z1;
-            this.x2 = x2;
-            this.y2 = y2;
-            this.z2 = z2;
-        }
-
-        toDxfString()
-        {
-            //https://www.autodesk.com/techpubs/autocad/acadr14/dxf/line_al_u05_c.htm
-            let s = `0\nLINE\n`;
-            s += super.toDxfString();
-            s += `8\n${this.layer.name}\n`;
-            s += `10\n${this.x1}\n20\n${this.y1}\n30\n${this.z1}\n`;
-            s += `11\n${this.x2}\n21\n${this.y2}\n31\n${this.z2}\n`;
-            return s;
-        }
-    }
-
-    var Line3d_1 = Line3d$1;
-
-    const DatabaseObject$8 = DatabaseObject_1;
-
-
-    class Arc$1 extends DatabaseObject$8
-    {
-        /**
-         * @param {number} x1 - Center x
-         * @param {number} y1 - Center y
-         * @param {number} r - radius
-         * @param {number} startAngle - degree 
-         * @param {number} endAngle - degree 
-         */
-        constructor(x1, y1, r, startAngle, endAngle)
-        {
-            super(["AcDbEntity", "AcDbArc"]);
-            this.x1 = x1;
-            this.y1 = y1;
-            this.r = r;
-            this.startAngle = startAngle;
-            this.endAngle = endAngle;
-        }
-
-        toDxfString()
-        {
-            //https://www.autodesk.com/techpubs/autocad/acadr14/dxf/line_al_u05_c.htm
-            let s = `0\nARC\n`;
-            s += super.toDxfString();
-            s += `8\n${this.layer.name}\n`;
-            s += `10\n${this.x1}\n20\n${this.y1}\n30\n0\n`;
-            s += `40\n${this.r}\n50\n${this.startAngle}\n51\n${this.endAngle}\n`;
-            return s;
-        }
-    }
-
-    var Arc_1 = Arc$1;
-
-    const DatabaseObject$7 = DatabaseObject_1;
-
-
-    class Circle$1 extends DatabaseObject$7
-    {
-        /**
-         * @param {number} x1 - Center x
-         * @param {number} y1 - Center y
-         * @param {number} r - radius
-         */
-        constructor(x1, y1, r)
-        {
-            super(["AcDbEntity", "AcDbCircle"]);
-            this.x1 = x1;
-            this.y1 = y1;
-            this.r = r;
-        }
-
-        toDxfString()
-        {
-            //https://www.autodesk.com/techpubs/autocad/acadr14/dxf/circle_al_u05_c.htm
-            let s = `0\nCIRCLE\n`;
-            s += super.toDxfString();
-            s += `8\n${this.layer.name}\n`;
-            s += `10\n${this.x1}\n20\n${this.y1}\n30\n0\n`;
-            s += `40\n${this.r}\n`;
-            return s;
-        }
-    }
-
-    var Circle_1 = Circle$1;
-
-    const DatabaseObject$6 = DatabaseObject_1;
-
-
-    const H_ALIGN_CODES = ['left', 'center', 'right'];
-    const V_ALIGN_CODES = ['baseline','bottom', 'middle', 'top'];
-
-    class Text$1 extends DatabaseObject$6
-    {
-        /**
-         * @param {number} x1 - x
-         * @param {number} y1 - y
-         * @param {number} height - Text height
-         * @param {number} rotation - Text rotation
-         * @param {string} value - the string itself
-         * @param {string} [horizontalAlignment="left"] left | center | right
-         * @param {string} [verticalAlignment="baseline"] baseline | bottom | middle | top
-         */
-        constructor(x1, y1, height, rotation, value, horizontalAlignment = 'left', verticalAlignment = 'baseline')
-        {
-            super(["AcDbEntity", "AcDbText"]);
-            this.x1 = x1;
-            this.y1 = y1;
-            this.height = height;
-            this.rotation = rotation;
-            this.value = value;
-            this.hAlign = horizontalAlignment;
-            this.vAlign = verticalAlignment;
-        }
-
-        toDxfString()
-        {
-            //https://www.autodesk.com/techpubs/autocad/acadr14/dxf/text_al_u05_c.htm
-            let s = `0\nTEXT\n`;
-            s += super.toDxfString();
-            s += `8\n${this.layer.name}\n`;
-            s += `10\n${this.x1}\n20\n${this.y1}\n30\n0\n`;
-            s += `40\n${this.height}\n`;
-            s += `1\n${this.value}\n`;
-            s += `50\n${this.rotation}\n`;
-            if (H_ALIGN_CODES.includes(this.hAlign, 1) || V_ALIGN_CODES.includes(this.vAlign, 1)) {
-                s += `72\n${Math.max(H_ALIGN_CODES.indexOf(this.hAlign), 0)}\n`;
-                s += `11\n${this.x1}\n21\n${this.y1}\n31\n0\n`;
-                /* AutoCAD needs this one more time, yes, exactly here. */
-                s += "100\nAcDbText\n";
-                s += `73\n${Math.max(V_ALIGN_CODES.indexOf(this.vAlign), 0)}\n`;
-            } else {
-                /* AutoCAD needs this one more time. */
-                s += "100\nAcDbText\n";
-            }
-            return s;
-        }
-    }
-
-    var Text_1 = Text$1;
-
-    const DatabaseObject$5 = DatabaseObject_1;
-
-
-    class Polyline$1 extends DatabaseObject$5
-    {
-        /**
-         * @param {array} points - Array of points like [ [x1, y1], [x2, y2, bulge]... ]
-         * @param {boolean} closed
-         * @param {number} startWidth
-         * @param {number} endWidth
-         */
-        constructor(points, closed = false, startWidth = 0, endWidth = 0)
-        {
-            super(["AcDbEntity", "AcDbPolyline"]);
-            this.points = points;
-            this.closed = closed;
-            this.startWidth = startWidth;
-            this.endWidth = endWidth;
-        }
-
-        toDxfString()
-        {
-            let s = `0\nLWPOLYLINE\n`;
-            s += super.toDxfString();
-            s += `8\n${this.layer.name}\n`;
-            s += "6\nByLayer\n";
-            s += "62\n256\n";
-            s += "370\n-1\n";
-            s += `70\n${this.closed ? 1 : 0}\n`;
-            s += `90\n${this.points.length}\n`;
-
-            for (const p of this.points) {
-                s += `10\n${p[0]}\n20\n${p[1]}\n`;
-                if (this.startWidth !== 0 || this.endWidth !== 0) {
-                    s += `40\n${this.startWidth}\n41\n${this.endWidth}\n`;
-                }
-                if (p[2] !== undefined) {
-                    s += `42\n${p[2]}\n`;
-                }
-            }
-
-            return s;
-        }
-    }
-
-    var Polyline_1 = Polyline$1;
-
-    const DatabaseObject$4 = DatabaseObject_1;
-
-
-    class Polyline3d$1 extends DatabaseObject$4
-    {
-        /**
-         * @param {array} points - Array of points like [ [x1, y1, z1], [x2, y2, z2]... ]
-         */
-        constructor(points)
-        {
-            super(["AcDbEntity", "AcDbPolyline3D"]);
-            this.points = points;
-            this.pointHandles = null;
-        }
-
-        assignVertexHandles(handleProvider) {
-            this.pointHandles = this.points.map(() => handleProvider());
-        }
-
-        toDxfString()
-        {
-            //https://www.autodesk.com/techpubs/autocad/acad2000/dxf/polyline_dxf_06.htm
-            //https://www.autodesk.com/techpubs/autocad/acad2000/dxf/vertex_dxf_06.htm
-            let s = `0\nPOLYLINE\n`;
-            s += super.toDxfString();
-            s += `8\n${this.layer.name}\n`;
-            s += `66\n1\n70\n8\n`;
-
-            for (let i = 0; i < this.points.length; ++i)
-            {
-                s += `0\nVERTEX\n`;
-                s += "100\nAcDbEntity\n";
-                s += "100\nAcDbVertex\n";
-                s += `5\n${this.pointHandles[i].toString(16)}\n`;
-                s += `8\n${this.layer.name}\n`;
-                s += `70\n0\n`;
-                s += `10\n${this.points[i][0]}\n20\n${this.points[i][1]}\n30\n${this.points[i][2]}\n`;
-            }
-            
-            s += `0\nSEQEND\n`;
-            return s;
-        }
-    }
-
-    var Polyline3d_1 = Polyline3d$1;
-
-    const DatabaseObject$3 = DatabaseObject_1;
-
-
-    class Face$1 extends DatabaseObject$3
-    {
-        constructor(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4)
-        {
-            super(["AcDbEntity", "AcDbFace"]);
-            this.x1 = x1;
-            this.y1 = y1;
-            this.z1 = z1;
-            this.x2 = x2;
-            this.y2 = y2;
-            this.z2 = z2;
-            this.x3 = x3;
-            this.y3 = y3;
-            this.z3 = z3;
-            this.x4 = x4;
-            this.y4 = y4;
-            this.z4 = z4;
-        }
-
-        toDxfString()
-        {
-            //https://www.autodesk.com/techpubs/autocad/acadr14/dxf/3dface_al_u05_c.htm
-            let s = `0\n3DFACE\n`;
-            s += super.toDxfString();
-            s += `8\n${this.layer.name}\n`;
-            s += `10\n${this.x1}\n20\n${this.y1}\n30\n${this.z1}\n`;
-            s += `11\n${this.x2}\n21\n${this.y2}\n31\n${this.z2}\n`;
-            s += `12\n${this.x3}\n22\n${this.y3}\n32\n${this.z3}\n`;
-            s += `13\n${this.x4}\n23\n${this.y4}\n33\n${this.z4}\n`;
-            return s;
-        }
-    }
-
-    var Face_1 = Face$1;
-
-    const DatabaseObject$2 = DatabaseObject_1;
-
-
-    class Point$1 extends DatabaseObject$2
-    {
-        constructor(x, y)
-        {
-            super(["AcDbEntity", "AcDbEntity"]);
-            this.x = x;
-            this.y = y;
-        }
-
-        toDxfString()
-        {
-            //https://www.autodesk.com/techpubs/autocad/acadr14/dxf/point_al_u05_c.htm
-            let s = `0\nPOINT\n`;
-            s += super.toDxfString();
-            s += `8\n${this.layer.name}\n`;
-            s += `10\n${this.x}\n20\n${this.y}\n30\n0\n`;
-            return s;
-        }
-    }
-
-    var Point_1 = Point$1;
-
-    const DatabaseObject$1 = DatabaseObject_1;
-
-
-    class Spline$1 extends DatabaseObject$1
-    {
-        /**
-         * Creates a spline. See https://www.autodesk.com/techpubs/autocad/acad2000/dxf/spline_dxf_06.htm
-         * @param {[Array]} controlPoints - Array of control points like [ [x1, y1], [x2, y2]... ]
-         * @param {number} degree - Degree of spline: 2 for quadratic, 3 for cubic. Default is 3
-         * @param {[number]} knots - Knot vector array. If null, will use a uniform knot vector. Default is null
-         * @param {[number]} weights - Control point weights. If provided, must be one weight for each control point. Default is null
-         * @param {[Array]} fitPoints - Array of fit points like [ [x1, y1], [x2, y2]... ]
-         */
-        constructor(controlPoints, degree = 3, knots = null, weights = null, fitPoints = [])
-        {
-            super(["AcDbEntity", "AcDbSpline"]);
-            if (controlPoints.length < degree + 1) {
-                throw new Error(`For degree ${degree} spline, expected at least ${degree + 1} control points, but received only ${controlPoints.length}`);
-            }
-
-            if (knots == null) {
-                // Examples:
-                // degree 2, 3 pts:  0 0 0 1 1 1
-                // degree 2, 4 pts:  0 0 0 1 2 2 2
-                // degree 2, 5 pts:  0 0 0 1 2 3 3 3
-                // degree 3, 4 pts:  0 0 0 0 1 1 1 1
-                // degree 3, 5 pts:  0 0 0 0 1 2 2 2 2
-
-                knots = [];
-                for (let i = 0; i < degree + 1; i++) {
-                    knots.push(0);
-                }
-                for (let i = 1; i < controlPoints.length - degree; i++) {
-                    knots.push(i);
-                }
-                for (let i = 0; i < degree + 1; i++) {
-                    knots.push(controlPoints.length - degree);
-                }
-            }
-
-            if (knots.length !== controlPoints.length + degree + 1) {
-                throw new Error(`Invalid knot vector length. Expected ${controlPoints.length + degree + 1} but received ${knots.length}.`);
-            }
-
-            this.controlPoints = controlPoints;
-            this.knots = knots;
-            this.fitPoints = fitPoints;
-            this.degree = degree;
-            this.weights = weights;
-
-            const closed = 0;
-            const periodic = 0;
-            const rational = this.weights ? 1 : 0;
-            const planar = 1;
-            const linear = 0;
-
-            this.type =
-                closed * 1 +
-                periodic * 2 +
-                rational * 4 +
-                planar * 8 +
-                linear * 16;
-
-            // Not certain where the values of these flags came from so I'm going to leave them commented for now
-            // const closed = 0
-            // const periodic = 0
-            // const rational = 1
-            // const planar = 1
-            // const linear = 0
-            // const splineType = 1024 * closed + 128 * periodic + 8 * rational + 4 * planar + 2 * linear
-
-        }
-
-        toDxfString() {
-            // https://www.autodesk.com/techpubs/autocad/acad2000/dxf/spline_dxf_06.htm
-            let s = `0\nSPLINE\n`;
-            s += super.toDxfString();
-            s += `8\n${this.layer.name}\n`;
-            s += `210\n0.0\n220\n0.0\n230\n1.0\n`;
-
-            s += `70\n${this.type}\n`;
-            s += `71\n${this.degree}\n`;
-            s += `72\n${this.knots.length}\n`;
-            s += `73\n${this.controlPoints.length}\n`;
-            s += `74\n${this.fitPoints.length}\n`;
-            s += `42\n1e-7\n`;
-            s += `43\n1e-7\n`;
-            s += `44\n1e-10\n`;
-
-            for (let i = 0; i < this.knots.length; ++i) {
-                s += `40\n${this.knots[i]}\n`;
-            }
-
-            if (this.weights) {
-                for (let i = 0; i < this.knots.length; ++i) {
-                    s += `41\n${this.weights[i]}\n`;
-                }
-            }
-
-            for (let i = 0; i < this.controlPoints.length; ++i) {
-                s += `10\n${this.controlPoints[i][0]}\n`;
-                s += `20\n${this.controlPoints[i][1]}\n`;
-                s += `30\n0\n`;
-            }
-
-            return s;
-        }
-    }
-
-    var Spline_1 = Spline$1;
-
-    const DatabaseObject = DatabaseObject_1;
-
-
-    class Ellipse$1 extends DatabaseObject {
-        /**
-         * Creates an ellipse.
-         * @param {number} x1 - Center x
-         * @param {number} y1 - Center y
-         * @param {number} majorAxisX - Endpoint x of major axis, relative to center
-         * @param {number} majorAxisY - Endpoint y of major axis, relative to center
-         * @param {number} axisRatio - Ratio of minor axis to major axis
-         * @param {number} startAngle - Start angle
-         * @param {number} endAngle - End angle
-         */
-        constructor(x1, y1, majorAxisX, majorAxisY, axisRatio, startAngle, endAngle) {
-            super(["AcDbEntity", "AcDbEllipse"]);
-            this.x1 = x1;
-            this.y1 = y1;
-            this.majorAxisX = majorAxisX;
-            this.majorAxisY = majorAxisY;
-            this.axisRatio = axisRatio;
-            this.startAngle = startAngle;
-            this.endAngle = endAngle;
-        }
-
-        toDxfString() {
-            // https://www.autodesk.com/techpubs/autocad/acadr14/dxf/ellipse_al_u05_c.htm
-            let s = `0\nELLIPSE\n`;
-            s += super.toDxfString();
-            s += `8\n${this.layer.name}\n`;
-            s += `10\n${this.x1}\n`;
-            s += `20\n${this.y1}\n`;
-            s += `30\n0\n`;
-            s += `11\n${this.majorAxisX}\n`;
-            s += `21\n${this.majorAxisY}\n`;
-            s += `31\n0\n`;
-            s += `40\n${this.axisRatio}\n`;
-            s += `41\n${this.startAngle}\n`;
-            s += `42\n${this.endAngle}\n`;
-            return s;
-        }
-    }
-
-    var Ellipse_1 = Ellipse$1;
-
-    const LineType = LineType_1;
-    const Layer = Layer_1;
-    const Table = Table_1;
-    const DimStyleTable = DimStyleTable_1;
-    const TextStyle = TextStyle_1;
-    const Viewport = Viewport_1;
-    const AppId = AppId_1;
-    const Block = Block_1;
-    const BlockRecord = BlockRecord_1;
-    const Dictionary = Dictionary_1;
-    const Line = Line_1;
-    const Line3d = Line3d_1;
-    const Arc = Arc_1;
-    const Circle = Circle_1;
-    const Text = Text_1;
-    const Polyline = Polyline_1;
-    const Polyline3d = Polyline3d_1;
-    const Face = Face_1;
-    const Point = Point_1;
-    const Spline = Spline_1;
-    const Ellipse = Ellipse_1;
-
-    class Drawing
-    {
-        constructor()
-        {
-            this.layers = {};
-            this.activeLayer = null;
-            this.lineTypes = {};
-            this.headers = {};
-            this.tables = {};
-            this.blocks = {};
-            this.handleCount = 0;
-
-            this.ltypeTableHandle = this._generateHandle();
-            this.layerTableHandle = this._generateHandle();
-            this.blockRecordTableHandle = this._generateHandle();
-
-            this.dictionary = new Dictionary();
-            this._assignHandle(this.dictionary);
-
-            this.setUnits('Unitless');
-
-            for (const lineType of Drawing.LINE_TYPES) {
-                this.addLineType(lineType.name, lineType.description, lineType.elements);
-            }
-
-            for (const layer of Drawing.LAYERS) {
-                this.addLayer(layer.name, layer.colorNumber, layer.lineTypeName);
-            }
-
-            this.setActiveLayer('0');
-        }
-
-
-        /**
-         * @param {string} name
-         * @param {string} description
-         * @param {array} elements - if elem > 0 it is a line, if elem < 0 it is gap, if elem == 0.0 it is a
-         */
-        addLineType(name, description, elements)
-        {
-            this.lineTypes[name] = this._assignHandle(new LineType(name, description, elements));
-            return this;
-        }
-
-        addLayer(name, colorNumber, lineTypeName)
-        {
-            this.layers[name] = this._assignHandle(new Layer(name, colorNumber, lineTypeName));
-            return this;
-        }
-
-        setActiveLayer(name)
-        {
-            this.activeLayer = this.layers[name];
-            return this;
-        }
-
-        addTable(name) {
-            const table = new Table(name);
-            this._assignHandle(table);
-            this.tables[name] = table;
-            return table
-        }
-
-        addBlock(name) {
-            const block = new Block(name);
-            this._assignHandle(block);
-            block.setEndHandle(this._generateHandle());
-            block.setRecordHandle(this._generateHandle());
-            this.blocks[name] = block;
-            return block
-        }
-
-        drawLine(x1, y1, x2, y2)
-        {
-            this.activeLayer.addShape(this._assignHandle(new Line(x1, y1, x2, y2)));
-            return this;
-        }
-
-        drawLine3d(x1, y1, z1, x2, y2, z2)
-        {
-            this.activeLayer.addShape(this._assignHandle(new Line3d(x1, y1, z1, x2, y2, z2)));
-            return this;
-        }
-
-        drawPoint(x, y)
-        {
-            this.activeLayer.addShape(this._assignHandle(new Point(x, y)));
-            return this;
-        }
-
-        drawRect(x1, y1, x2, y2, cornerLength, cornerBulge) {
-            const w = x2 - x1;
-            const h = y2 - y1;
-            cornerBulge = cornerBulge || 0;
-            let p = null;
-            if (!cornerLength) {
-                p = new Polyline([
-                    [x1, y1],
-                    [x1, y1 + h],
-                    [x1 + w, y1 + h],
-                    [x1 + w, y1]
-                ], true);
-            } else {
-                p = new Polyline([
-                    [x1 + w - cornerLength, y1, cornerBulge],  // 1
-                    [x1 + w, y1 + cornerLength], // 2
-                    [x1 + w, y1 + h - cornerLength, cornerBulge], // 3
-                    [x1 + w - cornerLength, y1 + h], // 4
-                    [x1 + cornerLength, y1 + h, cornerBulge], // 5
-                    [x1, y1 + h - cornerLength], // 6
-                    [x1, y1 + cornerLength, cornerBulge], // 7
-                    [x1 + cornerLength, y1], // 8
-                ], true);
-            }
-
-            this._assignHandle(p);
-            this.activeLayer.addShape(p);
-            return this;
-        }
-
-        /**
-         * @param {number} x1 - Center x
-         * @param {number} y1 - Center y
-         * @param {number} r - radius
-         * @param {number} startAngle - degree
-         * @param {number} endAngle - degree
-         */
-        drawArc(x1, y1, r, startAngle, endAngle)
-        {
-            this.activeLayer.addShape(this._assignHandle(new Arc(x1, y1, r, startAngle, endAngle)));
-            return this;
-        }
-
-        /**
-         * @param {number} x1 - Center x
-         * @param {number} y1 - Center y
-         * @param {number} r - radius
-         */
-        drawCircle(x1, y1, r)
-        {
-            this.activeLayer.addShape(this._assignHandle(new Circle(x1, y1, r)));
-            return this;
-        }
-
-        /**
-         * @param {number} x1 - x
-         * @param {number} y1 - y
-         * @param {number} height - Text height
-         * @param {number} rotation - Text rotation
-         * @param {string} value - the string itself
-         * @param {string} [horizontalAlignment="left"] left | center | right
-         * @param {string} [verticalAlignment="baseline"] baseline | bottom | middle | top
-         */
-        drawText(x1, y1, height, rotation, value, horizontalAlignment = 'left',
-                 verticalAlignment = 'baseline')
-        {
-            this.activeLayer.addShape(this._assignHandle(
-                new Text(x1, y1, height, rotation, value, horizontalAlignment, verticalAlignment)));
-            return this;
-        }
-
-        /**
-         * @param {array} points - Array of points like [ [x1, y1], [x2, y2]... ] 
-         * @param {boolean} closed - Closed polyline flag
-         * @param {number} startWidth - Default start width
-         * @param {number} endWidth - Default end width
-         */
-        drawPolyline(points, closed = false, startWidth = 0, endWidth = 0)
-        {
-            const p = new Polyline(points, closed, startWidth, endWidth);
-            this._assignHandle(p);
-            this.activeLayer.addShape(p);
-            return this;
-        }
-
-        /**
-         * @param {array} points - Array of points like [ [x1, y1, z1], [x2, y2, z1]... ] 
-         */
-        drawPolyline3d(points)
-        {
-            points.forEach(point => {
-                if (point.length !== 3){
-                    throw "Require 3D coordinate"
-                }
-            });
-            const p = new Polyline3d(points);
-            this._assignHandle(p);
-            p.assignVertexHandles(this._generateHandle.bind(this));
-            this.activeLayer.addShape(p);
-            return this;
-        }
-
-        /**
-         * 
-         * @param {number} trueColor - Integer representing the true color, can be passed as an hexadecimal value of the form 0xRRGGBB
-         */
-        setTrueColor(trueColor)
-        {
-            this.activeLayer.setTrueColor(trueColor);
-            return this;
-        }
-
-        /**
-         * Draw a spline.
-         * @param {[Array]} controlPoints - Array of control points like [ [x1, y1], [x2, y2]... ]
-         * @param {number} degree - Degree of spline: 2 for quadratic, 3 for cubic. Default is 3
-         * @param {[number]} knots - Knot vector array. If null, will use a uniform knot vector. Default is null
-         * @param {[number]} weights - Control point weights. If provided, must be one weight for each control point. Default is null
-         * @param {[Array]} fitPoints - Array of fit points like [ [x1, y1], [x2, y2]... ]
-         */
-        drawSpline(controlPoints, degree = 3, knots = null, weights = null, fitPoints = [])
-        {
-            this.activeLayer.addShape(this._assignHandle(
-                new Spline(controlPoints, degree, knots, weights, fitPoints)));
-            return this;
-        }
-
-        /**
-         * Draw an ellipse.
-        * @param {number} x1 - Center x
-        * @param {number} y1 - Center y
-        * @param {number} majorAxisX - Endpoint x of major axis, relative to center
-        * @param {number} majorAxisY - Endpoint y of major axis, relative to center
-        * @param {number} axisRatio - Ratio of minor axis to major axis
-        * @param {number} startAngle - Start angle
-        * @param {number} endAngle - End angle
-        */
-        drawEllipse(x1, y1, majorAxisX, majorAxisY, axisRatio, startAngle = 0, endAngle = 2 * Math.PI)
-        {
-            this.activeLayer.addShape(this._assignHandle(
-                new Ellipse(x1, y1, majorAxisX, majorAxisY, axisRatio, startAngle, endAngle)));
-            return this;
-        }
-
-        /**
-         * @param {number} x1 - x
-         * @param {number} y1 - y
-         * @param {number} z1 - z
-         * @param {number} x2 - x
-         * @param {number} y2 - y
-         * @param {number} z2 - z
-         * @param {number} x3 - x
-         * @param {number} y3 - y
-         * @param {number} z3 - z
-         * @param {number} x4 - x
-         * @param {number} y4 - y
-         * @param {number} z4 - z
-         */
-        drawFace(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4)
-        {
-            this.activeLayer.addShape(this._assignHandle(
-                new Face(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4)));
-            return this;
-        }
-
-        _generateHandle()
-        {
-            return ++this.handleCount
-        }
-
-        _assignHandle(entity)
-        {
-            entity.handle = this._generateHandle();
-            return entity
-        }
-
-        _getDxfLtypeTable()
-        {
-            const t = new Table("LTYPE");
-            t.handle = this.ltypeTableHandle;
-            Object.values(this.lineTypes).forEach(v => t.add(v));
-            return t.toDxfString()
-        }
-
-        _getDxfLayerTable()
-        {
-            const t = new Table("LAYER");
-            t.handle = this.layerTableHandle;
-            Object.values(this.layers).forEach(v => t.add(v));
-            return t.toDxfString()
-        }
-
-         /**
-          * @see https://www.autodesk.com/techpubs/autocad/acadr14/dxf/header_section_al_u05_c.htm
-          * @see https://www.autodesk.com/techpubs/autocad/acad2000/dxf/header_section_group_codes_dxf_02.htm
-          * 
-          * @param {string} variable 
-          * @param {array} values Array of "two elements arrays". [  [value1_GroupCode, value1_value], [value2_GroupCode, value2_value]  ]
-          */
-        header(variable, values) {
-            this.headers[variable] = values;
-            return this;
-        }
-
-        _getHeader(variable, values){
-            let s = '9\n$'+ variable +'\n';
-
-            for (let value of values) {
-                s += `${value[0]}\n${value[1]}\n`;
-            }
-
-            return s;
-        }
-
-        /**
-         * 
-         * @param {string} unit see Drawing.UNITS
-         */
-        setUnits(unit) {
-            (typeof Drawing.UNITS[unit] != 'undefined') ? Drawing.UNITS[unit]:Drawing.UNITS['Unitless'];
-            this.header('INSUNITS', [[70, Drawing.UNITS[unit]]]);
-            return this;
-        }
-
-        /** Generate additional DXF metadata which are required to successfully open resulted document
-         * in AutoDesk products. Call this method before serializing the drawing to get the most
-         * compatible result.
-         */
-        generateAutocadExtras() {
-            if (!this.headers["ACADVER"]) {
-                /* AutoCAD 2007 version. */
-                this.header("ACADVER", [[1, "AC1021"]]);
-            }
-
-            if (!this.lineTypes["ByBlock"]) {
-                this.addLineType("ByBlock", "", []);
-            }
-            if (!this.lineTypes["ByLayer"]) {
-                this.addLineType("ByLayer", "", []);
-            }
-
-            let vpTable = this.tables["VPORT"];
-            if (!vpTable) {
-                vpTable = this.addTable("VPORT");
-            }
-            let styleTable = this.tables["STYLE"];
-            if (!styleTable) {
-                styleTable = this.addTable("STYLE");
-            }
-            if (!this.tables["VIEW"]) {
-                this.addTable("VIEW");
-            }
-            if (!this.tables["UCS"]) {
-                this.addTable("UCS");
-            }
-            let appIdTable = this.tables["APPID"];
-            if (!appIdTable) {
-                appIdTable = this.addTable("APPID");
-            }
-            if (!this.tables["DIMSTYLE"]) {
-                const t = new DimStyleTable("DIMSTYLE");
-                this._assignHandle(t);
-                this.tables["DIMSTYLE"] = t;
-            }
-
-            vpTable.add(this._assignHandle(new Viewport("*ACTIVE", 1000)));
-
-            /* Non-default text alignment is not applied without this entry. */
-            styleTable.add(this._assignHandle(new TextStyle("standard")));
-
-            appIdTable.add(this._assignHandle(new AppId("ACAD")));
-
-            this.addBlock("*Model_Space");
-            this.addBlock("*Paper_Space");
-
-            const d = new Dictionary();
-            this._assignHandle(d);
-            this.dictionary.addChildDictionary("ACAD_GROUP", d);
-        }
-
-        toDxfString()
-        {
-            let s = '';
-
-            //start section
-            s += '0\nSECTION\n';
-            //name section as HEADER section
-            s += '2\nHEADER\n';
-
-            s += this._getHeader("HANDSEED", [[5, (this.handleCount + 1).toString(16)]]);
-            for (let header in this.headers) {
-                s += this._getHeader(header, this.headers[header]);
-            }
-
-            //end section
-            s += '0\nENDSEC\n';
-
-
-            //start section
-            s += '0\nSECTION\n';
-            // Empty CLASSES section for compatibility
-            s += '2\nCLASSES\n';
-            //end section
-            s += '0\nENDSEC\n';
-
-
-            //start section
-            s += '0\nSECTION\n';
-            //name section as TABLES section
-            s += '2\nTABLES\n';
-
-            s += this._getDxfLtypeTable();
-            s += this._getDxfLayerTable();
-
-            for (const table of Object.values(this.tables)) {
-                s += table.toDxfString();
-            }
-
-            let blockRecordTable = new Table("BLOCK_RECORD");
-            blockRecordTable.handle = this.blockRecordTableHandle;
-            Object.values(this.blocks).forEach(b => {
-                const rec = new BlockRecord(b.name);
-                rec.handle = b.recordHandle;
-                blockRecordTable.add(rec);
-            });
-            s += blockRecordTable.toDxfString();
-
-            //end section
-            s += '0\nENDSEC\n';
-
-
-            //start section
-            s += '0\nSECTION\n';
-            //name section as BLOCKS section
-            s += '2\nBLOCKS\n';
-
-            for (const block of  Object.values(this.blocks)) {
-                s += block.toDxfString();
-            }
-
-            //end section
-            s += '0\nENDSEC\n';
-
-
-            //ENTITES section
-            s += '0\nSECTION\n';
-            s += '2\nENTITIES\n';
-
-            for (const layer of Object.values(this.layers)) {
-                s += layer.shapesToDxf();
-            }
-
-            s += '0\nENDSEC\n';
-
-
-            //OBJECTS section
-            s += '0\nSECTION\n';
-            s += '2\nOBJECTS\n';
-            s += this.dictionary.toDxfString();
-            s += '0\nENDSEC\n';
-
-
-            //close file
-            s += '0\nEOF\n';
-
-            return s;
-        }
-
-    }
-
-    //AutoCAD Color Index (ACI)
-    //http://sub-atomic.com/~moses/acadcolors.html
-    Drawing.ACI =
-    {
-        LAYER : 0,
-        RED : 1,
-        YELLOW : 2,
-        GREEN : 3,
-        CYAN : 4,
-        BLUE : 5,
-        MAGENTA : 6,
-        WHITE : 7
-    };
-
-    Drawing.LINE_TYPES =
-    [
-        {name: 'CONTINUOUS', description: '______', elements: []},
-        {name: 'DASHED',    description: '_ _ _ ', elements: [5.0, -5.0]},
-        {name: 'DOTTED',    description: '. . . ', elements: [0.0, -5.0]}
-    ];
-
-    Drawing.LAYERS =
-    [
-        {name: '0',  colorNumber: Drawing.ACI.WHITE, lineTypeName: 'CONTINUOUS'}
-    ];
-
-    //https://www.autodesk.com/techpubs/autocad/acad2000/dxf/header_section_group_codes_dxf_02.htm
-    Drawing.UNITS = {
-        'Unitless':0,
-        'Inches':1,
-        'Feet':2,
-        'Miles':3,
-        'Millimeters':4,
-        'Centimeters':5,
-        'Meters':6,
-        'Kilometers':7,
-        'Microinches':8,
-        'Mils':9,
-        'Yards':10,
-        'Angstroms':11,
-        'Nanometers':12,
-        'Microns':13,
-        'Decimeters':14,
-        'Decameters':15,
-        'Hectometers':16,
-        'Gigameters':17,
-        'Astronomical units':18,
-        'Light years':19,
-        'Parsecs':20
-    };
-
-    var Drawing_1 = Drawing;
-
-    var dxfWriter = Drawing_1;
-
-    let d = new dxfWriter();
-    d.setUnits('Meters');
-
-    function exportDXF() {
-      const allAttributes =  Object.values(ClippingEdges.styles).map(style => style.generatorGeometry.attributes);
-      drawLayer(allAttributes[0], "Section", dxfWriter.ACI.RED);
-      drawLayer(allAttributes[1], "Projection", dxfWriter.ACI.GREEN);
-      saveFile();
-    }
-
-    function drawLayer(attributes, name, color, style = 'CONTINUOUS') {
-      // d.addLayer(name, Drawing.ACI.GREEN, 'CONTINUOUS');
-      d.addLayer(name, color, style);
-      d.setActiveLayer(name);
-      const coordinates = attributes.position.array;
-      for(let i = 0; i < coordinates.length - 5; i += 6) {
-        const start = [coordinates[i], coordinates[i + 2]];
-        const end = [coordinates[i + 3], coordinates[i + 5]];
-        if (start[0] === 0 && start[1] === 0 && end[0] === 0 && end[1] === 0) continue;
-        d.drawLine(start[0], start[1], end[0], end[1]);
-      }
-    }
-
-    function saveFile() {
-      const saveLink = document.createElement('a');
-      const blob = new Blob([d.toDxfString()], {type: "application/dxf"});
-      saveLink.href  = URL.createObjectURL(blob);
-      saveLink.download = "data.dxf";
-      saveLink.click();
-    }
-
+    // import { exportDXF, exportPDF } from './dxf';
     // import { fillSection } from './section-fill';
 
     const container = document.getElementById('viewer-container');
@@ -113442,10 +112033,10 @@
     viewer.addGrid();
     viewer.IFC.setWasmPath('files/');
     viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-      COORDINATE_TO_ORIGIN: false,
+      COORDINATE_TO_ORIGIN: true,
       USE_FAST_BOOLS: true
     });
-    // viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+    viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
 
     // Setup loader
     let model;
@@ -113470,7 +112061,7 @@
       model.material.forEach(mat => mat.side = 2);
 
       // createFill();
-      viewer.edges.create("01", 0, new LineBasicMaterial({color: 0x000000}), new MeshBasicMaterial({color: 0xffffff, side: 2}));
+      // viewer.edges.create("01", 0, new LineBasicMaterial({color: 0x000000}), new MeshBasicMaterial({color: 0xffffff, side: 2}));
 
       overlay.classList.add('hidden');
     };
@@ -113483,55 +112074,77 @@
 
     // viewer.IFC.loadIfcUrl('test.ifc', true);
 
-    let fill;
-    async function createFill() {
-      const wallsStandard = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
-      const walls = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCWALL, false);
-      const stairs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCSTAIR, false);
-      const columns = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCCOLUMN, false);
-      const slabs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCSLAB, false);
-      const ids = [...walls, ...wallsStandard, ...columns, ...stairs, ...slabs];
-      fill = viewer.fills.create('example', 0, ids, new MeshBasicMaterial({color: 0x888888}));
-      fill.renderOrder = 2;
-      if(fill) {
-        fill.position.y += 0.01;
-      }
+    // let fill;
+    // async function createFill() {
+    //   const wallsStandard = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
+    //   const walls = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCWALL, false);
+    //   const stairs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCSTAIR, false);
+    //   const columns = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCCOLUMN, false);
+    //   const slabs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCSLAB, false);
+    //   const ids = [...walls, ...wallsStandard, ...columns, ...stairs, ...slabs];
+    //   fill = viewer.fills.create('example', 0, ids, new MeshBasicMaterial({color: 0x888888}));
+    //   fill.renderOrder = 2;
+    //   if(fill) {
+    //     fill.position.y += 0.01;
+    //   }
       // fill.visible = false;
-    }
+    // }
 
-    const handleKeyDown = async (event) => {
-      if (event.code === 'Delete') {
-        viewer.removeClippingPlane();
-        viewer.dimensions.delete();
-      }
-      if (event.code === 'KeyO') {
-        viewer.context.getIfcCamera().toggleProjection();
-      }
-      if (event.code === 'KeyR') {
-        viewer.context.renderer.usePostproduction = !viewer.context.renderer.usePostproduction;
-      }
-      if(event.code === 'KeyD') {
-        exportDXF();
-        // const scene = viewer.context.getScene();
-        // fillSection(scene);
-      }
-      if (event.code === 'KeyF') {
-        fill.visible = true;
-      }
-      if (event.code === 'KeyC') {
-        await createFill();
-        // await goToFirstFloor();
-        // viewer.edges.toggle("01");
-      }
-      if (event.code === 'KeyE') {
-        viewer.plans.exitPlanView(true);
-        viewer.edges.toggle("01");
-        fill.visible = false;
-      }
-    };
+    // async function goToFirstFloor() {
+    //   await viewer.plans.computeAllPlanViews(0);
+    //   const firstFloor = viewer.plans.getAll()[0];
+    //   await viewer.plans.goTo(firstFloor);
+    // }
+
+    // async function getSubset() {
+    //   const ifcProject = await viewer.IFC.getSpatialStructure(0, false);
+    //   const currentFloor = ifcProject.children[0].children[0].children[2].children.map(child => child.expressID);
+    //   const scene = viewer.context.getScene();
+    //   const stairs = await viewer.IFC.getAllItemsOfType(0, IFCSTAIRFLIGHT);
+    //   const rails = await viewer.IFC.getAllItemsOfType(0, IFCRAILING);
+    //   const walls = (await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE)).filter(wall => currentFloor.includes(wall));
+    //   const rareWalls = (await viewer.IFC.getAllItemsOfType(0, IFCWALL)).filter(wall => currentFloor.includes(wall));
+    //   return viewer.IFC.loader.ifcManager.createSubset({modelID: 0, ids: [...stairs, ...rails, ...walls, ...rareWalls], scene, removePrevious: true});
+    // }
+
+    // let subset;
+    // const handleKeyDown = async (event) => {
+    //   if (event.code === 'Delete') {
+    //     viewer.removeClippingPlane();
+    //     viewer.dimensions.delete()
+    //   }
+    //   if (event.code === 'KeyO') {
+    //     viewer.context.getIfcCamera().toggleProjection();
+    //   }
+    //   if (event.code === 'KeyR') {
+    //     viewer.context.renderer.usePostproduction = !viewer.context.renderer.usePostproduction;
+    //   }
+    //   if(event.code === 'KeyD') {
+    //     if(!subset) subset = await getSubset();
+    //     const model = viewer.context.items.ifcModels[0];
+    //     const scene = viewer.context.getScene();
+    //     const camera = viewer.context.getCamera();
+    //     const renderer = viewer.context.getRenderer();
+    //     exportDXF(model, scene, camera, renderer, subset);
+    //   }
+    //   if(event.code === 'KeyP') {
+    //     if(!subset) subset = await getSubset();
+    //     exportPDF(subset);
+    //   }
+    //   if (event.code === 'KeyC') {
+    //     await createFill();
+    //     // await goToFirstFloor();
+    //     // viewer.edges.toggle("01");
+    //   }
+    //   if (event.code === 'KeyE') {
+    //     viewer.plans.exitPlanView(true);
+    //     viewer.edges.toggle("01");
+    //     fill.visible = false;
+    //   }
+    // };
 
     window.onmousemove = viewer.IFC.prePickIfcItem;
-    window.onkeydown = handleKeyDown;
+    // window.onkeydown = handleKeyDown;
     window.ondblclick = async () => {
       viewer.clipper.createPlane();
 
