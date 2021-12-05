@@ -91559,7 +91559,7 @@
 
     // converts the given BVH raycast intersection to align with the three.js raycast
     // structure (include object, world space distance and point).
-    function convertRaycastIntersect$1( hit, object, raycaster ) {
+    function convertRaycastIntersect( hit, object, raycaster ) {
 
     	if ( hit === null ) {
 
@@ -93220,7 +93220,7 @@
     		const results = originalRaycast.call( this, ray, mesh.material );
     		results.forEach( hit => {
 
-    			hit = convertRaycastIntersect$1( hit, mesh, raycaster );
+    			hit = convertRaycastIntersect( hit, mesh, raycaster );
     			if ( hit ) {
 
     				intersects.push( hit );
@@ -93249,7 +93249,7 @@
     			mesh, raycaster, ray,
     		] = args;
 
-    		return convertRaycastIntersect$1( originalRaycastFirst.call( this, ray, mesh.material ), mesh, raycaster );
+    		return convertRaycastIntersect( originalRaycastFirst.call( this, ray, mesh.material ), mesh, raycaster );
 
     	} else {
 
@@ -93380,32 +93380,6 @@
 
     } );
 
-    // converts the given BVH raycast intersection to align with the three.js raycast
-    // structure (include object, world space distance and point).
-    function convertRaycastIntersect( hit, object, raycaster ) {
-
-    	if ( hit === null ) {
-
-    		return null;
-
-    	}
-
-    	hit.point.applyMatrix4( object.matrixWorld );
-    	hit.distance = hit.point.distanceTo( raycaster.ray.origin );
-    	hit.object = object;
-
-    	if ( hit.distance < raycaster.near || hit.distance > raycaster.far ) {
-
-    		return null;
-
-    	} else {
-
-    		return hit;
-
-    	}
-
-    }
-
     const ray = /* @__PURE__ */ new Ray();
     const tmpInverseMatrix = /* @__PURE__ */ new Matrix4();
     const origMeshRaycastFunc = Mesh.prototype.raycast;
@@ -93476,38 +93450,54 @@
             this.localPlane = new Plane();
             this.tempLine = new Line3();
             this.tempVector = new Vector3();
-            this.basicEdges = new LineSegments();
-            this.newGeneratorGeometry();
+            this.createDefaultStyles();
         }
         remove() {
-            // this.generatorGeometry.dispose();
-            // this.thickEdges.removeFromParent();
-            // this.thickLineGeometry.dispose();
+            const edges = Object.values(this.edges);
+            edges.forEach((edge) => {
+                edge.generatorGeometry.dispose();
+                edge.mesh.geometry.dispose();
+                // @ts-ignore
+                edge.mesh.geometry = undefined;
+                if (edge.mesh.parent) {
+                    edge.mesh.removeFromParent();
+                }
+            });
         }
         async updateEdges() {
             const model = this.context.items.ifcModels[0];
-            if (Object.keys(ClippingEdges.styles).length === 0) {
-                await this.newStyle(model.modelID, 'thick', [IFCWALLSTANDARDCASE, IFCWALL, IFCSLAB], new LineMaterial({ color: 0x000000, linewidth: 0.0015 }));
-                await this.newStyle(model.modelID, 'thin', [IFCWINDOW, IFCPLATE, IFCMEMBER, IFCDOOR, IFCFURNISHINGELEMENT], new LineMaterial({ color: 0x333333, linewidth: 0.001 }));
-            }
-            Object.keys(ClippingEdges.styles).forEach((style) => {
-                this.drawEdges(ClippingEdges.styles[style], model);
+            Object.keys(ClippingEdges.styles).forEach((styleName) => {
+                this.drawEdges(styleName, model);
             });
         }
+        // Creates a new style that applies to all clipping edges
         async newStyle(modelID, styleName, categories, material = ClippingEdges.defaultMaterial) {
-            const generatorGeometry = this.newGeneratorGeometry();
-            const thickLineGeometry = new LineSegmentsGeometry();
             material.clippingPlanes = this.context.getClippingPlanes();
             ClippingEdges.styles[styleName] = {
                 modelID,
                 categories,
-                generatorGeometry,
-                thickLineGeometry,
+                material,
                 model: this.context.items.ifcModels[modelID],
-                thickEdges: this.newThickEdges(thickLineGeometry, material),
                 subset: await this.newSubset(styleName, modelID, categories)
             };
         }
+        // Creates some basic styles so that users don't have to create it each time
+        async createDefaultStyles() {
+            if (Object.keys(ClippingEdges.styles).length === 0) {
+                await this.newStyle(0, 'thick', [IFCWALLSTANDARDCASE, IFCWALL, IFCSLAB], new LineMaterial({ color: 0x000000, linewidth: 0.0015 }));
+                await this.newStyle(0, 'thin', [IFCWINDOW, IFCPLATE, IFCMEMBER, IFCDOOR, IFCFURNISHINGELEMENT], new LineMaterial({ color: 0x333333, linewidth: 0.001 }));
+            }
+        }
+        // Initializes the helper geometry used to compute the vertices
+        static newGeneratorGeometry() {
+            // create line geometry with enough data to hold 100000 segments
+            const generatorGeometry = new BufferGeometry();
+            const linePosAttr = new BufferAttribute(new Float32Array(300000), 3, false);
+            linePosAttr.setUsage(DynamicDrawUsage);
+            generatorGeometry.setAttribute('position', linePosAttr);
+            return generatorGeometry;
+        }
+        // Creates a new subset. This allows to apply a style just to a specific set of items
         async newSubset(styleName, modelID, categories) {
             const subset = this.ifc.loader.ifcManager.createSubset({
                 modelID,
@@ -93532,7 +93522,10 @@
             }
             return ids;
         }
-        newThickEdges(thickLineGeometry, material) {
+        // Creates the geometry of the clipping edges
+        newThickEdges(styleName) {
+            const material = ClippingEdges.styles[styleName].material;
+            const thickLineGeometry = new LineSegmentsGeometry();
             const thickEdges = new LineSegments2(thickLineGeometry, material);
             thickEdges.material.polygonOffset = true;
             thickEdges.material.polygonOffsetFactor = -2;
@@ -93540,22 +93533,22 @@
             thickEdges.renderOrder = 3;
             return thickEdges;
         }
-        newGeneratorGeometry() {
-            // create line geometry with enough data to hold 100000 segments
-            const generatorGeometry = new BufferGeometry();
-            const linePosAttr = new BufferAttribute(new Float32Array(300000), 3, false);
-            linePosAttr.setUsage(DynamicDrawUsage);
-            generatorGeometry.setAttribute('position', linePosAttr);
-            return generatorGeometry;
-        }
         // Source: https://gkjohnson.github.io/three-mesh-bvh/example/bundle/clippedEdges.html
-        drawEdges(style, model) {
+        drawEdges(styleName, model) {
+            const style = ClippingEdges.styles[styleName];
             if (!style.subset.geometry.boundsTree)
                 return;
+            if (!this.edges[styleName]) {
+                this.edges[styleName] = {
+                    generatorGeometry: ClippingEdges.newGeneratorGeometry(),
+                    mesh: this.newThickEdges(styleName)
+                };
+            }
+            const edges = this.edges[styleName];
             this.inverseMatrix.copy(style.subset.matrixWorld).invert();
             this.localPlane.copy(this.clippingPlane).applyMatrix4(this.inverseMatrix);
             let index = 0;
-            const posAttr = style.generatorGeometry.attributes.position;
+            const posAttr = edges.generatorGeometry.attributes.position;
             // @ts-ignore
             posAttr.array.fill(0);
             style.subset.geometry.boundsTree.shapecast({
@@ -93596,19 +93589,21 @@
                 }
             });
             // set the draw range to only the new segments and offset the lines so they don't intersect with the geometry
-            style.thickEdges.geometry.setDrawRange(0, index);
-            style.thickEdges.position.copy(this.clippingPlane.normal).multiplyScalar(0.0001);
+            edges.mesh.geometry.setDrawRange(0, index);
+            edges.mesh.position.copy(this.clippingPlane.normal).multiplyScalar(0.0001);
             posAttr.needsUpdate = true;
-            this.basicEdges.geometry = style.generatorGeometry;
-            style.thickEdges.geometry = style.thickLineGeometry.fromLineSegments(this.basicEdges);
-            if (style.thickEdges.parent !== model) {
-                model.add(style.thickEdges);
+            ClippingEdges.basicEdges.geometry = edges.generatorGeometry;
+            edges.mesh.geometry.fromLineSegments(ClippingEdges.basicEdges);
+            if (edges.mesh.parent !== model) {
+                model.add(edges.mesh);
             }
         }
     }
     ClippingEdges.styles = {};
     ClippingEdges.invisibleMaterial = new MeshBasicMaterial({ visible: false });
     ClippingEdges.defaultMaterial = new LineMaterial({ color: 0x000000, linewidth: 0.001 });
+    // Helpers
+    ClippingEdges.basicEdges = new LineSegments();
 
     class IfcPlane extends IfcComponent {
         constructor(context, ifc, origin, normal, onStartDragging, onEndDragging, planeSize) {
@@ -93617,9 +93612,16 @@
             this.visible = true;
             this.active = true;
             this.removeFromScene = () => {
-                const scene = this.context.getScene();
-                scene.remove(this.helper);
-                scene.remove(this.controls);
+                this.helper.removeFromParent();
+                this.arrowBoundingBox.removeFromParent();
+                this.arrowBoundingBox.geometry.dispose();
+                // @ts-ignore
+                this.arrowBoundingBox.geometry = undefined;
+                this.planeMesh.geometry.dispose();
+                // @ts-ignore
+                this.planeMesh.geometry = undefined;
+                this.controls.removeFromParent();
+                this.controls.dispose();
                 this.edges.remove();
                 this.context.removeClippingPlane(this.plane);
             };
@@ -112108,11 +112110,11 @@
     // }
 
     // let subset;
-    // const handleKeyDown = async (event) => {
-    //   if (event.code === 'Delete') {
-    //     viewer.removeClippingPlane();
-    //     viewer.dimensions.delete()
-    //   }
+    const handleKeyDown = async (event) => {
+      if (event.code === 'Delete') {
+        viewer.removeClippingPlane();
+        viewer.dimensions.delete();
+      }
     //   if (event.code === 'KeyO') {
     //     viewer.context.getIfcCamera().toggleProjection();
     //   }
@@ -112141,10 +112143,10 @@
     //     viewer.edges.toggle("01");
     //     fill.visible = false;
     //   }
-    // };
+    };
 
     window.onmousemove = viewer.IFC.prePickIfcItem;
-    // window.onkeydown = handleKeyDown;
+    window.onkeydown = handleKeyDown;
     window.ondblclick = async () => {
       viewer.clipper.createPlane();
 

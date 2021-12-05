@@ -67,9 +67,19 @@ export class IfcPlane extends IfcComponent {
   }
 
   removeFromScene = () => {
-    const scene = this.context.getScene();
-    scene.remove(this.helper);
-    scene.remove(this.controls);
+    this.helper.removeFromParent();
+
+    this.arrowBoundingBox.removeFromParent();
+    this.arrowBoundingBox.geometry.dispose();
+    // @ts-ignore
+    this.arrowBoundingBox.geometry = undefined;
+
+    this.planeMesh.geometry.dispose();
+    // @ts-ignore
+    this.planeMesh.geometry = undefined;
+
+    this.controls.removeFromParent();
+    this.controls.dispose();
     this.edges.remove();
     this.context.removeClippingPlane(this.plane);
   };

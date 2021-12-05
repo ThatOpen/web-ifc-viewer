@@ -96,11 +96,11 @@ document.body.appendChild(inputElement);
 // }
 
 // let subset;
-// const handleKeyDown = async (event) => {
-//   if (event.code === 'Delete') {
-//     viewer.removeClippingPlane();
-//     viewer.dimensions.delete()
-//   }
+const handleKeyDown = async (event) => {
+  if (event.code === 'Delete') {
+    viewer.removeClippingPlane();
+    viewer.dimensions.delete()
+  }
 //   if (event.code === 'KeyO') {
 //     viewer.context.getIfcCamera().toggleProjection();
 //   }
@@ -129,10 +129,10 @@ document.body.appendChild(inputElement);
 //     viewer.edges.toggle("01");
 //     fill.visible = false;
 //   }
-// };
+};
 
 window.onmousemove = viewer.IFC.prePickIfcItem;
-// window.onkeydown = handleKeyDown;
+window.onkeydown = handleKeyDown;
 window.ondblclick = async () => {
   viewer.clipper.createPlane();
 
