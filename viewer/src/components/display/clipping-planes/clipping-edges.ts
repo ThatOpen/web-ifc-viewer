@@ -30,7 +30,7 @@ import { IfcManager } from '../../ifc';
 export interface Style {
   ids: number[];
   categories: number[];
-  subsets: Mesh;
+  subsets: Mesh[];
   material: LineMaterial;
 }
 
@@ -91,15 +91,20 @@ export class ClippingEdges {
     categories: number[],
     material = ClippingEdges.defaultMaterial
   ) {
+    const subsets: Mesh[] = [];
+    const ids = this.context.items.ifcModels.map((model) => model.modelID);
 
-    const modelIDs = this.context.items.ifcModels.map(model => model.modelID);
-    const subset = await this.newSubset(styleName, modelIDs, categories)
+    for (let i = 0; i < ids.length; i++) {
+      // eslint-disable-next-line no-await-in-loop
+      subsets.push(await this.newSubset(styleName, ids[i], categories));
+    }
 
     material.clippingPlanes = this.context.getClippingPlanes();
     ClippingEdges.styles[styleName] = {
+      ids,
       categories,
       material,
-      subset:
+      subsets
     };
   }
 
@@ -107,14 +112,12 @@ export class ClippingEdges {
   private async createDefaultStyles() {
     if (Object.keys(ClippingEdges.styles).length === 0) {
       await this.newStyle(
-        0,
         'thick',
         [IFCWALLSTANDARDCASE, IFCWALL, IFCSLAB],
         new LineMaterial({ color: 0x000000, linewidth: 0.0015 })
       );
 
       await this.newStyle(
-        0,
         'thin',
         [IFCWINDOW, IFCPLATE, IFCMEMBER, IFCDOOR, IFCFURNISHINGELEMENT],
         new LineMaterial({ color: 0x333333, linewidth: 0.001 })
@@ -131,8 +134,6 @@ export class ClippingEdges {
     generatorGeometry.setAttribute('position', linePosAttr);
     return generatorGeometry;
   }
-
-  
 
   // Creates a new subset. This allows to apply a style just to a specific set of items
   private async newSubset(styleName: string, modelID: number, categories: number[]) {
@@ -176,7 +177,8 @@ export class ClippingEdges {
   // Source: https://gkjohnson.github.io/three-mesh-bvh/example/bundle/clippedEdges.html
   private drawEdges(styleName: string, model: Mesh) {
     const style = ClippingEdges.styles[styleName];
-    if (!style.subset.geometry.boundsTree) return;
+
+    // if (!style.subsets.geometry.boundsTree) return;
 
     if (!this.edges[styleName]) {
       this.edges[styleName] = {
@@ -187,54 +189,59 @@ export class ClippingEdges {
 
     const edges = this.edges[styleName];
 
-    this.inverseMatrix.copy(style.subset.matrixWorld).invert();
-    this.localPlane.copy(this.clippingPlane).applyMatrix4(this.inverseMatrix);
-
     let index = 0;
     const posAttr = edges.generatorGeometry.attributes.position;
     // @ts-ignore
     posAttr.array.fill(0);
 
-    style.subset.geometry.boundsTree.shapecast({
-      intersectsBounds: (box: any) => {
-        return this.localPlane.intersectsBox(box) as any;
-      },
+    style.subsets.forEach((subset) => {
+      if (!subset.geometry.boundsTree)
+        throw new Error('Boundstree not found for clipping edges subset.');
 
-      // @ts-ignore
-      intersectsTriangle: (tri: any) => {
-        // check each triangle edge to see if it intersects with the plane. If so then
-        // add it to the list of segments.
-        let count = 0;
-        this.tempLine.start.copy(tri.a);
-        this.tempLine.end.copy(tri.b);
-        if (this.localPlane.intersectLine(this.tempLine, this.tempVector)) {
-          posAttr.setXYZ(index, this.tempVector.x, this.tempVector.y, this.tempVector.z);
-          count++;
-          index++;
-        }
+      this.inverseMatrix.copy(subset.matrixWorld).invert();
+      this.localPlane.copy(this.clippingPlane).applyMatrix4(this.inverseMatrix);
 
-        this.tempLine.start.copy(tri.b);
-        this.tempLine.end.copy(tri.c);
-        if (this.localPlane.intersectLine(this.tempLine, this.tempVector)) {
-          posAttr.setXYZ(index, this.tempVector.x, this.tempVector.y, this.tempVector.z);
-          count++;
-          index++;
-        }
+      subset.geometry.boundsTree.shapecast({
+        intersectsBounds: (box: any) => {
+          return this.localPlane.intersectsBox(box) as any;
+        },
 
-        this.tempLine.start.copy(tri.c);
-        this.tempLine.end.copy(tri.a);
-        if (this.localPlane.intersectLine(this.tempLine, this.tempVector)) {
-          posAttr.setXYZ(index, this.tempVector.x, this.tempVector.y, this.tempVector.z);
-          count++;
-          index++;
-        }
+        // @ts-ignore
+        intersectsTriangle: (tri: any) => {
+          // check each triangle edge to see if it intersects with the plane. If so then
+          // add it to the list of segments.
+          let count = 0;
+          this.tempLine.start.copy(tri.a);
+          this.tempLine.end.copy(tri.b);
+          if (this.localPlane.intersectLine(this.tempLine, this.tempVector)) {
+            posAttr.setXYZ(index, this.tempVector.x, this.tempVector.y, this.tempVector.z);
+            count++;
+            index++;
+          }
 
-        // If we only intersected with one or three sides then just remove it. This could be handled
-        // more gracefully.
-        if (count !== 2) {
-          index -= count;
+          this.tempLine.start.copy(tri.b);
+          this.tempLine.end.copy(tri.c);
+          if (this.localPlane.intersectLine(this.tempLine, this.tempVector)) {
+            posAttr.setXYZ(index, this.tempVector.x, this.tempVector.y, this.tempVector.z);
+            count++;
+            index++;
+          }
+
+          this.tempLine.start.copy(tri.c);
+          this.tempLine.end.copy(tri.a);
+          if (this.localPlane.intersectLine(this.tempLine, this.tempVector)) {
+            posAttr.setXYZ(index, this.tempVector.x, this.tempVector.y, this.tempVector.z);
+            count++;
+            index++;
+          }
+
+          // If we only intersected with one or three sides then just remove it. This could be handled
+          // more gracefully.
+          if (count !== 2) {
+            index -= count;
+          }
         }
-      }
+      });
     });
 
     // set the draw range to only the new segments and offset the lines so they don't intersect with the geometry
