@@ -33,7 +33,7 @@ export class IfcViewerAPI {
     if (!options.container) throw new Error('Could not get container element!');
     this.context = new IfcContext(options);
     this.IFC = new IfcManager(this.context);
-    this.clipper = new IfcClipper(this.context);
+    this.clipper = new IfcClipper(this.context, this.IFC);
     this.plans = new PlanManager(this.IFC, this.context, this.clipper);
     this.fills = new SectionFillManager(this.IFC, this.context);
     this.dimensions = new IfcDimensions(this.context);

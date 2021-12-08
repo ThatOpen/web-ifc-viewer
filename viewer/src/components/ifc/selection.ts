@@ -5,13 +5,13 @@ import { IfcComponent, Context } from '../../base-types';
 
 export class IfcSelection extends IfcComponent {
   mesh: Mesh | null = null;
+  material: Material;
   private selected: number;
   private modelID: number;
-  private readonly material: Material | undefined;
   private loader: IFCLoader;
   private readonly scene: Scene;
 
-  constructor(private context: Context, loader: IFCLoader, material?: Material) {
+  constructor(private context: Context, loader: IFCLoader, material: Material) {
     super(context);
     this.scene = context.getScene();
     this.loader = loader;
@@ -26,7 +26,7 @@ export class IfcSelection extends IfcComponent {
     const mesh = item.object as IfcMesh;
     const id = await this.loader.ifcManager.getExpressId(mesh.geometry, item.faceIndex);
     if (id === undefined) return null;
-    this.removeSelectionOfOtherModel(mesh);
+    this.hideSelection(mesh);
     this.modelID = mesh.modelID;
     this.newSelection([id]);
     if (focusSelection) this.focusSelection();
@@ -35,7 +35,8 @@ export class IfcSelection extends IfcComponent {
 
   unpick() {
     this.mesh = null;
-    this.loader.ifcManager.removeSubset(this.modelID, this.scene, this.material);
+    const model = this.context.items.ifcModels[this.modelID];
+    this.loader.ifcManager.removeSubset(this.modelID, model, this.material);
   }
 
   pickByID = (modelID: number, ids: number[], focusSelection = false) => {
@@ -54,12 +55,13 @@ export class IfcSelection extends IfcComponent {
     });
     if (mesh) {
       this.mesh = mesh;
+      this.mesh.visible = true;
     }
   };
 
-  removeSelectionOfOtherModel(mesh?: IfcMesh) {
-    if (this.modelID !== undefined && this.modelID !== mesh?.modelID) {
-      this.loader.ifcManager.removeSubset(this.modelID, this.scene, this.material);
+  hideSelection(mesh?: IfcMesh) {
+    if (this.mesh && this.modelID !== undefined && this.modelID !== mesh?.modelID) {
+      this.mesh.visible = false;
     }
   }
 

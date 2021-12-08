@@ -10,6 +10,8 @@ import {
 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 import { Context, IfcComponent } from '../../../base-types';
+import { ClippingEdges } from './clipping-edges';
+import { IfcManager } from '../../ifc';
 
 export class IfcPlane extends IfcComponent {
   static planeMaterial = new MeshBasicMaterial({
@@ -25,21 +27,25 @@ export class IfcPlane extends IfcComponent {
 
   visible = true;
   active = true;
+  edgesActive = true;
 
   readonly controls: TransformControls;
   public readonly normal: Vector3;
   public readonly origin: Vector3;
   public readonly helper: Object3D;
   private readonly planeSize: number;
-  private context: Context;
+  private readonly edges: ClippingEdges;
+  private readonly context: Context;
 
   constructor(
     context: Context,
+    ifc: IfcManager,
     origin: Vector3,
     normal: Vector3,
     onStartDragging: Function,
     onEndDragging: Function,
-    planeSize: number
+    planeSize: number,
+    edgesEnabled: boolean
   ) {
     super(context);
     this.planeSize = planeSize;
@@ -52,6 +58,12 @@ export class IfcPlane extends IfcComponent {
     this.controls = this.newTransformControls();
     this.setupEvents(onStartDragging, onEndDragging);
     this.plane.setFromNormalAndCoplanarPoint(normal, origin);
+
+    this.edges = new ClippingEdges(this.context, this.plane, ifc);
+    this.edgesActive = edgesEnabled;
+    if (this.edgesActive) {
+      this.edges.updateEdges();
+    }
   }
 
   setVisibility(visible: boolean) {
@@ -61,9 +73,20 @@ export class IfcPlane extends IfcComponent {
   }
 
   removeFromScene = () => {
-    const scene = this.context.getScene();
-    scene.remove(this.helper);
-    scene.remove(this.controls);
+    this.helper.removeFromParent();
+
+    this.arrowBoundingBox.removeFromParent();
+    this.arrowBoundingBox.geometry.dispose();
+    // @ts-ignore
+    this.arrowBoundingBox.geometry = undefined;
+
+    this.planeMesh.geometry.dispose();
+    // @ts-ignore
+    this.planeMesh.geometry = undefined;
+
+    this.controls.removeFromParent();
+    this.controls.dispose();
+    this.edges.remove();
     this.context.removeClippingPlane(this.plane);
   };
 
@@ -97,6 +120,7 @@ export class IfcPlane extends IfcComponent {
   private setupEvents(onStart: Function, onEnd: Function) {
     this.controls.addEventListener('change', () => {
       this.plane.setFromNormalAndCoplanarPoint(this.normal, this.helper.position);
+      if (this.edgesActive) this.edges.updateEdges();
     });
     this.controls.addEventListener('dragging-changed', (event) => {
       this.visible = !event.value;

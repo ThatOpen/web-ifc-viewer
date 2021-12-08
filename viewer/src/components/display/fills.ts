@@ -15,11 +15,18 @@ export class SectionFillManager {
   }
 
   create(name: string, modelID: number, ids: number[], material: Material) {
+    if (this.fills[name] !== undefined) throw new Error('The specified fill already exists');
+    material.clippingPlanes = this.context.getClippingPlanes();
+    const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
+    if (!model) throw new Error('The requested model to fill was not found.');
     this.setupMaterial(material);
-    const subset = this.getSubset(modelID, ids, material);
+    const subset = this.getSubset(modelID, ids, material, name);
     if (!subset) return null;
-    this.context.scene.addModel(subset);
+    this.context.items.ifcModels.push(model);
+    this.context.items.pickableIfcModels.push(model);
+    model.add(subset);
     this.fills[name] = subset;
+    // subset.renderOrder = 2;
     return subset;
   }
 
@@ -27,7 +34,6 @@ export class SectionFillManager {
     const subset = this.fills[name];
     delete this.fills[name];
     this.context.scene.removeModel(subset);
-    if (subset.parent) subset.removeFromParent();
     subset.geometry.dispose();
   }
 
@@ -39,13 +45,14 @@ export class SectionFillManager {
     material.polygonOffsetUnits = 1;
   }
 
-  private getSubset(modelID: number, ids: number[], material: Material) {
+  private getSubset(modelID: number, ids: number[], material: Material, name: string) {
     return this.IFC.loader.ifcManager.createSubset({
       modelID,
       ids,
       scene: this.context.getScene(),
       removePrevious: true,
-      material
+      material,
+      customID: name
     }) as IFCModel;
   }
 }

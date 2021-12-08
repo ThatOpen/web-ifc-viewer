@@ -1,6 +1,6 @@
 // @ts-ignore
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
-import { DoubleSide, Material, MeshLambertMaterial } from 'three';
+import { DoubleSide, Material, Matrix4, MeshLambertMaterial } from 'three';
 import { IfcMesh, IfcModel } from 'web-ifc-three/IFC/BaseDefinitions';
 import { IFCLoader } from 'web-ifc-three/IFCLoader';
 import { LoaderSettings } from 'web-ifc';
@@ -15,10 +15,9 @@ export class IfcManager extends IfcComponent {
   selection: IfcSelection;
   highlight: IfcSelection;
   private readonly context: Context;
-  private readonly selectMat: Material | undefined;
-  readonly preselectMat: Material | undefined;
   private readonly defPreselectMat: Material;
   private readonly defSelectMat: Material;
+  private readonly defHighlightMat: Material;
 
   constructor(context: Context) {
     super(context);
@@ -28,11 +27,10 @@ export class IfcManager extends IfcComponent {
     this.visibility = new VisibilityManager(this.loader, this.context);
     this.defSelectMat = this.initializeDefMaterial(0xff33ff, 0.3);
     this.defPreselectMat = this.initializeDefMaterial(0xffccff, 0.5);
-    this.selectMat = context.options.selectMaterial || this.defSelectMat;
-    this.preselectMat = context.options.preselectMaterial || this.defPreselectMat;
-    this.preselection = new IfcSelection(context, this.loader, this.preselectMat);
-    this.selection = new IfcSelection(context, this.loader, this.selectMat);
-    this.highlight = new IfcSelection(context, this.loader);
+    this.defHighlightMat = this.initializeDefMaterial(0xffccff, 0.5);
+    this.preselection = new IfcSelection(context, this.loader, this.defPreselectMat);
+    this.selection = new IfcSelection(context, this.loader, this.defSelectMat);
+    this.highlight = new IfcSelection(context, this.loader, this.defHighlightMat);
   }
 
   /**
@@ -60,9 +58,28 @@ export class IfcManager extends IfcComponent {
     onError?: (err: any) => any
   ) {
     try {
+      const firstModel = Boolean(this.context.items.ifcModels.length === 0);
+
+      const settings = this.loader.ifcManager.state.webIfcSettings;
+      const fastBools = settings?.USE_FAST_BOOLS || true;
+      await this.loader.ifcManager.applyWebIfcConfig({
+        COORDINATE_TO_ORIGIN: firstModel,
+        USE_FAST_BOOLS: fastBools
+      });
+
       const ifcModel = (await this.loader.loadAsync(url, onProgress)) as IfcModel;
       this.addIfcModel(ifcModel.mesh);
+
+      if (firstModel) {
+        const matrixArr = await this.loader.ifcManager.ifcAPI.GetCoordinationMatrix(
+          ifcModel.modelID
+        );
+        const matrix = new Matrix4().fromArray(matrixArr);
+        this.loader.ifcManager.setupCoordinationMatrix(matrix);
+      }
+
       if (fitToFrame) this.context.fitToFrame();
+
       return ifcModel;
     } catch (err) {
       console.error('Error loading IFC.');
@@ -150,7 +167,7 @@ export class IfcManager extends IfcComponent {
   prePickIfcItem = () => {
     const found = this.context.castRayIfc();
     if (!found) {
-      this.preselection.removeSelectionOfOtherModel();
+      this.preselection.hideSelection();
       return;
     }
     this.preselection.pick(found);
@@ -185,27 +202,15 @@ export class IfcManager extends IfcComponent {
    * @modelID ID of the IFC model.
    * @id Express ID of the item.
    */
-  pickIfcItemsByID = (
-    modelID: number,
-    ids: number[],
-    focusSelection = false
-  ) => {
+  pickIfcItemsByID = (modelID: number, ids: number[], focusSelection = false) => {
     this.selection.pickByID(modelID, ids, focusSelection);
   };
 
-  prepickIfcItemsByID = (
-    modelID: number,
-    ids: number[],
-    focusSelection = false
-  ) => {
+  prepickIfcItemsByID = (modelID: number, ids: number[], focusSelection = false) => {
     this.preselection.pickByID(modelID, ids, focusSelection);
   };
 
-  highlightIfcItemsByID = (
-    modelID: number,
-    ids: number[],
-    focusSelection = false
-  ) => {
+  highlightIfcItemsByID = (modelID: number, ids: number[], focusSelection = false) => {
     this.highlight.pickByID(modelID, ids, focusSelection);
   };
 
@@ -220,75 +225,6 @@ export class IfcManager extends IfcComponent {
   unHighlightIfcItems = () => {
     this.highlight.unpick();
   };
-
-  /**
-   * Hides the selected items in the specified model
-   * @modelID ID of the IFC model.
-   * @ids Express ID of the elements.
-   */
-  hideItems(modelID: number, ids: number[]) {
-    this.loader.ifcManager.hideItems(modelID, ids);
-  }
-
-  /**
-   * Hides all the items of the specified model
-   * @modelID ID of the IFC model.
-   */
-  hideAllItems(modelID: number) {
-    this.loader.ifcManager.hideAllItems(modelID);
-  }
-
-  /**
-   * Shows all the items of the specified model
-   * @modelID ID of the IFC model.
-   * @ids Express ID of the elements.
-   */
-  showItems(modelID: number, ids: number[]) {
-    this.loader.ifcManager.showItems(modelID, ids);
-  }
-
-  /**
-   * Shows all the items of the specified model
-   * @modelID ID of the IFC model.
-   */
-  showAllItems(modelID: number) {
-    this.loader.ifcManager.showAllItems(modelID);
-  }
-
-  // TODO: Move to another file, cleanup
-  newMats: { [modelID: number]: Material[] } = {};
-
-  /**
-   * Makes an IFC model translucent
-   * @modelID ID of the IFC model.
-   * @translucent wether to activate or deactivate the translucency.
-   * @opacity the opacity of the translucent material.
-   * @selectable wether the translucent models are selectable with the mouse.
-   */
-  setModelTranslucency(modelID: number, translucent: boolean, opacity = 0.2, selectable = false) {
-    const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
-    if (!model) return;
-    if (Array.isArray(model.material)) {
-      model.material.forEach((material) => {
-        if (material.userData.opacity === undefined) {
-          material.userData = { transparent: material.transparent, opacity: material.opacity };
-        }
-      });
-      if (!this.newMats[modelID]) this.newMats[modelID] = model.material.map((mat) => mat.clone());
-      const newMats = this.newMats[modelID];
-      newMats.forEach((mat) => {
-        mat.opacity = translucent ? opacity : mat.userData.opacity;
-        mat.transparent = translucent ? true : mat.userData.transparent;
-      });
-      model.material = newMats;
-    }
-    if (translucent && !selectable) {
-      const index = this.context.items.pickableIfcModels.indexOf(model);
-      this.context.items.pickableIfcModels.splice(index, 1);
-    } else if (!this.context.items.pickableIfcModels.includes(model)) {
-      this.context.items.pickableIfcModels.push(model);
-    }
-  }
 
   private addIfcModel(ifcMesh: IfcMesh) {
     this.context.items.ifcModels.push(ifcMesh);

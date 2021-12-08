@@ -1,6 +1,6 @@
 {
   "name": "web-ifc-viewer",
-  "version": "1.0.105",
+  "version": "1.0.106",
   "description": "IFC viewer",
   "main": "dist/index.js",
   "scripts": {
@@ -27,19 +27,19 @@
   },
   "homepage": "https://github.com/agviegas/web-ifc-viewer",
   "dependencies": {
-    "@types/dat.gui": "^0.7.7",
     "camera-controls": "^1.33.1",
     "dat.gui": "^0.7.7",
     "gsap": "^3.7.1",
     "postprocessing": "^6.23.1",
-    "three-mesh-bvh": "^0.4.1",
-    "web-ifc": "0.0.28",
-    "web-ifc-three": "^0.0.81"
+    "three-mesh-bvh": "^0.5.2",
+    "web-ifc": "^0.0.30",
+    "web-ifc-three": "^0.0.89"
   },
   "devDependencies": {
+    "@types/dat.gui": "^0.7.7",
     "@types/jest": "^26.0.23",
     "@types/node": "^14.14.31",
-    "@types/three": "^0.131.0",
+    "@types/three": "^0.134.0",
     "@typescript-eslint/eslint-plugin": "^4.27.0",
     "@typescript-eslint/parser": "^4.27.0",
     "cpy-cli": "^3.1.1",
@@ -60,6 +60,6 @@
     "path": false
   },
   "peerDependencies": {
-    "three": "^0.132.2"
+    "three": "^0.135.0"
   }
 }
