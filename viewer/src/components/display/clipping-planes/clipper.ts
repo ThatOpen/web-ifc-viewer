@@ -10,6 +10,7 @@ export class IfcClipper extends IfcComponent {
   orthogonalY = true;
   toleranceOrthogonalY = 0.7;
   planeSize = 5;
+  private edgesEnabled: boolean;
   private enabled: boolean;
   private readonly context: Context;
   private readonly ifc: IfcManager;
@@ -19,6 +20,7 @@ export class IfcClipper extends IfcComponent {
     this.context = context;
     this.ifc = ifc;
     this.enabled = false;
+    this.edgesEnabled = true;
     this.dragging = false;
     this.planes = [];
   }
@@ -34,6 +36,17 @@ export class IfcClipper extends IfcComponent {
       plane.active = state;
     });
     this.updateMaterials();
+  }
+
+  get edgesActive() {
+    return this.edgesEnabled;
+  }
+
+  set edgesActive(state: boolean) {
+    this.edgesEnabled = state;
+    this.planes.forEach((plane) => {
+      plane.edgesActive = state;
+    });
   }
 
   createPlane = () => {
@@ -52,7 +65,8 @@ export class IfcClipper extends IfcComponent {
       normal,
       this.activateDragging,
       this.deactivateDragging,
-      this.planeSize
+      this.planeSize,
+      this.edgesEnabled
     );
     this.planes.push(plane);
     this.context.addClippingPlane(plane.plane);
@@ -137,7 +151,8 @@ export class IfcClipper extends IfcComponent {
       worldNormal,
       this.activateDragging,
       this.deactivateDragging,
-      this.planeSize
+      this.planeSize,
+      this.edgesEnabled
     );
   }
 

@@ -32,7 +32,7 @@ export class IfcScene extends IfcComponent {
     if (index >= 0) this.context.items.ifcModels.splice(index, 1);
     index = this.context.items.pickableIfcModels.indexOf(model);
     if (index >= 0) this.context.items.pickableIfcModels.splice(index, 1);
-    if (model.parent) model.parent.remove(model);
+    if (model.parent) model.removeFromParent();
   }
 
   private setupScene(options?: ViewerOptions) {

@@ -1,6 +1,6 @@
 // @ts-ignore
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
-import { DoubleSide, Material, MeshLambertMaterial } from 'three';
+import { DoubleSide, Material, Matrix4, MeshLambertMaterial } from 'three';
 import { IfcMesh, IfcModel } from 'web-ifc-three/IFC/BaseDefinitions';
 import { IFCLoader } from 'web-ifc-three/IFCLoader';
 import { LoaderSettings } from 'web-ifc';
@@ -58,9 +58,28 @@ export class IfcManager extends IfcComponent {
     onError?: (err: any) => any
   ) {
     try {
+      const firstModel = Boolean(this.context.items.ifcModels.length === 0);
+
+      const settings = this.loader.ifcManager.state.webIfcSettings;
+      const fastBools = settings?.USE_FAST_BOOLS || true;
+      await this.loader.ifcManager.applyWebIfcConfig({
+        COORDINATE_TO_ORIGIN: firstModel,
+        USE_FAST_BOOLS: fastBools
+      });
+
       const ifcModel = (await this.loader.loadAsync(url, onProgress)) as IfcModel;
       this.addIfcModel(ifcModel.mesh);
+
+      if (firstModel) {
+        const matrixArr = await this.loader.ifcManager.ifcAPI.GetCoordinationMatrix(
+          ifcModel.modelID
+        );
+        const matrix = new Matrix4().fromArray(matrixArr);
+        this.loader.ifcManager.setupCoordinationMatrix(matrix);
+      }
+
       if (fitToFrame) this.context.fitToFrame();
+
       return ifcModel;
     } catch (err) {
       console.error('Error loading IFC.');

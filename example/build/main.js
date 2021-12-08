@@ -93614,11 +93614,12 @@
     ClippingEdges.basicEdges = new LineSegments();
 
     class IfcPlane extends IfcComponent {
-        constructor(context, ifc, origin, normal, onStartDragging, onEndDragging, planeSize) {
+        constructor(context, ifc, origin, normal, onStartDragging, onEndDragging, planeSize, edgesEnabled) {
             super(context);
             this.arrowBoundingBox = new Mesh();
             this.visible = true;
             this.active = true;
+            this.edgesActive = true;
             this.removeFromScene = () => {
                 this.helper.removeFromParent();
                 this.arrowBoundingBox.removeFromParent();
@@ -93644,7 +93645,10 @@
             this.setupEvents(onStartDragging, onEndDragging);
             this.plane.setFromNormalAndCoplanarPoint(normal, origin);
             this.edges = new ClippingEdges(this.context, this.plane, ifc);
-            this.edges.updateEdges();
+            this.edgesActive = edgesEnabled;
+            if (this.edgesActive) {
+                this.edges.updateEdges();
+            }
         }
         setVisibility(visible) {
             this.visible = visible;
@@ -93678,7 +93682,8 @@
         setupEvents(onStart, onEnd) {
             this.controls.addEventListener('change', () => {
                 this.plane.setFromNormalAndCoplanarPoint(this.normal, this.helper.position);
-                this.edges.updateEdges();
+                if (this.edgesActive)
+                    this.edges.updateEdges();
             });
             this.controls.addEventListener('dragging-changed', (event) => {
                 this.visible = !event.value;
@@ -93730,7 +93735,7 @@
                 this.intersection = undefined;
             };
             this.createFromNormalAndCoplanarPoint = (normal, point) => {
-                const plane = new IfcPlane(this.context, this.ifc, point, normal, this.activateDragging, this.deactivateDragging, this.planeSize);
+                const plane = new IfcPlane(this.context, this.ifc, point, normal, this.activateDragging, this.deactivateDragging, this.planeSize, this.edgesEnabled);
                 this.planes.push(plane);
                 this.context.addClippingPlane(plane.plane);
                 this.updateMaterials();
@@ -93809,6 +93814,7 @@
             this.context = context;
             this.ifc = ifc;
             this.enabled = false;
+            this.edgesEnabled = true;
             this.dragging = false;
             this.planes = [];
         }
@@ -93822,6 +93828,15 @@
                 plane.active = state;
             });
             this.updateMaterials();
+        }
+        get edgesActive() {
+            return this.edgesEnabled;
+        }
+        set edgesActive(state) {
+            this.edgesEnabled = state;
+            this.planes.forEach((plane) => {
+                plane.edgesActive = state;
+            });
         }
         setPlaneActive(plane, active) {
             plane.active = active;
@@ -93842,7 +93857,7 @@
             }
         }
         newPlane(intersection, worldNormal) {
-            return new IfcPlane(this.context, this.ifc, intersection.point, worldNormal, this.activateDragging, this.deactivateDragging, this.planeSize);
+            return new IfcPlane(this.context, this.ifc, intersection.point, worldNormal, this.activateDragging, this.deactivateDragging, this.planeSize, this.edgesEnabled);
         }
         updateMaterial(mesh, planes) {
             if (!Array.isArray(mesh.material)) {
@@ -93865,20 +93880,27 @@
             return this.fills[name];
         }
         create(name, modelID, ids, material) {
+            if (this.fills[name] !== undefined)
+                throw new Error('The specified fill already exists');
+            material.clippingPlanes = this.context.getClippingPlanes();
+            const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
+            if (!model)
+                throw new Error('The requested model to fill was not found.');
             this.setupMaterial(material);
-            const subset = this.getSubset(modelID, ids, material);
+            const subset = this.getSubset(modelID, ids, material, name);
             if (!subset)
                 return null;
-            this.context.scene.addModel(subset);
+            this.context.items.ifcModels.push(model);
+            this.context.items.pickableIfcModels.push(model);
+            model.add(subset);
             this.fills[name] = subset;
+            // subset.renderOrder = 2;
             return subset;
         }
         delete(name) {
             const subset = this.fills[name];
             delete this.fills[name];
             this.context.scene.removeModel(subset);
-            if (subset.parent)
-                subset.removeFromParent();
             subset.geometry.dispose();
         }
         setupMaterial(material) {
@@ -93888,13 +93910,14 @@
             material.polygonOffsetFactor = -1;
             material.polygonOffsetUnits = 1;
         }
-        getSubset(modelID, ids, material) {
+        getSubset(modelID, ids, material, name) {
             return this.IFC.loader.ifcManager.createSubset({
                 modelID,
                 ids,
                 scene: this.context.getScene(),
                 removePrevious: true,
-                material
+                material,
+                customID: name
             });
         }
     }
@@ -98193,8 +98216,20 @@
          */
         async loadIfcUrl(url, fitToFrame = false, onProgress, onError) {
             try {
+                const firstModel = Boolean(this.context.items.ifcModels.length === 0);
+                const settings = this.loader.ifcManager.state.webIfcSettings;
+                const fastBools = (settings === null || settings === void 0 ? void 0 : settings.USE_FAST_BOOLS) || true;
+                await this.loader.ifcManager.applyWebIfcConfig({
+                    COORDINATE_TO_ORIGIN: firstModel,
+                    USE_FAST_BOOLS: fastBools
+                });
                 const ifcModel = (await this.loader.loadAsync(url, onProgress));
                 this.addIfcModel(ifcModel.mesh);
+                if (firstModel) {
+                    const matrixArr = await this.loader.ifcManager.ifcAPI.GetCoordinationMatrix(ifcModel.modelID);
+                    const matrix = new Matrix4().fromArray(matrixArr);
+                    this.loader.ifcManager.setupCoordinationMatrix(matrix);
+                }
                 if (fitToFrame)
                     this.context.fitToFrame();
                 return ifcModel;
@@ -102199,7 +102234,7 @@
             if (index >= 0)
                 this.context.items.pickableIfcModels.splice(index, 1);
             if (model.parent)
-                model.parent.remove(model);
+                model.removeFromParent();
         }
         setupScene(options) {
             this.scene.background = (options === null || options === void 0 ? void 0 : options.backgroundColor) || this.defaultBackgroundColor;
@@ -112042,11 +112077,11 @@
     viewer.addAxes();
     viewer.addGrid();
     viewer.IFC.setWasmPath('files/');
-    viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-      COORDINATE_TO_ORIGIN: true,
-      USE_FAST_BOOLS: true
-    });
-    viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+    // viewer.IFC.loader.ifcManager.applyWebIfcConfig({
+    //   COORDINATE_TO_ORIGIN: true,
+    //   USE_FAST_BOOLS: true
+    // });
+    // viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
 
     // Setup loader
     let model;
@@ -112082,24 +112117,6 @@
     inputElement.addEventListener('change', loadIfc, false);
     document.body.appendChild(inputElement);
 
-    // viewer.IFC.loadIfcUrl('test.ifc', true);
-
-    // let fill;
-    // async function createFill() {
-    //   const wallsStandard = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
-    //   const walls = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCWALL, false);
-    //   const stairs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCSTAIR, false);
-    //   const columns = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCCOLUMN, false);
-    //   const slabs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCSLAB, false);
-    //   const ids = [...walls, ...wallsStandard, ...columns, ...stairs, ...slabs];
-    //   fill = viewer.fills.create('example', 0, ids, new MeshBasicMaterial({color: 0x888888}));
-    //   fill.renderOrder = 2;
-    //   if(fill) {
-    //     fill.position.y += 0.01;
-    //   }
-      // fill.visible = false;
-    // }
-
     // async function goToFirstFloor() {
     //   await viewer.plans.computeAllPlanViews(0);
     //   const firstFloor = viewer.plans.getAll()[0];
@@ -112123,9 +112140,7 @@
         viewer.removeClippingPlane();
         viewer.dimensions.delete();
       }
-    //   if (event.code === 'KeyO') {
-    //     viewer.context.getIfcCamera().toggleProjection();
-    //   }
+      if (event.code === 'KeyF') ;
     //   if (event.code === 'KeyR') {
     //     viewer.context.renderer.usePostproduction = !viewer.context.renderer.usePostproduction;
     //   }

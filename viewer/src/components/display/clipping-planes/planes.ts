@@ -27,6 +27,7 @@ export class IfcPlane extends IfcComponent {
 
   visible = true;
   active = true;
+  edgesActive = true;
 
   readonly controls: TransformControls;
   public readonly normal: Vector3;
@@ -43,7 +44,8 @@ export class IfcPlane extends IfcComponent {
     normal: Vector3,
     onStartDragging: Function,
     onEndDragging: Function,
-    planeSize: number
+    planeSize: number,
+    edgesEnabled: boolean
   ) {
     super(context);
     this.planeSize = planeSize;
@@ -56,8 +58,12 @@ export class IfcPlane extends IfcComponent {
     this.controls = this.newTransformControls();
     this.setupEvents(onStartDragging, onEndDragging);
     this.plane.setFromNormalAndCoplanarPoint(normal, origin);
+
     this.edges = new ClippingEdges(this.context, this.plane, ifc);
-    this.edges.updateEdges();
+    this.edgesActive = edgesEnabled;
+    if (this.edgesActive) {
+      this.edges.updateEdges();
+    }
   }
 
   setVisibility(visible: boolean) {
@@ -114,7 +120,7 @@ export class IfcPlane extends IfcComponent {
   private setupEvents(onStart: Function, onEnd: Function) {
     this.controls.addEventListener('change', () => {
       this.plane.setFromNormalAndCoplanarPoint(this.normal, this.helper.position);
-      this.edges.updateEdges();
+      if (this.edgesActive) this.edges.updateEdges();
     });
     this.controls.addEventListener('dragging-changed', (event) => {
       this.visible = !event.value;

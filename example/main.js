@@ -3,11 +3,11 @@ import { createSideMenuButton } from './utils/gui-creator';
 import {
   IFCSPACE,
   IFCOPENINGELEMENT,
-  // IFCWALLSTANDARDCASE,
-  // IFCWALL,
-  // IFCSTAIR,
-  // IFCCOLUMN,
-  // IFCSLAB,
+  IFCWALLSTANDARDCASE,
+  IFCWALL,
+  IFCSTAIR,
+  IFCCOLUMN,
+  IFCSLAB,
   // IFCSTAIRFLIGHT,
   // IFCRAILING
 } from 'web-ifc';
@@ -20,11 +20,11 @@ const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255
 viewer.addAxes();
 viewer.addGrid();
 viewer.IFC.setWasmPath('files/');
-viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-  COORDINATE_TO_ORIGIN: true,
-  USE_FAST_BOOLS: true
-});
-viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+// viewer.IFC.loader.ifcManager.applyWebIfcConfig({
+//   COORDINATE_TO_ORIGIN: true,
+//   USE_FAST_BOOLS: true
+// });
+// viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
 
 // Setup loader
 let model;
@@ -63,20 +63,23 @@ document.body.appendChild(inputElement);
 // viewer.IFC.loadIfcUrl('test.ifc', true);
 
 // let fill;
-// async function createFill() {
-//   const wallsStandard = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
-//   const walls = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCWALL, false);
-//   const stairs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCSTAIR, false);
-//   const columns = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCCOLUMN, false);
-//   const slabs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCSLAB, false);
-//   const ids = [...walls, ...wallsStandard, ...columns, ...stairs, ...slabs];
-//   fill = viewer.fills.create('example', 0, ids, new MeshBasicMaterial({color: 0x888888}));
-//   fill.renderOrder = 2;
-//   if(fill) {
-//     fill.position.y += 0.01;
-//   }
+async function createFill() {
+  const wallsStandard = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
+  const walls = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCWALL, false);
+  const stairs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCSTAIR, false);
+  const columns = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCCOLUMN, false);
+  const slabs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCSLAB, false);
+  const ids = [...walls, ...wallsStandard, ...columns, ...stairs, ...slabs];
+  const material = new MeshBasicMaterial({color: 0xffffff});
+  material.polygonOffset = true;
+  material.polygonOffsetFactor = 10;
+  material.polygonOffsetUnits = 1;
+  const fill = viewer.fills.create('example', 0, ids, material);
+  // if(fill) {
+  //   fill.position.y += 0.01;
+  // }
   // fill.visible = false;
-// }
+}
 
 // async function goToFirstFloor() {
 //   await viewer.plans.computeAllPlanViews(0);
@@ -101,9 +104,10 @@ const handleKeyDown = async (event) => {
     viewer.removeClippingPlane();
     viewer.dimensions.delete()
   }
-//   if (event.code === 'KeyO') {
-//     viewer.context.getIfcCamera().toggleProjection();
-//   }
+  if (event.code === 'KeyF') {
+    // createFill();
+
+  }
 //   if (event.code === 'KeyR') {
 //     viewer.context.renderer.usePostproduction = !viewer.context.renderer.usePostproduction;
 //   }
