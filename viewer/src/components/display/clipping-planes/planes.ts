@@ -25,9 +25,12 @@ export class IfcPlane extends IfcComponent {
   readonly plane: Plane;
   readonly planeMesh: Mesh;
 
-  visible = true;
-  active = true;
+  isVisible = true;
+  enabled = true;
   edgesActive = true;
+
+  // Wether this plane is a section or floor plan
+  isPlan = false;
 
   readonly controls: TransformControls;
   public readonly normal: Vector3;
@@ -66,10 +69,31 @@ export class IfcPlane extends IfcComponent {
     }
   }
 
-  setVisibility(visible: boolean) {
-    this.visible = visible;
-    this.helper.visible = visible;
-    this.controls.visible = visible;
+  get active() {
+    return this.enabled;
+  }
+
+  set active(state: boolean) {
+    this.enabled = state;
+    const planes = this.context.getClippingPlanes();
+    this.edges.visible = state;
+    if (state) {
+      planes.push(this.plane);
+    } else {
+      const index = planes.indexOf(this.plane);
+      if (index >= 0) planes.splice(index);
+    }
+  }
+
+  get visible() {
+    return this.isVisible;
+  }
+
+  set visible(state: boolean) {
+    this.isVisible = state;
+    this.controls.visible = state;
+    this.helper.visible = state;
+    this.edges.visible = state;
   }
 
   removeFromScene = () => {
@@ -119,15 +143,19 @@ export class IfcPlane extends IfcComponent {
 
   private setupEvents(onStart: Function, onEnd: Function) {
     this.controls.addEventListener('change', () => {
+      if (!this.enabled) return;
       this.plane.setFromNormalAndCoplanarPoint(this.normal, this.helper.position);
       if (this.edgesActive) this.edges.updateEdges();
     });
+
     this.controls.addEventListener('dragging-changed', (event) => {
-      this.visible = !event.value;
-      this.context.toggleCameraControls(this.visible);
+      if (!this.enabled) return;
+      this.isVisible = !event.value;
+      this.context.toggleCameraControls(this.isVisible);
       if (event.value) onStart();
       else onEnd();
     });
+
     this.context.ifcCamera.currentNavMode.onChangeProjection.on((camera) => {
       this.controls.camera = camera;
     });

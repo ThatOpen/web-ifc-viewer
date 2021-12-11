@@ -32,8 +32,10 @@ export class IfcClipper extends IfcComponent {
   set active(state) {
     this.enabled = state;
     this.planes.forEach((plane) => {
-      plane.setVisibility(state);
-      plane.active = state;
+      if (!plane.isPlan) {
+        plane.visible = state;
+        plane.active = state;
+      }
     });
     this.updateMaterials();
   }
@@ -57,7 +59,7 @@ export class IfcClipper extends IfcComponent {
     this.intersection = undefined;
   };
 
-  createFromNormalAndCoplanarPoint = (normal: Vector3, point: Vector3) => {
+  createFromNormalAndCoplanarPoint = (normal: Vector3, point: Vector3, isPlan = false) => {
     const plane = new IfcPlane(
       this.context,
       this.ifc,
@@ -68,6 +70,7 @@ export class IfcClipper extends IfcComponent {
       this.planeSize,
       this.edgesEnabled
     );
+    plane.isPlan = isPlan;
     this.planes.push(plane);
     this.context.addClippingPlane(plane.plane);
     this.updateMaterials();
@@ -94,11 +97,6 @@ export class IfcClipper extends IfcComponent {
     this.planes = [];
     this.updateMaterials();
   };
-
-  setPlaneActive(plane: IfcPlane, active: boolean) {
-    plane.active = active;
-    this.updateMaterials();
-  }
 
   private pickPlane = () => {
     const planeMeshes = this.planes.map((p) => p.planeMesh);
@@ -166,9 +164,6 @@ export class IfcClipper extends IfcComponent {
 
   private updateMaterials = () => {
     const planes = this.context.getClippingPlanes();
-    planes.length = 0;
-    const active = this.planes.filter((plane) => plane.active).map((plane) => plane.plane);
-    planes.push(...active);
     // Applying clipping to IfcObjects only. This could be improved.
     this.context.items.ifcModels.forEach((obj: Object3D) => {
       const mesh = obj as Mesh;

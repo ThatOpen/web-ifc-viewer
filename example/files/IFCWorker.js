@@ -86807,7 +86807,7 @@ class PropertyWorker {
         if (!this.properties)
             throw new Error(ErrorPropertiesNotAvailable);
         const args = data.args;
-        data.result = await this.properties.getItemProperties(args.modelID, args.elementID, args.recurse);
+        data.result = await this.properties.getItemProperties(args.modelID, args.elementID, args.recursive);
         this.worker.post(data);
     }
     async getMaterialsProperties(data) {

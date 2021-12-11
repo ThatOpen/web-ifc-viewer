@@ -7,6 +7,7 @@ import { LoaderSettings } from 'web-ifc';
 import { IfcComponent, Context } from '../../base-types';
 import { IfcSelection } from './selection';
 import { VisibilityManager } from './visibility-manager';
+import { IfcUnits } from './units';
 
 export class IfcManager extends IfcComponent {
   loader: IFCLoader;
@@ -14,6 +15,7 @@ export class IfcManager extends IfcComponent {
   preselection: IfcSelection;
   selection: IfcSelection;
   highlight: IfcSelection;
+  units: IfcUnits;
   private readonly context: Context;
   private readonly defPreselectMat: Material;
   private readonly defSelectMat: Material;
@@ -31,6 +33,7 @@ export class IfcManager extends IfcComponent {
     this.preselection = new IfcSelection(context, this.loader, this.defPreselectMat);
     this.selection = new IfcSelection(context, this.loader, this.defSelectMat);
     this.highlight = new IfcSelection(context, this.loader, this.defHighlightMat);
+    this.units = new IfcUnits(this);
   }
 
   /**
@@ -62,6 +65,7 @@ export class IfcManager extends IfcComponent {
 
       const settings = this.loader.ifcManager.state.webIfcSettings;
       const fastBools = settings?.USE_FAST_BOOLS || true;
+
       await this.loader.ifcManager.applyWebIfcConfig({
         COORDINATE_TO_ORIGIN: firstModel,
         USE_FAST_BOOLS: fastBools

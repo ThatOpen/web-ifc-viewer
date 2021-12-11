@@ -19,6 +19,7 @@ import {
   IFCMEMBER,
   IFCPLATE,
   IFCSLAB,
+  IFCSTAIRFLIGHT,
   IFCWALL,
   IFCWALLSTANDARDCASE,
   IFCWINDOW
@@ -46,15 +47,13 @@ export interface EdgesItems {
 }
 
 export class ClippingEdges {
-  edges: EdgesItems = {};
-
   static readonly styles: StyleList = {};
-
   private static invisibleMaterial = new MeshBasicMaterial({ visible: false });
   private static defaultMaterial = new LineMaterial({ color: 0x000000, linewidth: 0.001 });
-
   // Helpers
   private static readonly basicEdges = new LineSegments();
+  edges: EdgesItems = {};
+  private isVisible = true;
   private inverseMatrix = new Matrix4();
   private localPlane = new Plane();
   private tempLine = new Line3();
@@ -62,6 +61,29 @@ export class ClippingEdges {
 
   constructor(private context: Context, private clippingPlane: Plane, public ifc: IfcManager) {
     this.createDefaultStyles();
+  }
+
+  get visible() {
+    return this.isVisible;
+  }
+
+  set visible(visible: boolean) {
+    this.isVisible = visible;
+    const allEdges = Object.values(this.edges);
+    allEdges.forEach((edges) => {
+      edges.mesh.visible = visible;
+    });
+    if (visible) this.updateEdges();
+  }
+
+  // Initializes the helper geometry used to compute the vertices
+  private static newGeneratorGeometry() {
+    // create line geometry with enough data to hold 100000 segments
+    const generatorGeometry = new BufferGeometry();
+    const linePosAttr = new BufferAttribute(new Float32Array(300000), 3, false);
+    linePosAttr.setUsage(DynamicDrawUsage);
+    generatorGeometry.setAttribute('position', linePosAttr);
+    return generatorGeometry;
   }
 
   remove() {
@@ -113,7 +135,7 @@ export class ClippingEdges {
     if (Object.keys(ClippingEdges.styles).length === 0) {
       await this.newStyle(
         'thick',
-        [IFCWALLSTANDARDCASE, IFCWALL, IFCSLAB],
+        [IFCWALLSTANDARDCASE, IFCWALL, IFCSLAB, IFCSTAIRFLIGHT],
         new LineMaterial({ color: 0x000000, linewidth: 0.0015 })
       );
 
@@ -123,16 +145,6 @@ export class ClippingEdges {
         new LineMaterial({ color: 0x333333, linewidth: 0.001 })
       );
     }
-  }
-
-  // Initializes the helper geometry used to compute the vertices
-  private static newGeneratorGeometry() {
-    // create line geometry with enough data to hold 100000 segments
-    const generatorGeometry = new BufferGeometry();
-    const linePosAttr = new BufferAttribute(new Float32Array(300000), 3, false);
-    linePosAttr.setUsage(DynamicDrawUsage);
-    generatorGeometry.setAttribute('position', linePosAttr);
-    return generatorGeometry;
   }
 
   // Creates a new subset. This allows to apply a style just to a specific set of items

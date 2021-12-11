@@ -93446,11 +93446,33 @@
             this.clippingPlane = clippingPlane;
             this.ifc = ifc;
             this.edges = {};
+            this.isVisible = true;
             this.inverseMatrix = new Matrix4();
             this.localPlane = new Plane();
             this.tempLine = new Line3();
             this.tempVector = new Vector3();
             this.createDefaultStyles();
+        }
+        get visible() {
+            return this.isVisible;
+        }
+        set visible(visible) {
+            this.isVisible = visible;
+            const allEdges = Object.values(this.edges);
+            allEdges.forEach((edges) => {
+                edges.mesh.visible = visible;
+            });
+            if (visible)
+                this.updateEdges();
+        }
+        // Initializes the helper geometry used to compute the vertices
+        static newGeneratorGeometry() {
+            // create line geometry with enough data to hold 100000 segments
+            const generatorGeometry = new BufferGeometry();
+            const linePosAttr = new BufferAttribute(new Float32Array(300000), 3, false);
+            linePosAttr.setUsage(DynamicDrawUsage);
+            generatorGeometry.setAttribute('position', linePosAttr);
+            return generatorGeometry;
         }
         remove() {
             const edges = Object.values(this.edges);
@@ -93489,18 +93511,9 @@
         // Creates some basic styles so that users don't have to create it each time
         async createDefaultStyles() {
             if (Object.keys(ClippingEdges.styles).length === 0) {
-                await this.newStyle('thick', [IFCWALLSTANDARDCASE, IFCWALL, IFCSLAB], new LineMaterial({ color: 0x000000, linewidth: 0.0015 }));
+                await this.newStyle('thick', [IFCWALLSTANDARDCASE, IFCWALL, IFCSLAB, IFCSTAIRFLIGHT], new LineMaterial({ color: 0x000000, linewidth: 0.0015 }));
                 await this.newStyle('thin', [IFCWINDOW, IFCPLATE, IFCMEMBER, IFCDOOR, IFCFURNISHINGELEMENT], new LineMaterial({ color: 0x333333, linewidth: 0.001 }));
             }
-        }
-        // Initializes the helper geometry used to compute the vertices
-        static newGeneratorGeometry() {
-            // create line geometry with enough data to hold 100000 segments
-            const generatorGeometry = new BufferGeometry();
-            const linePosAttr = new BufferAttribute(new Float32Array(300000), 3, false);
-            linePosAttr.setUsage(DynamicDrawUsage);
-            generatorGeometry.setAttribute('position', linePosAttr);
-            return generatorGeometry;
         }
         // Creates a new subset. This allows to apply a style just to a specific set of items
         async newSubset(styleName, modelID, categories) {
@@ -93617,9 +93630,11 @@
         constructor(context, ifc, origin, normal, onStartDragging, onEndDragging, planeSize, edgesEnabled) {
             super(context);
             this.arrowBoundingBox = new Mesh();
-            this.visible = true;
-            this.active = true;
+            this.isVisible = true;
+            this.enabled = true;
             this.edgesActive = true;
+            // Wether this plane is a section or floor plan
+            this.isPlan = false;
             this.removeFromScene = () => {
                 this.helper.removeFromParent();
                 this.arrowBoundingBox.removeFromParent();
@@ -93650,10 +93665,30 @@
                 this.edges.updateEdges();
             }
         }
-        setVisibility(visible) {
-            this.visible = visible;
-            this.helper.visible = visible;
-            this.controls.visible = visible;
+        get active() {
+            return this.enabled;
+        }
+        set active(state) {
+            this.enabled = state;
+            const planes = this.context.getClippingPlanes();
+            this.edges.visible = state;
+            if (state) {
+                planes.push(this.plane);
+            }
+            else {
+                const index = planes.indexOf(this.plane);
+                if (index >= 0)
+                    planes.splice(index);
+            }
+        }
+        get visible() {
+            return this.isVisible;
+        }
+        set visible(state) {
+            this.isVisible = state;
+            this.controls.visible = state;
+            this.helper.visible = state;
+            this.edges.visible = state;
         }
         newTransformControls() {
             const camera = this.context.getCamera();
@@ -93681,13 +93716,17 @@
         }
         setupEvents(onStart, onEnd) {
             this.controls.addEventListener('change', () => {
+                if (!this.enabled)
+                    return;
                 this.plane.setFromNormalAndCoplanarPoint(this.normal, this.helper.position);
                 if (this.edgesActive)
                     this.edges.updateEdges();
             });
             this.controls.addEventListener('dragging-changed', (event) => {
-                this.visible = !event.value;
-                this.context.toggleCameraControls(this.visible);
+                if (!this.enabled)
+                    return;
+                this.isVisible = !event.value;
+                this.context.toggleCameraControls(this.isVisible);
                 if (event.value)
                     onStart();
                 else
@@ -93734,8 +93773,9 @@
                 this.createPlaneFromIntersection(intersects);
                 this.intersection = undefined;
             };
-            this.createFromNormalAndCoplanarPoint = (normal, point) => {
+            this.createFromNormalAndCoplanarPoint = (normal, point, isPlan = false) => {
                 const plane = new IfcPlane(this.context, this.ifc, point, normal, this.activateDragging, this.deactivateDragging, this.planeSize, this.edgesEnabled);
+                plane.isPlan = isPlan;
                 this.planes.push(plane);
                 this.context.addClippingPlane(plane.plane);
                 this.updateMaterials();
@@ -93799,9 +93839,6 @@
             };
             this.updateMaterials = () => {
                 const planes = this.context.getClippingPlanes();
-                planes.length = 0;
-                const active = this.planes.filter((plane) => plane.active).map((plane) => plane.plane);
-                planes.push(...active);
                 // Applying clipping to IfcObjects only. This could be improved.
                 this.context.items.ifcModels.forEach((obj) => {
                     const mesh = obj;
@@ -93824,8 +93861,10 @@
         set active(state) {
             this.enabled = state;
             this.planes.forEach((plane) => {
-                plane.setVisibility(state);
-                plane.active = state;
+                if (!plane.isPlan) {
+                    plane.visible = state;
+                    plane.active = state;
+                }
             });
             this.updateMaterials();
         }
@@ -93837,10 +93876,6 @@
             this.planes.forEach((plane) => {
                 plane.edgesActive = state;
             });
-        }
-        setPlaneActive(plane, active) {
-            plane.active = active;
-            this.updateMaterials();
         }
         normalizePlaneDirectionY(normal) {
             if (this.orthogonalY) {
@@ -93922,13 +93957,62 @@
         }
     }
 
+    var UnitType;
+    (function (UnitType) {
+        UnitType["LENGTHUNIT"] = "LENGTHUNIT";
+        UnitType["AREAUNIT"] = "AREAUNIT";
+        UnitType["VOLUMEUNIT"] = "VOLUMEUNIT";
+    })(UnitType || (UnitType = {}));
+    const UnitScale = {
+        MILLI: 0.001,
+        CENTI: 0.01,
+        DECI: 0.1,
+        NONE: 1,
+        DECA: 10,
+        HECTO: 100,
+        KILO: 1000
+    };
+    class IfcUnits {
+        constructor(ifc) {
+            this.allUnits = {};
+            this.ifc = ifc;
+        }
+        async getUnits(modelID, type) {
+            if (!this.allUnits[modelID]) {
+                await this.getUnitsOfModel(modelID);
+            }
+            return this.allUnits[modelID][type];
+        }
+        async getUnitsOfModel(modelID) {
+            this.allUnits[modelID] = {};
+            const foundUnitsID = await this.ifc.getAllItemsOfType(modelID, IFCUNITASSIGNMENT, false);
+            const unitsID = foundUnitsID[0];
+            const unitReference = await this.ifc.getProperties(modelID, unitsID, false, true);
+            const units = unitReference.Units;
+            Object.values(UnitType).forEach((value) => {
+                const foundUnit = units.find((item) => item.UnitType && item.UnitType.value === value);
+                if (foundUnit) {
+                    const prefix = foundUnit.Prefix;
+                    let scale;
+                    if (prefix === null)
+                        scale = UnitScale.NONE;
+                    else
+                        scale = UnitScale[prefix.value];
+                    this.allUnits[modelID][value] = scale;
+                }
+            });
+        }
+    }
+
     class PlanManager {
         constructor(ifc, context, clipper) {
             this.ifc = ifc;
             this.context = context;
             this.clipper = clipper;
-            this.plans = {};
+            this.planLists = {};
             this.active = false;
+            this.defaultSectionOffset = 1.5;
+            this.defaultCameraOffset = 30;
             this.previousCamera = new Vector3();
             this.previousTarget = new Vector3();
             this.previousProjection = CameraProjections.Perspective;
@@ -93936,36 +94020,48 @@
             this.sectionFill = new Mesh();
         }
         getAll() {
-            return Object.keys(this.plans);
+            return Object.keys(this.planLists);
         }
         create(config) {
-            if (this.plans[config.name] !== undefined)
-                return;
-            const { name, camera, target } = config;
+            // if (this.planList[config.name] !== undefined) return;
+            const { modelID, name, camera, target } = config;
             const ortho = config.ortho || true;
-            this.plans[config.name] = { name, camera, target, ortho };
+            if (this.planLists[modelID] === undefined) {
+                this.planLists[modelID] = {};
+            }
+            const currentPlanlist = this.planLists[modelID];
+            if (currentPlanlist[name])
+                return;
+            currentPlanlist[name] = { modelID, name, camera, target, ortho };
             if (config.normal && config.point) {
                 const { normal, point } = config;
-                const plane = this.clipper.createFromNormalAndCoplanarPoint(normal, point);
-                plane.setVisibility(false);
-                this.clipper.setPlaneActive(plane, false);
-                this.plans[name].plane = plane;
+                const plane = this.clipper.createFromNormalAndCoplanarPoint(normal, point, true);
+                plane.visible = false;
+                plane.active = false;
+                currentPlanlist[name].plane = plane;
             }
         }
-        async goTo(name, animate = false) {
-            var _a;
-            if (this.plans[name] === undefined)
-                throw new Error('The specified plan is undefined!');
-            const plane = (_a = this.currentPlan) === null || _a === void 0 ? void 0 : _a.plane;
-            if (plane)
-                this.clipper.setPlaneActive(plane, false);
+        async goTo(modelID, name, animate = false) {
+            var _a, _b;
+            if (((_a = this.currentPlan) === null || _a === void 0 ? void 0 : _a.modelID) === modelID && this.currentPlan.name === name)
+                return;
             if (!this.active) {
                 this.context.getCamera().getWorldPosition(this.previousCamera);
                 this.context.ifcCamera.cameraControls.getTarget(this.previousTarget);
                 this.previousProjection = this.context.ifcCamera.projection;
             }
             this.active = true;
-            this.currentPlan = this.plans[name];
+            if (this.planLists[modelID] === undefined)
+                throw new Error('The specified plan is undefined!');
+            const currentPlanList = this.planLists[modelID];
+            if (currentPlanList[name] === undefined)
+                throw new Error('The specified plan is undefined!');
+            const plane = (_b = this.currentPlan) === null || _b === void 0 ? void 0 : _b.plane;
+            if (plane)
+                plane.active = false;
+            if (!currentPlanList[name])
+                return;
+            this.currentPlan = currentPlanList[name];
             const { x, y, z } = this.currentPlan.camera;
             const target = this.currentPlan.target;
             this.context.ifcCamera.setNavigationMode(NavigationModes.Plan);
@@ -93974,35 +94070,45 @@
                 : CameraProjections.Perspective;
             this.context.ifcCamera.projection = mode;
             if (this.currentPlan.plane) {
-                this.clipper.setPlaneActive(this.currentPlan.plane, true);
+                this.currentPlan.plane.active = true;
             }
             await this.context.ifcCamera.cameraControls.setLookAt(x, y, z, target.z, target.y, target.z, animate);
         }
         exitPlanView(animate = false) {
+            if (!this.active)
+                return;
+            this.active = false;
             this.context.ifcCamera.setNavigationMode(NavigationModes.Orbit);
             this.context.ifcCamera.projection = this.previousProjection;
-            this.active = false;
             if (this.currentPlan && this.currentPlan.plane) {
-                this.clipper.setPlaneActive(this.currentPlan.plane, false);
+                this.currentPlan.plane.active = false;
             }
             this.currentPlan = undefined;
             this.context.ifcCamera.cameraControls.setLookAt(this.previousCamera.x, this.previousCamera.y, this.previousCamera.z, this.previousTarget.x, this.previousTarget.y, this.previousTarget.z, animate);
         }
         async computeAllPlanViews(modelID) {
-            if (this.storeys.length === 0) {
-                const foundStoreys = await this.ifc.getAllItemsOfType(modelID, IFCBUILDINGSTOREY, true);
-                this.storeys.push(...foundStoreys);
+            if (!this.storeys[modelID]) {
+                this.storeys[modelID] = await this.ifc.getAllItemsOfType(modelID, IFCBUILDINGSTOREY, true);
             }
-            const center = this.context.getCenter(this.context.items.ifcModels[modelID]);
-            this.storeys.forEach((storey) => {
-                let elevation = storey.Elevation.value;
-                if (elevation > 100 || elevation < -100)
-                    elevation /= 1000; // very very dirty trick
+            const allBuildingsIDs = await this.ifc.getAllItemsOfType(modelID, IFCBUILDING, false);
+            const buildingID = allBuildingsIDs[0];
+            const building = await this.ifc.getProperties(modelID, buildingID, false, true);
+            const unitsScale = await this.ifc.units.getUnits(modelID, UnitType.LENGTHUNIT);
+            // const buildingPlace = building.ObjectPlacement.Location;
+            // const buildingCoords = buildingPlace.Coordinates.map((coord: any) => coord.value * unitsScale);
+            const sitePlace = building.ObjectPlacement.PlacementRelTo.RelativePlacement.Location;
+            const siteCoords = sitePlace.Coordinates.map((coord) => coord.value);
+            const transformMatrix = await this.ifc.loader.ifcManager.ifcAPI.GetCoordinationMatrix(modelID);
+            const transformHeight = transformMatrix[13];
+            this.storeys[modelID].forEach((storey) => {
+                const baseHeight = storey.Elevation.value;
+                const elevation = (baseHeight + siteCoords[2]) * unitsScale + transformHeight;
                 this.create({
+                    modelID,
                     name: storey.LongName.value,
                     target: new Vector3(0, 0, 0),
-                    camera: new Vector3(0, elevation + 30, 0),
-                    point: new Vector3(center.x, elevation + 1, center.z),
+                    camera: new Vector3(0, elevation + this.defaultCameraOffset, 0),
+                    point: new Vector3(0, elevation + this.defaultSectionOffset, 0),
                     normal: new Vector3(0, -1, 0),
                     rotation: 0,
                     ortho: true
@@ -95308,10 +95414,11 @@
 
     class SubsetCreator {
 
-      constructor(state, items, subsets) {
+      constructor(state, items, subsets, BVH) {
         this.state = state;
         this.items = items;
         this.subsets = subsets;
+        this.BVH = BVH;
         this.tempIndex = [];
       }
 
@@ -95325,6 +95432,9 @@
         config.ids.forEach(id => this.subsets[subsetID].ids.add(id));
         this.subsets[subsetID].mesh.geometry.setIndex(this.tempIndex);
         this.tempIndex.length = 0;
+        const subset = this.subsets[subsetID].mesh;
+        if (config.applyBVH)
+          this.BVH.applyThreeMeshBVH(subset.geometry);
         return this.subsets[subsetID].mesh;
       }
 
@@ -95335,9 +95445,12 @@
         if (!config.material)
           this.initializeSubsetGroups(subsetGeom, model);
         const mesh = new Mesh(subsetGeom, config.material || model.material);
+        mesh.modelID = config.modelID;
+        const bvh = Boolean(config.applyBVH);
         this.subsets[subsetID] = {
           ids: new Set(),
-          mesh
+          mesh,
+          bvh
         };
         model.add(mesh);
       }
@@ -95417,106 +95530,6 @@
 
     }
 
-    class SubsetItemsRemover {
-
-      constructor(state, items, subsets) {
-        this.state = state;
-        this.items = items;
-        this.subsets = subsets;
-      }
-
-      removeFromSubset(modelID, ids, subsetID, customID, material) {
-        if (!this.subsets[subsetID])
-          return;
-        ids = this.filterIndices(subsetID, ids);
-        if (ids.length === 0)
-          return;
-        const geometry = this.getGeometry(subsetID);
-        let previous = {
-          indices: Array.from(geometry.index.array).toString()
-        };
-        this.subtractIndicesByMaterial(modelID, subsetID, ids, previous, material != undefined);
-        this.updateIndices(subsetID, previous);
-        this.updateIDs(subsetID, ids);
-      }
-
-      getGeometry(subsetID) {
-        const geometry = this.subsets[subsetID].mesh.geometry;
-        if (!geometry.index)
-          throw new Error('The subset is not indexed');
-        return geometry;
-      }
-
-      filterIndices(subsetID, ids) {
-        const previousIDs = this.subsets[subsetID].ids;
-        return ids.filter(id => previousIDs.has(id));
-      }
-
-      subtractIndicesByMaterial(modelID, subsetID, ids, previous, material) {
-        let removedIndices = {
-          amount: 0
-        };
-        const model = this.state.models[modelID].mesh;
-        for (let i = 0; i < model.geometry.groups.length; i++) {
-          const items = this.items.map[modelID];
-          const indicesByGroup = SubsetUtils.getAllIndicesOfGroup(modelID, ids, i, items, false);
-          this.removeIndices(indicesByGroup, previous);
-          this.cleanUpResult(previous);
-          if (!material)
-            this.updateGroups(subsetID, i, removedIndices, indicesByGroup);
-        }
-      }
-
-      removeIndices(indicesByGroup, previous) {
-        const indicesStringByGroup = indicesByGroup.map(indices => indices.toString());
-        indicesStringByGroup.forEach(indices => {
-          if (previous.indices.includes(indices))
-            previous.indices = previous.indices.replace(indices, '');
-        });
-      }
-
-      cleanUpResult(previous) {
-        const commaAtStart = /^,/;
-        const commaAtEnd = /,$/;
-        if (commaAtStart.test(previous.indices))
-          previous.indices = previous.indices.replace(commaAtStart, '');
-        if (commaAtEnd.test(previous.indices))
-          previous.indices = previous.indices.replace(commaAtEnd, '');
-        if (previous.indices.includes(',,'))
-          previous.indices = previous.indices.replace(',,', ',');
-      }
-
-      updateGroups(subsetID, index, removedIndices, indicesByGroup) {
-        const geometry = this.getGeometry(subsetID);
-        const currentGroup = geometry.groups[index];
-        currentGroup.start -= removedIndices.amount;
-        let removedIndicesAmount = 0;
-        indicesByGroup.forEach(indices => removedIndicesAmount += indices.length);
-        currentGroup.count -= removedIndicesAmount;
-        removedIndices.amount += removedIndicesAmount;
-      }
-
-      updateIndices(subsetID, previous) {
-        const geometry = this.getGeometry(subsetID);
-        const noIndicesFound = previous.indices.length === 0;
-        let parsedIndices = noIndicesFound ? [] : this.parseIndices(previous);
-        geometry.setIndex(parsedIndices);
-      }
-
-      updateIDs(subsetID, ids) {
-        const subset = this.subsets[subsetID];
-        ids.forEach(id => {
-          if (subset.ids.has(id))
-            subset.ids.delete(id);
-        });
-      }
-
-      parseIndices(previous) {
-        return previous.indices.split(',').map((text) => parseInt(text, 10));
-      }
-
-    }
-
     class SubsetManager {
 
       constructor(state, BVH) {
@@ -95524,8 +95537,7 @@
         this.state = state;
         this.items = new ItemsMap(state);
         this.BVH = BVH;
-        this.subsetCreator = new SubsetCreator(state, this.items, this.subsets);
-        this.subsetItemsRemover = new SubsetItemsRemover(state, this.items, this.subsets);
+        this.subsetCreator = new SubsetCreator(state, this.items, this.subsets, this.BVH);
       }
 
       getSubset(modelID, material, customId) {
@@ -95554,7 +95566,22 @@
 
       removeFromSubset(modelID, ids, customID, material) {
         const subsetID = this.getSubsetID(modelID, material, customID);
-        this.subsetItemsRemover.removeFromSubset(modelID, ids, subsetID, customID, material);
+        if (!this.subsets[subsetID])
+          return;
+        const previousIDs = this.subsets[subsetID].ids;
+        ids.forEach((id) => {
+          if (previousIDs.has(id))
+            previousIDs.delete(id);
+        });
+        return this.createSubset({
+          modelID,
+          removePrevious: true,
+          material,
+          customID,
+          applyBVH: this.subsets[subsetID].bvh,
+          ids: Array.from(previousIDs),
+          scene: this.subsets[subsetID].mesh.parent
+        });
       }
 
       getSubsetID(modelID, material, customID = 'DEFAULT') {
@@ -98196,6 +98223,7 @@
             this.preselection = new IfcSelection(context, this.loader, this.defPreselectMat);
             this.selection = new IfcSelection(context, this.loader, this.defSelectMat);
             this.highlight = new IfcSelection(context, this.loader, this.defHighlightMat);
+            this.units = new IfcUnits(this);
         }
         /**
          * Loads the given IFC in the current scene.
@@ -107639,11 +107667,23 @@
             return this.ifcAnimator;
         }
         getCenter(mesh) {
-            var _a;
-            const center = new Vector3();
             mesh.geometry.computeBoundingBox();
-            (_a = mesh.geometry.boundingBox) === null || _a === void 0 ? void 0 : _a.getCenter(center);
-            return center;
+            if (!mesh.geometry.index)
+                return new Vector3();
+            const indices = mesh.geometry.index.array;
+            const position = mesh.geometry.attributes.position;
+            const threshold = 20;
+            let xCoords = 0;
+            let yCoords = 0;
+            let zCoords = 0;
+            let counter = 0;
+            for (let i = 0; i < indices.length || i < threshold; i++) {
+                xCoords += position.getX(indices[i]);
+                yCoords += position.getY(indices[i]);
+                zCoords += position.getZ(indices[i]);
+                counter++;
+            }
+            return new Vector3(xCoords / counter, yCoords / counter, zCoords / counter);
         }
         addComponent(component) {
             this.items.components.push(component);
@@ -112077,13 +112117,14 @@
     viewer.addAxes();
     viewer.addGrid();
     viewer.IFC.setWasmPath('files/');
-    // viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-    //   COORDINATE_TO_ORIGIN: true,
-    //   USE_FAST_BOOLS: true
-    // });
-    // viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+
+    viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
 
     // Setup loader
+
+    const lineMaterial = new LineBasicMaterial({color: 0x000000});
+    const baseMaterial = new MeshBasicMaterial({color: 0xffffff, side: 2});
+
     let model;
     const loadIfc = async (event) => {
       const overlay = document.getElementById('loading-overlay');
@@ -112105,8 +112146,9 @@
       model = await viewer.IFC.loadIfc(event.target.files[0], true);
       model.material.forEach(mat => mat.side = 2);
 
-      // createFill();
-      // viewer.edges.create("01", 0, new LineBasicMaterial({color: 0x000000}), new MeshBasicMaterial({color: 0xffffff, side: 2}));
+      // createFill(model.modelID);
+
+      viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
 
       overlay.classList.add('hidden');
     };
@@ -112116,23 +112158,25 @@
     inputElement.classList.add('hidden');
     inputElement.addEventListener('change', loadIfc, false);
     document.body.appendChild(inputElement);
-
-    // async function goToFirstFloor() {
-    //   await viewer.plans.computeAllPlanViews(0);
-    //   const firstFloor = viewer.plans.getAll()[0];
-    //   await viewer.plans.goTo(firstFloor);
+    // async function createFill(modelID) {
+      // const wallsStandard = await viewer.IFC.loader.ifcManager.getAllItemsOfType(modelID, IFCWALLSTANDARDCASE, false);
+      // const walls = await viewer.IFC.loader.ifcManager.getAllItemsOfType(modelID, IFCWALL, false);
+      // const stairs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(modelID, IFCSTAIR, false);
+      // const columns = await viewer.IFC.loader.ifcManager.getAllItemsOfType(modelID, IFCCOLUMN, false);
+      // const slabs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(modelID, IFCSLAB, false);
+      // const ids = [...walls, ...wallsStandard, ...columns, ...stairs, ...slabs];
+      // const material = new MeshBasicMaterial({color: 0x555555});
+      // material.polygonOffset = true;
+      // material.polygonOffsetFactor = 10;
+      // material.polygonOffsetUnits = 1;
+      // fills.push(viewer.fills.create(`${modelID}`, modelID, ids, material));
+      // if(fill) {
+      //   fill.position.y += 0.01;
+      // }
+      // fill.visible = false;
     // }
 
-    // async function getSubset() {
-    //   const ifcProject = await viewer.IFC.getSpatialStructure(0, false);
-    //   const currentFloor = ifcProject.children[0].children[0].children[2].children.map(child => child.expressID);
-    //   const scene = viewer.context.getScene();
-    //   const stairs = await viewer.IFC.getAllItemsOfType(0, IFCSTAIRFLIGHT);
-    //   const rails = await viewer.IFC.getAllItemsOfType(0, IFCRAILING);
-    //   const walls = (await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE)).filter(wall => currentFloor.includes(wall));
-    //   const rareWalls = (await viewer.IFC.getAllItemsOfType(0, IFCWALL)).filter(wall => currentFloor.includes(wall));
-    //   return viewer.IFC.loader.ifcManager.createSubset({modelID: 0, ids: [...stairs, ...rails, ...walls, ...rareWalls], scene, removePrevious: true});
-    // }
+    let counter = 0;
 
     // let subset;
     const handleKeyDown = async (event) => {
@@ -112140,32 +112184,35 @@
         viewer.removeClippingPlane();
         viewer.dimensions.delete();
       }
-      if (event.code === 'KeyF') ;
-    //   if (event.code === 'KeyR') {
-    //     viewer.context.renderer.usePostproduction = !viewer.context.renderer.usePostproduction;
-    //   }
-    //   if(event.code === 'KeyD') {
-    //     if(!subset) subset = await getSubset();
-    //     const model = viewer.context.items.ifcModels[0];
-    //     const scene = viewer.context.getScene();
-    //     const camera = viewer.context.getCamera();
-    //     const renderer = viewer.context.getRenderer();
-    //     exportDXF(model, scene, camera, renderer, subset);
-    //   }
-    //   if(event.code === 'KeyP') {
-    //     if(!subset) subset = await getSubset();
-    //     exportPDF(subset);
-    //   }
-    //   if (event.code === 'KeyC') {
-    //     await createFill();
-    //     // await goToFirstFloor();
-    //     // viewer.edges.toggle("01");
-    //   }
-    //   if (event.code === 'KeyE') {
-    //     viewer.plans.exitPlanView(true);
-    //     viewer.edges.toggle("01");
-    //     fill.visible = false;
-    //   }
+      if (event.code === 'KeyF') {
+        viewer.plans.computeAllPlanViews(0);
+      }
+      if (event.code === 'KeyR') {
+        const planNames = Object.keys(viewer.plans.planLists[0]);
+        if(!planNames[counter]) return;
+        const current = planNames[counter];
+        viewer.plans.goTo(0, current, true);
+        viewer.edges.toggle("0");
+        // if(!fillPosition) fillPosition = {original: fills[0].position.y, offset: fills[0].position.y + 0.01}
+        // fills.forEach(fill => fill.position.y = fillPosition.offset);
+      }
+      if(event.code === 'KeyP') {
+        counter++;
+      }
+      if(event.code === 'KeyO') {
+        counter--;
+      }
+      if (event.code === 'KeyC') {
+        viewer.context.ifcCamera.toggleProjection();
+      }
+      if (event.code === 'KeyE') {
+        viewer.plans.exitPlanView(true);
+        viewer.edges.toggle("0");
+        // if(!fillPosition) fillPosition = {original: fills[0].position.y, offset: fills[0].position.y + 0.04}
+        // fills.forEach(fill => fill.position.y = fillPosition.original);
+        // viewer.edges.toggle("01");
+        // fill.visible = false;
+      }
     };
 
     window.onmousemove = viewer.IFC.prePickIfcItem;

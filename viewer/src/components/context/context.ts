@@ -84,10 +84,25 @@ export class IfcContext implements Context {
   }
 
   getCenter(mesh: Mesh) {
-    const center = new Vector3();
     mesh.geometry.computeBoundingBox();
-    mesh.geometry.boundingBox?.getCenter(center);
-    return center;
+    if (!mesh.geometry.index) return new Vector3();
+    const indices = mesh.geometry.index.array;
+    const position = mesh.geometry.attributes.position;
+
+    const threshold = 20;
+    let xCoords = 0;
+    let yCoords = 0;
+    let zCoords = 0;
+    let counter = 0;
+
+    for (let i = 0; i < indices.length || i < threshold; i++) {
+      xCoords += position.getX(indices[i]);
+      yCoords += position.getY(indices[i]);
+      zCoords += position.getZ(indices[i]);
+      counter++;
+    }
+
+    return new Vector3(xCoords / counter, yCoords / counter, zCoords / counter);
   }
 
   addComponent(component: IfcComponent) {
