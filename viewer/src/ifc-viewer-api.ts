@@ -10,10 +10,10 @@ import {
   IfcStats,
   Edges,
   SectionFillManager,
-  IfcDimensions
+  IfcDimensions,
+  PlanManager
 } from './components';
 import { GLTFManager } from './components/import-export/glTF';
-import { PlanManager } from './components/display/plans/plan-manager';
 import { ShadowDropper } from './components/display/shadow-dropper';
 import { DXFWriter } from './components/import-export/dxf';
 import { PDFWriter } from './components/import-export/pdf';
