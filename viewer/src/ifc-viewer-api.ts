@@ -14,6 +14,9 @@ import {
 } from './components';
 import { GLTFManager } from './components/import-export/glTF';
 import { PlanManager } from './components/display/plans/plan-manager';
+import { ShadowDropper } from './components/display/shadow-dropper';
+import { DXFWriter } from './components/import-export/dxf';
+import { PDFWriter } from './components/import-export/pdf';
 
 export class IfcViewerAPI {
   public context: IfcContext;
@@ -23,6 +26,9 @@ export class IfcViewerAPI {
   fills: SectionFillManager;
   dimensions: IfcDimensions;
   edges: Edges;
+  shadowDropper: ShadowDropper;
+  dxf: DXFWriter;
+  pdf: PDFWriter;
   gltf: GLTFManager;
   stats?: IfcStats;
   grid?: IfcGrid;
@@ -38,6 +44,9 @@ export class IfcViewerAPI {
     this.fills = new SectionFillManager(this.IFC, this.context);
     this.dimensions = new IfcDimensions(this.context);
     this.edges = new Edges(this.context);
+    this.shadowDropper = new ShadowDropper(this.context, this.IFC);
+    this.dxf = new DXFWriter();
+    this.pdf = new PDFWriter();
     this.gltf = new GLTFManager(this.context);
   }
 

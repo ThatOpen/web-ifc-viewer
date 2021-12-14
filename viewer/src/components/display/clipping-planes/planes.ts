@@ -33,11 +33,12 @@ export class IfcPlane extends IfcComponent {
   isPlan = false;
 
   readonly controls: TransformControls;
-  public readonly normal: Vector3;
-  public readonly origin: Vector3;
-  public readonly helper: Object3D;
+  readonly edges: ClippingEdges;
+  readonly normal: Vector3;
+  readonly origin: Vector3;
+  readonly helper: Object3D;
+
   private readonly planeSize: number;
-  private readonly edges: ClippingEdges;
   private readonly context: Context;
 
   constructor(
@@ -64,9 +65,6 @@ export class IfcPlane extends IfcComponent {
 
     this.edges = new ClippingEdges(this.context, this.plane, ifc);
     this.edgesActive = edgesEnabled;
-    if (this.edgesActive) {
-      this.edges.updateEdges();
-    }
   }
 
   get active() {

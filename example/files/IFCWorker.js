@@ -42245,10 +42245,10 @@ class IFCModel extends Mesh {
             throw new Error(nullIfcManagerErrorMessage);
         return this.ifcManager.getSubset(this.modelID, material);
     }
-    removeSubset(parent, material) {
+    removeSubset(material, customID) {
         if (this.ifcManager === null)
             throw new Error(nullIfcManagerErrorMessage);
-        this.ifcManager.removeSubset(this.modelID, parent, material);
+        this.ifcManager.removeSubset(this.modelID, material, customID);
     }
     createSubset(config) {
         if (this.ifcManager === null)

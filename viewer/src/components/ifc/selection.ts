@@ -35,14 +35,13 @@ export class IfcSelection extends IfcComponent {
 
   unpick() {
     this.mesh = null;
-    const model = this.context.items.ifcModels[this.modelID];
-    this.loader.ifcManager.removeSubset(this.modelID, model, this.material);
+    this.loader.ifcManager.removeSubset(this.modelID, this.material);
   }
 
-  pickByID = (modelID: number, ids: number[], focusSelection = false) => {
+  pickByID = async (modelID: number, ids: number[], focusSelection = false) => {
     this.modelID = modelID;
     this.newSelection(ids);
-    if (focusSelection) this.focusSelection();
+    if (focusSelection) await this.focusSelection();
   };
 
   newSelection = (ids: number[]) => {
@@ -65,9 +64,9 @@ export class IfcSelection extends IfcComponent {
     }
   }
 
-  private focusSelection() {
+  private async focusSelection() {
     if (this.mesh) {
-      this.context.ifcCamera.targetItem(this.mesh);
+      await this.context.ifcCamera.targetItem(this.mesh);
     }
   }
 }

@@ -45,7 +45,7 @@ export class PlanManager {
     return Object.keys(this.planLists);
   }
 
-  create(config: PlanViewConfig) {
+  async create(config: PlanViewConfig) {
     // if (this.planList[config.name] !== undefined) return;
     const { modelID, name, camera, target } = config;
     const ortho = config.ortho || true;
@@ -65,6 +65,8 @@ export class PlanManager {
       plane.visible = false;
       plane.active = false;
       currentPlanlist[name].plane = plane;
+      await plane.edges.updateEdges();
+      plane.edges.visible = false;
     }
   }
 
@@ -153,10 +155,13 @@ export class PlanManager {
     const transformMatrix = await this.ifc.loader.ifcManager.ifcAPI.GetCoordinationMatrix(modelID);
     const transformHeight = transformMatrix[13];
 
-    this.storeys[modelID].forEach((storey) => {
+    const storeys = this.storeys[modelID];
+    for (let i = 0; i < storeys.length; i++) {
+      const storey = storeys[i];
       const baseHeight = storey.Elevation.value;
       const elevation = (baseHeight + siteCoords[2]) * unitsScale + transformHeight;
-      this.create({
+      // eslint-disable-next-line no-await-in-loop
+      await this.create({
         modelID,
         name: storey.LongName.value,
         target: new Vector3(0, 0, 0),
@@ -166,6 +171,6 @@ export class PlanManager {
         rotation: 0,
         ortho: true
       });
-    });
+    }
   }
 }

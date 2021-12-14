@@ -14,10 +14,12 @@ import {
   Vector3
 } from 'three';
 import {
+  IFCBEAM,
+  IFCCOLUMN,
   IFCDOOR,
   IFCFURNISHINGELEMENT,
   IFCMEMBER,
-  IFCPLATE,
+  IFCPLATE, IFCROOF,
   IFCSLAB,
   IFCSTAIRFLIGHT,
   IFCWALL,
@@ -58,9 +60,15 @@ export class ClippingEdges {
   private localPlane = new Plane();
   private tempLine = new Line3();
   private tempVector = new Vector3();
+  private context: Context;
+  private clippingPlane: Plane;
+  private ifc: IfcManager;
+  private stylesInitialized = false;
 
-  constructor(private context: Context, private clippingPlane: Plane, public ifc: IfcManager) {
-    this.createDefaultStyles();
+  constructor(context: Context, clippingPlane: Plane, ifc: IfcManager) {
+    this.context = context;
+    this.clippingPlane = clippingPlane;
+    this.ifc = ifc;
   }
 
   get visible() {
@@ -100,6 +108,9 @@ export class ClippingEdges {
   }
 
   async updateEdges() {
+    if (!this.stylesInitialized) {
+      await this.createDefaultStyles();
+    }
     const model = this.context.items.ifcModels[0];
 
     Object.keys(ClippingEdges.styles).forEach((styleName) => {
@@ -135,7 +146,7 @@ export class ClippingEdges {
     if (Object.keys(ClippingEdges.styles).length === 0) {
       await this.newStyle(
         'thick',
-        [IFCWALLSTANDARDCASE, IFCWALL, IFCSLAB, IFCSTAIRFLIGHT],
+        [IFCWALLSTANDARDCASE, IFCWALL, IFCSLAB, IFCSTAIRFLIGHT, IFCCOLUMN, IFCBEAM, IFCROOF],
         new LineMaterial({ color: 0x000000, linewidth: 0.0015 })
       );
 
@@ -144,6 +155,8 @@ export class ClippingEdges {
         [IFCWINDOW, IFCPLATE, IFCMEMBER, IFCDOOR, IFCFURNISHINGELEMENT],
         new LineMaterial({ color: 0x333333, linewidth: 0.001 })
       );
+
+      this.stylesInitialized = true;
     }
   }
 
