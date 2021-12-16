@@ -57,7 +57,7 @@ const loadIfc = async (event) => {
   model.material.forEach(mat => mat.side = 2);
 
   createFill(model.modelID);
-  // viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial);
+  viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
   // viewer.edges.toggle(`${model.modelID}`);
 
   overlay.classList.add('hidden');
@@ -102,55 +102,6 @@ const handleKeyDown = async (event) => {
     // viewer.plans.computeAllPlanViews(0);
     await viewer.plans.computeAllPlanViews(0);
 
-    // PDF export
-
-    // const currentPlans = viewer.plans.planLists[0];
-    // const planNames = Object.keys(currentPlans);
-    // const firstPlan = planNames[0];
-    // const currentPlan = viewer.plans.planLists[0][firstPlan];
-    //
-    // viewer.dxf.initializeJSPDF(Drawing);
-    //
-    // const documentName = 'test';
-    // const doc = new jsPDF('p', 'mm', [1000, 1000]);
-    // viewer.pdf.newDocument(documentName, doc, 20);
-    //
-    // viewer.pdf.setLineWidth(documentName, 0.2);
-    // viewer.pdf.drawNamedLayer(documentName, currentPlan, 'thick', 200, 200);
-    //
-    // viewer.pdf.setLineWidth(documentName, 0.1);
-    // viewer.pdf.setColor(documentName, new Color(100, 100, 100));
-    //
-    // const ids = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
-    // const subset = viewer.IFC.loader.ifcManager.createSubset({ modelID: 0, ids, removePrevious: true });
-    // const edgesGeometry = new EdgesGeometry(subset.geometry);
-    // const vertices = edgesGeometry.attributes.position.array;
-    // viewer.pdf.draw(documentName, vertices, 200, 200);
-    //
-    // viewer.pdf.drawNamedLayer(documentName, currentPlan, 'thin', 200, 200);
-    //
-    // viewer.pdf.exportPDF(documentName, 'test.pdf');
-
-    // DXF EXPORT
-
-    // const currentPlans = viewer.plans.planLists[0];
-    // const planNames = Object.keys(currentPlans);
-    // const firstPlan = planNames[0];
-    // const currentPlan = viewer.plans.planLists[0][firstPlan];
-
-    // const drawingName = "example";
-
-    // viewer.dxf.newDrawing(drawingName);
-    // viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thick', 'section', Drawing.ACI.RED);
-    // viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thin', 'projection', Drawing.ACI.GREEN);
-    //
-    // const ids = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
-    // const subset = viewer.IFC.loader.ifcManager.createSubset({ modelID: 0, ids, removePrevious: true });
-    // const edgesGeometry = new EdgesGeometry(subset.geometry);
-    // const vertices = edgesGeometry.attributes.position.array;
-    // viewer.dxf.draw(drawingName, vertices, 'other', Drawing.ACI.BLUE);
-
-    // viewer.dxf.exportDXF(drawingName);
   }
   if (event.code === 'KeyR') {
     const planNames = Object.keys(viewer.plans.planLists[0]);
@@ -158,6 +109,58 @@ const handleKeyDown = async (event) => {
     const current = planNames[counter];
     viewer.plans.goTo(0, current, true);
     viewer.edges.toggle('0');
+  }
+  if (event.code === 'KeyA') {
+    // PDF export
+
+    const currentPlans = viewer.plans.planLists[0];
+    const planNames = Object.keys(currentPlans);
+    const firstPlan = planNames[0];
+    const currentPlan = viewer.plans.planLists[0][firstPlan];
+
+    const documentName = 'test';
+    const doc = new jsPDF('p', 'mm', [1000, 1000]);
+    viewer.pdf.newDocument(documentName, doc, 20);
+
+    viewer.pdf.setLineWidth(documentName, 0.2);
+    viewer.pdf.drawNamedLayer(documentName, currentPlan, 'thick', 200, 200);
+
+    viewer.pdf.setLineWidth(documentName, 0.1);
+    viewer.pdf.setColor(documentName, new Color(100, 100, 100));
+
+    const ids = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
+    const subset = viewer.IFC.loader.ifcManager.createSubset({ modelID: 0, ids, removePrevious: true });
+    const edgesGeometry = new EdgesGeometry(subset.geometry);
+    const vertices = edgesGeometry.attributes.position.array;
+    viewer.pdf.draw(documentName, vertices, 200, 200);
+
+    viewer.pdf.drawNamedLayer(documentName, currentPlan, 'thin', 200, 200);
+
+    viewer.pdf.exportPDF(documentName, 'test.pdf');
+  }
+  if (event.code === 'KeyB') {
+    // DXF EXPORT
+
+    const currentPlans = viewer.plans.planLists[0];
+    const planNames = Object.keys(currentPlans);
+    const firstPlan = planNames[0];
+    const currentPlan = viewer.plans.planLists[0][firstPlan];
+
+    const drawingName = "example";
+
+    viewer.dxf.initializeJSPDF(Drawing);
+
+    viewer.dxf.newDrawing(drawingName);
+    viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thick', 'section', Drawing.ACI.RED);
+    viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thin', 'projection', Drawing.ACI.GREEN);
+
+    const ids = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
+    const subset = viewer.IFC.loader.ifcManager.createSubset({ modelID: 0, ids, removePrevious: true });
+    const edgesGeometry = new EdgesGeometry(subset.geometry);
+    const vertices = edgesGeometry.attributes.position.array;
+    viewer.dxf.draw(drawingName, vertices, 'other', Drawing.ACI.BLUE);
+
+    viewer.dxf.exportDXF(drawingName);
   }
   if (event.code === 'KeyP') {
     counter++;
@@ -171,7 +174,7 @@ const handleKeyDown = async (event) => {
   }
   if (event.code === 'KeyE') {
     viewer.plans.exitPlanView(true);
-    // viewer.edges.toggle('0');
+    viewer.edges.toggle('0');
   }
 };
 

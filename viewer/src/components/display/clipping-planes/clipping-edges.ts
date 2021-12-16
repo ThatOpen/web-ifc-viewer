@@ -19,14 +19,14 @@ import {
   IFCDOOR,
   IFCFURNISHINGELEMENT,
   IFCMEMBER,
-  IFCPLATE, IFCROOF,
+  IFCPLATE,
+  IFCROOF,
   IFCSLAB,
   IFCSTAIRFLIGHT,
   IFCWALL,
   IFCWALLSTANDARDCASE,
   IFCWINDOW
 } from 'web-ifc';
-import { MeshBVH } from 'three-mesh-bvh';
 import { Context } from '../../../base-types';
 import { IfcManager } from '../../ifc';
 
@@ -80,6 +80,8 @@ export class ClippingEdges {
     const allEdges = Object.values(this.edges);
     allEdges.forEach((edges) => {
       edges.mesh.visible = visible;
+      if (visible) this.context.getScene().add(edges.mesh);
+      else edges.mesh.removeFromParent();
     });
     if (visible) this.updateEdges();
   }
@@ -111,10 +113,13 @@ export class ClippingEdges {
     if (!this.stylesInitialized) {
       await this.createDefaultStyles();
     }
-    const model = this.context.items.ifcModels[0];
+
+    // TODO: This is temporary; probably the edges object need to be located in the scene
+    // Need to solve Z-fighting with models in that case
+    // const model = this.context.items.ifcModels[0];
 
     Object.keys(ClippingEdges.styles).forEach((styleName) => {
-      this.drawEdges(styleName, model);
+      this.drawEdges(styleName);
     });
   }
 
@@ -168,12 +173,10 @@ export class ClippingEdges {
       material: ClippingEdges.invisibleMaterial,
       removePrevious: true,
       scene: this.context.getScene(),
-      ids: await this.getItemIDs(modelID, categories)
+      ids: await this.getItemIDs(modelID, categories),
+      applyBVH: true
     });
-    if (subset) {
-      subset.geometry.boundsTree = new MeshBVH(subset.geometry, { maxLeafTris: 3 });
-      return subset;
-    }
+    if (subset) return subset;
     throw new Error(`Subset could not be created for the following style: ${styleName}`);
   }
 
@@ -200,7 +203,7 @@ export class ClippingEdges {
   }
 
   // Source: https://gkjohnson.github.io/three-mesh-bvh/example/bundle/clippedEdges.html
-  private drawEdges(styleName: string, model: Mesh) {
+  private drawEdges(styleName: string) {
     const style = ClippingEdges.styles[styleName];
 
     // if (!style.subsets.geometry.boundsTree) return;
@@ -276,8 +279,10 @@ export class ClippingEdges {
 
     ClippingEdges.basicEdges.geometry = edges.generatorGeometry;
     edges.mesh.geometry.fromLineSegments(ClippingEdges.basicEdges);
-    if (edges.mesh.parent !== model) {
-      model.add(edges.mesh);
-    }
+    this.context.getScene().add(edges.mesh);
+
+    // if (edges.mesh.parent !== model) {
+    //   model.add(edges.mesh);
+    // }
   }
 }

@@ -109,7 +109,6 @@ export class IfcPlane extends IfcComponent {
     this.controls.removeFromParent();
     this.controls.dispose();
     this.edges.remove();
-    this.context.removeClippingPlane(this.plane);
   };
 
   private newTransformControls() {

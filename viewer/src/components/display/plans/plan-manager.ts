@@ -41,8 +41,10 @@ export class PlanManager {
     this.sectionFill = new Mesh();
   }
 
-  getAll() {
-    return Object.keys(this.planLists);
+  getAll(modelID: number) {
+    const currentPlans = this.planLists[modelID];
+    if (!currentPlans) throw new Error("The requested model doesn't have floor plans generated");
+    return Object.keys(currentPlans);
   }
 
   async create(config: PlanViewConfig) {
@@ -163,7 +165,7 @@ export class PlanManager {
       // eslint-disable-next-line no-await-in-loop
       await this.create({
         modelID,
-        name: storey.LongName.value,
+        name: this.getFloorplanName(storey),
         target: new Vector3(0, 0, 0),
         camera: new Vector3(0, elevation + this.defaultCameraOffset, 0),
         point: new Vector3(0, elevation + this.defaultSectionOffset, 0),
@@ -172,5 +174,15 @@ export class PlanManager {
         ortho: true
       });
     }
+  }
+
+  private getFloorplanName(floorplan: any) {
+    if (floorplan.Name && floorplan.Name.value) {
+      return floorplan.Name.value;
+    }
+    if (floorplan.LongName && floorplan.LongName.value) {
+      return floorplan.LongName.value;
+    }
+    return floorplan.GlobalId.value;
   }
 }

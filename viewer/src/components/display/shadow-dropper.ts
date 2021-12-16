@@ -37,6 +37,7 @@ export class ShadowDropper {
   opacity = 1;
   resolution = 512;
   amount = 3.5;
+  planeColor = 0xffffff;
 
   private tempMaterial = new MeshBasicMaterial({ visible: false });
   private depthMaterial = new MeshDepthMaterial();
@@ -127,7 +128,7 @@ export class ShadowDropper {
 
   private createGroundColorPlane(shadow: Shadow, planeGeometry: BufferGeometry) {
     const fillPlaneMaterial = new MeshBasicMaterial({
-      color: 0xffffff,
+      color: this.planeColor,
       opacity: this.opacity,
       transparent: true,
       depthWrite: false,

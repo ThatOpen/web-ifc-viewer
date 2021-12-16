@@ -59,12 +59,16 @@ export class Edges {
     if (active === undefined) active = !selected.active;
     selected.active = active;
     if (active) {
+      const pos = selected.model.position;
+      const rot = selected.model.rotation;
+      selected.edges.position.set(pos.x, pos.y, pos.z);
+      selected.edges.rotation.set(rot.x, rot.y, rot.z);
       if (selected.baseMaterial) selected.model.material = selected.baseMaterial;
-      selected.model.add(selected.edges);
+      this.context.getScene().add(selected.edges);
       return;
     }
     if (selected.baseMaterial) selected.model.material = selected.originalMaterials;
-    selected.model.remove(selected.edges);
+    selected.edges.removeFromParent();
   }
 
   private setupModelMaterials(model: IFCModel) {

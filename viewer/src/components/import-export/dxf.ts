@@ -5,7 +5,7 @@ export class DXFWriter {
 
   private Drawing: any = null;
 
-  initializeJSPDF(drawing: any) {
+  initializeJSDXF(drawing: any) {
     this.Drawing = drawing;
   }
 
