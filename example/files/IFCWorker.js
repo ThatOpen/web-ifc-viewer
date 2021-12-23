@@ -87209,15 +87209,9 @@ class IFCParser {
         };
     }
     async loadAllGeometry(modelID) {
+        this.addOptionalCategories(modelID);
         this.state.api.StreamAllMeshes(modelID, (mesh) => {
-            const placedGeometries = mesh.geometries;
-            const size = placedGeometries.size();
-            for (let i = 0; i < size; i++) {
-                const placedGeometry = placedGeometries.get(i);
-                let itemMesh = this.getPlacedGeometry(modelID, mesh.expressID, placedGeometry);
-                let geom = itemMesh.geometry.applyMatrix4(itemMesh.matrix);
-                this.storeGeometryByMaterial(placedGeometry.color, geom);
-            }
+            this.streamMesh(modelID, mesh);
         });
         const geometries = [];
         const materials = [];
@@ -87234,6 +87228,29 @@ class IFCParser {
         const model = new IFCModel(combinedGeometry, materials);
         this.state.models[this.currentModelID].mesh = model;
         return model;
+    }
+    addOptionalCategories(modelID) {
+        const optionalTypes = [];
+        for (let key in this.optionalCategories) {
+            if (this.optionalCategories.hasOwnProperty(key)) {
+                const category = parseInt(key);
+                if (this.optionalCategories[category])
+                    optionalTypes.push(category);
+            }
+        }
+        this.state.api.StreamAllMeshesWithTypes(this.currentWebIfcID, optionalTypes, (mesh) => {
+            this.streamMesh(modelID, mesh);
+        });
+    }
+    streamMesh(modelID, mesh) {
+        const placedGeometries = mesh.geometries;
+        const size = placedGeometries.size();
+        for (let i = 0; i < size; i++) {
+            const placedGeometry = placedGeometries.get(i);
+            let itemMesh = this.getPlacedGeometry(modelID, mesh.expressID, placedGeometry);
+            let geom = itemMesh.geometry.applyMatrix4(itemMesh.matrix);
+            this.storeGeometryByMaterial(placedGeometry.color, geom);
+        }
     }
     getPlacedGeometry(modelID, expressID, placedGeometry) {
         const geometry = this.getBufferGeometry(modelID, expressID, placedGeometry);

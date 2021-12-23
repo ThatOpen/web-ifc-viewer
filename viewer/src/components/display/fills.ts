@@ -24,7 +24,10 @@ export class SectionFillManager {
     if (!subset) return null;
     this.context.items.ifcModels.push(model);
     this.context.items.pickableIfcModels.push(model);
-    model.add(subset);
+
+    subset.position.copy(model.position);
+    subset.rotation.copy(model.rotation);
+    this.context.getScene().add(subset);
     this.fills[name] = subset;
     // subset.renderOrder = 2;
     return subset;

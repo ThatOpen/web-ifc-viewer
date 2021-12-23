@@ -75,6 +75,8 @@ export class ShadowDropper {
 
   private bakeShadow(modelID: number, shadow: Shadow, scene: Scene) {
     const model = this.context.items.ifcModels[modelID];
+    const isModelInScene = model.parent !== null && model.parent !== undefined;
+    if (!isModelInScene) scene.add(model);
     const children = scene.children.filter((obj) => obj !== model && obj !== shadow.root);
 
     for (let i = children.length - 1; i >= 0; i--) {
@@ -108,6 +110,8 @@ export class ShadowDropper {
     for (let i = children.length - 1; i >= 0; i--) {
       scene.add(children[i]);
     }
+
+    if (!isModelInScene) model.removeFromParent();
   }
 
   private initializeCamera(shadow: Shadow) {
