@@ -23,7 +23,7 @@ export class IfcViewerAPI {
   IFC: IfcManager;
   clipper: IfcClipper;
   plans: PlanManager;
-  fills: SectionFillManager;
+  filler: SectionFillManager;
   dimensions: IfcDimensions;
   edges: Edges;
   shadowDropper: ShadowDropper;
@@ -41,7 +41,7 @@ export class IfcViewerAPI {
     this.IFC = new IfcManager(this.context);
     this.clipper = new IfcClipper(this.context, this.IFC);
     this.plans = new PlanManager(this.IFC, this.context, this.clipper);
-    this.fills = new SectionFillManager(this.IFC, this.context);
+    this.filler = new SectionFillManager(this.IFC, this.context);
     this.dimensions = new IfcDimensions(this.context);
     this.edges = new Edges(this.context);
     this.shadowDropper = new ShadowDropper(this.context, this.IFC);

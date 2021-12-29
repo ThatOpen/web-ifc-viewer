@@ -9,8 +9,8 @@ import {
   IFCCOLUMN,
   IFCSLAB,
   IFCROOF,
-  IFCFOOTING,
-  IFCFURNISHINGELEMENT
+  // IFCFOOTING,
+  // IFCFURNISHINGELEMENT
   // IFCSTAIRFLIGHT,
   // IFCRAILING
 } from 'web-ifc';
@@ -56,9 +56,11 @@ const loadIfc = async (event) => {
   model = await viewer.IFC.loadIfc(event.target.files[0], true);
   model.material.forEach(mat => mat.side = 2);
 
-  createFill(model.modelID);
+  await createFill(model.modelID);
   viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
   // viewer.edges.toggle(`${model.modelID}`);
+
+  await viewer.shadowDropper.renderShadow(model.modelID);
 
   overlay.classList.add('hidden');
 };
@@ -85,7 +87,7 @@ async function createFill(modelID) {
   material.polygonOffset = true;
   material.polygonOffsetFactor = 10;
   material.polygonOffsetUnits = 1;
-  fills.push(viewer.fills.create(`${modelID}`, modelID, ids, material));
+  fills.push(viewer.filler.create(`${modelID}`, modelID, ids, material));
 }
 
 viewer.shadowDropper.darkness = 1.5;
@@ -98,93 +100,90 @@ const handleKeyDown = async (event) => {
     viewer.removeClippingPlane();
     viewer.dimensions.delete();
   }
+  if (event.code === 'Escape') {
+    viewer.IFC.selector.unpickIfcItems();
+  }
   if (event.code === 'KeyF') {
     // viewer.plans.computeAllPlanViews(0);
-    await viewer.plans.computeAllPlanViews(0);
-
   }
   if (event.code === 'KeyR') {
-    const planNames = Object.keys(viewer.plans.planLists[0]);
-    if (!planNames[counter]) return;
-    const current = planNames[counter];
-    viewer.plans.goTo(0, current, true);
-    viewer.edges.toggle('0');
+    // const planNames = Object.keys(viewer.plans.planLists[0]);
+    // if (!planNames[counter]) return;
+    // const current = planNames[counter];
+    // viewer.plans.goTo(0, current, true);
+    // viewer.edges.toggle('0');
   }
   if (event.code === 'KeyA') {
     // PDF export
 
-    const currentPlans = viewer.plans.planLists[0];
-    const planNames = Object.keys(currentPlans);
-    const firstPlan = planNames[0];
-    const currentPlan = viewer.plans.planLists[0][firstPlan];
-
-    const documentName = 'test';
-    const doc = new jsPDF('p', 'mm', [1000, 1000]);
-    viewer.pdf.newDocument(documentName, doc, 20);
-
-    viewer.pdf.setLineWidth(documentName, 0.2);
-    viewer.pdf.drawNamedLayer(documentName, currentPlan, 'thick', 200, 200);
-
-    viewer.pdf.setLineWidth(documentName, 0.1);
-    viewer.pdf.setColor(documentName, new Color(100, 100, 100));
-
-    const ids = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
-    const subset = viewer.IFC.loader.ifcManager.createSubset({ modelID: 0, ids, removePrevious: true });
-    const edgesGeometry = new EdgesGeometry(subset.geometry);
-    const vertices = edgesGeometry.attributes.position.array;
-    viewer.pdf.draw(documentName, vertices, 200, 200);
-
-    viewer.pdf.drawNamedLayer(documentName, currentPlan, 'thin', 200, 200);
-
-    viewer.pdf.exportPDF(documentName, 'test.pdf');
+    // const currentPlans = viewer.plans.planLists[0];
+    // const planNames = Object.keys(currentPlans);
+    // const firstPlan = planNames[0];
+    // const currentPlan = viewer.plans.planLists[0][firstPlan];
+    //
+    // const documentName = 'test';
+    // const doc = new jsPDF('p', 'mm', [1000, 1000]);
+    // viewer.pdf.newDocument(documentName, doc, 20);
+    //
+    // viewer.pdf.setLineWidth(documentName, 0.2);
+    // viewer.pdf.drawNamedLayer(documentName, currentPlan, 'thick', 200, 200);
+    //
+    // viewer.pdf.setLineWidth(documentName, 0.1);
+    // viewer.pdf.setColor(documentName, new Color(100, 100, 100));
+    //
+    // const ids = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
+    // const subset = viewer.IFC.loader.ifcManager.createSubset({ modelID: 0, ids, removePrevious: true });
+    // const edgesGeometry = new EdgesGeometry(subset.geometry);
+    // const vertices = edgesGeometry.attributes.position.array;
+    // viewer.pdf.draw(documentName, vertices, 200, 200);
+    //
+    // viewer.pdf.drawNamedLayer(documentName, currentPlan, 'thin', 200, 200);
+    //
+    // viewer.pdf.exportPDF(documentName, 'test.pdf');
   }
   if (event.code === 'KeyB') {
     // DXF EXPORT
 
-    const currentPlans = viewer.plans.planLists[0];
-    const planNames = Object.keys(currentPlans);
-    const firstPlan = planNames[0];
-    const currentPlan = viewer.plans.planLists[0][firstPlan];
-
-    const drawingName = "example";
-
-    viewer.dxf.initializeJSPDF(Drawing);
-
-    viewer.dxf.newDrawing(drawingName);
-    viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thick', 'section', Drawing.ACI.RED);
-    viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thin', 'projection', Drawing.ACI.GREEN);
-
-    const ids = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
-    const subset = viewer.IFC.loader.ifcManager.createSubset({ modelID: 0, ids, removePrevious: true });
-    const edgesGeometry = new EdgesGeometry(subset.geometry);
-    const vertices = edgesGeometry.attributes.position.array;
-    viewer.dxf.draw(drawingName, vertices, 'other', Drawing.ACI.BLUE);
-
-    viewer.dxf.exportDXF(drawingName);
+    // const currentPlans = viewer.plans.planLists[0];
+    // const planNames = Object.keys(currentPlans);
+    // const firstPlan = planNames[0];
+    // const currentPlan = viewer.plans.planLists[0][firstPlan];
+    //
+    // const drawingName = "example";
+    //
+    // viewer.dxf.initializeJSPDF(Drawing);
+    //
+    // viewer.dxf.newDrawing(drawingName);
+    // viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thick', 'section', Drawing.ACI.RED);
+    // viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thin', 'projection', Drawing.ACI.GREEN);
+    //
+    // const ids = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
+    // const subset = viewer.IFC.loader.ifcManager.createSubset({ modelID: 0, ids, removePrevious: true });
+    // const edgesGeometry = new EdgesGeometry(subset.geometry);
+    // const vertices = edgesGeometry.attributes.position.array;
+    // viewer.dxf.draw(drawingName, vertices, 'other', Drawing.ACI.BLUE);
+    //
+    // viewer.dxf.exportDXF(drawingName);
   }
   if (event.code === 'KeyP') {
-    counter++;
+    // counter++;
   }
   if (event.code === 'KeyO') {
-    counter--;
-  }
-  if (event.code === 'KeyC') {
-    // viewer.context.ifcCamera.toggleProjection();
-    viewer.shadowDropper.renderShadow(0);
+    // counter--;
   }
   if (event.code === 'KeyE') {
-    viewer.plans.exitPlanView(true);
-    viewer.edges.toggle('0');
+    // viewer.plans.exitPlanView(true);
+    // viewer.edges.toggle('0');
   }
 };
 
-window.onmousemove = viewer.IFC.prePickIfcItem;
+window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
 window.onkeydown = handleKeyDown;
 window.ondblclick = async () => {
   if (viewer.clipper.active) {
     viewer.clipper.createPlane();
   } else {
-    const result = await viewer.IFC.pickIfcItem(true);
+    const result = await viewer.IFC.selector.pickIfcItem(true);
     if (!result) return;
     const { modelID, id } = result;
     const props = await viewer.IFC.getProperties(modelID, id, true, false);

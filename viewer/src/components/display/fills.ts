@@ -4,14 +4,10 @@ import { Context } from '../../base-types';
 import { IfcManager } from '../ifc';
 
 export class SectionFillManager {
-  private readonly fills: { [name: string]: IFCModel };
+  readonly fills: { [name: string]: IFCModel };
 
   constructor(private IFC: IfcManager, private context: Context) {
     this.fills = {};
-  }
-
-  get(name: string) {
-    return this.fills[name];
   }
 
   create(name: string, modelID: number, ids: number[], material: Material) {
