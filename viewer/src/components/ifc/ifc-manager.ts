@@ -177,42 +177,42 @@ export class IfcManager extends IfcComponent {
    * @deprecated: use IFC.selector.pickIfcItemsByID() instead.
    */
   async pickIfcItemsByID(modelID: number, ids: number[], focusSelection = false) {
-    await this.selector.selection.pickByID(modelID, ids, focusSelection);
+    await this.selector.pickIfcItemsByID(modelID, ids, focusSelection);
   }
 
   /**
    * @deprecated: use IFC.selector.prepickIfcItemsByID() instead.
    */
   async prepickIfcItemsByID(modelID: number, ids: number[], focusSelection = false) {
-    await this.selector.preselection.pickByID(modelID, ids, focusSelection);
+    await this.selector.prepickIfcItemsByID(modelID, ids, focusSelection);
   }
 
   /**
    * @deprecated: use IFC.selector.highlightIfcItemsByID() instead.
    */
   async highlightIfcItemsByID(modelID: number, ids: number[], focusSelection = false) {
-    await this.selector.highlight.pickByID(modelID, ids, focusSelection);
+    await this.selector.highlightIfcItemsByID(modelID, ids, focusSelection);
   }
 
   /**
    * @deprecated: use IFC.selector.unpickIfcItems() instead.
    */
   unpickIfcItems() {
-    this.selector.selection.unpick();
+    this.selector.unpickIfcItems();
   }
 
   /**
    * @deprecated: use IFC.selector.unPrepickIfcItems() instead.
    */
   unPrepickIfcItems() {
-    this.selector.preselection.unpick();
+    this.selector.unPrepickIfcItems();
   }
 
   /**
    * @deprecated: use IFC.selector.unHighlightIfcItems() instead.
    */
   unHighlightIfcItems() {
-    this.selector.highlight.unpick();
+    this.selector.unHighlightIfcItems();
   }
 
   private addIfcModel(ifcMesh: IfcMesh) {
