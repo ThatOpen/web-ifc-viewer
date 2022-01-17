@@ -1,15 +1,23 @@
 import { AxesHelper, Material } from 'three';
-import { IfcComponent, Context } from '../../base-types';
+import { IfcComponent } from '../../base-types';
+import { IfcContext } from '../context';
 
 export class IfcAxes extends IfcComponent {
-  private axes: AxesHelper;
+  axes?: AxesHelper;
 
-  constructor(context: Context, size?: number) {
+  constructor(private context: IfcContext) {
     super(context);
+  }
+
+  setAxes(size?: number) {
+    if (this.axes) {
+      if (this.axes.parent) this.axes.removeFromParent();
+      this.axes.geometry.dispose();
+    }
     this.axes = new AxesHelper(size);
     (this.axes.material as Material).depthTest = false;
     this.axes.renderOrder = 2;
-    const scene = context.getScene();
+    const scene = this.context.getScene();
     scene.add(this.axes);
   }
 }

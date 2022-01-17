@@ -1,13 +1,14 @@
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Group } from 'three';
-import { Context, IfcComponent } from '../../base-types';
+import { IfcComponent } from '../../base-types';
+import { IfcContext } from '../context';
 
 export class GLTFManager extends IfcComponent {
-  private context: Context;
+  private context: IfcContext;
   private loader = new GLTFLoader();
   private GLTFModels: { [modelID: number]: Group } = {};
 
-  constructor(context: Context) {
+  constructor(context: IfcContext) {
     super(context);
     this.context = context;
   }

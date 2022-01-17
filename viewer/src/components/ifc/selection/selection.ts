@@ -1,7 +1,8 @@
 import { Intersection, Material, Mesh, Scene } from 'three';
 import { IfcMesh } from 'web-ifc-three/IFC/BaseDefinitions';
 import { IFCLoader } from 'web-ifc-three/IFCLoader';
-import { IfcComponent, Context } from '../../../base-types';
+import { IfcComponent } from '../../../base-types';
+import { IfcContext } from '../../context';
 
 export class IfcSelection extends IfcComponent {
   mesh: Mesh | null = null;
@@ -11,7 +12,7 @@ export class IfcSelection extends IfcComponent {
   private loader: IFCLoader;
   private readonly scene: Scene;
 
-  constructor(private context: Context, loader: IFCLoader, material?: Material) {
+  constructor(private context: IfcContext, loader: IFCLoader, material?: Material) {
     super(context);
     this.scene = context.getScene();
     this.loader = loader;

@@ -1,12 +1,12 @@
 import { BackSide, Material } from 'three';
 import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
-import { Context } from '../../base-types';
 import { IfcManager } from '../ifc';
+import { IfcContext } from '../context';
 
 export class SectionFillManager {
   readonly fills: { [name: string]: IFCModel };
 
-  constructor(private IFC: IfcManager, private context: Context) {
+  constructor(private IFC: IfcManager, private context: IfcContext) {
     this.fills = {};
   }
 
@@ -15,11 +15,11 @@ export class SectionFillManager {
     material.clippingPlanes = this.context.getClippingPlanes();
     const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
     if (!model) throw new Error('The requested model to fill was not found.');
+
     this.setupMaterial(material);
     const subset = this.getSubset(modelID, ids, material, name);
     if (!subset) return null;
-    // this.context.items.ifcModels.push(model);
-    this.context.items.pickableIfcModels.push(model);
+    this.context.items.pickableIfcModels.push(subset);
 
     subset.position.copy(model.position);
     subset.rotation.copy(model.rotation);
@@ -51,6 +51,7 @@ export class SectionFillManager {
       scene: this.context.getScene(),
       removePrevious: true,
       material,
+      applyBVH: true,
       customID: name
     }) as IFCModel;
   }

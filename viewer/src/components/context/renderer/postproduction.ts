@@ -9,7 +9,7 @@ import {
 } from 'postprocessing';
 import { Camera, Scene, WebGLRenderer } from 'three';
 import { IfcEvent } from '../ifcEvent';
-import { Context } from '../../../base-types';
+import { IfcContext } from '../context';
 
 export class IfcPostproduction {
   ssaoEffect: any;
@@ -17,7 +17,7 @@ export class IfcPostproduction {
 
   composer: any;
 
-  constructor(private context: Context, canvas: HTMLElement) {
+  constructor(private context: IfcContext, canvas: HTMLElement) {
     this.setupEvents();
 
     this.renderer = new WebGLRenderer({

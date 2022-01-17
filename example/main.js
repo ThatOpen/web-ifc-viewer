@@ -14,13 +14,9 @@ import {
   // IFCSTAIRFLIGHT,
   // IFCRAILING
 } from 'web-ifc';
-import { MeshBasicMaterial, LineBasicMaterial, Color, EdgesGeometry } from 'three';
-import Drawing from 'dxf-writer'
-import { HorizontalBlurShader } from 'three/examples/jsm/shaders/HorizontalBlurShader.js';
-import { VerticalBlurShader } from 'three/examples/jsm/shaders/VerticalBlurShader.js';
-import { jsPDF } from 'jspdf';
-// import { exportDXF, exportPDF } from './dxf';
-// import { fillSection } from './section-fill';
+import { MeshBasicMaterial, LineBasicMaterial, Color, Vector3, BoxGeometry, Mesh, EdgesGeometry, LineSegments, BufferAttribute } from 'three';
+import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
+import Drawing from 'dxf-writer';
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255, 255) });
@@ -35,6 +31,7 @@ viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
 const lineMaterial = new LineBasicMaterial({ color: 0x555555 });
 const baseMaterial = new MeshBasicMaterial({ color: 0xffffff, side: 2 });
 
+let first = true;
 let model;
 const loadIfc = async (event) => {
   const overlay = document.getElementById('loading-overlay');
@@ -56,11 +53,16 @@ const loadIfc = async (event) => {
   model = await viewer.IFC.loadIfc(event.target.files[0], true);
   model.material.forEach(mat => mat.side = 2);
 
-  await createFill(model.modelID);
+  if(first) first = false
+  else {
+    ClippingEdges.forceStyleUpdate = true;
+  }
+
+  // await createFill(model.modelID);
   viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
   // viewer.edges.toggle(`${model.modelID}`);
 
-  await viewer.shadowDropper.renderShadow(model.modelID);
+  // await viewer.shadowDropper.renderShadow(model.modelID);
 
   overlay.classList.add('hidden');
 };
@@ -69,7 +71,6 @@ const inputElement = document.createElement('input');
 inputElement.setAttribute('type', 'file');
 inputElement.classList.add('hidden');
 inputElement.addEventListener('change', loadIfc, false);
-document.body.appendChild(inputElement);
 
 // viewer.IFC.loadIfcUrl('test.ifc', true);
 
@@ -94,7 +95,6 @@ viewer.shadowDropper.darkness = 1.5;
 
 let counter = 0;
 
-// let subset;
 const handleKeyDown = async (event) => {
   if (event.code === 'Delete') {
     viewer.removeClippingPlane();
@@ -103,15 +103,37 @@ const handleKeyDown = async (event) => {
   if (event.code === 'Escape') {
     viewer.IFC.selector.unpickIfcItems();
   }
+
   if (event.code === 'KeyF') {
-    // viewer.plans.computeAllPlanViews(0);
+
+    // viewer.edgesVectorizer.initializeOpenCV(cv);
+    // await viewer.edgesVectorizer.vectorize(10);
+
+    const link = document.createElement('a');
+    link.href = viewer.context.renderer.newScreenshot();
+    link.download = 'example.jpeg';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   }
   if (event.code === 'KeyR') {
-    // const planNames = Object.keys(viewer.plans.planLists[0]);
-    // if (!planNames[counter]) return;
-    // const current = planNames[counter];
-    // viewer.plans.goTo(0, current, true);
-    // viewer.edges.toggle('0');
+    await viewer.plans.computeAllPlanViews(0);
+    const planNames = Object.keys(viewer.plans.planLists[0]);
+    if (!planNames[counter]) return;
+    const current = planNames[counter];
+    viewer.plans.goTo(0, current, true);
+    viewer.context.items.ifcModels.forEach(model => viewer.edges.toggle(`${model.modelID}`));
+
+  }
+  if (event.code === 'KeyP') {
+    counter++;
+  }
+  if (event.code === 'KeyO') {
+    counter--;
+  }
+  if (event.code === 'KeyE') {
+    viewer.plans.exitPlanView(true);
+    viewer.edges.toggle('0');
   }
   if (event.code === 'KeyA') {
     // PDF export
@@ -144,42 +166,39 @@ const handleKeyDown = async (event) => {
   if (event.code === 'KeyB') {
     // DXF EXPORT
 
-    // const currentPlans = viewer.plans.planLists[0];
-    // const planNames = Object.keys(currentPlans);
-    // const firstPlan = planNames[0];
-    // const currentPlan = viewer.plans.planLists[0][firstPlan];
-    //
-    // const drawingName = "example";
-    //
-    // viewer.dxf.initializeJSPDF(Drawing);
-    //
-    // viewer.dxf.newDrawing(drawingName);
-    // viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thick', 'section', Drawing.ACI.RED);
-    // viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thin', 'projection', Drawing.ACI.GREEN);
-    //
+    const currentPlans = viewer.plans.planLists[0];
+    const planNames = Object.keys(currentPlans);
+    const firstPlan = planNames[0];
+    const currentPlan = viewer.plans.planLists[0][firstPlan];
+
+    const drawingName = "example";
+
+    viewer.dxf.initializeJSDXF(Drawing);
+
+    viewer.dxf.newDrawing(drawingName);
+    // const polygons = viewer.edgesVectorizer.polygons;
+    // viewer.dxf.drawEdges(drawingName, polygons, 'projection', Drawing.ACI.BLUE );
+
+
+
+
+    viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thick', 'section_thick', Drawing.ACI.RED);
+    viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thin', 'section_thin', Drawing.ACI.GREEN);
+
     // const ids = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
     // const subset = viewer.IFC.loader.ifcManager.createSubset({ modelID: 0, ids, removePrevious: true });
     // const edgesGeometry = new EdgesGeometry(subset.geometry);
     // const vertices = edgesGeometry.attributes.position.array;
     // viewer.dxf.draw(drawingName, vertices, 'other', Drawing.ACI.BLUE);
-    //
-    // viewer.dxf.exportDXF(drawingName);
-  }
-  if (event.code === 'KeyP') {
-    // counter++;
-  }
-  if (event.code === 'KeyO') {
-    // counter--;
-  }
-  if (event.code === 'KeyE') {
-    // viewer.plans.exitPlanView(true);
-    // viewer.edges.toggle('0');
+
+    viewer.dxf.exportDXF(drawingName);
   }
 };
 
 window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
 window.onkeydown = handleKeyDown;
 window.ondblclick = async () => {
+
   if (viewer.clipper.active) {
     viewer.clipper.createPlane();
   } else {

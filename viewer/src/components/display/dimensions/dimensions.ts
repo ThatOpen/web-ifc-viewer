@@ -9,11 +9,12 @@ import {
   Vector3
 } from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
-import { Context, IfcComponent } from '../../../base-types';
+import { IfcComponent } from '../../../base-types';
 import { IfcDimensionLine } from './dimension-line';
+import { IfcContext } from '../../context';
 
 export class IfcDimensions extends IfcComponent {
-  private readonly context: Context;
+  private readonly context: IfcContext;
   private dimensions: IfcDimensionLine[] = [];
   private currentDimension?: IfcDimensionLine;
   readonly labelClassName = 'ifcjs-dimension-label';
@@ -49,7 +50,7 @@ export class IfcDimensions extends IfcComponent {
   private startPoint = new Vector3();
   private endPoint = new Vector3();
 
-  constructor(context: Context) {
+  constructor(context: IfcContext) {
     super(context);
     this.context = context;
     this.endpoint = this.getDefaultEndpointGeometry();

@@ -1,13 +1,9 @@
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Box3, Camera, Sphere, Vector3 } from 'three';
-import {
-  Context,
-  IfcComponent,
-  NavigationMode,
-  NavigationModes
-} from '../../../../base-types';
+import { IfcComponent, NavigationMode, NavigationModes } from '../../../../base-types';
 import { LiteEvent } from '../../../../utils/LiteEvent';
 import { IfcCamera } from '../camera';
+import { IfcContext } from '../../context';
 
 export class OrbitControl extends IfcComponent implements NavigationMode {
   enabled = true;
@@ -17,7 +13,7 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
   readonly onUnlock = new LiteEvent();
   readonly onChangeProjection = new LiteEvent<Camera>();
 
-  constructor(private context: Context, private ifcCamera: IfcCamera) {
+  constructor(private context: IfcContext, private ifcCamera: IfcCamera) {
     super(context);
     this.activateOrbitControls();
   }

@@ -1,11 +1,14 @@
-import { Color, Vector2, WebGLRenderer } from 'three';
+import { Camera, Color, Vector2, WebGLRenderer } from 'three';
 import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer';
-import { Context, IfcComponent } from '../../../base-types';
+import { IfcComponent } from '../../../base-types';
 import { IfcPostproduction } from './postproduction';
+import { IfcContext } from '../context';
 
 export interface RendererAPI {
   domElement: HTMLElement;
+
   render(...args: any): void;
+
   setSize(width: number, height: number): void;
 }
 
@@ -18,9 +21,9 @@ export class IfcRenderer extends IfcComponent {
   postProductionActive = false;
 
   private readonly container: HTMLElement;
-  private readonly context: Context;
+  private readonly context: IfcContext;
 
-  constructor(context: Context) {
+  constructor(context: IfcContext) {
     super(context);
     this.context = context;
     this.container = context.options.container;
@@ -63,13 +66,27 @@ export class IfcRenderer extends IfcComponent {
     this.postProductionRenderer.setSize(this.container.clientWidth, this.container.clientHeight);
   }
 
-  newScreenshot(usePostproduction = false) {
-    const scene = this.context.getScene();
-    const camera = this.context.getCamera();
-    this.renderer.render(scene, camera);
+  newScreenshot(usePostproduction = false, camera?: Camera, dimensions?: Vector2) {
     const domElement = usePostproduction
       ? this.basicRenderer.domElement
       : this.postProductionRenderer.renderer.domElement;
+
+    const previousDimensions = this.getSize();
+
+    if (dimensions) {
+      this.basicRenderer.setSize(500, 500);
+      this.context.ifcCamera.updateAspect(new Vector2(500, 500));
+    }
+
+    const scene = this.context.getScene();
+    const cameraToRender = camera || this.context.getCamera();
+    this.renderer.render(scene, cameraToRender);
+
+    if (dimensions) {
+      this.basicRenderer.setSize(previousDimensions.x, previousDimensions.y);
+      this.context.ifcCamera.updateAspect(previousDimensions);
+    }
+
     return domElement.toDataURL();
   }
 
@@ -84,6 +101,6 @@ export class IfcRenderer extends IfcComponent {
   }
 
   private restoreRendererBackgroundColor() {
-    this.basicRenderer.setClearColor(new Color(0,0,0), 0);
+    this.basicRenderer.setClearColor(new Color(0, 0, 0), 0);
   }
 }

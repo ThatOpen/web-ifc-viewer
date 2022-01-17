@@ -1,7 +1,8 @@
 import { Object3D, Vector3, Matrix3, Intersection, Mesh, Plane } from 'three';
-import { IfcComponent, Context } from '../../../base-types';
+import { IfcComponent } from '../../../base-types';
 import { IfcPlane } from './planes';
 import { IfcManager } from '../../ifc';
+import { IfcContext } from '../../context';
 
 export class IfcClipper extends IfcComponent {
   dragging: boolean;
@@ -12,10 +13,10 @@ export class IfcClipper extends IfcComponent {
   planeSize = 5;
   private edgesEnabled: boolean;
   private enabled: boolean;
-  private readonly context: Context;
+  private readonly context: IfcContext;
   private readonly ifc: IfcManager;
 
-  constructor(context: Context, ifc: IfcManager) {
+  constructor(context: IfcContext, ifc: IfcManager) {
     super(context);
     this.context = context;
     this.ifc = ifc;

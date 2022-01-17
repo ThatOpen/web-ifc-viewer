@@ -2,9 +2,10 @@ import { Mesh, Vector3 } from 'three';
 import { IFCBUILDINGSTOREY, IFCBUILDING } from 'web-ifc';
 import { IfcPlane } from '../clipping-planes/planes';
 import { IfcClipper } from '../clipping-planes/clipper';
-import { CameraProjections, Context, NavigationModes } from '../../../base-types';
+import { CameraProjections, NavigationModes } from '../../../base-types';
 import { IfcManager } from '../../ifc';
 import { UnitType } from '../../ifc/units';
+import { IfcContext } from '../../context';
 
 export interface PlanViewConfig {
   modelID: number;
@@ -37,7 +38,7 @@ export class PlanManager {
 
   private storeys: { [modelID: number]: any[] } = [];
 
-  constructor(private ifc: IfcManager, private context: Context, private clipper: IfcClipper) {
+  constructor(private ifc: IfcManager, private context: IfcContext, private clipper: IfcClipper) {
     this.sectionFill = new Mesh();
   }
 

@@ -44,12 +44,35 @@ export class DXFWriter {
       currentDrawing.addLayer(dxfLayerName, color, style);
     }
     currentDrawing.setActiveLayer(dxfLayerName);
+    // flip vertical axis, so Three.js -Z becomes DXF +Y
     for (let i = 0; i < coordinates.length - 5; i += 6) {
-      const start = [coordinates[i], coordinates[i + 2]];
-      const end = [coordinates[i + 3], coordinates[i + 5]];
+      const start = [coordinates[i], -coordinates[i + 2]];
+      const end = [coordinates[i + 3], -coordinates[i + 5]];
       // eslint-disable-next-line no-continue
       if (start[0] === 0 && start[1] === 0 && end[0] === 0 && end[1] === 0) continue;
       currentDrawing.drawLine(start[0], start[1], end[0], end[1]);
+    }
+  }
+
+  drawEdges(
+    drawingName: string,
+    polygons: number[][],
+    dxfLayerName: string,
+    color: any,
+    style = 'CONTINUOUS'
+  ) {
+    const currentDrawing = this.drawings[drawingName];
+    if (!currentDrawing.layers[dxfLayerName]) {
+      currentDrawing.addLayer(dxfLayerName, color, style);
+    }
+    currentDrawing.setActiveLayer(dxfLayerName);
+    for (let i = 0; i < polygons.length; i++) {
+      const polygon = polygons[i];
+      for (let j = 0; j < polygon.length - 3; j += 2) {
+        const start = [polygon[j], polygon[j + 1]];
+        const end = [polygon[j + 2], polygon[j + 3]];
+        currentDrawing.drawLine(start[0], start[1], end[0], end[1]);
+      }
     }
   }
 
@@ -64,34 +87,3 @@ export class DXFWriter {
     saveLink.click();
   }
 }
-
-//
-// export async function exportPDF(subset) {
-//   Default;
-// export
-//   is;
-//   a4;
-//   paper, portrait, using;
-//   millimeters;
-//   for units
-//       const doc = new jsPDF('p', 'mm', [1000, 1000]);
-//
-//   const edgesGeometry = new EdgesGeometry(subset.geometry);
-//   console.log(edgesGeometry);
-//   const allAttributes = Object.values(ClippingEdges.styles).map(style => style.generatorGeometry.attributes);
-//   drawPDFLayer(doc, allAttributes[0].position.array, 300, 250, 8, 0.3);
-//   drawPDFLayer(doc, allAttributes[1].position.array, 300, 250, 8, 0.1, { r: 200, g: 200, b: 200 });
-//   drawPDFLayer(doc, edgesGeometry.attributes.position.array, 300, 250, 8, 0.1, { r: 220, g: 220, b: 220 });
-//   doc.save('a4.pdf');
-// }
-//
-// function drawPDFLayer(doc, coordinates, offsetX, offsetY, scale = 1, lineWidth = 0.2, color = { r: 0, g: 0, b: 0 }) {
-//   doc.setLineWidth(lineWidth);
-//   doc.setTextColor(color.r, color.g, color.b);
-//   for (let i = 0; i < coordinates.length - 5; i += 6) {
-//     const start = [coordinates[i] * scale + offsetX, coordinates[i + 2] * scale + offsetY];
-//     const end = [coordinates[i + 3] * scale + offsetX, coordinates[i + 5] * scale + offsetY];
-//     if (start[0] === 0 && start[1] === 0 && end[0] === 0 && end[1] === 0) continue;
-//     doc.line(start[0], start[1], end[0], end[1], 'S');
-//   }
-// }
