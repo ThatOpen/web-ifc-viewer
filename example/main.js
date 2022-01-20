@@ -14,7 +14,7 @@ import {
   // IFCSTAIRFLIGHT,
   // IFCRAILING
 } from 'web-ifc';
-import { MeshBasicMaterial, LineBasicMaterial, Color, Vector3, BoxGeometry, Mesh, EdgesGeometry, LineSegments, BufferAttribute } from 'three';
+import { MeshBasicMaterial, LineBasicMaterial, Color, Vector3, BoxGeometry, Mesh, EdgesGeometry, LineSegments, BufferAttribute, Vector2 } from 'three';
 import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
 import Drawing from 'dxf-writer';
 
@@ -110,7 +110,7 @@ const handleKeyDown = async (event) => {
     // await viewer.edgesVectorizer.vectorize(10);
 
     const link = document.createElement('a');
-    link.href = viewer.context.renderer.newScreenshot();
+    link.href = viewer.context.renderer.newScreenshot(false, undefined, new Vector2(4000, 4000));
     link.download = 'example.jpeg';
     document.body.appendChild(link);
     link.click();
@@ -178,9 +178,6 @@ const handleKeyDown = async (event) => {
     viewer.dxf.newDrawing(drawingName);
     // const polygons = viewer.edgesVectorizer.polygons;
     // viewer.dxf.drawEdges(drawingName, polygons, 'projection', Drawing.ACI.BLUE );
-
-
-
 
     viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thick', 'section_thick', Drawing.ACI.RED);
     viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thin', 'section_thin', Drawing.ACI.GREEN);

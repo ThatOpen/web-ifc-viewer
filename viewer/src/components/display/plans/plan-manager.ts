@@ -102,6 +102,7 @@ export class PlanManager {
     for (let i = 0; i < storeys.length; i++) {
       const baseHeight = storeys[i].Elevation.value;
       const elevation = (baseHeight + siteCoords[2]) * unitsScale + transformHeight;
+
       // eslint-disable-next-line no-await-in-loop
       await this.create({
         modelID,

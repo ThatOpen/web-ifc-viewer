@@ -74,20 +74,21 @@ export class IfcRenderer extends IfcComponent {
     const previousDimensions = this.getSize();
 
     if (dimensions) {
-      this.basicRenderer.setSize(500, 500);
-      this.context.ifcCamera.updateAspect(new Vector2(500, 500));
+      this.basicRenderer.setSize(dimensions.x, dimensions.y);
+      this.context.ifcCamera.updateAspect(dimensions);
     }
 
     const scene = this.context.getScene();
     const cameraToRender = camera || this.context.getCamera();
     this.renderer.render(scene, cameraToRender);
+    const result = domElement.toDataURL();
 
     if (dimensions) {
       this.basicRenderer.setSize(previousDimensions.x, previousDimensions.y);
       this.context.ifcCamera.updateAspect(previousDimensions);
     }
 
-    return domElement.toDataURL();
+    return result;
   }
 
   private setupRenderers() {
