@@ -90063,6 +90063,7 @@
             this.active = false;
             this.defaultSectionOffset = 1.5;
             this.defaultCameraOffset = 30;
+            this.floorPlanViewCached = false;
             this.previousCamera = new Vector3();
             this.previousTarget = new Vector3();
             this.previousProjection = CameraProjections.Perspective;
@@ -90076,63 +90077,31 @@
             return Object.keys(currentPlans);
         }
         async create(config) {
-            // if (this.planList[config.name] !== undefined) return;
-            const { modelID, name, camera, target } = config;
+            const { modelID, name } = config;
             const ortho = config.ortho || true;
-            if (this.planLists[modelID] === undefined) {
+            if (this.planLists[modelID] === undefined)
                 this.planLists[modelID] = {};
-            }
             const currentPlanlist = this.planLists[modelID];
             if (currentPlanlist[name])
                 return;
-            currentPlanlist[name] = { modelID, name, camera, target, ortho };
-            if (config.normal && config.point) {
-                const { normal, point } = config;
-                const plane = this.clipper.createFromNormalAndCoplanarPoint(normal, point, true);
-                plane.visible = false;
-                plane.active = false;
-                currentPlanlist[name].plane = plane;
-                await plane.edges.updateEdges();
-                plane.edges.visible = false;
-            }
+            currentPlanlist[name] = { modelID, name, ortho };
+            await this.createClippingPlane(config, currentPlanlist[name]);
         }
         async goTo(modelID, name, animate = false) {
-            var _a, _b;
+            var _a;
             if (((_a = this.currentPlan) === null || _a === void 0 ? void 0 : _a.modelID) === modelID && this.currentPlan.name === name)
                 return;
-            if (!this.active) {
-                this.context.getCamera().getWorldPosition(this.previousCamera);
-                this.context.ifcCamera.cameraControls.getTarget(this.previousTarget);
-                this.previousProjection = this.context.ifcCamera.projection;
-            }
-            this.active = true;
-            if (this.planLists[modelID] === undefined)
-                throw new Error('The specified plan is undefined!');
-            const currentPlanList = this.planLists[modelID];
-            if (currentPlanList[name] === undefined)
-                throw new Error('The specified plan is undefined!');
-            const plane = (_b = this.currentPlan) === null || _b === void 0 ? void 0 : _b.plane;
-            if (plane)
-                plane.active = false;
-            if (!currentPlanList[name])
-                return;
-            this.currentPlan = currentPlanList[name];
-            const { x, y, z } = this.currentPlan.camera;
-            const target = this.currentPlan.target;
-            this.context.ifcCamera.setNavigationMode(NavigationModes.Plan);
-            const mode = this.currentPlan.ortho
-                ? CameraProjections.Orthographic
-                : CameraProjections.Perspective;
-            this.context.ifcCamera.projection = mode;
-            if (this.currentPlan.plane) {
-                this.currentPlan.plane.active = true;
-            }
-            await this.context.ifcCamera.cameraControls.setLookAt(x, y, z, target.z, target.y, target.z, animate);
+            this.activate2DNavigation();
+            this.hidePreviousClippingPlane();
+            this.getCurrentPlan(modelID, name);
+            this.activateCurrentPlan();
+            await this.moveCameraTo2DPlanPosition(animate);
         }
         exitPlanView(animate = false) {
             if (!this.active)
                 return;
             this.active = false;
+            this.cacheFloorplanView();
             this.context.ifcCamera.setNavigationMode(NavigationModes.Orbit);
             this.context.ifcCamera.projection = this.previousProjection;
             if (this.currentPlan && this.currentPlan.plane) {
@@ -90142,36 +90111,102 @@
             this.context.ifcCamera.cameraControls.setLookAt(this.previousCamera.x, this.previousCamera.y, this.previousCamera.z, this.previousTarget.x, this.previousTarget.y, this.previousTarget.z, animate);
         }
         async computeAllPlanViews(modelID) {
-            if (!this.storeys[modelID]) {
-                this.storeys[modelID] = await this.ifc.getAllItemsOfType(modelID, IFCBUILDINGSTOREY, true);
-            }
-            const allBuildingsIDs = await this.ifc.getAllItemsOfType(modelID, IFCBUILDING, false);
-            const buildingID = allBuildingsIDs[0];
-            const building = await this.ifc.getProperties(modelID, buildingID, false, true);
+            await this.getCurrentStoreys(modelID);
             const unitsScale = await this.ifc.units.getUnits(modelID, UnitType.LENGTHUNIT);
-            // const buildingPlace = building.ObjectPlacement.Location;
-            // const buildingCoords = buildingPlace.Coordinates.map((coord: any) => coord.value * unitsScale);
-            const sitePlace = building.ObjectPlacement.PlacementRelTo.RelativePlacement.Location;
-            const siteCoords = sitePlace.Coordinates.map((coord) => coord.value);
-            const transformMatrix = await this.ifc.loader.ifcManager.ifcAPI.GetCoordinationMatrix(modelID);
-            const transformHeight = transformMatrix[13];
+            const siteCoords = await this.getSiteCoords(modelID);
+            const transformHeight = await this.getTransformHeight(modelID);
             const storeys = this.storeys[modelID];
             for (let i = 0; i < storeys.length; i++) {
-                const storey = storeys[i];
-                const baseHeight = storey.Elevation.value;
+                const baseHeight = storeys[i].Elevation.value;
                 const elevation = (baseHeight + siteCoords[2]) * unitsScale + transformHeight;
                 // eslint-disable-next-line no-await-in-loop
                 await this.create({
                     modelID,
-                    name: this.getFloorplanName(storey),
-                    target: new Vector3(0, 0, 0),
-                    camera: new Vector3(0, elevation + this.defaultCameraOffset, 0),
+                    name: this.getFloorplanName(storeys[i]),
                     point: new Vector3(0, elevation + this.defaultSectionOffset, 0),
                     normal: new Vector3(0, -1, 0),
                     rotation: 0,
                     ortho: true
                 });
             }
+        }
+        async createClippingPlane(config, plan) {
+            if (config.normal && config.point) {
+                const { normal, point } = config;
+                const plane = this.clipper.createFromNormalAndCoplanarPoint(normal, point, true);
+                plane.visible = false;
+                plane.active = false;
+                plan.plane = plane;
+                await plane.edges.updateEdges();
+                plane.edges.visible = false;
+            }
+        }
+        async getTransformHeight(modelID) {
+            const transformMatrix = await this.ifc.loader.ifcManager.ifcAPI.GetCoordinationMatrix(modelID);
+            return transformMatrix[13];
+        }
+        async getCurrentStoreys(modelID) {
+            if (!this.storeys[modelID]) {
+                this.storeys[modelID] = await this.ifc.getAllItemsOfType(modelID, IFCBUILDINGSTOREY, true);
+            }
+        }
+        async getSiteCoords(modelID) {
+            const building = await this.getBuilding(modelID);
+            const sitePlace = building.ObjectPlacement.PlacementRelTo.RelativePlacement.Location;
+            return sitePlace.Coordinates.map((coord) => coord.value);
+        }
+        async getBuilding(modelID) {
+            const allBuildingsIDs = await this.ifc.getAllItemsOfType(modelID, IFCBUILDING, false);
+            const buildingID = allBuildingsIDs[0];
+            return this.ifc.getProperties(modelID, buildingID, false, true);
+        }
+        cacheFloorplanView() {
+            this.floorPlanViewCached = true;
+            this.context.ifcCamera.cameraControls.saveState();
+        }
+        async moveCameraTo2DPlanPosition(animate) {
+            if (this.floorPlanViewCached)
+                this.context.ifcCamera.cameraControls.reset();
+            else
+                await this.context.ifcCamera.cameraControls.setLookAt(0, 100, 0, 0, 0, 0, animate);
+        }
+        activateCurrentPlan() {
+            if (!this.currentPlan)
+                throw new Error('Current plan is not defined.');
+            if (this.currentPlan.plane)
+                this.currentPlan.plane.active = true;
+            this.context.ifcCamera.setNavigationMode(NavigationModes.Plan);
+            this.context.ifcCamera.projection = this.currentPlan.ortho
+                ? CameraProjections.Orthographic
+                : CameraProjections.Perspective;
+        }
+        activate2DNavigation() {
+            if (!this.active) {
+                // Stores 3d camera position so when exiting 2d mode it goes back to it
+                this.storeCameraPosition();
+            }
+            this.active = true;
+        }
+        storeCameraPosition() {
+            this.context.getCamera().getWorldPosition(this.previousCamera);
+            this.context.ifcCamera.cameraControls.getTarget(this.previousTarget);
+            this.previousProjection = this.context.ifcCamera.projection;
+        }
+        getCurrentPlan(modelID, name) {
+            if (this.planLists[modelID] === undefined)
+                throw new Error('The specified plan is undefined!');
+            const currentPlanList = this.planLists[modelID];
+            if (currentPlanList[name] === undefined)
+                throw new Error('The specified plan is undefined!');
+            if (!currentPlanList[name])
+                throw new Error('The specified plan name does not exist!');
+            this.currentPlan = currentPlanList[name];
+        }
+        hidePreviousClippingPlane() {
+            var _a;
+            const plane = (_a = this.currentPlan) === null || _a === void 0 ? void 0 : _a.plane;
+            if (plane)
+                plane.active = false;
         }
         getFloorplanName(floorplan) {
             if (floorplan.Name && floorplan.Name.value) {
