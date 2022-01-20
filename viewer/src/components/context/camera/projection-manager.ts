@@ -1,7 +1,8 @@
 import { Camera, Vector3 } from 'three';
 import CameraControls from 'camera-controls';
-import { CameraProjections, Context, NavigationModes } from '../../../base-types';
+import { CameraProjections, NavigationModes } from '../../../base-types';
 import { IfcCamera } from './camera';
+import { IfcContext } from '../context';
 
 export class ProjectionManager {
   private currentProjection: CameraProjections;
@@ -79,7 +80,7 @@ export class ProjectionManager {
     this.cameras.cameraControls.zoomTo(1);
   }
 
-  constructor(private context: Context, ifcCamera: IfcCamera) {
+  constructor(private context: IfcContext, ifcCamera: IfcCamera) {
     this.cameras = ifcCamera;
     this.currentCamera = ifcCamera.perspectiveCamera;
     this.currentProjection = CameraProjections.Perspective;

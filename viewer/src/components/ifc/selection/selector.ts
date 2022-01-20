@@ -1,8 +1,8 @@
 import { DoubleSide, Material, Mesh, MeshLambertMaterial } from 'three';
 import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
-import { Context } from '../../../base-types';
 import { IfcSelection } from './selection';
 import { IfcManager } from '../ifc-manager';
+import { IfcContext } from '../../context';
 
 export class IfcSelector {
   preselection: IfcSelection;
@@ -14,7 +14,7 @@ export class IfcSelector {
   private readonly defSelectMat: Material;
   private readonly highlightMeshes: { [modelID: number]: { original: Mesh; faded: Mesh } } = {};
 
-  constructor(private context: Context, private ifc: IfcManager) {
+  constructor(private context: IfcContext, private ifc: IfcManager) {
     this.defSelectMat = this.initializeDefMaterial(0xff33ff, 0.3);
     this.defPreselectMat = this.initializeDefMaterial(0xffccff, 0.5);
     this.defHighlightMat = this.initializeDefMaterial(0xeeeeee, 0.05);
@@ -40,7 +40,7 @@ export class IfcSelector {
    * Highlights the item pointed by the cursor and gets is properties.
    * @focusSelection If true, animate the perspectiveCamera to focus the current selection
    */
-  async pickIfcItem(focusSelection = false){
+  async pickIfcItem(focusSelection = false) {
     const found = this.context.castRayIfc();
     if (!found) return null;
     const result = await this.selection.pick(found, focusSelection);

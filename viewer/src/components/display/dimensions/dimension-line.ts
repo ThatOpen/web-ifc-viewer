@@ -11,10 +11,10 @@ import {
   Camera
 } from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
-import { Context } from '../../../base-types';
+import { IfcContext } from '../../context';
 
 export class IfcDimensionLine {
-  private readonly context: Context;
+  private readonly context: IfcContext;
   private readonly camera: Camera;
   private readonly labelClassName: string;
   static scaleFactor = 0.1;
@@ -45,7 +45,7 @@ export class IfcDimensionLine {
   private readonly boundingSize = 0.05;
 
   constructor(
-    context: Context,
+    context: IfcContext,
     start: Vector3,
     end: Vector3,
     lineMaterial: LineBasicMaterial,

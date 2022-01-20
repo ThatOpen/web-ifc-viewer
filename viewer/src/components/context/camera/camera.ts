@@ -18,7 +18,6 @@ import {
 import CameraControls from 'camera-controls';
 import {
   CameraProjections,
-  Context,
   IfcComponent,
   NavigationMode,
   NavigationModes,
@@ -29,6 +28,7 @@ import { FirstPersonControl } from './controls/first-person-control';
 import { OrbitControl } from './controls/orbit-control';
 import { ProjectionManager } from './projection-manager';
 import { PlanControl } from './controls/plan-control';
+import { IfcContext } from '../context';
 
 const subsetOfTHREE = {
   MOUSE,
@@ -59,10 +59,10 @@ export class IfcCamera extends IfcComponent {
 
   public readonly onChange = new LiteEvent<any>();
   public readonly onChangeProjection = new LiteEvent<Camera>();
-  private readonly context: Context;
+  private readonly context: IfcContext;
   private readonly projectionManager: ProjectionManager;
 
-  constructor(context: Context) {
+  constructor(context: IfcContext) {
     super(context);
     this.context = context;
 
@@ -122,11 +122,13 @@ export class IfcCamera extends IfcComponent {
 
   update(_delta: number) {
     super.update(_delta);
-    this.cameraControls.update(_delta);
+    if (this.cameraControls.enabled) {
+      this.cameraControls.update(_delta);
+    }
   }
 
-  updateAspect() {
-    const dims = this.context.getDimensions();
+  updateAspect(dims?: Vector2) {
+    if (!dims) dims = this.context.getDimensions();
     this.perspectiveCamera.aspect = dims.x / dims.y;
     this.perspectiveCamera.updateProjectionMatrix();
     this.setOrthoCameraAspect(dims);

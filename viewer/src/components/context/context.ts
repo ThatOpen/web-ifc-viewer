@@ -1,13 +1,13 @@
 import { Clock, Mesh, Object3D, Plane, Vector2, Vector3 } from 'three';
-import { Context, IfcComponent, Items, NavigationModes, ViewerOptions } from '../../base-types';
 import { IfcCamera } from './camera/camera';
 import { IfcRaycaster } from './raycaster';
 import { IfcRenderer } from './renderer/renderer';
 import { IfcScene } from './scene';
 import { Animator } from './animator';
 import { IfcEvent, IfcEvents } from './ifcEvent';
+import { IfcComponent, Items, NavigationModes, ViewerOptions } from '../../base-types';
 
-export class IfcContext implements Context {
+export class IfcContext {
   options: ViewerOptions;
   items: Items;
   ifcCamera: IfcCamera;
@@ -105,6 +105,7 @@ export class IfcContext implements Context {
     return new Vector3(xCoords / counter, yCoords / counter, zCoords / counter);
   }
 
+  // eslint-disable-next-line no-undef
   addComponent(component: IfcComponent) {
     this.items.components.push(component);
   }

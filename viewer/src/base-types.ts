@@ -1,27 +1,10 @@
-import {
-  Camera,
-  Color,
-  Intersection,
-  Material,
-  Object3D,
-  Plane,
-  Renderer,
-  Scene,
-  Vector2,
-  Vector3,
-  Mesh,
-  MOUSE
-} from 'three';
-import { IfcMesh } from 'web-ifc-three/IFC/BaseDefinitions';
-import { Animator } from './components/context/animator';
+import { Camera, Color, Material, MOUSE } from 'three';
+import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
 import { OrbitControl } from './components/context/camera/controls/orbit-control';
 import { FirstPersonControl } from './components/context/camera/controls/first-person-control';
-import { IfcCamera } from './components/context/camera/camera';
 import { LiteEvent } from './utils/LiteEvent';
-import { IfcEvents } from './components/context/ifcEvent';
-import { IfcRenderer } from './components/context/renderer/renderer';
 import { PlanControl } from './components/context/camera/controls/plan-control';
-import { IfcScene } from './components/context/scene';
+import { IfcContext } from './components';
 
 export interface MouseButtons {
   left: MOUSE;
@@ -68,40 +51,12 @@ interface Component {
 
 export interface Items {
   components: Component[];
-  ifcModels: IfcMesh[];
-  pickableIfcModels: IfcMesh[];
-}
-
-export interface Context {
-  items: Items;
-  options: ViewerOptions;
-
-  events: IfcEvents;
-  renderer: IfcRenderer;
-  scene: IfcScene;
-
-  getScene: () => Scene;
-  getCamera: () => Camera;
-  getRenderer: () => Renderer;
-  getDomElement: () => HTMLElement;
-  getDomElement2D: () => HTMLElement;
-  getDimensions: () => Vector2;
-  getClippingPlanes: () => Plane[];
-  getAnimator: () => Animator;
-  getCenter: (mesh: Mesh) => Vector3;
-  ifcCamera: IfcCamera;
-
-  fitToFrame: () => void;
-  toggleCameraControls: (active: boolean, options?: any) => void;
-  addComponent: (component: Component) => void;
-  addClippingPlane: (plane: Plane) => void;
-  removeClippingPlane: (plane: Plane) => void;
-  castRay: (items: Object3D[]) => Intersection[];
-  castRayIfc: () => Intersection | null;
+  ifcModels: IFCModel[];
+  pickableIfcModels: IFCModel[];
 }
 
 export abstract class IfcComponent implements Component {
-  protected constructor(context: Context) {
+  protected constructor(context: IfcContext) {
     context.addComponent(this);
   }
 

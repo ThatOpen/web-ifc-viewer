@@ -1,12 +1,13 @@
 import { AmbientLight, Color, DirectionalLight, Object3D, Scene } from 'three';
 import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
-import { IfcComponent, ViewerOptions, Context } from '../../base-types';
+import { IfcComponent, ViewerOptions } from '../../base-types';
+import { IfcContext } from './context';
 
 export class IfcScene extends IfcComponent {
   scene: Scene;
   defaultBackgroundColor = new Color(0xa9a9a9);
 
-  constructor(private context: Context) {
+  constructor(private context: IfcContext) {
     super(context);
     this.scene = new Scene();
     this.setupScene(context.options);

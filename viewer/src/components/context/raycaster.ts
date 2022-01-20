@@ -1,13 +1,14 @@
 import { Intersection, Object3D, Raycaster } from 'three';
 import { IfcMouse } from './mouse';
-import { IfcComponent, Context } from '../../base-types';
+import { IfcComponent } from '../../base-types';
+import { IfcContext } from './context';
 
 export class IfcRaycaster extends IfcComponent {
   private readonly raycaster: Raycaster;
   private readonly mouse: IfcMouse;
-  private readonly context: Context;
+  private readonly context: IfcContext;
 
-  constructor(context: Context) {
+  constructor(context: IfcContext) {
     super(context);
     this.context = context;
     this.raycaster = new Raycaster();

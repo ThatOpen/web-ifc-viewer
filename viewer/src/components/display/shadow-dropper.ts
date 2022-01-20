@@ -16,8 +16,8 @@ import {
 } from 'three';
 import { HorizontalBlurShader } from 'three/examples/jsm/shaders/HorizontalBlurShader';
 import { VerticalBlurShader } from 'three/examples/jsm/shaders/VerticalBlurShader';
-import { Context } from '../../base-types';
 import { IfcManager } from '../ifc';
+import { IfcContext } from '../context';
 
 export interface Shadow {
   root: Group;
@@ -42,10 +42,10 @@ export class ShadowDropper {
   private tempMaterial = new MeshBasicMaterial({ visible: false });
   private depthMaterial = new MeshDepthMaterial();
 
-  private context: Context;
+  private context: IfcContext;
   private IFC: IfcManager;
 
-  constructor(context: Context, IFC: IfcManager) {
+  constructor(context: IfcContext, IFC: IfcManager) {
     this.context = context;
     this.IFC = IFC;
     this.initializeDepthMaterial();

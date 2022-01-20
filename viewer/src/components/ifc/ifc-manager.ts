@@ -1,20 +1,21 @@
 // @ts-ignore
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { Matrix4 } from 'three';
-import { IfcMesh, IfcModel } from 'web-ifc-three/IFC/BaseDefinitions';
 import { IFCLoader } from 'web-ifc-three/IFCLoader';
 import { LoaderSettings } from 'web-ifc';
-import { IfcComponent, Context } from '../../base-types';
+import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
+import { IfcComponent } from '../../base-types';
 import { IfcUnits } from './units';
 import { IfcSelector } from './selection/selector';
+import { IfcContext } from '../context';
 
 export class IfcManager extends IfcComponent {
   loader: IFCLoader;
   selector: IfcSelector;
   units: IfcUnits;
-  private readonly context: Context;
+  private readonly context: IfcContext;
 
-  constructor(context: Context) {
+  constructor(context: IfcContext) {
     super(context);
     this.context = context;
     this.loader = new IFCLoader();
@@ -58,8 +59,8 @@ export class IfcManager extends IfcComponent {
         USE_FAST_BOOLS: fastBools
       });
 
-      const ifcModel = (await this.loader.loadAsync(url, onProgress)) as IfcModel;
-      this.addIfcModel(ifcModel.mesh);
+      const ifcModel = await this.loader.loadAsync(url, onProgress);
+      this.addIfcModel(ifcModel);
 
       if (firstModel) {
         const matrixArr = await this.loader.ifcManager.ifcAPI.GetCoordinationMatrix(
@@ -137,7 +138,7 @@ export class IfcManager extends IfcComponent {
   getModelID() {
     const found = this.context.castRayIfc();
     if (!found) return null;
-    const mesh = found.object as IfcMesh;
+    const mesh = found.object as IFCModel;
     if (!mesh || mesh.modelID === undefined || mesh.modelID === null) return null;
     return mesh.modelID;
   }
@@ -215,7 +216,7 @@ export class IfcManager extends IfcComponent {
     this.selector.unHighlightIfcItems();
   }
 
-  private addIfcModel(ifcMesh: IfcMesh) {
+  private addIfcModel(ifcMesh: IFCModel) {
     this.context.items.ifcModels.push(ifcMesh);
     this.context.items.pickableIfcModels.push(ifcMesh);
     this.context.getScene().add(ifcMesh);

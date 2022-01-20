@@ -1,6 +1,6 @@
 import { LineSegments, EdgesGeometry, Material } from 'three';
 import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
-import { Context } from '../../base-types';
+import { IfcContext } from '../context';
 
 export class Edges {
   threshold = 30;
@@ -14,7 +14,7 @@ export class Edges {
     };
   };
 
-  constructor(private context: Context) {
+  constructor(private context: IfcContext) {
     this.edges = {};
   }
 
@@ -34,9 +34,7 @@ export class Edges {
 
   // TODO: Implement ids to create filtered edges / edges by floor plan
   create(name: string, modelID: number, lineMaterial: Material, material?: Material) {
-    const model = this.context.items.ifcModels.find(
-      (model) => model.modelID === modelID
-    ) as IFCModel;
+    const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
     if (!model) return;
     const planes = this.context.getClippingPlanes();
     lineMaterial.clippingPlanes = planes;

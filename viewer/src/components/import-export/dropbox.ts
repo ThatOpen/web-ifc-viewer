@@ -1,5 +1,6 @@
-import { IfcComponent, Context } from '../../base-types';
+import { IfcComponent } from '../../base-types';
 import { IfcManager } from '../ifc';
+import { IfcContext } from '../context';
 
 type dbChooserResponse = {
   id: string;
@@ -18,7 +19,7 @@ export class DropboxAPI extends IfcComponent {
   private counter: number;
   private loader: IfcManager;
 
-  constructor(context: Context, loader: IfcManager) {
+  constructor(context: IfcContext, loader: IfcManager) {
     super(context);
     this.loader = loader;
     this.counter = 0;

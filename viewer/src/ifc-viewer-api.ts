@@ -17,6 +17,7 @@ import { GLTFManager } from './components/import-export/glTF';
 import { ShadowDropper } from './components/display/shadow-dropper';
 import { DXFWriter } from './components/import-export/dxf';
 import { PDFWriter } from './components/import-export/pdf';
+import { EdgesVectorizer } from './components/import-export/edges-vectorizer';
 
 export class IfcViewerAPI {
   public context: IfcContext;
@@ -29,44 +30,29 @@ export class IfcViewerAPI {
   shadowDropper: ShadowDropper;
   dxf: DXFWriter;
   pdf: PDFWriter;
+  edgesVectorizer: EdgesVectorizer;
   gltf: GLTFManager;
+  grid: IfcGrid;
+  axes: IfcAxes;
   stats?: IfcStats;
-  grid?: IfcGrid;
-  axes?: IfcAxes;
   dropbox?: DropboxAPI;
 
   constructor(options: ViewerOptions) {
     if (!options.container) throw new Error('Could not get container element!');
     this.context = new IfcContext(options);
     this.IFC = new IfcManager(this.context);
+    this.grid = new IfcGrid(this.context);
+    this.axes = new IfcAxes(this.context);
     this.clipper = new IfcClipper(this.context, this.IFC);
     this.plans = new PlanManager(this.IFC, this.context, this.clipper);
     this.filler = new SectionFillManager(this.IFC, this.context);
     this.dimensions = new IfcDimensions(this.context);
     this.edges = new Edges(this.context);
     this.shadowDropper = new ShadowDropper(this.context, this.IFC);
+    this.edgesVectorizer = new EdgesVectorizer(this.context, this.clipper, this.grid, this.axes);
     this.dxf = new DXFWriter();
     this.pdf = new PDFWriter();
     this.gltf = new GLTFManager(this.context);
-  }
-
-  /**
-   * Adds a base [grid](https://threejs.org/docs/#api/en/helpers/GridHelper) to the scene.
-   * @size (optional) Size of the grid.
-   * @divisions (optional) Number of divisions in X and Y.
-   * @ColorCenterLine (optional) Color of the XY central lines of the grid.
-   * @colorGrid (optional) Color of the XY lines of the grid.
-   */
-  addGrid(size?: number, divisions?: number, colorCenterLine?: Color, colorGrid?: Color) {
-    this.grid = new IfcGrid(this.context, size, divisions, colorCenterLine, colorGrid);
-  }
-
-  /**
-   * Adds base [axes](https://threejs.org/docs/#api/en/helpers/AxesHelper) to the scene.
-   * @size (optional) Size of the axes.
-   */
-  addAxes(size?: number) {
-    this.axes = new IfcAxes(this.context, size);
   }
 
   /**
@@ -121,6 +107,27 @@ export class IfcViewerAPI {
    */
   async loadIfc(file: File, fitToFrame = false) {
     await this.IFC.loadIfc(file, fitToFrame);
+  }
+
+  /**
+   * @deprecated Use `IfcViewerAPI.grid.setGrid()` instead.
+   * Adds a base [grid](https://threejs.org/docs/#api/en/helpers/GridHelper) to the scene.
+   * @size (optional) Size of the grid.
+   * @divisions (optional) Number of divisions in X and Y.
+   * @ColorCenterLine (optional) Color of the XY central lines of the grid.
+   * @colorGrid (optional) Color of the XY lines of the grid.
+   */
+  addGrid(size?: number, divisions?: number, colorCenterLine?: Color, colorGrid?: Color) {
+    this.grid.setGrid(size, divisions, colorCenterLine, colorGrid);
+  }
+
+  /**
+   * @deprecated Use `IfcViewerAPI.axes.setAxes()` instead.
+   * Adds base [axes](https://threejs.org/docs/#api/en/helpers/AxesHelper) to the scene.
+   * @size (optional) Size of the axes.
+   */
+  addAxes(size?: number) {
+    this.axes.setAxes(size);
   }
 
   /**
@@ -221,6 +228,5 @@ export class IfcViewerAPI {
    * TODO: Method to delete all data
    * Needs to be implemented yet
    */
-  releaseAllMemory() {
-  }
+  releaseAllMemory() {}
 }

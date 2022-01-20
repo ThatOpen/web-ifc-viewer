@@ -9,9 +9,10 @@ import {
   Vector3
 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
-import { Context, IfcComponent } from '../../../base-types';
+import { IfcComponent } from '../../../base-types';
 import { ClippingEdges } from './clipping-edges';
 import { IfcManager } from '../../ifc';
+import { IfcContext } from '../../context';
 
 export class IfcPlane extends IfcComponent {
   static planeMaterial = new MeshBasicMaterial({
@@ -39,10 +40,10 @@ export class IfcPlane extends IfcComponent {
   readonly helper: Object3D;
 
   private readonly planeSize: number;
-  private readonly context: Context;
+  private readonly context: IfcContext;
 
   constructor(
-    context: Context,
+    context: IfcContext,
     ifc: IfcManager,
     origin: Vector3,
     normal: Vector3,
