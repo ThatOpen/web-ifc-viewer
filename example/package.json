@@ -2,7 +2,7 @@
   "name": "web-ifc-viewer-basic-example",
   "private": true,
   "type": "module",
-  "version": "1.0.127",
+  "version": "1.0.128",
   "description": "A basic html example for web-ifc-viewer",
   "main": "index.html",
   "scripts": {
@@ -28,6 +28,6 @@
     "three": "^0.132.2",
     "three-mesh-bvh": "^0.5.2",
     "web-ifc": "^0.0.32",
-    "web-ifc-viewer": "1.0.127"
+    "web-ifc-viewer": "1.0.128"
   }
 }
