@@ -90063,11 +90063,11 @@
             this.active = false;
             this.defaultSectionOffset = 1.5;
             this.defaultCameraOffset = 30;
+            this.storeys = [];
             this.floorPlanViewCached = false;
             this.previousCamera = new Vector3();
             this.previousTarget = new Vector3();
             this.previousProjection = CameraProjections.Perspective;
-            this.storeys = [];
             this.sectionFill = new Mesh();
         }
         getAll(modelID) {
@@ -90082,20 +90082,24 @@
             if (this.planLists[modelID] === undefined)
                 this.planLists[modelID] = {};
             const currentPlanlist = this.planLists[modelID];
+            const expressID = config.expressID;
             if (currentPlanlist[name])
                 return;
-            currentPlanlist[name] = { modelID, name, ortho };
+            currentPlanlist[name] = { modelID, name, ortho, expressID };
             await this.createClippingPlane(config, currentPlanlist[name]);
         }
         async goTo(modelID, name, animate = false) {
             var _a;
             if (((_a = this.currentPlan) === null || _a === void 0 ? void 0 : _a.modelID) === modelID && this.currentPlan.name === name)
                 return;
-            this.activate2DNavigation();
+            this.storeCameraPosition();
             this.hidePreviousClippingPlane();
             this.getCurrentPlan(modelID, name);
             this.activateCurrentPlan();
-            await this.moveCameraTo2DPlanPosition(animate);
+            if (!this.active) {
+                await this.moveCameraTo2DPlanPosition(animate);
+                this.active = true;
+            }
         }
         exitPlanView(animate = false) {
             if (!this.active)
@@ -90119,6 +90123,7 @@
             for (let i = 0; i < storeys.length; i++) {
                 const baseHeight = storeys[i].Elevation.value;
                 const elevation = (baseHeight + siteCoords[2]) * unitsScale + transformHeight;
+                const expressID = storeys[i].expressID;
                 // eslint-disable-next-line no-await-in-loop
                 await this.create({
                     modelID,
@@ -90126,8 +90131,17 @@
                     point: new Vector3(0, elevation + this.defaultSectionOffset, 0),
                     normal: new Vector3(0, -1, 0),
                     rotation: 0,
-                    ortho: true
+                    ortho: true,
+                    expressID
                 });
+            }
+        }
+        storeCameraPosition() {
+            if (this.active) {
+                this.cacheFloorplanView();
+            }
+            else {
+                this.store3dCameraPosition();
             }
         }
         async createClippingPlane(config, plan) {
@@ -90166,7 +90180,7 @@
         }
         async moveCameraTo2DPlanPosition(animate) {
             if (this.floorPlanViewCached)
-                this.context.ifcCamera.cameraControls.reset();
+                await this.context.ifcCamera.cameraControls.reset(animate);
             else
                 await this.context.ifcCamera.cameraControls.setLookAt(0, 100, 0, 0, 0, 0, animate);
         }
@@ -90180,14 +90194,7 @@
                 ? CameraProjections.Orthographic
                 : CameraProjections.Perspective;
         }
-        activate2DNavigation() {
-            if (!this.active) {
-                // Stores 3d camera position so when exiting 2d mode it goes back to it
-                this.storeCameraPosition();
-            }
-            this.active = true;
-        }
-        storeCameraPosition() {
+        store3dCameraPosition() {
             this.context.getCamera().getWorldPosition(this.previousCamera);
             this.context.ifcCamera.cameraControls.getTarget(this.previousTarget);
             this.previousProjection = this.context.ifcCamera.projection;
@@ -114398,11 +114405,11 @@
         ClippingEdges.forceStyleUpdate = true;
       }
 
-      // await createFill(model.modelID);
+      await createFill(model.modelID);
       viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
       // viewer.edges.toggle(`${model.modelID}`);
 
-      // await viewer.shadowDropper.renderShadow(model.modelID);
+      await viewer.shadowDropper.renderShadow(model.modelID);
 
       overlay.classList.add('hidden');
     };
@@ -114411,6 +114418,25 @@
     inputElement.setAttribute('type', 'file');
     inputElement.classList.add('hidden');
     inputElement.addEventListener('change', loadIfc, false);
+
+    // viewer.IFC.loadIfcUrl('test.ifc', true);
+
+    let fills = [];
+
+    async function createFill(modelID) {
+      const wallsStandard = await viewer.IFC.loader.ifcManager.getAllItemsOfType(modelID, IFCWALLSTANDARDCASE, false);
+      const walls = await viewer.IFC.loader.ifcManager.getAllItemsOfType(modelID, IFCWALL, false);
+      const stairs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(modelID, IFCSTAIR, false);
+      const columns = await viewer.IFC.loader.ifcManager.getAllItemsOfType(modelID, IFCCOLUMN, false);
+      const roofs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(modelID, IFCROOF, false);
+      const slabs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(modelID, IFCSLAB, false);
+      const ids = [...walls, ...wallsStandard, ...columns, ...stairs, ...slabs, ...roofs];
+      const material = new MeshBasicMaterial({ color: 0x555555 });
+      material.polygonOffset = true;
+      material.polygonOffsetFactor = 10;
+      material.polygonOffsetUnits = 1;
+      fills.push(viewer.filler.create(`${modelID}`, modelID, ids, material));
+    }
 
     viewer.shadowDropper.darkness = 1.5;
 

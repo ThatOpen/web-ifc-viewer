@@ -9,6 +9,7 @@ import { IfcContext } from '../../context';
 
 export interface PlanViewConfig {
   modelID: number;
+  expressID: number;
   name: string;
   normal?: Vector3;
   point?: Vector3;
@@ -29,13 +30,12 @@ export class PlanManager {
 
   defaultSectionOffset = 1.5;
   defaultCameraOffset = 30;
+  storeys: { [modelID: number]: any[] } = [];
 
   private floorPlanViewCached = false;
   private previousCamera = new Vector3();
   private previousTarget = new Vector3();
   private previousProjection = CameraProjections.Perspective;
-
-  private storeys: { [modelID: number]: any[] } = [];
 
   constructor(private ifc: IfcManager, private context: IfcContext, private clipper: IfcClipper) {
     this.sectionFill = new Mesh();
@@ -52,21 +52,23 @@ export class PlanManager {
     const ortho = config.ortho || true;
     if (this.planLists[modelID] === undefined) this.planLists[modelID] = {};
     const currentPlanlist = this.planLists[modelID];
+    const expressID = config.expressID;
 
     if (currentPlanlist[name]) return;
-    currentPlanlist[name] = { modelID, name, ortho };
+    currentPlanlist[name] = { modelID, name, ortho, expressID };
     await this.createClippingPlane(config, currentPlanlist[name]);
   }
 
   async goTo(modelID: number, name: string, animate = false) {
     if (this.currentPlan?.modelID === modelID && this.currentPlan.name === name) return;
-
-    this.activate2DNavigation();
+    this.storeCameraPosition();
     this.hidePreviousClippingPlane();
     this.getCurrentPlan(modelID, name);
     this.activateCurrentPlan();
-
-    await this.moveCameraTo2DPlanPosition(animate);
+    if (!this.active) {
+      await this.moveCameraTo2DPlanPosition(animate);
+      this.active = true;
+    }
   }
 
   exitPlanView(animate = false) {
@@ -102,6 +104,7 @@ export class PlanManager {
     for (let i = 0; i < storeys.length; i++) {
       const baseHeight = storeys[i].Elevation.value;
       const elevation = (baseHeight + siteCoords[2]) * unitsScale + transformHeight;
+      const expressID = storeys[i].expressID;
 
       // eslint-disable-next-line no-await-in-loop
       await this.create({
@@ -110,8 +113,17 @@ export class PlanManager {
         point: new Vector3(0, elevation + this.defaultSectionOffset, 0),
         normal: new Vector3(0, -1, 0),
         rotation: 0,
-        ortho: true
+        ortho: true,
+        expressID
       });
+    }
+  }
+
+  private storeCameraPosition() {
+    if (this.active) {
+      this.cacheFloorplanView();
+    } else {
+      this.store3dCameraPosition();
     }
   }
 
@@ -156,7 +168,7 @@ export class PlanManager {
   }
 
   private async moveCameraTo2DPlanPosition(animate: boolean) {
-    if (this.floorPlanViewCached) this.context.ifcCamera.cameraControls.reset();
+    if (this.floorPlanViewCached) await this.context.ifcCamera.cameraControls.reset(animate);
     else await this.context.ifcCamera.cameraControls.setLookAt(0, 100, 0, 0, 0, 0, animate);
   }
 
@@ -169,15 +181,7 @@ export class PlanManager {
       : CameraProjections.Perspective;
   }
 
-  private activate2DNavigation() {
-    if (!this.active) {
-      // Stores 3d camera position so when exiting 2d mode it goes back to it
-      this.storeCameraPosition();
-    }
-    this.active = true;
-  }
-
-  private storeCameraPosition() {
+  private store3dCameraPosition() {
     this.context.getCamera().getWorldPosition(this.previousCamera);
     this.context.ifcCamera.cameraControls.getTarget(this.previousTarget);
     this.previousProjection = this.context.ifcCamera.projection;

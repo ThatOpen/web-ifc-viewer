@@ -58,11 +58,11 @@ const loadIfc = async (event) => {
     ClippingEdges.forceStyleUpdate = true;
   }
 
-  // await createFill(model.modelID);
+  await createFill(model.modelID);
   viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
   // viewer.edges.toggle(`${model.modelID}`);
 
-  // await viewer.shadowDropper.renderShadow(model.modelID);
+  await viewer.shadowDropper.renderShadow(model.modelID);
 
   overlay.classList.add('hidden');
 };
