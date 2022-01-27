@@ -87175,6 +87175,11 @@ class IFCParser {
             [IFCOPENINGELEMENT]: false
         };
         this.geometriesByMaterials = {};
+        this.loadingState = {
+            total: 0,
+            current: 0,
+            step: 0.1
+        };
         this.currentWebIfcID = -1;
         this.currentModelID = -1;
     }
@@ -87210,9 +87215,12 @@ class IFCParser {
     }
     async loadAllGeometry(modelID) {
         this.addOptionalCategories(modelID);
+        await this.initializeLoadingState(modelID);
         this.state.api.StreamAllMeshes(modelID, (mesh) => {
+            this.updateLoadingState();
             this.streamMesh(modelID, mesh);
         });
+        this.notifyLoadingEnded();
         const geometries = [];
         const materials = [];
         Object.keys(this.geometriesByMaterials).forEach((key) => {
@@ -87228,6 +87236,23 @@ class IFCParser {
         const model = new IFCModel(combinedGeometry, materials);
         this.state.models[this.currentModelID].mesh = model;
         return model;
+    }
+    async initializeLoadingState(modelID) {
+        const shapes = await this.state.api.GetLineIDsWithType(modelID, IFCPRODUCTDEFINITIONSHAPE);
+        this.loadingState.total = shapes.size();
+        this.loadingState.current = 0;
+        this.loadingState.step = 0.1;
+    }
+    notifyLoadingEnded() {
+        this.notifyProgress(this.loadingState.total, this.loadingState.total);
+    }
+    updateLoadingState() {
+        const realCurrentItem = Math.min(this.loadingState.current++, this.loadingState.total);
+        if (realCurrentItem / this.loadingState.total >= this.loadingState.step) {
+            const currentProgress = Math.ceil(this.loadingState.total * this.loadingState.step);
+            this.notifyProgress(currentProgress, this.loadingState.total);
+            this.loadingState.step += 0.1;
+        }
     }
     addOptionalCategories(modelID) {
         const optionalTypes = [];

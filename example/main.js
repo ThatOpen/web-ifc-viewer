@@ -45,6 +45,11 @@ const loadIfc = async (event) => {
     progressText.innerText = `Loaded ${percentage}%`;
   });
 
+  viewer.IFC.loader.ifcManager.applyWebIfcConfig({
+    USE_FAST_BOOLS: true,
+    COORDINATE_TO_ORIGIN: true
+  })
+
   viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
     [IFCSPACE]: false,
     [IFCOPENINGELEMENT]: false
