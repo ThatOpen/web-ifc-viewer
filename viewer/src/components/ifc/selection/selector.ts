@@ -12,7 +12,7 @@ export class IfcSelector {
 
   private readonly defPreselectMat: Material;
   private readonly defSelectMat: Material;
-  private readonly highlightMeshes: { [modelID: number]: { original: Mesh; faded: Mesh } } = {};
+  private readonly userDataField = 'ifcjsFadedModel';
 
   constructor(private context: IfcContext, private ifc: IfcManager) {
     this.defSelectMat = this.initializeDefMaterial(0xff33ff, 0.3);
@@ -115,26 +115,26 @@ export class IfcSelector {
    * Unapplies the highlight material, removing the fading of the model
    */
   unHighlightIfcItems() {
-    Object.values(this.highlightMeshes).forEach((highlighted) => {
-      if (!highlighted.original.parent && highlighted.faded.parent) {
-        highlighted.faded.parent.add(highlighted.original);
-        highlighted.faded.removeFromParent();
-      }
-    });
+    this.context.items.ifcModels.forEach((model) => this.unHighlightItem(model));
     this.highlight.unpick();
   }
 
+  private unHighlightItem(model: IFCModel) {
+    const fadedModel = model.userData[this.userDataField];
+    if (fadedModel && fadedModel.parent) {
+      fadedModel.parent.add(model);
+      fadedModel.removeFromParent();
+    }
+  }
+
   private fadeAwayModel(model: IFCModel) {
-    if (!this.highlightMeshes[model.modelID]) {
-      this.highlightMeshes[model.modelID] = {
-        original: model,
-        faded: new Mesh(model.geometry, this.defHighlightMat)
-      };
+    if (!model.userData[this.userDataField]) {
+      model.userData[this.userDataField] = new Mesh(model.geometry, this.defHighlightMat);
     }
 
     if (model.parent) {
-      model.parent.add(this.highlightMeshes[model.modelID].faded);
-      this.highlightMeshes[model.modelID].original.removeFromParent();
+      model.parent.add(model.userData[this.userDataField]);
+      model.removeFromParent();
     }
   }
 
