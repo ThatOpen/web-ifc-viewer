@@ -114457,15 +114457,15 @@
 
       if (event.code === 'KeyF') {
 
-        // viewer.edgesVectorizer.initializeOpenCV(cv);
-        // await viewer.edgesVectorizer.vectorize(10);
+        viewer.edgesVectorizer.initializeOpenCV(cv);
+        await viewer.edgesVectorizer.vectorize(10);
 
-        const link = document.createElement('a');
-        link.href = viewer.context.renderer.newScreenshot(false, undefined, new Vector2(4000, 4000));
-        link.download = 'example.jpeg';
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
+        // const link = document.createElement('a');
+        // link.href = viewer.context.renderer.newScreenshot(false, undefined, new Vector2(4000, 4000));
+        // link.download = 'example.jpeg';
+        // document.body.appendChild(link);
+        // link.click();
+        // link.remove();
       }
       if (event.code === 'KeyR') {
         await viewer.plans.computeAllPlanViews(0);
@@ -114474,6 +114474,9 @@
         const current = planNames[counter];
         viewer.plans.goTo(0, current, true);
         viewer.context.items.ifcModels.forEach(model => viewer.edges.toggle(`${model.modelID}`));
+
+        viewer.shadowDropper.shadows[0].root.visible = false;
+        viewer.filler.fills[0].visible = false;
 
       }
       if (event.code === 'KeyP') {
@@ -114485,6 +114488,8 @@
       if (event.code === 'KeyE') {
         viewer.plans.exitPlanView(true);
         viewer.edges.toggle('0');
+        viewer.shadowDropper.shadows[0].root.visible = true;
+        viewer.filler.fills[0].visible = true;
       }
       if (event.code === 'KeyA') ;
       if (event.code === 'KeyB') {
@@ -114500,8 +114505,8 @@
         viewer.dxf.initializeJSDXF(dxfWriter);
 
         viewer.dxf.newDrawing(drawingName);
-        // const polygons = viewer.edgesVectorizer.polygons;
-        // viewer.dxf.drawEdges(drawingName, polygons, 'projection', Drawing.ACI.BLUE );
+        const polygons = viewer.edgesVectorizer.polygons;
+        viewer.dxf.drawEdges(drawingName, polygons, 'projection', dxfWriter.ACI.BLUE );
 
         viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thick', 'section_thick', dxfWriter.ACI.RED);
         viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thin', 'section_thin', dxfWriter.ACI.GREEN);
