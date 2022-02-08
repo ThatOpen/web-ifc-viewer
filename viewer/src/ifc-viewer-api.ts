@@ -228,5 +228,6 @@ export class IfcViewerAPI {
    * TODO: Method to delete all data
    * Needs to be implemented yet
    */
-  releaseAllMemory() {}
+  releaseAllMemory() {
+  }
 }
