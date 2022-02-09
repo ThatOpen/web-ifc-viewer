@@ -3,6 +3,7 @@
   "description": "IFC viewer",
   "version": "1.0.134",
   "private": true,
+  "main": "viewer/src/ifc-viewer-api.ts",
   "author": "agviegas",
   "license": "MIT",
   "repository": {

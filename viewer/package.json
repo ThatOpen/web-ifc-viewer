@@ -2,7 +2,7 @@
   "name": "web-ifc-viewer",
   "version": "1.0.134",
   "description": "IFC viewer",
-  "main": "dist/index.js",
+  "main": "src/ifc-viewer-api.ts",
   "scripts": {
     "watch": "tsc -w",
     "build": "tsc",
