@@ -2,9 +2,9 @@
   "name": "web-ifc-viewer-basic-example",
   "private": true,
   "type": "module",
-  "version": "1.0.134",
+  "version": "1.0.135",
   "description": "A basic html example for web-ifc-viewer",
-  "main": "index.html",
+  "main": "main.js",
   "scripts": {
     "build": "rollup -c && npm run copy-wasm && npm run copy-worker",
     "watch": "rollup -c -w",
@@ -28,6 +28,6 @@
     "three": "^0.132.2",
     "three-mesh-bvh": "^0.5.2",
     "web-ifc": "^0.0.32",
-    "web-ifc-viewer": "1.0.134"
+    "web-ifc-viewer": "1.0.135"
   }
 }

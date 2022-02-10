@@ -20,7 +20,7 @@ import { PDFWriter } from './components/import-export/pdf';
 import { EdgesVectorizer } from './components/import-export/edges-vectorizer';
 
 export class IfcViewerAPI {
-  public context: IfcContext;
+  context: IfcContext;
   IFC: IfcManager;
   clipper: IfcClipper;
   plans: PlanManager;

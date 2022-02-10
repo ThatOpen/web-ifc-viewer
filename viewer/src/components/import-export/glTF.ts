@@ -4,26 +4,21 @@ import { IfcComponent } from '../../base-types';
 import { IfcContext } from '../context';
 
 export class GLTFManager extends IfcComponent {
+  GLTFModels: { [modelID: number]: Group } = {};
+
   private context: IfcContext;
   private loader = new GLTFLoader();
-  private GLTFModels: { [modelID: number]: Group } = {};
 
   constructor(context: IfcContext) {
     super(context);
     this.context = context;
   }
 
-  async load(modelID: number, url: string) {
+  async load(url: string) {
     const loaded = (await this.loader.loadAsync(url)) as GLTF;
     const mesh = loaded.scene;
+    const modelID = Object.keys(this.GLTFModels).length;
     this.GLTFModels[modelID] = mesh;
     this.context.getScene().add(mesh);
-  }
-
-  getModel(modelID: number) {
-    if (!this.GLTFModels[modelID]) {
-      throw new Error('The requested GLTF model does not exist!');
-    }
-    return this.GLTFModels[modelID];
   }
 }

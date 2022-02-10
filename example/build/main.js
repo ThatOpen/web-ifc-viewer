@@ -112105,21 +112105,16 @@
     class GLTFManager extends IfcComponent {
         constructor(context) {
             super(context);
-            this.loader = new GLTFLoader();
             this.GLTFModels = {};
+            this.loader = new GLTFLoader();
             this.context = context;
         }
-        async load(modelID, url) {
+        async load(url) {
             const loaded = (await this.loader.loadAsync(url));
             const mesh = loaded.scene;
+            const modelID = Object.keys(this.GLTFModels).length;
             this.GLTFModels[modelID] = mesh;
             this.context.getScene().add(mesh);
-        }
-        getModel(modelID) {
-            if (!this.GLTFModels[modelID]) {
-                throw new Error('The requested GLTF model does not exist!');
-            }
-            return this.GLTFModels[modelID];
         }
     }
 
@@ -112907,7 +112902,8 @@
          * TODO: Method to delete all data
          * Needs to be implemented yet
          */
-        releaseAllMemory() { }
+        releaseAllMemory() {
+        }
     }
 
     function createSideMenuButton(iconSource){

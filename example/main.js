@@ -9,10 +9,6 @@ import {
   IFCCOLUMN,
   IFCSLAB,
   IFCROOF,
-  // IFCFOOTING,
-  // IFCFURNISHINGELEMENT
-  // IFCSTAIRFLIGHT,
-  // IFCRAILING
 } from 'web-ifc';
 import { MeshBasicMaterial, LineBasicMaterial, Color, Vector3, BoxGeometry, Mesh, EdgesGeometry, LineSegments, BufferAttribute, Vector2 } from 'three';
 import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
