@@ -1,12 +1,3 @@
-import {
-  BlendFunction,
-  EffectComposer,
-  EffectPass,
-  NormalPass,
-  RenderPass,
-  SSAOEffect
-  // @ts-ignore
-} from 'postprocessing';
 import { Camera, Scene, WebGLRenderer } from 'three';
 import { IfcEvent } from '../ifcEvent';
 import { IfcContext } from '../context';
@@ -16,6 +7,13 @@ export class IfcPostproduction {
   renderer: WebGLRenderer;
 
   composer: any;
+
+  private BlendFunction: any;
+  private EffectComposer: any;
+  private EffectPass: any;
+  private NormalPass: any;
+  private RenderPass: any;
+  private SSAOEffect: any;
 
   constructor(private context: IfcContext, canvas: HTMLElement) {
     this.setupEvents();
@@ -29,11 +27,29 @@ export class IfcPostproduction {
     });
 
     this.renderer.localClippingEnabled = true;
-    this.composer = new EffectComposer(this.renderer);
+    this.composer = new this.EffectComposer(this.renderer);
   }
 
   get domElement() {
     return this.renderer.domElement;
+  }
+
+  // Depending on this library has given some issues in the past
+  // It's better to avoid that dependency and allow users that want to use it to give us this objects instead
+  initializePostprocessing(postproduction: {
+    BlendFunction: any;
+    EffectComposer: any;
+    EffectPass: any;
+    NormalPass: any;
+    RenderPass: any;
+    SSAOEffect: any;
+  }) {
+    this.BlendFunction = postproduction.BlendFunction;
+    this.EffectComposer = postproduction.EffectComposer;
+    this.EffectPass = postproduction.EffectPass;
+    this.NormalPass = postproduction.NormalPass;
+    this.RenderPass = postproduction.RenderPass;
+    this.SSAOEffect = postproduction.SSAOEffect;
   }
 
   render() {
@@ -46,12 +62,12 @@ export class IfcPostproduction {
 
   private setupEvents() {
     const createPasses = (scene: Scene, camera: Camera) => {
-      const normalPass = new NormalPass(scene, camera, {
+      const normalPass = new this.NormalPass(scene, camera, {
         resolutionScale: 1.0
       });
 
-      this.ssaoEffect = new SSAOEffect(camera, normalPass.renderTarget.texture, {
-        blendFunction: BlendFunction.MULTIPLY,
+      this.ssaoEffect = new this.SSAOEffect(camera, normalPass.renderTarget.texture, {
+        blendFunction: this.BlendFunction.MULTIPLY,
         // blendFunction: POSTPROCESSING.BlendFunction.ALPHA,
         samples: 32,
         rings: 5,
@@ -73,8 +89,8 @@ export class IfcPostproduction {
       // Scale, Bias and Opacity influence intensity.
       this.ssaoEffect.blendMode.opacity.value = 1.0;
 
-      const renderPass = new RenderPass(scene, camera);
-      const effectPass = new EffectPass(camera, this.ssaoEffect);
+      const renderPass = new this.RenderPass(scene, camera);
+      const effectPass = new this.EffectPass(camera, this.ssaoEffect);
       effectPass.renderToScreen = true;
 
       return [renderPass, normalPass, effectPass];

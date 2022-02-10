@@ -4233,11 +4233,6 @@ posix-character-classes@^0.1.0:
   resolved "https://registry.yarnpkg.com/posix-character-classes/-/posix-character-classes-0.1.1.tgz#01eac0fe3b5af71a2a6c02feabb8c1fef7e00eab"
   integrity sha1-AerA/jta9xoqbAL+q7jB/vfgDqs=
 
-postprocessing@^6.23.1:
-  version "6.23.1"
-  resolved "https://registry.yarnpkg.com/postprocessing/-/postprocessing-6.23.1.tgz#9e76488b7bed37c41e30530ebd8d338c9f3e3016"
-  integrity sha512-HUSR5x50onDmw+1OqZvKE+qb9Lth1Y7pQcQHDH7IcgSMyp7Flvy2aKhZVhNgJQGnZY9qU0gFSVHEgnVuC+1/pw==
-
 prelude-ls@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.2.1.tgz#debc6489d7a6e6b0e7611888cec880337d316396"
