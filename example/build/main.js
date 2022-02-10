@@ -100491,7 +100491,8 @@
     class IfcPostproduction {
         constructor(context, canvas) {
             this.context = context;
-            this.setupEvents();
+            this.initialized = false;
+            this.notInitializedError = 'You have not initialized the postproduction library';
             this.renderer = new WebGLRenderer({
                 canvas,
                 powerPreference: 'high-performance',
@@ -100500,7 +100501,6 @@
                 depth: false
             });
             this.renderer.localClippingEnabled = true;
-            this.composer = new this.EffectComposer(this.renderer);
         }
         get domElement() {
             return this.renderer.domElement;
@@ -100514,11 +100514,18 @@
             this.NormalPass = postproduction.NormalPass;
             this.RenderPass = postproduction.RenderPass;
             this.SSAOEffect = postproduction.SSAOEffect;
+            this.composer = new this.EffectComposer(this.renderer);
+            this.setupEvents();
+            this.initialized = true;
         }
         render() {
+            if (!this.initialized)
+                throw new Error(this.notInitializedError);
             this.composer.render();
         }
         setSize(width, height) {
+            if (!this.initialized)
+                return;
             this.composer.setSize(width, height);
         }
         setupEvents() {

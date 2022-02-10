@@ -7,6 +7,7 @@ export class IfcPostproduction {
   renderer: WebGLRenderer;
 
   composer: any;
+  initialized = false;
 
   private BlendFunction: any;
   private EffectComposer: any;
@@ -15,9 +16,9 @@ export class IfcPostproduction {
   private RenderPass: any;
   private SSAOEffect: any;
 
-  constructor(private context: IfcContext, canvas: HTMLElement) {
-    this.setupEvents();
+  private notInitializedError = 'You have not initialized the postproduction library';
 
+  constructor(private context: IfcContext, canvas: HTMLElement) {
     this.renderer = new WebGLRenderer({
       canvas,
       powerPreference: 'high-performance',
@@ -27,7 +28,6 @@ export class IfcPostproduction {
     });
 
     this.renderer.localClippingEnabled = true;
-    this.composer = new this.EffectComposer(this.renderer);
   }
 
   get domElement() {
@@ -50,13 +50,18 @@ export class IfcPostproduction {
     this.NormalPass = postproduction.NormalPass;
     this.RenderPass = postproduction.RenderPass;
     this.SSAOEffect = postproduction.SSAOEffect;
+    this.composer = new this.EffectComposer(this.renderer);
+    this.setupEvents();
+    this.initialized = true;
   }
 
   render() {
+    if (!this.initialized) throw new Error(this.notInitializedError);
     this.composer.render();
   }
 
   setSize(width: number, height: number) {
+    if (!this.initialized) return;
     this.composer.setSize(width, height);
   }
 
