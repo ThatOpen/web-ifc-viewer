@@ -25,8 +25,7 @@
     "@types/three": "^0.134.0",
     "dxf-writer": "^1.11.0",
     "jspdf": "^2.4.0",
-    "three": "^0.132.2",
-    "three-mesh-bvh": "^0.5.2",
+    "three": "0.135",
     "web-ifc": "^0.0.32",
     "web-ifc-viewer": "1.0.137"
   }

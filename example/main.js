@@ -13,11 +13,12 @@ import {
 import { MeshBasicMaterial, LineBasicMaterial, Color, Vector3, BoxGeometry, Mesh, EdgesGeometry, LineSegments, BufferAttribute, Vector2 } from 'three';
 import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
 import Drawing from 'dxf-writer';
+import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter';
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255, 255) });
-viewer.addAxes();
-viewer.addGrid();
+viewer.axes.setAxes();
+viewer.grid.setGrid();
 viewer.IFC.setWasmPath('files/');
 
 viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
@@ -30,8 +31,25 @@ const baseMaterial = new MeshBasicMaterial({ color: 0xffffff, side: 2 });
 let first = true;
 let model;
 const loadIfc = async (event) => {
-  const overlay = document.getElementById('loading-overlay');
-  const progressText = document.getElementById('loading-progress');
+  // const overlay = document.getElementById('loading-overlay');
+  // const progressText = document.getElementById('loading-progress');
+
+  // const url = URL.createObjectURL(event.target.files[0]);
+  // await viewer.gltf.load(url);
+  // const model = viewer.gltf.GLTFModels[0];
+  // console.log(model);
+  //
+  // const mesh = model.children[0].children[0];
+  // mesh.modelID = 0;
+  //
+  // viewer.IFC.loader.ifcManager.state.models[0] = {mesh};
+  //
+  // mesh.geometry.attributes.expressID = mesh.geometry.attributes._expressid;
+  //
+  // const items = viewer.context.items;
+  // items.ifcModels.push(mesh);
+  // items.pickableIfcModels.push(mesh);
+
 
   overlay.classList.remove('hidden');
   progressText.innerText = `Loading`;
@@ -53,6 +71,8 @@ const loadIfc = async (event) => {
 
   model = await viewer.IFC.loadIfc(event.target.files[0], true);
   model.material.forEach(mat => mat.side = 2);
+
+  console.log(model);
 
   if(first) first = false
   else {
@@ -107,8 +127,48 @@ const handleKeyDown = async (event) => {
 
   if (event.code === 'KeyF') {
 
-    viewer.edgesVectorizer.initializeOpenCV(cv);
-    await viewer.edgesVectorizer.vectorize(10);
+    const exporter = new GLTFExporter();
+
+    const options = {
+      trs: false,
+      onlyVisible: false,
+      truncateDrawRange: true,
+      binary: true,
+      maxTextureSize: 0
+    };
+
+    exporter.parse(
+      model,
+      // called when the gltf has been generated
+      function ( result ) {
+
+        console.log( result );
+
+        const blob = new Blob( [ result ], { type: 'application/octet-stream' } );
+
+        const link = document.createElement( 'a' );
+        link.style.display = 'none';
+        document.body.appendChild( link );
+        link.href = URL.createObjectURL( blob );
+        link.download = "example.gltf";
+        link.click();
+
+      },
+      // called when there is an error in the generation
+      function ( error ) {
+
+        console.log( error );
+
+      },
+      options
+    );
+
+    // _____________________________________________
+
+    // viewer.edgesVectorizer.initializeOpenCV(cv);
+    // await viewer.edgesVectorizer.vectorize(10);
+
+    // _____________________________________________
 
     // const link = document.createElement('a');
     // link.href = viewer.context.renderer.newScreenshot(false, undefined, new Vector2(4000, 4000));
