@@ -10,7 +10,7 @@ import {
   IFCSLAB,
   IFCROOF,
 } from 'web-ifc';
-import { MeshBasicMaterial, LineBasicMaterial, Color, Vector3, BoxGeometry, Mesh, EdgesGeometry, LineSegments, BufferAttribute, Vector2 } from 'three';
+import { MeshBasicMaterial, LineBasicMaterial, Color, Vector3, BoxGeometry, Mesh, MeshLambertMaterial, BufferAttribute, BufferGeometry, Vector2 } from 'three';
 import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
 import Drawing from 'dxf-writer';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter';
@@ -31,61 +31,103 @@ const baseMaterial = new MeshBasicMaterial({ color: 0xffffff, side: 2 });
 let first = true;
 let model;
 const loadIfc = async (event) => {
-  // const overlay = document.getElementById('loading-overlay');
-  // const progressText = document.getElementById('loading-progress');
+  const startTime = performance.now();
 
-  // const url = URL.createObjectURL(event.target.files[0]);
-  // await viewer.gltf.load(url);
-  // const model = viewer.gltf.GLTFModels[0];
-  // console.log(model);
-  //
-  // const mesh = model.children[0].children[0];
-  // mesh.modelID = 0;
-  //
-  // viewer.IFC.loader.ifcManager.state.models[0] = {mesh};
-  //
-  // mesh.geometry.attributes.expressID = mesh.geometry.attributes._expressid;
-  //
-  // const items = viewer.context.items;
-  // items.ifcModels.push(mesh);
-  // items.pickableIfcModels.push(mesh);
-
-
-  overlay.classList.remove('hidden');
-  progressText.innerText = `Loading`;
-
-  viewer.IFC.loader.ifcManager.setOnProgress((event) => {
-    const percentage = Math.floor((event.loaded * 100) / event.total);
-    progressText.innerText = `Loaded ${percentage}%`;
-  });
-
-  viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-    USE_FAST_BOOLS: true,
-    COORDINATE_TO_ORIGIN: true
-  })
-
-  viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
-    [IFCSPACE]: false,
-    [IFCOPENINGELEMENT]: false
-  });
-
-  model = await viewer.IFC.loadIfc(event.target.files[0], true);
-  model.material.forEach(mat => mat.side = 2);
-
+  const url = URL.createObjectURL(event.target.files[0]);
+  await viewer.gltf.load(url);
+  const model = viewer.gltf.GLTFModels[0];
   console.log(model);
+  model.removeFromParent();
 
-  if(first) first = false
-  else {
-    ClippingEdges.forceStyleUpdate = true;
+  const allMeshes = model.children[0].children;
+
+  const geometry = new BufferGeometry();
+  geometry.setAttribute('position', allMeshes[0].geometry.attributes.position);
+  geometry.setAttribute('normal', allMeshes[0].geometry.attributes.normal);
+  geometry.setAttribute('expressID', allMeshes[0].geometry.attributes._expressid);
+
+  const indices = allMeshes.map(mesh => mesh.geometry.index.array);
+  const indexArray = [];
+  for(let i = 0; i < indices.length; i++) {
+    for(let j = 0; j < indices[i].length; j++) {
+      indexArray.push(indices[i][j])
+    }
   }
 
-  await createFill(model.modelID);
-  viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
+  geometry.setIndex(indexArray);
+
+  const materials = allMeshes.map(mesh => new MeshLambertMaterial({color: mesh.material.color, transparent: true, opacity: mesh.material.opacity}));
+  const newMesh = new Mesh(geometry, materials);
+  newMesh.modelID = 0;
+
+  const groupLengths = allMeshes.map(mesh => mesh.geometry.index.count);
+  let start = 0;
+  let materialIndex = 0;
+  newMesh.geometry.groups = groupLengths.map(count => {
+    const result = { start, count, materialIndex  }
+    materialIndex++;
+    start += count;
+    return result;
+  });
+
+  viewer.context.getScene().add(newMesh);
+
+  viewer.IFC.loader.ifcManager.state.models[0] = {mesh: newMesh};
+
+  const items = viewer.context.items;
+  items.ifcModels.push(newMesh);
+  items.pickableIfcModels.push(newMesh);
+
+
+  allMeshes.forEach(mesh => {
+    mesh.geometry.attributes = {};
+    mesh.geometry.dispose();
+    mesh.material.dispose();
+  });
+
+
+  // const overlay = document.getElementById('loading-overlay');
+  // const progressText = document.getElementById('loading-progress');
+  //
+  // overlay.classList.remove('hidden');
+  // progressText.innerText = `Loading`;
+  //
+  // viewer.IFC.loader.ifcManager.setOnProgress((event) => {
+  //   const percentage = Math.floor((event.loaded * 100) / event.total);
+  //   progressText.innerText = `Loaded ${percentage}%`;
+  // });
+  //
+  // viewer.IFC.loader.ifcManager.applyWebIfcConfig({
+  //   USE_FAST_BOOLS: true,
+  //   COORDINATE_TO_ORIGIN: true
+  // })
+  //
+  // viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
+  //   [IFCSPACE]: false,
+  //   [IFCOPENINGELEMENT]: false
+  // });
+  //
+  // model = await viewer.IFC.loadIfc(event.target.files[0], false);
+  // model.material.forEach(mat => mat.side = 2);
+  //
+  // console.log(model);
+  //
+  // if(first) first = false
+  // else {
+  //   ClippingEdges.forceStyleUpdate = true;
+  // }
+
+  // await createFill(model.modelID);
+  // viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
   // viewer.edges.toggle(`${model.modelID}`);
 
-  await viewer.shadowDropper.renderShadow(model.modelID);
+  // await viewer.shadowDropper.renderShadow(model.modelID);
 
-  overlay.classList.add('hidden');
+  // overlay.classList.add('hidden');
+
+  const endTime = performance.now();
+
+  console.log(`This took ${endTime - startTime} ms`);
 };
 
 const inputElement = document.createElement('input');
