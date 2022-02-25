@@ -71,7 +71,7 @@ export class PlanManager {
     }
   }
 
-  exitPlanView(animate = false) {
+  async exitPlanView(animate = false) {
     if (!this.active) return;
     this.active = false;
 
@@ -83,7 +83,7 @@ export class PlanManager {
       this.currentPlan.plane.active = false;
     }
     this.currentPlan = undefined;
-    this.context.ifcCamera.cameraControls.setLookAt(
+    await this.context.ifcCamera.cameraControls.setLookAt(
       this.previousCamera.x,
       this.previousCamera.y,
       this.previousCamera.z,

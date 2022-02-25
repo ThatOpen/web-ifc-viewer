@@ -13,7 +13,6 @@ import {
 import { MeshBasicMaterial, LineBasicMaterial, Color, Vector3, BoxGeometry, Mesh, MeshLambertMaterial, BufferAttribute, BufferGeometry, Vector2 } from 'three';
 import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
 import Drawing from 'dxf-writer';
-import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter';
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255, 255) });
@@ -30,100 +29,80 @@ const baseMaterial = new MeshBasicMaterial({ color: 0xffffff, side: 2 });
 
 let first = true;
 let model;
+let useGLTF = false;
+
 const loadIfc = async (event) => {
   const startTime = performance.now();
 
-  const url = URL.createObjectURL(event.target.files[0]);
-  await viewer.gltf.load(url);
-  const model = viewer.gltf.GLTFModels[0];
-  console.log(model);
-  model.removeFromParent();
+  if(useGLTF) {
 
-  const allMeshes = model.children[0].children;
+    ClippingEdges.createDefaultIfcStyles = false;
 
-  const geometry = new BufferGeometry();
-  geometry.setAttribute('position', allMeshes[0].geometry.attributes.position);
-  geometry.setAttribute('normal', allMeshes[0].geometry.attributes.normal);
-  geometry.setAttribute('expressID', allMeshes[0].geometry.attributes._expressid);
+    const url = URL.createObjectURL(event.target.files[0]);
+    const mesh = await viewer.GLTF.loadModel(url);
 
-  const indices = allMeshes.map(mesh => mesh.geometry.index.array);
-  const indexArray = [];
-  for(let i = 0; i < indices.length; i++) {
-    for(let j = 0; j < indices[i].length; j++) {
-      indexArray.push(indices[i][j])
+    await viewer.shadowDropper.renderShadow(mesh.modelID);
+
+    await viewer.plans.create({
+      modelID: 0,
+      name: "asdf",
+      expressID: -1,
+      normal: new Vector3(0, -1, 0),
+      point: new Vector3(0, 1.5, 0),
+      rotation: 0,
+      ortho: true
+    });
+
+    let stylesCreated = false;
+    if(!stylesCreated) {
+      const models = viewer.context.items.ifcModels;
+      await viewer.clipper.planes[0].edges.newStyleFromMesh('test', models);
+      stylesCreated = true;
+    } else {
+      ClippingEdges.forceStyleUpdate = true;
     }
+
+  } else {
+
+    const overlay = document.getElementById('loading-overlay');
+    const progressText = document.getElementById('loading-progress');
+
+    overlay.classList.remove('hidden');
+    progressText.innerText = `Loading`;
+
+    viewer.IFC.loader.ifcManager.setOnProgress((event) => {
+      const percentage = Math.floor((event.loaded * 100) / event.total);
+      progressText.innerText = `Loaded ${percentage}%`;
+    });
+
+    viewer.IFC.loader.ifcManager.applyWebIfcConfig({
+      USE_FAST_BOOLS: true,
+      COORDINATE_TO_ORIGIN: true
+    })
+
+    viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
+      [IFCSPACE]: false,
+      [IFCOPENINGELEMENT]: false
+    });
+
+    model = await viewer.IFC.loadIfc(event.target.files[0], false);
+    model.material.forEach(mat => mat.side = 2);
+
+    console.log(model);
+
+    if(first) first = false
+    else {
+      ClippingEdges.forceStyleUpdate = true;
+    }
+
+    // await createFill(model.modelID);
+    viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
+
+    await viewer.shadowDropper.renderShadow(model.modelID);
+
+    overlay.classList.add('hidden');
+
   }
-
-  geometry.setIndex(indexArray);
-
-  const materials = allMeshes.map(mesh => new MeshLambertMaterial({color: mesh.material.color, transparent: true, opacity: mesh.material.opacity}));
-  const newMesh = new Mesh(geometry, materials);
-  newMesh.modelID = 0;
-
-  const groupLengths = allMeshes.map(mesh => mesh.geometry.index.count);
-  let start = 0;
-  let materialIndex = 0;
-  newMesh.geometry.groups = groupLengths.map(count => {
-    const result = { start, count, materialIndex  }
-    materialIndex++;
-    start += count;
-    return result;
-  });
-
-  viewer.context.getScene().add(newMesh);
-
-  viewer.IFC.loader.ifcManager.state.models[0] = {mesh: newMesh};
-
-  const items = viewer.context.items;
-  items.ifcModels.push(newMesh);
-  items.pickableIfcModels.push(newMesh);
-
-
-  allMeshes.forEach(mesh => {
-    mesh.geometry.attributes = {};
-    mesh.geometry.dispose();
-    mesh.material.dispose();
-  });
-
-
-  // const overlay = document.getElementById('loading-overlay');
-  // const progressText = document.getElementById('loading-progress');
-  //
-  // overlay.classList.remove('hidden');
-  // progressText.innerText = `Loading`;
-  //
-  // viewer.IFC.loader.ifcManager.setOnProgress((event) => {
-  //   const percentage = Math.floor((event.loaded * 100) / event.total);
-  //   progressText.innerText = `Loaded ${percentage}%`;
-  // });
-  //
-  // viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-  //   USE_FAST_BOOLS: true,
-  //   COORDINATE_TO_ORIGIN: true
-  // })
-  //
-  // viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
-  //   [IFCSPACE]: false,
-  //   [IFCOPENINGELEMENT]: false
-  // });
-  //
-  // model = await viewer.IFC.loadIfc(event.target.files[0], false);
-  // model.material.forEach(mat => mat.side = 2);
-  //
-  // console.log(model);
-  //
-  // if(first) first = false
-  // else {
-  //   ClippingEdges.forceStyleUpdate = true;
-  // }
-
-  // await createFill(model.modelID);
-  // viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
-  // viewer.edges.toggle(`${model.modelID}`);
-
-  // await viewer.shadowDropper.renderShadow(model.modelID);
-
-  // overlay.classList.add('hidden');
 
   const endTime = performance.now();
 
@@ -169,41 +148,16 @@ const handleKeyDown = async (event) => {
 
   if (event.code === 'KeyF') {
 
-    const exporter = new GLTFExporter();
+    const ids = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE);
+    const result = await viewer.GLTF.exportIfcAsGltf(model.modelID, ids);
 
-    const options = {
-      trs: false,
-      onlyVisible: false,
-      truncateDrawRange: true,
-      binary: true,
-      maxTextureSize: 0
-    };
-
-    exporter.parse(
-      model,
-      // called when the gltf has been generated
-      function ( result ) {
-
-        console.log( result );
-
-        const blob = new Blob( [ result ], { type: 'application/octet-stream' } );
-
-        const link = document.createElement( 'a' );
-        link.style.display = 'none';
-        document.body.appendChild( link );
-        link.href = URL.createObjectURL( blob );
-        link.download = "example.gltf";
-        link.click();
-
-      },
-      // called when there is an error in the generation
-      function ( error ) {
-
-        console.log( error );
-
-      },
-      options
-    );
+    const blob = new Blob([result], {type: 'octet/stream'});
+    const link = document.createElement( 'a' );
+    link.style.display = 'none';
+    document.body.appendChild( link );
+    link.href = URL.createObjectURL( blob );
+    link.download = "example.gltf";
+    link.click();
 
     // _____________________________________________
 
@@ -220,15 +174,17 @@ const handleKeyDown = async (event) => {
     // link.remove();
   }
   if (event.code === 'KeyR') {
-    await viewer.plans.computeAllPlanViews(0);
-    const planNames = Object.keys(viewer.plans.planLists[0]);
-    if (!planNames[counter]) return;
-    const current = planNames[counter];
-    viewer.plans.goTo(0, current, true);
-    viewer.context.items.ifcModels.forEach(model => viewer.edges.toggle(`${model.modelID}`));
+    // await viewer.plans.computeAllPlanViews(0);
+    // const planNames = Object.keys(viewer.plans.planLists[0]);
+    // if (!planNames[counter]) return;
+    // const current = planNames[counter];
+    // viewer.plans.goTo(0, current, true);
+    // viewer.context.items.ifcModels.forEach(model => viewer.edges.toggle(`${model.modelID}`));
+
+    viewer.plans.goTo(0, "asdf", true);
 
     viewer.shadowDropper.shadows[0].root.visible = false;
-    viewer.filler.fills[0].visible = false;
+    // viewer.filler.fills[0].visible = false;
 
   }
   if (event.code === 'KeyP') {
@@ -241,9 +197,12 @@ const handleKeyDown = async (event) => {
     viewer.plans.exitPlanView(true);
     viewer.edges.toggle('0');
     viewer.shadowDropper.shadows[0].root.visible = true;
-    viewer.filler.fills[0].visible = true;
+    // viewer.filler.fills[0].visible = true;
   }
   if (event.code === 'KeyA') {
+
+    useGLTF = !useGLTF;
+
     // PDF export
 
     // const currentPlans = viewer.plans.planLists[0];
@@ -290,12 +249,6 @@ const handleKeyDown = async (event) => {
     viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thick', 'section_thick', Drawing.ACI.RED);
     viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thin', 'section_thin', Drawing.ACI.GREEN);
 
-    // const ids = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
-    // const subset = viewer.IFC.loader.ifcManager.createSubset({ modelID: 0, ids, removePrevious: true });
-    // const edgesGeometry = new EdgesGeometry(subset.geometry);
-    // const vertices = edgesGeometry.attributes.position.array;
-    // viewer.dxf.draw(drawingName, vertices, 'other', Drawing.ACI.BLUE);
-
     viewer.dxf.exportDXF(drawingName);
   }
 };
@@ -308,10 +261,11 @@ window.ondblclick = async () => {
     viewer.clipper.createPlane();
   } else {
     const result = await viewer.IFC.selector.pickIfcItem(true);
-    if (!result) return;
-    const { modelID, id } = result;
-    const props = await viewer.IFC.getProperties(modelID, id, true, false);
-    console.log(props);
+    console.log(result);
+    // if (!result) return;
+    // const { modelID, id } = result;
+    // const props = await viewer.IFC.getProperties(modelID, id, true, false);
+    // console.log(props);
   }
 };
 

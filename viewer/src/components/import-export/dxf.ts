@@ -71,7 +71,7 @@ export class DXFWriter {
       for (let j = 0; j < polygon.length - 3; j += 2) {
         const start = [polygon[j], polygon[j + 1]];
         const end = [polygon[j + 2], polygon[j + 3]];
-        currentDrawing.drawLine(start[0], start[1], end[0], end[1]);
+        currentDrawing.drawPolyline([start[0], start[1], end[0], end[1]]);
       }
     }
   }

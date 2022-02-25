@@ -1840,10 +1840,10 @@ dompurify@^2.2.0:
   resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-2.3.3.tgz#c1af3eb88be47324432964d8abc75cf4b98d634c"
   integrity sha512-dqnqRkPMAjOZE0FogZ+ceJNM2dZ3V/yNOuFB7+39qpO93hHhfRpHw3heYQC7DPK9FqbQTfBKUJhiSfz4MvXYwg==
 
-dxf-writer@^1.11.0:
-  version "1.11.0"
-  resolved "https://registry.yarnpkg.com/dxf-writer/-/dxf-writer-1.11.0.tgz#846d528650413504bf3e9c88065b4823084a9e58"
-  integrity sha512-v9DqrN8hE6IrimI9DLHP6BN69K72MhmtNmlcnuN/embQPEmPAURy73s+O50JOPj3XrbP12aS3HqPOxoji7XH+A==
+dxf-writer@^1.15.1:
+  version "1.15.1"
+  resolved "https://registry.yarnpkg.com/dxf-writer/-/dxf-writer-1.15.1.tgz#4012232c9de19729627fc3b61a53c4ffd72b6e4f"
+  integrity sha512-lFJ7sF7GYfwTz49O0mLAZQDx03eT+B0g1tjSGerME+g1L//jZ0QkCzvtwoFUgNrKitOalGJwkHBHxnYYeeVYnw==
 
 electron-to-chromium@^1.3.723:
   version "1.3.765"
