@@ -8,6 +8,7 @@ import {
   IFCSTAIR,
   IFCCOLUMN,
   IFCSLAB,
+  IFCWINDOW,
   IFCROOF,
 } from 'web-ifc';
 import { MeshBasicMaterial, LineBasicMaterial, Color, Vector3, BoxGeometry, Mesh, MeshLambertMaterial, BufferAttribute, BufferGeometry, Vector2 } from 'three';
@@ -148,7 +149,9 @@ const handleKeyDown = async (event) => {
 
   if (event.code === 'KeyF') {
 
-    const ids = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE);
+    const walls = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE);
+    const windows = await viewer.IFC.getAllItemsOfType(0, IFCWINDOW);
+    const ids = [...walls, ...windows];
     const result = await viewer.GLTF.exportIfcAsGltf(model.modelID, ids);
 
     const blob = new Blob([result], {type: 'octet/stream'});

@@ -14,12 +14,6 @@ import { IfcComponent } from '../../base-types';
 import { IfcContext } from '../context';
 import { IfcManager } from '../ifc';
 
-export interface BufferGroup {
-  start: number;
-  count: number;
-  materialIndex: number;
-}
-
 export class GLTFManager extends IfcComponent {
   GLTFModels: { [modelID: number]: Group } = {};
 
@@ -100,70 +94,41 @@ export class GLTFManager extends IfcComponent {
     const positionAttr = subset.geometry.attributes.position;
     const expressIDAttr = subset.geometry.attributes.expressID;
 
-    const newGroups: BufferGroup[] = [];
+    const newGroups: any[] = subset.geometry.groups.filter((group) => group.count !== 0);
     const newMaterials: Material[] = [];
     const prevMaterials = subset.material as Material[];
+    let newMaterialIndex = 0;
+    newGroups.forEach((group) => {
+      newMaterials.push(prevMaterials[group.materialIndex]);
+      group.materialIndex = newMaterialIndex++;
+    });
 
-    let previousGroup;
-    let previousGroupEnd = 0;
-
-    let iterationCount = -1;
-    let materialIndexCounter = 0;
-    let currentGroup: BufferGroup = { start: 0, count: 0, materialIndex: 0 };
-
-    let newIndex = -1;
+    let newIndex = 0;
     for (let i = 0; i < subset.geometry.index.count; i++) {
       const index = subset.geometry.index.array[i];
 
-      // Groups and material reconstruction
+      if (!alreadySaved.has(index)) {
+        coordinates.push(positionAttr.array[3 * index]);
+        coordinates.push(positionAttr.array[3 * index + 1]);
+        coordinates.push(positionAttr.array[3 * index + 2]);
 
-      iterationCount++;
-
-      // This is executed either in the first iteration or when there is a group change
-      if (previousGroup === undefined || previousGroupEnd < iterationCount) {
-        previousGroup = subset.geometry.groups.find(
-          // eslint-disable-next-line no-loop-func
-          (group) =>
-            group.count !== 0 &&
-            group.start <= iterationCount &&
-            group.start + group.count > iterationCount
-        );
-        if (!previousGroup) throw new Error('Error with geometry group regeneration.');
-
-        previousGroupEnd = previousGroup.start + previousGroup.count;
-        newMaterials.push(prevMaterials[previousGroup.materialIndex as number]);
-
-        currentGroup = { start: iterationCount, count: 0, materialIndex: materialIndexCounter++ };
-        newGroups.push(currentGroup);
-      }
-
-      currentGroup.count++;
-
-      // Attributes reconstruction
-
-      if (alreadySaved.has(index)) {
-        const saved = alreadySaved.get(index) as number;
-        newIndices.push(saved);
-      } else {
-        coordinates.push(positionAttr.getX(index));
-        coordinates.push(positionAttr.getY(index));
-        coordinates.push(positionAttr.getZ(index));
         expressIDs.push(expressIDAttr.getX(index));
-        newIndex++;
-        newIndices.push(newIndex);
-        alreadySaved.set(index, newIndex);
+        alreadySaved.set(index, newIndex++);
       }
+
+      const saved = alreadySaved.get(index) as number;
+      newIndices.push(saved);
     }
 
     const geometryToExport = new BufferGeometry();
     const newVerticesAttr = new BufferAttribute(Float32Array.from(coordinates), 3);
-    const newExpressIDAttr = new BufferAttribute(Float32Array.from(coordinates), 3);
+    const newExpressIDAttr = new BufferAttribute(Uint32Array.from(expressIDs), 1);
 
     geometryToExport.setAttribute('position', newVerticesAttr);
     geometryToExport.setAttribute('expressID', newExpressIDAttr);
-    geometryToExport.computeVertexNormals();
     geometryToExport.setIndex(newIndices);
     geometryToExport.groups = newGroups;
+    geometryToExport.computeVertexNormals();
 
     this.IFC.loader.ifcManager.removeSubset(model.modelID, undefined, customID);
     const mesh = new Mesh(geometryToExport, newMaterials);
