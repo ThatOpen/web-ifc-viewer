@@ -73,6 +73,7 @@ export class GLTFManager extends IfcComponent {
     return this.exportMeshToGltf(model);
   }
 
+  // TODO: Split up in smaller methods
   private exportModelPartToGltf(model: IFCModel, ids: number[]) {
     const coordinates: number[] = [];
     const expressIDs: number[] = [];
