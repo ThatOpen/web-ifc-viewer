@@ -22,6 +22,7 @@ import { EdgesVectorizer } from './components/import-export/edges-vectorizer';
 export class IfcViewerAPI {
   context: IfcContext;
   IFC: IfcManager;
+  GLTF: GLTFManager;
   clipper: IfcClipper;
   plans: PlanManager;
   filler: SectionFillManager;
@@ -31,7 +32,6 @@ export class IfcViewerAPI {
   dxf: DXFWriter;
   pdf: PDFWriter;
   edgesVectorizer: EdgesVectorizer;
-  gltf: GLTFManager;
   grid: IfcGrid;
   axes: IfcAxes;
   stats?: IfcStats;
@@ -52,7 +52,7 @@ export class IfcViewerAPI {
     this.edgesVectorizer = new EdgesVectorizer(this.context, this.clipper, this.grid, this.axes);
     this.dxf = new DXFWriter();
     this.pdf = new PDFWriter();
-    this.gltf = new GLTFManager(this.context);
+    this.GLTF = new GLTFManager(this.context, this.IFC);
   }
 
   /**
@@ -228,6 +228,5 @@ export class IfcViewerAPI {
    * TODO: Method to delete all data
    * Needs to be implemented yet
    */
-  releaseAllMemory() {
-  }
+  releaseAllMemory() {}
 }

@@ -33,7 +33,7 @@ import { IfcContext } from '../../context';
 export interface Style {
   ids: number[];
   categories: number[];
-  subsets: Mesh[];
+  meshes: Mesh[];
   material: LineMaterial;
 }
 
@@ -48,15 +48,19 @@ export interface EdgesItems {
   };
 }
 
+export interface Model extends Mesh {
+  modelID: number;
+}
+
 export class ClippingEdges {
   static readonly styles: StyleList = {};
   static forceStyleUpdate = false;
-  edges: EdgesItems = {};
-
+  static createDefaultIfcStyles = true;
   private static invisibleMaterial = new MeshBasicMaterial({ visible: false });
   private static defaultMaterial = new LineMaterial({ color: 0x000000, linewidth: 0.001 });
   // Helpers
   private static readonly basicEdges = new LineSegments();
+  edges: EdgesItems = {};
   private isVisible = true;
   private inverseMatrix = new Matrix4();
   private localPlane = new Plane();
@@ -112,13 +116,15 @@ export class ClippingEdges {
   }
 
   async updateEdges() {
-    if (!this.stylesInitialized) {
-      await this.createDefaultStyles();
-    }
+    if (ClippingEdges.createDefaultIfcStyles) {
+      if (!this.stylesInitialized) {
+        await this.createDefaultStyles();
+      }
 
-    if (ClippingEdges.forceStyleUpdate) {
-      await this.updateStylesGeometry();
-      ClippingEdges.forceStyleUpdate = false;
+      if (ClippingEdges.forceStyleUpdate) {
+        await this.updateStylesGeometry();
+        ClippingEdges.forceStyleUpdate = false;
+      }
     }
 
     // TODO: This is temporary; probably the edges object need to be located in the scene
@@ -130,7 +136,7 @@ export class ClippingEdges {
     });
   }
 
-  // Creates a new style that applies to all clipping edges
+  // Creates a new style that applies to all clipping edges for IFC models
   async newStyle(
     styleName: string,
     categories: number[],
@@ -149,7 +155,28 @@ export class ClippingEdges {
       ids,
       categories,
       material,
-      subsets
+      meshes: subsets
+    };
+  }
+
+  // Creates a new style that applies to all clipping edges for generic models
+  async newStyleFromMesh(
+    styleName: string,
+    meshes: Model[],
+    material = ClippingEdges.defaultMaterial
+  ) {
+    const ids = meshes.map((mesh) => mesh.modelID);
+
+    meshes.forEach((mesh) => {
+      if (!mesh.geometry.boundsTree) mesh.geometry.computeBoundsTree();
+    });
+
+    material.clippingPlanes = this.context.getClippingPlanes();
+    ClippingEdges.styles[styleName] = {
+      ids,
+      categories: [],
+      material,
+      meshes
     };
   }
 
@@ -161,11 +188,11 @@ export class ClippingEdges {
 
       const ids = this.context.items.ifcModels.map((model) => model.modelID);
 
-      style.subsets.length = 0;
+      style.meshes.length = 0;
 
       for (let i = 0; i < ids.length; i++) {
         // eslint-disable-next-line no-await-in-loop
-        style.subsets.push(await this.newSubset(name, ids[i], style.categories));
+        style.meshes.push(await this.newSubset(name, ids[i], style.categories));
       }
     }
   }
@@ -267,15 +294,15 @@ export class ClippingEdges {
     // @ts-ignore
     posAttr.array.fill(0);
 
-    const notEmptySubsets = style.subsets.filter((subset) => subset.geometry);
-    notEmptySubsets.forEach((subset) => {
-      if (!subset.geometry.boundsTree)
+    const notEmptyMeshes = style.meshes.filter((subset) => subset.geometry);
+    notEmptyMeshes.forEach((mesh) => {
+      if (!mesh.geometry.boundsTree)
         throw new Error('Boundstree not found for clipping edges subset.');
 
-      this.inverseMatrix.copy(subset.matrixWorld).invert();
+      this.inverseMatrix.copy(mesh.matrixWorld).invert();
       this.localPlane.copy(this.clippingPlane).applyMatrix4(this.inverseMatrix);
 
-      subset.geometry.boundsTree.shapecast({
+      mesh.geometry.boundsTree.shapecast({
         intersectsBounds: (box: any) => {
           return this.localPlane.intersectsBox(box) as any;
         },

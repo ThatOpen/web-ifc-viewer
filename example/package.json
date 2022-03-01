@@ -2,7 +2,7 @@
   "name": "web-ifc-viewer-basic-example",
   "private": true,
   "type": "module",
-  "version": "1.0.137",
+  "version": "1.0.138",
   "description": "A basic html example for web-ifc-viewer",
   "main": "main.js",
   "scripts": {
@@ -23,11 +23,10 @@
   },
   "dependencies": {
     "@types/three": "^0.134.0",
-    "dxf-writer": "^1.11.0",
+    "dxf-writer": "^1.15.1",
     "jspdf": "^2.4.0",
-    "three": "^0.132.2",
-    "three-mesh-bvh": "^0.5.2",
+    "three": "0.135",
     "web-ifc": "^0.0.32",
-    "web-ifc-viewer": "1.0.137"
+    "web-ifc-viewer": "1.0.138"
   }
 }

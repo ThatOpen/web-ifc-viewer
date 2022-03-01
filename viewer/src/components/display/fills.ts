@@ -6,12 +6,14 @@ import { IfcContext } from '../context';
 export class SectionFillManager {
   readonly fills: { [name: string]: IFCModel };
 
+  private existMessage = 'The specified fill already exists';
+
   constructor(private IFC: IfcManager, private context: IfcContext) {
     this.fills = {};
   }
 
   create(name: string, modelID: number, ids: number[], material: Material) {
-    if (this.fills[name] !== undefined) throw new Error('The specified fill already exists');
+    if (this.fills[name] !== undefined) throw new Error(this.existMessage);
     material.clippingPlanes = this.context.getClippingPlanes();
     const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
     if (!model) throw new Error('The requested model to fill was not found.');
@@ -27,6 +29,19 @@ export class SectionFillManager {
     this.fills[name] = subset;
     // subset.renderOrder = 2;
     return subset;
+  }
+
+  createFromMesh(name: string, mesh: IFCModel) {
+    if (this.fills[name] !== undefined) throw new Error(this.existMessage);
+    const planes = this.context.getClippingPlanes();
+    if (Array.isArray(mesh.material)) {
+      mesh.material.forEach((material) => {
+        material.clippingPlanes = planes;
+      });
+    } else {
+      mesh.material.clippingPlanes = planes;
+    }
+    this.fills[name] = mesh;
   }
 
   delete(name: string) {

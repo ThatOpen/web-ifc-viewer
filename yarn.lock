@@ -1840,10 +1840,10 @@ dompurify@^2.2.0:
   resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-2.3.3.tgz#c1af3eb88be47324432964d8abc75cf4b98d634c"
   integrity sha512-dqnqRkPMAjOZE0FogZ+ceJNM2dZ3V/yNOuFB7+39qpO93hHhfRpHw3heYQC7DPK9FqbQTfBKUJhiSfz4MvXYwg==
 
-dxf-writer@^1.11.0:
-  version "1.11.0"
-  resolved "https://registry.yarnpkg.com/dxf-writer/-/dxf-writer-1.11.0.tgz#846d528650413504bf3e9c88065b4823084a9e58"
-  integrity sha512-v9DqrN8hE6IrimI9DLHP6BN69K72MhmtNmlcnuN/embQPEmPAURy73s+O50JOPj3XrbP12aS3HqPOxoji7XH+A==
+dxf-writer@^1.15.1:
+  version "1.15.1"
+  resolved "https://registry.yarnpkg.com/dxf-writer/-/dxf-writer-1.15.1.tgz#4012232c9de19729627fc3b61a53c4ffd72b6e4f"
+  integrity sha512-lFJ7sF7GYfwTz49O0mLAZQDx03eT+B0g1tjSGerME+g1L//jZ0QkCzvtwoFUgNrKitOalGJwkHBHxnYYeeVYnw==
 
 electron-to-chromium@^1.3.723:
   version "1.3.765"
@@ -4962,10 +4962,10 @@ three-mesh-bvh@^0.5.2:
   resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.5.2.tgz#6d435330e4aa686dcdbf70330c8eb5dd42b12737"
   integrity sha512-DAKWujkp8xpSBqGiIsZbZC1utxAbYBg0SShQk9LdOG/xWWl1/OLK76eXDGfov47trl3L7PUTHi0hhRvZdVro1Q==
 
-three@^0.132.2:
-  version "0.132.2"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.132.2.tgz#95eb1856147237c03e887cbbe56f964b6fb40b5e"
-  integrity sha512-0wcR7LxxkXMn6Gi58gEs3QvY8WpTVXA31L2VOvpjm4ZPYFRHCZC13UqynheFoS5OXDYgtBneN0dhbaNBE8iLhQ==
+three@0.135:
+  version "0.135.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.135.0.tgz#cff4ec8edd3c51ce9bc7e88d13e8eafed4d0ddfc"
+  integrity sha512-kuEpuuxRzLv0MDsXai9huCxOSQPZ4vje6y0gn80SRmQvgz6/+rI0NAvCRAw56zYaWKMGMfqKWsxF9Qa2Z9xymQ==
 
 throat@^6.0.1:
   version "6.0.1"

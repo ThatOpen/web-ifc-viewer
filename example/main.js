@@ -8,16 +8,17 @@ import {
   IFCSTAIR,
   IFCCOLUMN,
   IFCSLAB,
+  IFCWINDOW,
   IFCROOF,
 } from 'web-ifc';
-import { MeshBasicMaterial, LineBasicMaterial, Color, Vector3, BoxGeometry, Mesh, EdgesGeometry, LineSegments, BufferAttribute, Vector2 } from 'three';
+import { MeshBasicMaterial, LineBasicMaterial, Color, Vector3, BoxGeometry, Mesh, MeshLambertMaterial, BufferAttribute, BufferGeometry, Vector2 } from 'three';
 import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
 import Drawing from 'dxf-writer';
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255, 255) });
-viewer.addAxes();
-viewer.addGrid();
+viewer.axes.setAxes();
+viewer.grid.setGrid();
 viewer.IFC.setWasmPath('files/');
 
 viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
@@ -29,43 +30,84 @@ const baseMaterial = new MeshBasicMaterial({ color: 0xffffff, side: 2 });
 
 let first = true;
 let model;
+let useGLTF = false;
+
 const loadIfc = async (event) => {
-  const overlay = document.getElementById('loading-overlay');
-  const progressText = document.getElementById('loading-progress');
+  const startTime = performance.now();
 
-  overlay.classList.remove('hidden');
-  progressText.innerText = `Loading`;
+  if(useGLTF) {
 
-  viewer.IFC.loader.ifcManager.setOnProgress((event) => {
-    const percentage = Math.floor((event.loaded * 100) / event.total);
-    progressText.innerText = `Loaded ${percentage}%`;
-  });
+    ClippingEdges.createDefaultIfcStyles = false;
 
-  viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-    USE_FAST_BOOLS: true,
-    COORDINATE_TO_ORIGIN: true
-  })
+    const url = URL.createObjectURL(event.target.files[0]);
+    const mesh = await viewer.GLTF.loadModel(url);
 
-  viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
-    [IFCSPACE]: false,
-    [IFCOPENINGELEMENT]: false
-  });
+    await viewer.shadowDropper.renderShadow(mesh.modelID);
 
-  model = await viewer.IFC.loadIfc(event.target.files[0], true);
-  model.material.forEach(mat => mat.side = 2);
+    await viewer.plans.create({
+      modelID: 0,
+      name: "asdf",
+      expressID: -1,
+      normal: new Vector3(0, -1, 0),
+      point: new Vector3(0, 1.5, 0),
+      rotation: 0,
+      ortho: true
+    });
 
-  if(first) first = false
-  else {
-    ClippingEdges.forceStyleUpdate = true;
+    let stylesCreated = false;
+    if(!stylesCreated) {
+      const models = viewer.context.items.ifcModels;
+      await viewer.clipper.planes[0].edges.newStyleFromMesh('test', models);
+      stylesCreated = true;
+    } else {
+      ClippingEdges.forceStyleUpdate = true;
+    }
+
+  } else {
+
+    const overlay = document.getElementById('loading-overlay');
+    const progressText = document.getElementById('loading-progress');
+
+    overlay.classList.remove('hidden');
+    progressText.innerText = `Loading`;
+
+    viewer.IFC.loader.ifcManager.setOnProgress((event) => {
+      const percentage = Math.floor((event.loaded * 100) / event.total);
+      progressText.innerText = `Loaded ${percentage}%`;
+    });
+
+    viewer.IFC.loader.ifcManager.applyWebIfcConfig({
+      USE_FAST_BOOLS: true,
+      COORDINATE_TO_ORIGIN: true
+    })
+
+    viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
+      [IFCSPACE]: false,
+      [IFCOPENINGELEMENT]: false
+    });
+
+    model = await viewer.IFC.loadIfc(event.target.files[0], false);
+    model.material.forEach(mat => mat.side = 2);
+
+    console.log(model);
+
+    if(first) first = false
+    else {
+      ClippingEdges.forceStyleUpdate = true;
+    }
+
+    // await createFill(model.modelID);
+    viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
+
+    await viewer.shadowDropper.renderShadow(model.modelID);
+
+    overlay.classList.add('hidden');
+
   }
 
-  await createFill(model.modelID);
-  viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
-  // viewer.edges.toggle(`${model.modelID}`);
+  const endTime = performance.now();
 
-  await viewer.shadowDropper.renderShadow(model.modelID);
-
-  overlay.classList.add('hidden');
+  console.log(`This took ${endTime - startTime} ms`);
 };
 
 const inputElement = document.createElement('input');
@@ -107,8 +149,25 @@ const handleKeyDown = async (event) => {
 
   if (event.code === 'KeyF') {
 
-    viewer.edgesVectorizer.initializeOpenCV(cv);
-    await viewer.edgesVectorizer.vectorize(10);
+    const walls = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE);
+    const windows = await viewer.IFC.getAllItemsOfType(0, IFCWINDOW);
+    const ids = [...walls, ...windows];
+    const result = await viewer.GLTF.exportIfcAsGltf(model.modelID, ids);
+
+    const blob = new Blob([result], {type: 'octet/stream'});
+    const link = document.createElement( 'a' );
+    link.style.display = 'none';
+    document.body.appendChild( link );
+    link.href = URL.createObjectURL( blob );
+    link.download = "example.gltf";
+    link.click();
+
+    // _____________________________________________
+
+    // viewer.edgesVectorizer.initializeOpenCV(cv);
+    // await viewer.edgesVectorizer.vectorize(10);
+
+    // _____________________________________________
 
     // const link = document.createElement('a');
     // link.href = viewer.context.renderer.newScreenshot(false, undefined, new Vector2(4000, 4000));
@@ -118,15 +177,17 @@ const handleKeyDown = async (event) => {
     // link.remove();
   }
   if (event.code === 'KeyR') {
-    await viewer.plans.computeAllPlanViews(0);
-    const planNames = Object.keys(viewer.plans.planLists[0]);
-    if (!planNames[counter]) return;
-    const current = planNames[counter];
-    viewer.plans.goTo(0, current, true);
-    viewer.context.items.ifcModels.forEach(model => viewer.edges.toggle(`${model.modelID}`));
+    // await viewer.plans.computeAllPlanViews(0);
+    // const planNames = Object.keys(viewer.plans.planLists[0]);
+    // if (!planNames[counter]) return;
+    // const current = planNames[counter];
+    // viewer.plans.goTo(0, current, true);
+    // viewer.context.items.ifcModels.forEach(model => viewer.edges.toggle(`${model.modelID}`));
+
+    viewer.plans.goTo(0, "asdf", true);
 
     viewer.shadowDropper.shadows[0].root.visible = false;
-    viewer.filler.fills[0].visible = false;
+    // viewer.filler.fills[0].visible = false;
 
   }
   if (event.code === 'KeyP') {
@@ -139,9 +200,12 @@ const handleKeyDown = async (event) => {
     viewer.plans.exitPlanView(true);
     viewer.edges.toggle('0');
     viewer.shadowDropper.shadows[0].root.visible = true;
-    viewer.filler.fills[0].visible = true;
+    // viewer.filler.fills[0].visible = true;
   }
   if (event.code === 'KeyA') {
+
+    useGLTF = !useGLTF;
+
     // PDF export
 
     // const currentPlans = viewer.plans.planLists[0];
@@ -188,12 +252,6 @@ const handleKeyDown = async (event) => {
     viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thick', 'section_thick', Drawing.ACI.RED);
     viewer.dxf.drawNamedLayer(drawingName, currentPlan, 'thin', 'section_thin', Drawing.ACI.GREEN);
 
-    // const ids = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
-    // const subset = viewer.IFC.loader.ifcManager.createSubset({ modelID: 0, ids, removePrevious: true });
-    // const edgesGeometry = new EdgesGeometry(subset.geometry);
-    // const vertices = edgesGeometry.attributes.position.array;
-    // viewer.dxf.draw(drawingName, vertices, 'other', Drawing.ACI.BLUE);
-
     viewer.dxf.exportDXF(drawingName);
   }
 };
@@ -206,10 +264,11 @@ window.ondblclick = async () => {
     viewer.clipper.createPlane();
   } else {
     const result = await viewer.IFC.selector.pickIfcItem(true);
-    if (!result) return;
-    const { modelID, id } = result;
-    const props = await viewer.IFC.getProperties(modelID, id, true, false);
-    console.log(props);
+    console.log(result);
+    // if (!result) return;
+    // const { modelID, id } = result;
+    // const props = await viewer.IFC.getProperties(modelID, id, true, false);
+    // console.log(props);
   }
 };
 
