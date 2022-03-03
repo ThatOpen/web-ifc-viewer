@@ -8,11 +8,13 @@ import { IfcComponent } from '../../base-types';
 import { IfcUnits } from './units';
 import { IfcSelector } from './selection/selector';
 import { IfcContext } from '../context';
+import { IfcProperties } from './ifc-properties';
 
 export class IfcManager extends IfcComponent {
   loader: IFCLoader;
   selector: IfcSelector;
   units: IfcUnits;
+  properties: IfcProperties;
   private readonly context: IfcContext;
 
   constructor(context: IfcContext) {
@@ -22,6 +24,7 @@ export class IfcManager extends IfcComponent {
     this.setupThreeMeshBVH();
     this.selector = new IfcSelector(context, this);
     this.units = new IfcUnits(this);
+    this.properties = new IfcProperties(context, this.loader);
   }
 
   /**

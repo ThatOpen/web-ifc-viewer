@@ -149,18 +149,29 @@ const handleKeyDown = async (event) => {
 
   if (event.code === 'KeyF') {
 
-    const walls = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE);
-    const windows = await viewer.IFC.getAllItemsOfType(0, IFCWINDOW);
-    const ids = [...walls, ...windows];
-    const result = await viewer.GLTF.exportIfcAsGltf(model.modelID, ids);
-
-    const blob = new Blob([result], {type: 'octet/stream'});
+    const blobs = await viewer.IFC.properties.serializeAllProperties(0, undefined, (current, total) => console.log(current, total));
+    const blob = blobs[0];
     const link = document.createElement( 'a' );
     link.style.display = 'none';
     document.body.appendChild( link );
     link.href = URL.createObjectURL( blob );
-    link.download = "example.gltf";
+    link.download = "example.json";
     link.click();
+
+    // _____________________________________________
+
+    // const walls = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE);
+    // const windows = await viewer.IFC.getAllItemsOfType(0, IFCWINDOW);
+    // const ids = [...walls, ...windows];
+    // const result = await viewer.GLTF.exportIfcAsGltf(model.modelID, ids);
+    //
+    // const blob = new Blob([result], {type: 'octet/stream'});
+    // const link = document.createElement( 'a' );
+    // link.style.display = 'none';
+    // document.body.appendChild( link );
+    // link.href = URL.createObjectURL( blob );
+    // link.download = "example.gltf";
+    // link.click();
 
     // _____________________________________________
 
