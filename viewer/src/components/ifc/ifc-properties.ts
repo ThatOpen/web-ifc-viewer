@@ -15,6 +15,13 @@ export class IfcProperties {
     this.loader = loader;
   }
 
+  /**
+   * Serializes all the properties of an IFC (exluding the geometry) into an array of Blobs.
+   * This is useful for populating databases with IFC data.
+   * @modelID ID of the IFC model whose properties to extract.
+   * @maxSize (optional) maximum number of entities for each Blob. If not defined, it's infinite (only one Blob will be created).
+   * @event (optional) callback called every time a 10% of entities are serialized into Blobs.
+   */
   async serializeAllProperties(modelID: number, maxSize?: number, event?: Progress) {
     if (!this.webIfc) this.webIfc = this.loader.ifcManager.ifcAPI;
     const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
