@@ -101,6 +101,18 @@ export class IfcCamera extends IfcComponent {
     this.setupControls();
   }
 
+  dispose() {
+    this.perspectiveCamera.removeFromParent();
+    (this.perspectiveCamera as any) = null;
+    this.orthographicCamera.removeFromParent();
+    (this.orthographicCamera as any) = null;
+    this.cameraControls.dispose();
+    (this.cameraControls as any) = null;
+    (this.navMode as any) = null;
+    (this.context as any) = null;
+    (this.projectionManager as any) = null;
+  }
+
   get projection() {
     return this.projectionManager.projection;
   }

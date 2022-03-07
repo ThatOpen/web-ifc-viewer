@@ -15,6 +15,12 @@ export class IfcProperties {
     this.loader = loader;
   }
 
+  dispose() {
+    (this.context as any) = null;
+    (this.loader as any) = null;
+    (this.webIfc as any) = null;
+  }
+
   /**
    * Serializes all the properties of an IFC (exluding the geometry) into an array of Blobs.
    * This is useful for populating databases with IFC data.

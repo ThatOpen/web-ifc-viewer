@@ -21,6 +21,17 @@ export class IfcSelection extends IfcComponent {
     this.modelID = -1;
   }
 
+  dispose() {
+    this.mesh?.removeFromParent();
+    this.mesh?.geometry.dispose();
+    this.material?.dispose();
+    (this.mesh as any) = null;
+    (this.material as any) = null;
+    (this.scene as any) = null;
+    (this.loader as any) = null;
+    (this.context as any) = null;
+  }
+
   pick = async (item: Intersection, focusSelection = false) => {
     if (this.selected === item.faceIndex || item.faceIndex == null) return null;
     this.selected = item.faceIndex;

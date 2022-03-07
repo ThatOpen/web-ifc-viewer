@@ -199,34 +199,45 @@ export class IfcViewerAPI {
   }
 
   /**
-   * @deprecated Use `IfcViewerAPI.IFC.prePickIfcItem()` instead.
+   * @deprecated Use `IfcViewerAPI.IFC.selector.prePickIfcItem()` instead.
    * Highlights the item pointed by the cursor.
    */
   prePickIfcItem = () => {
-    this.IFC.prePickIfcItem();
+    this.IFC.selector.prePickIfcItem();
   };
 
   /**
-   * @deprecated Use `IfcViewerAPI.IFC.pickIfcItem()` instead.
+   * @deprecated Use `IfcViewerAPI.IFC.selector.pickIfcItem()` instead.
    * Highlights the item pointed by the cursor and gets is properties.
    */
   pickIfcItem = () => {
-    return this.IFC.pickIfcItem();
+    return this.IFC.selector.pickIfcItem();
   };
 
   /**
-   * @deprecated Use `IfcViewerAPI.IFC.pickIfcItemsByID()` instead.
+   * @deprecated Use `IfcViewerAPI.IFC.selector.pickIfcItemsByID()` instead.
    * Highlights the item with the given ID.
    * @modelID ID of the IFC model.
    * @id Express ID of the item.
    */
   pickIfcItemsByID = (modelID: number, ids: number[]) => {
-    this.IFC.pickIfcItemsByID(modelID, ids);
+    this.IFC.selector.pickIfcItemsByID(modelID, ids);
   };
 
   /**
-   * TODO: Method to delete all data
-   * Needs to be implemented yet
+   * Releases all the memory allocated by IFC.js.
+   * Use this only when deleting the ifcViewerAPI instance.
+   * This is especially important when using libraries and frameworks that handle the lifecycle
+   * of objects automatically (e.g. React, Angular, etc). If you are using one of these and are
+   * instantiating webIfcViewer inside a component, make sure you use this method in the component
+   * destruction event.
    */
-  releaseAllMemory() {}
+  async dispose() {
+    this.grid.dispose();
+    this.axes.dispose();
+    this.context.dispose();
+    this.clipper.dispose();
+    this.GLTF.dispose();
+    await this.IFC.dispose();
+  }
 }

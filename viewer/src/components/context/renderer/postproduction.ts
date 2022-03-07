@@ -30,6 +30,20 @@ export class IfcPostproduction {
     this.renderer.localClippingEnabled = true;
   }
 
+  dispose() {
+    this.renderer.dispose();
+    if (this.initialized) {
+      (this.renderer as any) = null;
+      (this.BlendFunction as any) = null;
+      (this.EffectComposer as any) = null;
+      (this.EffectPass as any) = null;
+      (this.NormalPass as any) = null;
+      (this.RenderPass as any) = null;
+      (this.SSAOEffect as any) = null;
+      (this.composer as any) = null;
+    }
+  }
+
   get domElement() {
     return this.renderer.domElement;
   }

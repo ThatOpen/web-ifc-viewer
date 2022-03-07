@@ -95,21 +95,36 @@ export class IfcPlane extends IfcComponent {
     this.edges.visible = state;
   }
 
+  dispose() {
+    if (IfcPlane.planeMaterial) {
+      IfcPlane.planeMaterial.dispose();
+      (IfcPlane.planeMaterial as any) = null;
+    }
+    if (IfcPlane.hiddenMaterial) {
+      IfcPlane.hiddenMaterial.dispose();
+      (IfcPlane.hiddenMaterial as any) = null;
+    }
+    this.removeFromScene();
+    this.edges.disposeStylesAndHelpers();
+    (this.edges as any) = null;
+    (this.context as any) = null;
+  }
+
   removeFromScene = () => {
     this.helper.removeFromParent();
 
     this.arrowBoundingBox.removeFromParent();
     this.arrowBoundingBox.geometry.dispose();
-    // @ts-ignore
-    this.arrowBoundingBox.geometry = undefined;
+    (this.arrowBoundingBox as any) = undefined;
 
     this.planeMesh.geometry.dispose();
-    // @ts-ignore
-    this.planeMesh.geometry = undefined;
+    (this.planeMesh.geometry as any) = undefined;
 
     this.controls.removeFromParent();
     this.controls.dispose();
-    this.edges.remove();
+    this.edges.dispose();
+
+    this.helper.removeFromParent();
   };
 
   private newTransformControls() {

@@ -10,9 +10,11 @@ import {
 } from 'three';
 import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter';
+import { IFCLoader } from 'web-ifc-three/IFCLoader';
 import { IfcComponent } from '../../base-types';
 import { IfcContext } from '../context';
 import { IfcManager } from '../ifc';
+import { disposeMeshRecursively } from '../../utils/ThreeUtils';
 
 export class GLTFManager extends IfcComponent {
   GLTFModels: { [modelID: number]: Group } = {};
@@ -30,6 +32,17 @@ export class GLTFManager extends IfcComponent {
 
   constructor(private context: IfcContext, private IFC: IfcManager) {
     super(context);
+  }
+
+  dispose() {
+    (this.loader as any) = null;
+    (this.exporter as any) = null;
+    const models = Object.values(this.GLTFModels);
+    models.forEach((model) => {
+      model.removeFromParent();
+      model.children.forEach((child) => disposeMeshRecursively(child as Mesh));
+    });
+    (this.GLTFModels as any) = null;
   }
 
   /**
@@ -60,6 +73,29 @@ export class GLTFManager extends IfcComponent {
   }
 
   /**
+   * Exports the specified IFC file (or file subset) as glTF.
+   * @fileURL The URL of the IFC file to convert to glTF
+   * @ids (optional) The ids of the items to export. If not defined, the full model is exported
+   */
+  async exportIfcFileAsGltf(
+    ifcFileUrl: string,
+    ids?: number[],
+    onProgress?: (event: ProgressEvent) => any
+  ) {
+    const loader = new IFCLoader();
+    const state = this.IFC.loader.ifcManager.state;
+    if (state.wasmPath) await loader.ifcManager.setWasmPath(state.wasmPath);
+    if (state.worker.active) await loader.ifcManager.useWebWorkers(true, state.worker.path);
+    if (state.webIfcSettings) await loader.ifcManager.applyWebIfcConfig(state.webIfcSettings);
+    const model = await loader.loadAsync(ifcFileUrl, onProgress);
+    let result: any;
+    if (ids) result = await this.exportModelPartToGltf(model, ids);
+    else result = await this.exportMeshToGltf(model);
+    await loader.ifcManager.dispose();
+    return result;
+  }
+
+  /**
    * Exports the specified model (or model subset) as glTF.
    * @modelID The ID of the IFC model to convert to glTF
    * @ids (optional) The ids of the items to export. If not defined, the full model is exported
@@ -67,10 +103,7 @@ export class GLTFManager extends IfcComponent {
   async exportIfcAsGltf(modelID: number, ids?: number[]) {
     const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
     if (!model) throw new Error('The specified model does not exist!');
-    if (ids) {
-      return this.exportModelPartToGltf(model, ids);
-    }
-    return this.exportMeshToGltf(model);
+    return ids ? this.exportModelPartToGltf(model, ids) : this.exportMeshToGltf(model);
   }
 
   // TODO: Split up in smaller methods
@@ -161,7 +194,7 @@ export class GLTFManager extends IfcComponent {
   // Necessary to make the glTF work as a model
   private setupMeshAsModel(newMesh: IFCModel) {
     // TODO: In the future we might want to rethink this or at least fix the typings
-    this.IFC.loader.ifcManager.state.models[0] = { mesh: newMesh } as any;
+    this.IFC.loader.ifcManager.state.models[newMesh.modelID] = { mesh: newMesh } as any;
     const items = this.context.items;
     items.ifcModels.push(newMesh);
     items.pickableIfcModels.push(newMesh);

@@ -27,6 +27,18 @@ export class IfcManager extends IfcComponent {
     this.properties = new IfcProperties(context, this.loader);
   }
 
+  async dispose() {
+    (this.context as any) = null;
+    this.selector.dispose();
+    (this.selector as any) = null;
+    this.units.dispose();
+    (this.units as any) = null;
+    this.properties.dispose();
+    (this.properties as any) = null;
+    await this.loader.ifcManager.dispose();
+    (this.loader as any) = null;
+  }
+
   /**
    * Loads the given IFC in the current scene.
    * @file IFC as File.

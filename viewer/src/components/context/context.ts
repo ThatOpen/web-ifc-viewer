@@ -11,6 +11,8 @@ export class IfcContext {
   options: ViewerOptions;
   items: Items;
   ifcCamera: IfcCamera;
+  stats: any = null;
+
   readonly scene: IfcScene;
   readonly renderer: IfcRenderer;
   readonly events: IfcEvents;
@@ -18,6 +20,8 @@ export class IfcContext {
   private readonly clock: Clock;
   private readonly ifcCaster: IfcRaycaster;
   private readonly ifcAnimator: Animator;
+
+  private isThisBeingDisposed = false;
 
   constructor(options: ViewerOptions) {
     if (!options.container) throw new Error('Could not get container element!');
@@ -36,6 +40,45 @@ export class IfcContext {
     this.ifcAnimator = new Animator();
     this.setupWindowRescale();
     this.render();
+  }
+
+  dispose() {
+    this.isThisBeingDisposed = true;
+
+    this.stats?.dom.remove();
+
+    this.options.preselectMaterial?.dispose();
+    this.options.selectMaterial?.dispose();
+    (this.options as any) = null;
+
+    this.items.components.length = 0;
+    this.items.ifcModels.forEach((model) => {
+      model.removeFromParent();
+      if (model.geometry.boundsTree) model.geometry.disposeBoundsTree();
+      model.geometry.dispose();
+      if (Array.isArray(model.material)) model.material.forEach((mat) => mat.dispose());
+      else model.material.dispose();
+    });
+    this.items.ifcModels.length = 0;
+    this.items.pickableIfcModels.length = 0;
+    (this.items as any) = null;
+
+    this.ifcCamera.dispose();
+    (this.ifcCamera as any) = null;
+    this.scene.dispose();
+    (this.scene as any) = null;
+    this.renderer.dispose();
+    (this.renderer as any) = null;
+    this.events.dispose();
+    (this.events as any) = null;
+    this.ifcCaster.dispose();
+    (this.ifcCaster as any) = null;
+    this.ifcAnimator.dispose();
+    (this.ifcAnimator as any) = null;
+
+    (this.clock as any) = null;
+    this.clippingPlanes.length = 0;
+    this.unsetWindowRescale();
   }
 
   getScene() {
@@ -141,8 +184,11 @@ export class IfcContext {
   }
 
   private render = () => {
+    if (this.isThisBeingDisposed) return;
+    if (this.stats) this.stats.begin();
     requestAnimationFrame(this.render);
     this.updateAllComponents();
+    if (this.stats) this.stats.end();
   };
 
   private updateAllComponents() {
@@ -151,10 +197,16 @@ export class IfcContext {
   }
 
   private setupWindowRescale() {
-    window.addEventListener('resize', () => {
-      this.updateAspect();
-    });
+    window.addEventListener('resize', this.resize);
   }
+
+  private unsetWindowRescale() {
+    window.removeEventListener('resize', this.resize);
+  }
+
+  private resize = () => {
+    this.updateAspect();
+  };
 
   private newItems(): Items {
     return {

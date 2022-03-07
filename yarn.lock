@@ -4778,6 +4778,11 @@ static-extend@^0.1.1:
     define-property "^0.2.5"
     object-copy "^0.1.0"
 
+stats.js@0.17.0:
+  version "0.17.0"
+  resolved "https://registry.yarnpkg.com/stats.js/-/stats.js-0.17.0.tgz#b1c3dc46d94498b578b7fd3985b81ace7131cc7d"
+  integrity sha1-scPcRtlEmLV4t/05hbgaznExzH0=
+
 string-length@^4.0.1:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/string-length/-/string-length-4.0.2.tgz#a8a8dc7bd5c1a82b9b3c8b87e125f66871b6e57a"
@@ -5258,20 +5263,15 @@ walker@^1.0.7:
   dependencies:
     makeerror "1.0.x"
 
-web-ifc-three@^0.0.104:
-  version "0.0.104"
-  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.104.tgz#bdd7c8c2a2468a413642f968d39915646cdb49ee"
-  integrity sha512-vIzJkU8ewnhifUbxHGyT1kwBx4JvQfoF/m2muVJmpVZ+Ds8Yvkzf1HRZE8n7lhv4HzjYlXRwOF07U393N8P8pw==
+web-ifc-three@^0.0.107:
+  version "0.0.107"
+  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.107.tgz#76aa1aeb12fa6145841f1f0fba0e55b2771ae6f7"
+  integrity sha512-utwBtXRIWxy3+XOcFrDwExpMsJTRhdDC831bYYtJIJmxOfz5fs0EXRtexYf1cVnEUnx6HwUOWSJbWwzUy68A2g==
   dependencies:
     three-mesh-bvh "^0.5.2"
     web-ifc "^0.0.33"
 
-web-ifc@^0.0.32:
-  version "0.0.32"
-  resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.32.tgz#8eae1ae2e56b83883a9b6a16923abe1d2a07d639"
-  integrity sha512-EYPhzIXaZ0qW7fOrfds97qpP2MWaCYljfeMpJRAZP+qa2TNqWDu2egZXf03WIt+v39ymd/PFU+RBHZxVM3EEtQ==
-
-web-ifc@^0.0.33:
+web-ifc@0.0.33, web-ifc@^0.0.33:
   version "0.0.33"
   resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.33.tgz#a1eadc22dd2e683fa03064d71269850333e5c24f"
   integrity sha512-9JeOia81u7GzGf/HHgtxm/USLVJATx8ZqNxtnbXTbQEiV2Utz7qdm8LpQyrcLucMQF/9tqUxkBgAYxJITf08Zw==

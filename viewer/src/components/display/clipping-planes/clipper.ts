@@ -52,6 +52,13 @@ export class IfcClipper extends IfcComponent {
     });
   }
 
+  dispose() {
+    this.planes.forEach((plane) => plane.dispose());
+    this.planes.length = 0;
+    (this.context as any) = null;
+    (this.ifc as any) = null;
+  }
+
   createPlane = () => {
     if (!this.enabled) return;
     const intersects = this.context.castRayIfc();

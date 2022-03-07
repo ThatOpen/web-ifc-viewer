@@ -19,6 +19,11 @@ export class IfcEvents {
     }
   };
 
+  dispose() {
+    this.events.onCameraReady.actions.length = 0;
+    (this.events as any) = null;
+  }
+
   subscribe(event: IfcEvent, action: (...args: any) => void) {
     this.events[event].actions.push(action);
     this.events[event].needsUpdate = true;

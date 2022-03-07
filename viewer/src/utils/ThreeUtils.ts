@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Mesh } from 'three';
 
 export function RightToLeftHand(vector: THREE.Vector3): THREE.Vector3 {
   return new THREE.Vector3(vector.x, -vector.z, vector.y);
@@ -23,6 +24,19 @@ export function stringToAxes(axesString: string) {
       const name = str[1];
       return { negative, name };
     });
+}
+
+export function disposeMeshRecursively(mesh: Mesh) {
+  mesh.removeFromParent();
+  if (mesh.geometry) mesh.geometry.dispose();
+  if (mesh.material) {
+    if (Array.isArray(mesh.material)) mesh.material.forEach((mat) => mat.dispose());
+    else mesh.material.dispose();
+  }
+  if (mesh.children && mesh.children.length) {
+    mesh.children.forEach((child) => disposeMeshRecursively(child as Mesh));
+  }
+  mesh.children.length = 0;
 }
 
 export function getBasisTransform(from: string, to: string, targetMatrix: THREE.Matrix4) {

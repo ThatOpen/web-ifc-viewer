@@ -102,17 +102,45 @@ export class ClippingEdges {
     return generatorGeometry;
   }
 
-  remove() {
-    const edges = Object.values(this.edges);
-    edges.forEach((edge) => {
+  dispose() {
+    Object.values(this.edges).forEach((edge) => {
       edge.generatorGeometry.dispose();
       edge.mesh.geometry.dispose();
-      // @ts-ignore
-      edge.mesh.geometry = undefined;
-      if (edge.mesh.parent) {
-        edge.mesh.removeFromParent();
-      }
+      (edge.mesh as any) = undefined;
+      edge.mesh.removeFromParent();
     });
+
+    (this.edges as any) = null;
+    (this.context as any) = null;
+    (this.clippingPlane as any) = null;
+    (this.ifc as any) = null;
+  }
+
+  disposeStylesAndHelpers() {
+    if (ClippingEdges.basicEdges) {
+      ClippingEdges.basicEdges.removeFromParent();
+      ClippingEdges.basicEdges.geometry.dispose();
+      (ClippingEdges.basicEdges as any) = null;
+    }
+
+    if (!ClippingEdges.styles) return;
+    const styles = Object.values(ClippingEdges.styles);
+
+    styles.forEach((style) => {
+      style.ids.length = 0;
+      style.meshes.forEach((mesh) => {
+        mesh.removeFromParent();
+        mesh.geometry.dispose();
+        if (mesh.geometry.boundsTree) mesh.geometry.disposeBoundsTree();
+        if (Array.isArray(mesh.material)) mesh.material.forEach((mat) => mat.dispose());
+        else mesh.material.dispose();
+      });
+      style.meshes.length = 0;
+      style.categories.length = 0;
+      style.material.dispose();
+    });
+
+    (ClippingEdges.styles as any) = null;
   }
 
   async updateEdges() {

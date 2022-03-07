@@ -14,14 +14,23 @@ import {
 import { MeshBasicMaterial, LineBasicMaterial, Color, Vector3, BoxGeometry, Mesh, MeshLambertMaterial, BufferAttribute, BufferGeometry, Vector2 } from 'three';
 import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
 import Drawing from 'dxf-writer';
+import Stats from 'stats.js/src/Stats';
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255, 255) });
 viewer.axes.setAxes();
 viewer.grid.setGrid();
-viewer.IFC.setWasmPath('files/');
 
-viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+// Set up stats
+const stats = new Stats();
+stats.showPanel(2);
+document.body.append(stats.dom);
+stats.dom.style.right = '0px';
+stats.dom.style.left = 'auto';
+viewer.context.stats = stats;
+
+// viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+viewer.IFC.setWasmPath('files/');
 
 // Setup loader
 
@@ -35,35 +44,35 @@ let useGLTF = false;
 const loadIfc = async (event) => {
   const startTime = performance.now();
 
-  if(useGLTF) {
+  // if(useGLTF) {
+  //
+  //   ClippingEdges.createDefaultIfcStyles = false;
+  //
+  //   const url = URL.createObjectURL(event.target.files[0]);
+  //   const mesh = await viewer.GLTF.loadModel(url);
+  //
+  //   await viewer.shadowDropper.renderShadow(mesh.modelID);
+  //
+  //   await viewer.plans.create({
+  //     modelID: 0,
+  //     name: "asdf",
+  //     expressID: -1,
+  //     normal: new Vector3(0, -1, 0),
+  //     point: new Vector3(0, 1.5, 0),
+  //     rotation: 0,
+  //     ortho: true
+  //   });
+  //
+  //   let stylesCreated = false;
+  //   if(!stylesCreated) {
+  //     const models = viewer.context.items.ifcModels;
+  //     await viewer.clipper.planes[0].edges.newStyleFromMesh('test', models);
+  //     stylesCreated = true;
+  //   } else {
+  //     ClippingEdges.forceStyleUpdate = true;
+  //   }
 
-    ClippingEdges.createDefaultIfcStyles = false;
-
-    const url = URL.createObjectURL(event.target.files[0]);
-    const mesh = await viewer.GLTF.loadModel(url);
-
-    await viewer.shadowDropper.renderShadow(mesh.modelID);
-
-    await viewer.plans.create({
-      modelID: 0,
-      name: "asdf",
-      expressID: -1,
-      normal: new Vector3(0, -1, 0),
-      point: new Vector3(0, 1.5, 0),
-      rotation: 0,
-      ortho: true
-    });
-
-    let stylesCreated = false;
-    if(!stylesCreated) {
-      const models = viewer.context.items.ifcModels;
-      await viewer.clipper.planes[0].edges.newStyleFromMesh('test', models);
-      stylesCreated = true;
-    } else {
-      ClippingEdges.forceStyleUpdate = true;
-    }
-
-  } else {
+  // } else {
 
     const overlay = document.getElementById('loading-overlay');
     const progressText = document.getElementById('loading-progress');
@@ -103,11 +112,12 @@ const loadIfc = async (event) => {
 
     overlay.classList.add('hidden');
 
-  }
+  // }
 
-  const endTime = performance.now();
+  // const endTime = performance.now();
 
-  console.log(`This took ${endTime - startTime} ms`);
+  // console.log(`This took ${endTime - startTime} ms`);
+
 };
 
 const inputElement = document.createElement('input');
@@ -149,14 +159,14 @@ const handleKeyDown = async (event) => {
 
   if (event.code === 'KeyF') {
 
-    const blobs = await viewer.IFC.properties.serializeAllProperties(0, undefined, (current, total) => console.log(current, total));
-    const blob = blobs[0];
-    const link = document.createElement( 'a' );
-    link.style.display = 'none';
-    document.body.appendChild( link );
-    link.href = URL.createObjectURL( blob );
-    link.download = "example.json";
-    link.click();
+    // const blobs = await viewer.IFC.properties.serializeAllProperties(0, undefined, (current, total) => console.log(current, total));
+    // const blob = blobs[0];
+    // const link = document.createElement( 'a' );
+    // link.style.display = 'none';
+    // document.body.appendChild( link );
+    // link.href = URL.createObjectURL( blob );
+    // link.download = "example.json";
+    // link.click();
 
     // _____________________________________________
 
@@ -175,8 +185,8 @@ const handleKeyDown = async (event) => {
 
     // _____________________________________________
 
-    // viewer.edgesVectorizer.initializeOpenCV(cv);
-    // await viewer.edgesVectorizer.vectorize(10);
+    viewer.edgesVectorizer.initializeOpenCV(cv);
+    await viewer.edgesVectorizer.vectorize(10);
 
     // _____________________________________________
 

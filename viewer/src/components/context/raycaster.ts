@@ -15,6 +15,12 @@ export class IfcRaycaster extends IfcComponent {
     this.mouse = new IfcMouse(context);
   }
 
+  dispose() {
+    (this.raycaster as any) = null;
+    (this.mouse as any) = null;
+    (this.context as any) = null;
+  }
+
   castRay(items: Object3D[]) {
     const camera = this.context.getCamera();
     this.raycaster.setFromCamera(this.mouse.position, camera);

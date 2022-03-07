@@ -46,7 +46,6 @@ export interface ViewerOptions {
 
 interface Component {
   update: (_delta: number) => void;
-  dispose: () => void;
 }
 
 export interface Items {
@@ -61,8 +60,6 @@ export abstract class IfcComponent implements Component {
   }
 
   update(_delta: number) {}
-
-  dispose() {}
 }
 
 export interface fpsControl {

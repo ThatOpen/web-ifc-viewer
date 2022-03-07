@@ -24,6 +24,22 @@ export class IfcSelector {
     this.highlight = new IfcSelection(context, this.ifc.loader);
   }
 
+  dispose() {
+    this.defPreselectMat.dispose();
+    (this.defHighlightMat as any) = null;
+    this.defSelectMat.dispose();
+    (this.defSelectMat as any) = null;
+    this.defHighlightMat.dispose();
+    (this.defHighlightMat as any) = null;
+
+    this.preselection.dispose();
+    (this.preselection as any) = null;
+    this.selection.dispose();
+    (this.selection as any) = null;
+    this.highlight.dispose();
+    (this.highlight as any) = null;
+  }
+
   /**
    * Highlights the item pointed by the cursor.
    */

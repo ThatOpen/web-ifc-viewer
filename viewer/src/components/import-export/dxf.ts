@@ -79,11 +79,12 @@ export class DXFWriter {
   exportDXF(drawingName: string) {
     const currentDrawing = this.drawings[drawingName];
     if (!currentDrawing) throw new Error(`There is no drawing with id: ${drawingName}`);
-    const saveLink = document.createElement('a');
     const serialized = currentDrawing.toDxfString();
-    const blob = new Blob([serialized], { type: 'application/dxf' });
-    saveLink.href = URL.createObjectURL(blob);
-    saveLink.download = 'data.dxf';
-    saveLink.click();
+    return new Blob([serialized], { type: 'application/dxf' });
+    // const saveLink = document.createElement('a');
+    // saveLink.href = URL.createObjectURL(blob);
+    // saveLink.download = 'data.dxf';
+    // saveLink.click();
+    // saveLink.remove();
   }
 }

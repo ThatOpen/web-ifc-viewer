@@ -1,12 +1,18 @@
 import { Color, GridHelper } from 'three';
 import { IfcComponent } from '../../base-types';
 import { IfcContext } from '../context';
+import { disposeMeshRecursively } from '../../utils/ThreeUtils';
 
 export class IfcGrid extends IfcComponent {
   grid?: GridHelper;
 
   constructor(private context: IfcContext) {
     super(context);
+  }
+
+  dispose() {
+    disposeMeshRecursively(this.grid as any);
+    (this.grid as any) = null;
   }
 
   setGrid(size?: number, divisions?: number, colorCenterLine?: Color, colorGrid?: Color) {

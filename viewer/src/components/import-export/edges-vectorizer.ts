@@ -13,7 +13,6 @@ export class EdgesVectorizer {
   private currentBucketIndex = 0;
   private dims = { pixels: new Vector2(), real: new Vector2() };
 
-  private readonly trueCamera: OrthographicCamera;
   private readonly cvCamera: OrthographicCamera;
   private readonly controls: CameraControls;
   private readonly bucketMesh = new Mesh(new BoxGeometry(1, 1, 1));
@@ -26,8 +25,7 @@ export class EdgesVectorizer {
     private grid: IfcGrid,
     private axes: IfcAxes
   ) {
-    this.trueCamera = context.ifcCamera.orthographicCamera;
-    this.cvCamera = this.trueCamera.clone(false);
+    this.cvCamera = context.ifcCamera.orthographicCamera.clone(false);
     this.controls = context.ifcCamera.cameraControls;
 
     // Every time the html image is updated, its vertices are processed by opencv
@@ -52,7 +50,6 @@ export class EdgesVectorizer {
   }
 
   private setupCamera() {
-    this.cvCamera.copy(this.trueCamera);
     this.controls.saveState();
     this.controls.camera = this.cvCamera;
   }
@@ -206,7 +203,7 @@ export class EdgesVectorizer {
     } else {
       this.toggleVisibility(true);
       await this.controls.reset(false);
-      this.controls.camera = this.trueCamera;
+      this.controls.camera = this.context.getCamera() as any;
     }
   }
 }

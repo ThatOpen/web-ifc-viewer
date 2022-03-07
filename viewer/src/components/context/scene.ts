@@ -14,6 +14,10 @@ export class IfcScene extends IfcComponent {
     this.setupLights();
   }
 
+  dispose() {
+    this.scene.children.length = 0;
+  }
+
   add(item: Object3D) {
     this.scene.add(item);
   }

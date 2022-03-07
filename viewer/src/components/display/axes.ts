@@ -1,12 +1,18 @@
 import { AxesHelper, Material } from 'three';
 import { IfcComponent } from '../../base-types';
 import { IfcContext } from '../context';
+import { disposeMeshRecursively } from '../../utils/ThreeUtils';
 
 export class IfcAxes extends IfcComponent {
   axes?: AxesHelper;
 
   constructor(private context: IfcContext) {
     super(context);
+  }
+
+  dispose() {
+    disposeMeshRecursively(this.axes as any);
+    (this.axes as any) = null;
   }
 
   setAxes(size?: number) {

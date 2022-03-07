@@ -46,6 +46,17 @@ export class IfcRenderer extends IfcComponent {
     if (!active) this.restoreRendererBackgroundColor();
   }
 
+  dispose() {
+    this.basicRenderer.dispose();
+    this.postProductionRenderer.dispose();
+    (this.basicRenderer as any) = null;
+    (this.renderer2D as any) = null;
+    (this.postProductionRenderer as any) = null;
+    (this.renderer as any) = null;
+    (this.container as any) = null;
+    (this.context as any) = null;
+  }
+
   update(_delta: number) {
     const scene = this.context.getScene();
     const camera = this.context.getCamera();

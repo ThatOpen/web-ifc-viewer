@@ -8,6 +8,10 @@ export class Animator {
     this.transformer = gsap;
   }
 
+  dispose() {
+    (this.transformer as any) = null;
+  }
+
   move(vector: Vector3, transform: Vector3, duration = 1, delay = 0) {
     const x = transform.x;
     const y = transform.y;
