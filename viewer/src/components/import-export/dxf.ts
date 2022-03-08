@@ -5,6 +5,10 @@ export class DXFWriter {
 
   private Drawing: any = null;
 
+  dispose() {
+    (this.drawings as any) = null;
+  }
+
   initializeJSDXF(drawing: any) {
     this.Drawing = drawing;
   }

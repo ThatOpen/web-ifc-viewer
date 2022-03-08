@@ -5,6 +5,10 @@ export class PDFWriter {
   documents: { [id: string]: { scale: number; drawing: any } } = {};
   private errorText = 'The specified document does not exist.';
 
+  dispose() {
+    (this.documents as any) = null;
+  }
+
   setLineWidth(id: string, lineWidth: number) {
     const document = this.getDocument(id);
     document.drawing.setLineWidth(lineWidth);

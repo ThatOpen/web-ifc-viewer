@@ -1,6 +1,7 @@
 import { LineSegments, EdgesGeometry, Material } from 'three';
 import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
 import { IfcContext } from '../context';
+import { disposeMeshRecursively } from '../../utils/ThreeUtils';
 
 export class Edges {
   threshold = 30;
@@ -22,6 +23,18 @@ export class Edges {
     material.polygonOffset = true;
     material.polygonOffsetFactor = 1;
     material.polygonOffsetUnits = 1;
+  }
+
+  dispose() {
+    const allEdges = Object.values(this.edges);
+    allEdges.forEach((item) => {
+      disposeMeshRecursively(item.edges as any);
+      if (Array.isArray(item.originalMaterials)) {
+        item.originalMaterials.forEach((mat) => mat.dispose());
+      } else item.originalMaterials.dispose();
+      if (item.baseMaterial) item.baseMaterial.dispose();
+    });
+    (this.edges as any) = null;
   }
 
   getAll() {

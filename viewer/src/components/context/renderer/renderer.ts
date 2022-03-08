@@ -47,6 +47,7 @@ export class IfcRenderer extends IfcComponent {
   }
 
   dispose() {
+    this.basicRenderer.domElement.remove();
     this.basicRenderer.dispose();
     this.postProductionRenderer.dispose();
     (this.basicRenderer as any) = null;

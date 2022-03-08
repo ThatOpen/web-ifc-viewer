@@ -18,6 +18,7 @@ import { HorizontalBlurShader } from 'three/examples/jsm/shaders/HorizontalBlurS
 import { VerticalBlurShader } from 'three/examples/jsm/shaders/VerticalBlurShader';
 import { IfcManager } from '../ifc';
 import { IfcContext } from '../context';
+import { disposeMeshRecursively } from '../../utils/ThreeUtils';
 
 export interface Shadow {
   root: Group;
@@ -49,6 +50,23 @@ export class ShadowDropper {
     this.context = context;
     this.IFC = IFC;
     this.initializeDepthMaterial();
+  }
+
+  dispose() {
+    const allShadows = Object.values(this.shadows);
+    allShadows.forEach((shadow) => {
+      disposeMeshRecursively(shadow.root as any);
+      disposeMeshRecursively(shadow.blurPlane);
+      shadow.rt.dispose();
+      shadow.rtBlur.dispose();
+    });
+    (this.shadows as any) = null;
+    this.tempMaterial.dispose();
+    (this.tempMaterial as any) = null;
+    this.depthMaterial.dispose();
+    (this.depthMaterial as any) = null;
+    (this.context as any) = null;
+    (this.IFC as any) = null;
   }
 
   async renderShadow(modelID: number) {

@@ -52,6 +52,10 @@ export class IfcClipper extends IfcComponent {
     });
   }
 
+  toggle() {
+    this.active = !this.active;
+  }
+
   dispose() {
     this.planes.forEach((plane) => plane.dispose());
     this.planes.length = 0;

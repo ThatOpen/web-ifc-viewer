@@ -16,6 +16,7 @@ export class IfcScene extends IfcComponent {
 
   dispose() {
     this.scene.children.length = 0;
+    (this.scene as any) = null;
   }
 
   add(item: Object3D) {

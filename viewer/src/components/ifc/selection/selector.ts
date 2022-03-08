@@ -25,11 +25,11 @@ export class IfcSelector {
   }
 
   dispose() {
-    this.defPreselectMat.dispose();
+    this.defPreselectMat?.dispose();
     (this.defHighlightMat as any) = null;
-    this.defSelectMat.dispose();
+    this.defSelectMat?.dispose();
     (this.defSelectMat as any) = null;
-    this.defHighlightMat.dispose();
+    this.defHighlightMat?.dispose();
     (this.defHighlightMat as any) = null;
 
     this.preselection.dispose();

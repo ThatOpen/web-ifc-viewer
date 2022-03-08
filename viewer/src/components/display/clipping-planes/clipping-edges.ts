@@ -104,10 +104,12 @@ export class ClippingEdges {
 
   dispose() {
     Object.values(this.edges).forEach((edge) => {
+      if (edge.generatorGeometry.boundsTree) edge.generatorGeometry.disposeBoundsTree();
       edge.generatorGeometry.dispose();
+      if (edge.mesh.geometry.boundsTree) edge.mesh.geometry.disposeBoundsTree();
       edge.mesh.geometry.dispose();
-      (edge.mesh as any) = undefined;
       edge.mesh.removeFromParent();
+      (edge.mesh as any) = null;
     });
 
     (this.edges as any) = null;

@@ -2,6 +2,7 @@ import { BoxGeometry, Mesh, OrthographicCamera, Vector2, Vector3 } from 'three';
 import CameraControls from 'camera-controls';
 import { IfcAxes, IfcGrid, IfcClipper } from '../display';
 import { IfcContext } from '../context';
+import { disposeMeshRecursively } from '../../utils/ThreeUtils';
 
 export class EdgesVectorizer {
   cv: any;
@@ -31,6 +32,15 @@ export class EdgesVectorizer {
     // Every time the html image is updated, its vertices are processed by opencv
     this.htmlImage = document.createElement('img');
     this.htmlImage.onload = () => this.getEdges2DPoints();
+  }
+
+  dispose() {
+    (this.cv as any) = null;
+    this.cvCamera.removeFromParent();
+    (this.cvCamera as any) = null;
+    (this.controls as any) = null;
+    disposeMeshRecursively(this.bucketMesh);
+    this.htmlImage.remove();
   }
 
   initializeOpenCV(openCV: any) {

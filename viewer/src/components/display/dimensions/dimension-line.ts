@@ -12,6 +12,7 @@ import {
 } from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
 import { IfcContext } from '../../context';
+import { disposeMeshRecursively } from '../../../utils/ThreeUtils';
 
 export class IfcDimensionLine {
   private readonly context: IfcContext;
@@ -80,6 +81,35 @@ export class IfcDimensionLine {
     this.camera = this.context.getCamera();
     this.context.ifcCamera.onChange.on(() => this.rescaleObjectsToCameraPosition());
     this.rescaleObjectsToCameraPosition();
+  }
+
+  dispose() {
+    this.removeFromScene();
+    (this.context as any) = null;
+    disposeMeshRecursively(this.root as any);
+    (this.root as any) = null;
+    disposeMeshRecursively(this.line as any);
+    (this.line as any) = null;
+    this.endpointMeshes.forEach((mesh) => disposeMeshRecursively(mesh));
+    this.endpointMeshes.length = 0;
+    this.axis.dispose();
+    (this.axis as any) = null;
+    this.endpoint.dispose();
+    (this.endpoint as any) = null;
+
+    this.textLabel.removeFromParent();
+    this.textLabel.element.remove();
+    (this.textLabel as any) = null;
+
+    this.lineMaterial.dispose();
+    (this.lineMaterial as any) = null;
+    this.endpointMaterial.dispose();
+    (this.endpointMaterial as any) = null;
+
+    if (this.boundingMesh) {
+      disposeMeshRecursively(this.boundingMesh);
+      (this.boundingMesh as any) = null;
+    }
   }
 
   get boundingBox() {

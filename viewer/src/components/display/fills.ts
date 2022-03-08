@@ -2,6 +2,7 @@ import { BackSide, Material } from 'three';
 import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
 import { IfcManager } from '../ifc';
 import { IfcContext } from '../context';
+import { disposeMeshRecursively } from '../../utils/ThreeUtils';
 
 export class SectionFillManager {
   readonly fills: { [name: string]: IFCModel };
@@ -10,6 +11,12 @@ export class SectionFillManager {
 
   constructor(private IFC: IfcManager, private context: IfcContext) {
     this.fills = {};
+  }
+
+  dispose() {
+    const fills = Object.values(this.fills);
+    fills.forEach((fill) => disposeMeshRecursively(fill));
+    (this.fills as any) = null;
   }
 
   create(name: string, modelID: number, ids: number[], material: Material) {

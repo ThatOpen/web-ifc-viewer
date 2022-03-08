@@ -60,6 +60,19 @@ export class IfcDimensions extends IfcComponent {
     this.previewElement.visible = false;
   }
 
+  dispose() {
+    (this.context as any) = null;
+    this.dimensions.forEach((dim) => dim.dispose());
+    (this.dimensions as any) = null;
+    (this.currentDimension as any) = null;
+    this.endpoint.dispose();
+    (this.endpoint as any) = null;
+
+    this.previewElement.removeFromParent();
+    this.previewElement.element.remove();
+    (this.previewElement as any) = null;
+  }
+
   update(_delta: number) {
     if (this.enabled && this.preview) {
       const intersects = this.context.castRayIfc();

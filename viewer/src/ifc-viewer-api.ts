@@ -7,7 +7,6 @@ import {
   IfcAxes,
   IfcClipper,
   DropboxAPI,
-  IfcStats,
   Edges,
   SectionFillManager,
   IfcDimensions,
@@ -34,8 +33,7 @@ export class IfcViewerAPI {
   edgesVectorizer: EdgesVectorizer;
   grid: IfcGrid;
   axes: IfcAxes;
-  stats?: IfcStats;
-  dropbox?: DropboxAPI;
+  dropbox: DropboxAPI;
 
   constructor(options: ViewerOptions) {
     if (!options.container) throw new Error('Could not get container element!');
@@ -53,24 +51,11 @@ export class IfcViewerAPI {
     this.dxf = new DXFWriter();
     this.pdf = new PDFWriter();
     this.GLTF = new GLTFManager(this.context, this.IFC);
+    this.dropbox = new DropboxAPI(this.context, this.IFC);
   }
 
   /**
-   * Adds [stats](https://github.com/mrdoob/stats.js/) to the scene for testing purposes. For example:
-   * ```js
-   *     this.loader.addStats('position:fixed;top:6rem;right:0px;z-index:1;');
-   * ```
-   * @css The css text to control where to locate the stats.
-   * @stats The stats.js API object
-   */
-  addStats(css = '', stats?: any) {
-    // @ts-ignore
-    this.stats = new IfcStats(this.context);
-    this.stats?.initializeStats(stats);
-    this.stats?.addStats(css);
-  }
-
-  /**
+   * @deprecated Use `IfcViewerAPI.clipper.createPlane()` instead.
    * Adds a clipping plane on the face pointed to by the cursor.
    */
   addClippingPlane = () => {
@@ -78,6 +63,7 @@ export class IfcViewerAPI {
   };
 
   /**
+   * @deprecated Use `IfcViewerAPI.clipper.deletePlane()` instead.
    * Removes the clipping plane pointed by the cursor.
    */
   removeClippingPlane = () => {
@@ -85,18 +71,19 @@ export class IfcViewerAPI {
   };
 
   /**
+   * @deprecated Use `IfcViewerAPI.clipper.toggle()` instead.
    * Turns on / off all clipping planes.
    */
   toggleClippingPlanes = () => {
-    this.clipper.active = !this.clipper.active;
+    this.clipper.toggle();
   };
 
   /**
+   * @deprecated Use `this.dropbox.loadDropboxIfc()` instead.
    * Opens a dropbox window where the user can select their IFC models.
    */
   openDropboxWindow() {
-    if (!this.dropbox) this.dropbox = new DropboxAPI(this.context, this.IFC);
-    this.dropbox?.loadDropboxIfc();
+    this.dropbox.loadDropboxIfc();
   }
 
   /**
@@ -234,10 +221,33 @@ export class IfcViewerAPI {
    */
   async dispose() {
     this.grid.dispose();
+    (this.grid as any) = null;
     this.axes.dispose();
+    (this.axes as any) = null;
     this.context.dispose();
+    (this.context as any) = null;
     this.clipper.dispose();
+    (this.clipper as any) = null;
+    this.plans.dispose();
+    (this.plans as any) = null;
+    this.filler.dispose();
+    (this.filler as any) = null;
+    this.dimensions.dispose();
+    (this.dimensions as any) = null;
+    this.edges.dispose();
+    (this.edges as any) = null;
+    this.shadowDropper.dispose();
+    (this.shadowDropper as any) = null;
+    this.dxf.dispose();
+    (this.dxf as any) = null;
+    this.pdf.dispose();
+    (this.pdf as any) = null;
+    this.edgesVectorizer.dispose();
+    (this.edgesVectorizer as any) = null;
+    (this.dropbox as any) = null;
     this.GLTF.dispose();
+    (this.GLTF as any) = null;
     await this.IFC.dispose();
+    (this.IFC as any) = null;
   }
 }

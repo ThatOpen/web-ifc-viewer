@@ -6,6 +6,7 @@ import { CameraProjections, NavigationModes } from '../../../base-types';
 import { IfcManager } from '../../ifc';
 import { UnitType } from '../../ifc/units';
 import { IfcContext } from '../../context';
+import { disposeMeshRecursively } from '../../../utils/ThreeUtils';
 
 export interface PlanViewConfig {
   modelID: number;
@@ -39,6 +40,13 @@ export class PlanManager {
 
   constructor(private ifc: IfcManager, private context: IfcContext, private clipper: IfcClipper) {
     this.sectionFill = new Mesh();
+  }
+
+  dispose() {
+    disposeMeshRecursively(this.sectionFill);
+    (this.sectionFill as any) = null;
+    (this.storeys as any) = null;
+    (this.planLists as any) = null;
   }
 
   getAll(modelID: number) {
