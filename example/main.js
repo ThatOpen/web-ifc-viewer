@@ -29,8 +29,8 @@ stats.dom.style.right = '0px';
 stats.dom.style.left = 'auto';
 viewer.context.stats = stats;
 
-// viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
-viewer.IFC.setWasmPath('files/');
+viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+// viewer.IFC.setWasmPath('files/');
 
 // Setup loader
 
@@ -185,8 +185,8 @@ const handleKeyDown = async (event) => {
 
     // _____________________________________________
 
-    viewer.edgesVectorizer.initializeOpenCV(cv);
-    await viewer.edgesVectorizer.vectorize(10);
+    // viewer.edgesVectorizer.initializeOpenCV(cv);
+    // await viewer.edgesVectorizer.vectorize(10);
 
     // _____________________________________________
 
@@ -243,12 +243,6 @@ const handleKeyDown = async (event) => {
     //
     // viewer.pdf.setLineWidth(documentName, 0.1);
     // viewer.pdf.setColor(documentName, new Color(100, 100, 100));
-    //
-    // const ids = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE, false);
-    // const subset = viewer.IFC.loader.ifcManager.createSubset({ modelID: 0, ids, removePrevious: true });
-    // const edgesGeometry = new EdgesGeometry(subset.geometry);
-    // const vertices = edgesGeometry.attributes.position.array;
-    // viewer.pdf.draw(documentName, vertices, 200, 200);
     //
     // viewer.pdf.drawNamedLayer(documentName, currentPlan, 'thin', 200, 200);
     //

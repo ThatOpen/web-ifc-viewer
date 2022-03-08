@@ -99005,7 +99005,11 @@
             this.context = context;
             this.loader = loader;
         }
-<<<<<<< Updated upstream
+        dispose() {
+            this.context = null;
+            this.loader = null;
+            this.webIfc = null;
+        }
         /**
          * Serializes all the properties of an IFC (exluding the geometry) into an array of Blobs.
          * This is useful for populating databases with IFC data.
@@ -99013,13 +99017,6 @@
          * @maxSize (optional) maximum number of entities for each Blob. If not defined, it's infinite (only one Blob will be created).
          * @event (optional) callback called every time a 10% of entities are serialized into Blobs.
          */
-=======
-        dispose() {
-            this.context = null;
-            this.loader = null;
-            this.webIfc = null;
-        }
->>>>>>> Stashed changes
         async serializeAllProperties(modelID, maxSize, event) {
             if (!this.webIfc)
                 this.webIfc = this.loader.ifcManager.ifcAPI;
@@ -114463,7 +114460,7 @@
                 for (let j = 0; j < polygon.length - 3; j += 2) {
                     const start = [polygon[j], polygon[j + 1]];
                     const end = [polygon[j + 2], polygon[j + 3]];
-                    currentDrawing.drawPolyline([start[0], start[1], end[0], end[1]]);
+                    currentDrawing.drawPolyline([start, end]);
                 }
             }
         }
@@ -114567,6 +114564,7 @@
             await this.renderBucket();
         }
         setupCamera() {
+            this.cvCamera.copy(this.context.ifcCamera.orthographicCamera);
             this.controls.saveState();
             this.controls.camera = this.cvCamera;
         }
@@ -116775,8 +116773,8 @@
     stats.dom.style.left = 'auto';
     viewer.context.stats = stats;
 
-    // viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
-    viewer.IFC.setWasmPath('files/');
+    viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+    // viewer.IFC.setWasmPath('files/');
 
     // Setup loader
 
@@ -116881,46 +116879,7 @@
         viewer.IFC.selector.unpickIfcItems();
       }
 
-      if (event.code === 'KeyF') {
-
-        // const blobs = await viewer.IFC.properties.serializeAllProperties(0, undefined, (current, total) => console.log(current, total));
-        // const blob = blobs[0];
-        // const link = document.createElement( 'a' );
-        // link.style.display = 'none';
-        // document.body.appendChild( link );
-        // link.href = URL.createObjectURL( blob );
-        // link.download = "example.json";
-        // link.click();
-
-        // _____________________________________________
-
-        // const walls = await viewer.IFC.getAllItemsOfType(0, IFCWALLSTANDARDCASE);
-        // const windows = await viewer.IFC.getAllItemsOfType(0, IFCWINDOW);
-        // const ids = [...walls, ...windows];
-        // const result = await viewer.GLTF.exportIfcAsGltf(model.modelID, ids);
-        //
-        // const blob = new Blob([result], {type: 'octet/stream'});
-        // const link = document.createElement( 'a' );
-        // link.style.display = 'none';
-        // document.body.appendChild( link );
-        // link.href = URL.createObjectURL( blob );
-        // link.download = "example.gltf";
-        // link.click();
-
-        // _____________________________________________
-
-        viewer.edgesVectorizer.initializeOpenCV(cv);
-        await viewer.edgesVectorizer.vectorize(10);
-
-        // _____________________________________________
-
-        // const link = document.createElement('a');
-        // link.href = viewer.context.renderer.newScreenshot(false, undefined, new Vector2(4000, 4000));
-        // link.download = 'example.jpeg';
-        // document.body.appendChild(link);
-        // link.click();
-        // link.remove();
-      }
+      if (event.code === 'KeyF') ;
       if (event.code === 'KeyR') {
         // await viewer.plans.computeAllPlanViews(0);
         // const planNames = Object.keys(viewer.plans.planLists[0]);

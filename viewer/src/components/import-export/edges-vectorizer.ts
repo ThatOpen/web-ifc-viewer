@@ -50,6 +50,7 @@ export class EdgesVectorizer {
   }
 
   private setupCamera() {
+    this.cvCamera.copy(this.context.ifcCamera.orthographicCamera);
     this.controls.saveState();
     this.controls.camera = this.cvCamera;
   }
