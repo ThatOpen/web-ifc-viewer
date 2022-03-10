@@ -42183,14 +42183,16 @@ if ( typeof window !== 'undefined' ) {
 
 }
 
-let modelIdCounter = 0;
 const nullIfcManagerErrorMessage = 'IfcManager is null!';
 class IFCModel extends Mesh {
     constructor() {
         super(...arguments);
-        this.modelID = modelIdCounter++;
+        this.modelID = IFCModel.modelIdCounter++;
         this.ifcManager = null;
         this.mesh = this;
+    }
+    static dispose() {
+        IFCModel.modelIdCounter = 0;
     }
     setIFCManager(manager) {
         this.ifcManager = manager;
@@ -42257,6 +42259,7 @@ class IFCModel extends Mesh {
         return this.ifcManager.createSubset(modelConfig);
     }
 }
+IFCModel.modelIdCounter = 0;
 
 class SerializedMaterial {
     constructor(material) {

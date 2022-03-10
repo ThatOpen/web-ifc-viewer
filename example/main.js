@@ -32,7 +32,6 @@ const baseMaterial = new MeshBasicMaterial({ color: 0xffffff, side: 2 });
 
 let first = true;
 let model;
-let useGLTF = false;
 
 const loadIfc = async (event) => {
 

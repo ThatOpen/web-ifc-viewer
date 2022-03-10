@@ -95695,16 +95695,19 @@
 
     }
 
-    let modelIdCounter = 0;
     const nullIfcManagerErrorMessage = 'IfcManager is null!';
 
     class IFCModel extends Mesh {
 
       constructor() {
         super(...arguments);
-        this.modelID = modelIdCounter++;
+        this.modelID = IFCModel.modelIdCounter++;
         this.ifcManager = null;
         this.mesh = this;
+      }
+
+      static dispose() {
+        IFCModel.modelIdCounter = 0;
       }
 
       setIFCManager(manager) {
@@ -95788,6 +95791,8 @@
       }
 
     }
+
+    IFCModel.modelIdCounter = 0;
 
     class IFCParser {
 
@@ -98744,6 +98749,7 @@
       }
 
       async dispose() {
+        IFCModel.dispose();
         await this.cleaner.dispose();
         this.subsets.dispose();
         if (this.worker && this.state.worker.active)
@@ -99069,14 +99075,12 @@
          * @maxSize (optional) maximum number of entities for each Blob. If not defined, it's infinite (only one Blob will be created).
          * @event (optional) callback called every time a 10% of entities are serialized into Blobs.
          */
-        async serializeAllProperties(modelID, maxSize, event) {
-            if (!this.webIfc)
-                this.webIfc = this.loader.ifcManager.ifcAPI;
-            const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
+        async serializeAllProperties(model, maxSize, event) {
+            this.webIfc = this.loader.ifcManager.ifcAPI;
             if (!model)
                 throw new Error('The requested model was not found.');
             const blobs = [];
-            await this.getPropertiesAsBlobs(modelID, blobs, maxSize, event);
+            await this.getPropertiesAsBlobs(model.modelID, blobs, maxSize, event);
             return blobs;
         }
         async getPropertiesAsBlobs(modelID, blobs, maxSize, event) {
@@ -113981,22 +113985,29 @@
          * @fileURL The URL of the IFC file to convert to glTF
          * @ids (optional) The ids of the items to export. If not defined, the full model is exported
          */
-        async exportIfcFileAsGltf(ifcFileUrl, ids, onProgress) {
-            const loader = new IFCLoader();
+        async exportIfcFileAsGltf(ifcFileUrl, getProperties = false, ids, onProgress) {
+            const tempLoader = new IFCLoader();
             const state = this.IFC.loader.ifcManager.state;
             if (state.wasmPath)
-                await loader.ifcManager.setWasmPath(state.wasmPath);
+                await tempLoader.ifcManager.setWasmPath(state.wasmPath);
             if (state.worker.active)
-                await loader.ifcManager.useWebWorkers(true, state.worker.path);
+                await tempLoader.ifcManager.useWebWorkers(true, state.worker.path);
             if (state.webIfcSettings)
-                await loader.ifcManager.applyWebIfcConfig(state.webIfcSettings);
-            const model = await loader.loadAsync(ifcFileUrl, onProgress);
-            let result;
+                await tempLoader.ifcManager.applyWebIfcConfig(state.webIfcSettings);
+            const model = await tempLoader.loadAsync(ifcFileUrl, onProgress);
+            const result = {};
             if (ids)
-                result = await this.exportModelPartToGltf(model, ids);
+                result.gltf = await this.exportModelPartToGltf(model, ids);
             else
-                result = await this.exportMeshToGltf(model);
-            await loader.ifcManager.dispose();
+                result.gltf = await this.exportMeshToGltf(model);
+            if (getProperties) {
+                const previousLoader = this.IFC.properties.loader;
+                this.IFC.properties.loader = tempLoader;
+                const blobs = await this.IFC.properties.serializeAllProperties(model);
+                result.json = new File(blobs, 'properties.json');
+                this.IFC.properties.loader = previousLoader;
+            }
+            await tempLoader.ifcManager.dispose();
             return result;
         }
         /**
@@ -114428,7 +114439,10 @@
             return new OrthographicCamera(-size.x / 2, size.x / 2, size.z / 2, -size.z / 2, 0, this.cameraHeight);
         }
         getSizeAndCenter(modelID) {
-            const geometry = this.context.items.ifcModels[modelID].geometry;
+            const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
+            if (!model)
+                throw new Error('The requested model was not found.');
+            const geometry = model.geometry;
             geometry.computeBoundingBox();
             if (geometry.boundingBox) {
                 const size = new Vector3();

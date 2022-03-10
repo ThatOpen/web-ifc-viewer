@@ -227,7 +227,9 @@ export class ShadowDropper {
   }
 
   private getSizeAndCenter(modelID: number) {
-    const geometry = this.context.items.ifcModels[modelID].geometry;
+    const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
+    if (!model) throw new Error('The requested model was not found.');
+    const geometry = model.geometry;
     geometry.computeBoundingBox();
     if (geometry.boundingBox) {
       const size = new Vector3();

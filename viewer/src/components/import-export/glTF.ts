@@ -79,19 +79,30 @@ export class GLTFManager extends IfcComponent {
    */
   async exportIfcFileAsGltf(
     ifcFileUrl: string,
+    getProperties = false,
     ids?: number[],
     onProgress?: (event: ProgressEvent) => any
   ) {
-    const loader = new IFCLoader();
+    const tempLoader = new IFCLoader();
     const state = this.IFC.loader.ifcManager.state;
-    if (state.wasmPath) await loader.ifcManager.setWasmPath(state.wasmPath);
-    if (state.worker.active) await loader.ifcManager.useWebWorkers(true, state.worker.path);
-    if (state.webIfcSettings) await loader.ifcManager.applyWebIfcConfig(state.webIfcSettings);
-    const model = await loader.loadAsync(ifcFileUrl, onProgress);
-    let result: any;
-    if (ids) result = await this.exportModelPartToGltf(model, ids);
-    else result = await this.exportMeshToGltf(model);
-    await loader.ifcManager.dispose();
+    if (state.wasmPath) await tempLoader.ifcManager.setWasmPath(state.wasmPath);
+    if (state.worker.active) await tempLoader.ifcManager.useWebWorkers(true, state.worker.path);
+    if (state.webIfcSettings) await tempLoader.ifcManager.applyWebIfcConfig(state.webIfcSettings);
+    const model = await tempLoader.loadAsync(ifcFileUrl, onProgress);
+    const result: { gltf?: any; json?: any } = {};
+
+    if (ids) result.gltf = await this.exportModelPartToGltf(model, ids);
+    else result.gltf = await this.exportMeshToGltf(model);
+
+    if (getProperties) {
+      const previousLoader = this.IFC.properties.loader;
+      this.IFC.properties.loader = tempLoader;
+      const blobs = await this.IFC.properties.serializeAllProperties(model);
+      result.json = new File(blobs, 'properties.json');
+      this.IFC.properties.loader = previousLoader;
+    }
+
+    await tempLoader.ifcManager.dispose();
     return result;
   }
 
