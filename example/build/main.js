@@ -113937,6 +113937,7 @@
             this.GLTFModels = {};
             this.loader = new GLTFLoader();
             this.exporter = new GLTFExporter();
+            this.tempIfcLoader = null;
             this.options = {
                 trs: false,
                 onlyVisible: false,
@@ -113985,29 +113986,37 @@
          * @fileURL The URL of the IFC file to convert to glTF
          * @ids (optional) The ids of the items to export. If not defined, the full model is exported
          */
-        async exportIfcFileAsGltf(ifcFileUrl, getProperties = false, ids, onProgress) {
-            const tempLoader = new IFCLoader();
+        async exportIfcFileAsGltf(ifcFileUrl, categories, onProgress) {
+            const loader = new IFCLoader();
+            this.tempIfcLoader = loader;
             const state = this.IFC.loader.ifcManager.state;
+            const manager = loader.ifcManager;
             if (state.wasmPath)
-                await tempLoader.ifcManager.setWasmPath(state.wasmPath);
+                await manager.setWasmPath(state.wasmPath);
             if (state.worker.active)
-                await tempLoader.ifcManager.useWebWorkers(true, state.worker.path);
+                await manager.useWebWorkers(true, state.worker.path);
             if (state.webIfcSettings)
-                await tempLoader.ifcManager.applyWebIfcConfig(state.webIfcSettings);
-            const model = await tempLoader.loadAsync(ifcFileUrl, onProgress);
-            const result = {};
-            if (ids)
-                result.gltf = await this.exportModelPartToGltf(model, ids);
-            else
-                result.gltf = await this.exportMeshToGltf(model);
-            if (getProperties) {
-                const previousLoader = this.IFC.properties.loader;
-                this.IFC.properties.loader = tempLoader;
-                const blobs = await this.IFC.properties.serializeAllProperties(model);
-                result.json = new File(blobs, 'properties.json');
-                this.IFC.properties.loader = previousLoader;
+                await manager.applyWebIfcConfig(state.webIfcSettings);
+            const model = await loader.loadAsync(ifcFileUrl, onProgress);
+            const result = [];
+            if (categories) {
+                const items = [];
+                for (let i = 0; i < categories.length; i++) {
+                    const currentCategories = categories[i];
+                    for (let j = 0; j < currentCategories.length; j++) {
+                        // eslint-disable-next-line no-await-in-loop
+                        const foundItems = await manager.getAllItemsOfType(0, currentCategories[j], false);
+                        items.push(...foundItems);
+                    }
+                    // eslint-disable-next-line no-await-in-loop
+                    result.push(await this.exportModelPartToGltf(model, items, true));
+                }
             }
-            await tempLoader.ifcManager.dispose();
+            else {
+                result.push(await this.exportMeshToGltf(model));
+            }
+            await loader.ifcManager.dispose();
+            this.tempIfcLoader = null;
             return result;
         }
         /**
@@ -114022,13 +114031,16 @@
             return ids ? this.exportModelPartToGltf(model, ids) : this.exportMeshToGltf(model);
         }
         // TODO: Split up in smaller methods
-        exportModelPartToGltf(model, ids) {
+        exportModelPartToGltf(model, ids, useTempLoader = false) {
             const coordinates = [];
             const expressIDs = [];
             const newIndices = [];
             const alreadySaved = new Map();
             const customID = 'temp-gltf-subset';
-            const subset = this.IFC.loader.ifcManager.createSubset({
+            const loader = useTempLoader ? this.tempIfcLoader : this.IFC.loader;
+            if (!loader)
+                throw new Error('IFCLoader could not be found!');
+            const subset = loader.ifcManager.createSubset({
                 modelID: model.modelID,
                 ids,
                 removePrevious: true,
@@ -114067,7 +114079,7 @@
             geometryToExport.setIndex(newIndices);
             geometryToExport.groups = newGroups;
             geometryToExport.computeVertexNormals();
-            this.IFC.loader.ifcManager.removeSubset(model.modelID, undefined, customID);
+            loader.ifcManager.removeSubset(model.modelID, undefined, customID);
             const mesh = new Mesh(geometryToExport, newMaterials);
             return this.exportMeshToGltf(mesh);
         }
@@ -115208,49 +115220,67 @@
 
     // Setup loader
 
-    const lineMaterial = new LineBasicMaterial({ color: 0x555555 });
-    const baseMaterial = new MeshBasicMaterial({ color: 0xffffff, side: 2 });
-
-    let first = true;
-    let model;
+    new LineBasicMaterial({ color: 0x555555 });
+    new MeshBasicMaterial({ color: 0xffffff, side: 2 });
 
     const loadIfc = async (event) => {
 
-        const overlay = document.getElementById('loading-overlay');
-        const progressText = document.getElementById('loading-progress');
+      const url = URL.createObjectURL(event.target.files[0]);
 
-        overlay.classList.remove('hidden');
-        progressText.innerText = `Loading`;
+      const result = await viewer.GLTF.exportIfcFileAsGltf(url, [
+        [IFCWALLSTANDARDCASE],
+        [IFCWINDOW]
+      ]);
 
-        viewer.IFC.loader.ifcManager.setOnProgress((event) => {
-          const percentage = Math.floor((event.loaded * 100) / event.total);
-          progressText.innerText = `Loaded ${percentage}%`;
-        });
+      console.log(result);
 
-        viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-          USE_FAST_BOOLS: true,
-          COORDINATE_TO_ORIGIN: true
-        });
+      const link = document.createElement('a');
+      link.download = "part.gltf";
+      document.body.appendChild(link);
 
-        viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
-          [IFCSPACE]: false,
-          [IFCOPENINGELEMENT]: false
-        });
+      result.forEach(data => {
+        const file = new File([new Blob([data])], "example");
+        link.href = URL.createObjectURL(file);
+        link.click();
+      });
 
-        model = await viewer.IFC.loadIfc(event.target.files[0], false);
-        model.material.forEach(mat => mat.side = 2);
+      link.remove();
 
-        if(first) first = false;
-        else {
-          ClippingEdges.forceStyleUpdate = true;
-        }
-
-        // await createFill(model.modelID);
-        viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
-
-        await viewer.shadowDropper.renderShadow(model.modelID);
-
-        overlay.classList.add('hidden');
+      // const overlay = document.getElementById('loading-overlay');
+      // const progressText = document.getElementById('loading-progress');
+      //
+      // overlay.classList.remove('hidden');
+      // progressText.innerText = `Loading`;
+      //
+      // viewer.IFC.loader.ifcManager.setOnProgress((event) => {
+      //   const percentage = Math.floor((event.loaded * 100) / event.total);
+      //   progressText.innerText = `Loaded ${percentage}%`;
+      // });
+      //
+      // viewer.IFC.loader.ifcManager.applyWebIfcConfig({
+      //   USE_FAST_BOOLS: true,
+      //   COORDINATE_TO_ORIGIN: true
+      // })
+      //
+      // viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
+      //   [IFCSPACE]: false,
+      //   [IFCOPENINGELEMENT]: false
+      // });
+      //
+      // model = await viewer.IFC.loadIfc(event.target.files[0], false);
+      // model.material.forEach(mat => mat.side = 2);
+      //
+      // if(first) first = false
+      // else {
+      //   ClippingEdges.forceStyleUpdate = true;
+      // }
+      //
+      // // await createFill(model.modelID);
+      // viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
+      //
+      // await viewer.shadowDropper.renderShadow(model.modelID);
+      //
+      // overlay.classList.add('hidden');
 
     };
 

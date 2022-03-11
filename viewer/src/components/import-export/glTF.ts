@@ -21,6 +21,7 @@ export class GLTFManager extends IfcComponent {
 
   private loader = new GLTFLoader();
   private exporter = new GLTFExporter();
+  private tempIfcLoader: IFCLoader | null = null;
 
   private options = {
     trs: false,
@@ -80,19 +81,36 @@ export class GLTFManager extends IfcComponent {
   async exportIfcFileAsGltf(
     ifcFileUrl: string,
     getProperties = false,
-    ids?: number[],
+    categories?: number[][],
     onProgress?: (event: ProgressEvent) => any
   ) {
-    const tempLoader = new IFCLoader();
+    const loader = new IFCLoader();
+    this.tempIfcLoader = loader;
     const state = this.IFC.loader.ifcManager.state;
-    if (state.wasmPath) await tempLoader.ifcManager.setWasmPath(state.wasmPath);
-    if (state.worker.active) await tempLoader.ifcManager.useWebWorkers(true, state.worker.path);
-    if (state.webIfcSettings) await tempLoader.ifcManager.applyWebIfcConfig(state.webIfcSettings);
-    const model = await tempLoader.loadAsync(ifcFileUrl, onProgress);
-    const result: { gltf?: any; json?: any } = {};
+    const manager = loader.ifcManager;
 
-    if (ids) result.gltf = await this.exportModelPartToGltf(model, ids);
-    else result.gltf = await this.exportMeshToGltf(model);
+    if (state.wasmPath) await manager.setWasmPath(state.wasmPath);
+    if (state.worker.active) await manager.useWebWorkers(true, state.worker.path);
+    if (state.webIfcSettings) await manager.applyWebIfcConfig(state.webIfcSettings);
+    const model = await loader.loadAsync(ifcFileUrl, onProgress);
+    const result: { gltf: any[]; json?: any } = {gltf: []};
+    if (categories) {
+      const items: number[] = [];
+
+      for (let i = 0; i < categories.length; i++) {
+
+        const currentCategories = categories[i];
+        for (let j = 0; j < currentCategories.length; j++) {
+          // eslint-disable-next-line no-await-in-loop
+          const foundItems = await manager.getAllItemsOfType(0, currentCategories[j], false);
+          items.push(...foundItems);
+
+        }
+        // eslint-disable-next-line no-await-in-loop
+        result.gltf.push(await this.exportModelPartToGltf(model, items, true));
+    } else {
+      result.gltf.push(await this.exportMeshToGltf(model));
+    }
 
     if (getProperties) {
       const previousLoader = this.IFC.properties.loader;
@@ -102,7 +120,9 @@ export class GLTFManager extends IfcComponent {
       this.IFC.properties.loader = previousLoader;
     }
 
-    await tempLoader.ifcManager.dispose();
+
+    await loader.ifcManager.dispose();
+    this.tempIfcLoader = null;
     return result;
   }
 
@@ -118,7 +138,7 @@ export class GLTFManager extends IfcComponent {
   }
 
   // TODO: Split up in smaller methods
-  private exportModelPartToGltf(model: IFCModel, ids: number[]) {
+  private exportModelPartToGltf(model: IFCModel, ids: number[], useTempLoader = false) {
     const coordinates: number[] = [];
     const expressIDs: number[] = [];
     const newIndices: number[] = [];
@@ -127,7 +147,9 @@ export class GLTFManager extends IfcComponent {
 
     const customID = 'temp-gltf-subset';
 
-    const subset = this.IFC.loader.ifcManager.createSubset({
+    const loader = useTempLoader ? this.tempIfcLoader : this.IFC.loader;
+    if (!loader) throw new Error('IFCLoader could not be found!');
+    const subset = loader.ifcManager.createSubset({
       modelID: model.modelID,
       ids,
       removePrevious: true,
@@ -175,7 +197,7 @@ export class GLTFManager extends IfcComponent {
     geometryToExport.groups = newGroups;
     geometryToExport.computeVertexNormals();
 
-    this.IFC.loader.ifcManager.removeSubset(model.modelID, undefined, customID);
+    loader.ifcManager.removeSubset(model.modelID, undefined, customID);
     const mesh = new Mesh(geometryToExport, newMaterials);
 
     return this.exportMeshToGltf(mesh);
