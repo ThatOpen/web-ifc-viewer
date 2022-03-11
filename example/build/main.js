@@ -114016,6 +114016,7 @@
                     result.gltf.push(new File([new Blob([gltf])], 'model-part.gltf'));
                     if (onProgress)
                         onProgress(i, categories === null || categories === void 0 ? void 0 : categories.length, 'GLTF');
+                    items.length = 0;
                 }
             }
             else {
@@ -114148,7 +114149,9 @@
         async getMeshes(url) {
             const result = await this.load(url);
             result.removeFromParent();
-            return result.children[0].children;
+            const isNested = result.children[0].children.length !== 0;
+            const meshes = isNested ? result.children[0].children : [result.children[0]];
+            return meshes;
         }
         getGeometry(meshes) {
             const geometry = new BufferGeometry();
@@ -115237,49 +115240,67 @@
 
     // Setup loader
 
-    const lineMaterial = new LineBasicMaterial({ color: 0x555555 });
-    const baseMaterial = new MeshBasicMaterial({ color: 0xffffff, side: 2 });
-
-    let first = true;
-    let model;
+    new LineBasicMaterial({ color: 0x555555 });
+    new MeshBasicMaterial({ color: 0xffffff, side: 2 });
 
     const loadIfc = async (event) => {
 
-      const overlay = document.getElementById('loading-overlay');
-      const progressText = document.getElementById('loading-progress');
+      const url = URL.createObjectURL(event.target.files[0]);
+      viewer.GLTF.loadModel(url);
+      // const result = await viewer.GLTF.exportIfcFileAsGltf(
+      //   url,
+      //   false,
+      //   [
+      //     [IFCPLATE, IFCMEMBER],
+      //   ]);
+      //
+      // const link = document.createElement('a');
+      // link.download = "model-part.gltf";
+      // document.body.appendChild(link);
+      //
+      // result.gltf.forEach(file => {
+      //   link.href = URL.createObjectURL(file);
+      //   link.click();
+      //   }
+      // )
+      //
+      // link.remove();
 
-      overlay.classList.remove('hidden');
-      progressText.innerText = `Loading`;
-
-      viewer.IFC.loader.ifcManager.setOnProgress((event) => {
-        const percentage = Math.floor((event.loaded * 100) / event.total);
-        progressText.innerText = `Loaded ${percentage}%`;
-      });
-
-      viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-        USE_FAST_BOOLS: true,
-        COORDINATE_TO_ORIGIN: true
-      });
-
-      viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
-        [IFCSPACE]: false,
-        [IFCOPENINGELEMENT]: false
-      });
-
-      model = await viewer.IFC.loadIfc(event.target.files[0], false);
-      model.material.forEach(mat => mat.side = 2);
-
-      if(first) first = false;
-      else {
-        ClippingEdges.forceStyleUpdate = true;
-      }
-
-      // await createFill(model.modelID);
-      viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
-
-      await viewer.shadowDropper.renderShadow(model.modelID);
-
-      overlay.classList.add('hidden');
+      // const overlay = document.getElementById('loading-overlay');
+      // const progressText = document.getElementById('loading-progress');
+      //
+      // overlay.classList.remove('hidden');
+      // progressText.innerText = `Loading`;
+      //
+      // viewer.IFC.loader.ifcManager.setOnProgress((event) => {
+      //   const percentage = Math.floor((event.loaded * 100) / event.total);
+      //   progressText.innerText = `Loaded ${percentage}%`;
+      // });
+      //
+      // viewer.IFC.loader.ifcManager.applyWebIfcConfig({
+      //   USE_FAST_BOOLS: true,
+      //   COORDINATE_TO_ORIGIN: true
+      // })
+      //
+      // viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
+      //   [IFCSPACE]: false,
+      //   [IFCOPENINGELEMENT]: false
+      // });
+      //
+      // model = await viewer.IFC.loadIfc(event.target.files[0], false);
+      // model.material.forEach(mat => mat.side = 2);
+      //
+      // if(first) first = false
+      // else {
+      //   ClippingEdges.forceStyleUpdate = true;
+      // }
+      //
+      // // await createFill(model.modelID);
+      // viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
+      //
+      // await viewer.shadowDropper.renderShadow(model.modelID);
+      //
+      // overlay.classList.add('hidden');
 
     };
 

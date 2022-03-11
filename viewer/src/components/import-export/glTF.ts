@@ -116,6 +116,7 @@ export class GLTFManager extends IfcComponent {
         result.gltf.push(new File([new Blob([gltf])], 'model-part.gltf'));
 
         if (onProgress) onProgress(i, categories?.length, 'GLTF');
+        items.length = 0;
       }
     } else {
       const gltf = await this.exportMeshToGltf(model);
@@ -274,7 +275,9 @@ export class GLTFManager extends IfcComponent {
     const result = await this.load(url);
     result.removeFromParent();
 
-    return result.children[0].children as Mesh[];
+    const isNested = result.children[0].children.length !== 0;
+    const meshes = isNested ? result.children[0].children : [result.children[0]];
+    return meshes as Mesh[];
   }
 
   private getGeometry(meshes: Mesh[]) {
