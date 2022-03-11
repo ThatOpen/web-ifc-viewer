@@ -82,7 +82,8 @@ export class GLTFManager extends IfcComponent {
     ifcFileUrl: string,
     getProperties = false,
     categories?: number[][],
-    onProgress?: (event: ProgressEvent) => any
+    maxJSONSize?: number,
+    onProgress?: (progress: number, total: number, process: string) => void
   ) {
     const loader = new IFCLoader();
     this.tempIfcLoader = loader;
@@ -92,34 +93,50 @@ export class GLTFManager extends IfcComponent {
     if (state.wasmPath) await manager.setWasmPath(state.wasmPath);
     if (state.worker.active) await manager.useWebWorkers(true, state.worker.path);
     if (state.webIfcSettings) await manager.applyWebIfcConfig(state.webIfcSettings);
-    const model = await loader.loadAsync(ifcFileUrl, onProgress);
-    const result: { gltf: any[]; json?: any } = {gltf: []};
+
+    const model = await loader.loadAsync(ifcFileUrl, (event) => {
+      if (onProgress) onProgress(event.loaded, event.total, 'IFC');
+    });
+
+    const result: { gltf: File[]; json: File[] } = { gltf: [], json: [] };
+
     if (categories) {
       const items: number[] = [];
 
       for (let i = 0; i < categories.length; i++) {
-
         const currentCategories = categories[i];
         for (let j = 0; j < currentCategories.length; j++) {
           // eslint-disable-next-line no-await-in-loop
           const foundItems = await manager.getAllItemsOfType(0, currentCategories[j], false);
           items.push(...foundItems);
-
         }
+
         // eslint-disable-next-line no-await-in-loop
-        result.gltf.push(await this.exportModelPartToGltf(model, items, true));
+        const gltf = await this.exportModelPartToGltf(model, items, true);
+        result.gltf.push(new File([new Blob([gltf])], 'model-part.gltf'));
+
+        if (onProgress) onProgress(i, categories?.length, 'GLTF');
+      }
     } else {
-      result.gltf.push(await this.exportMeshToGltf(model));
+      const gltf = await this.exportMeshToGltf(model);
+      result.gltf.push(new File([new Blob([gltf])], 'full-model.gltf'));
     }
 
     if (getProperties) {
       const previousLoader = this.IFC.properties.loader;
-      this.IFC.properties.loader = tempLoader;
-      const blobs = await this.IFC.properties.serializeAllProperties(model);
-      result.json = new File(blobs, 'properties.json');
+      this.IFC.properties.loader = this.tempIfcLoader;
+
+      const jsons = await this.IFC.properties.serializeAllProperties(
+        model,
+        maxJSONSize,
+        (progress: number, total: number) => {
+          if (onProgress) onProgress(progress, total, 'JSON');
+        }
+      );
+
+      result.json = jsons.map((json) => new File([json], 'properties.json'));
       this.IFC.properties.loader = previousLoader;
     }
-
 
     await loader.ifcManager.dispose();
     this.tempIfcLoader = null;

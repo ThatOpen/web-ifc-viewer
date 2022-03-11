@@ -113986,7 +113986,7 @@
          * @fileURL The URL of the IFC file to convert to glTF
          * @ids (optional) The ids of the items to export. If not defined, the full model is exported
          */
-        async exportIfcFileAsGltf(ifcFileUrl, categories, onProgress) {
+        async exportIfcFileAsGltf(ifcFileUrl, getProperties = false, categories, maxJSONSize, onProgress) {
             const loader = new IFCLoader();
             this.tempIfcLoader = loader;
             const state = this.IFC.loader.ifcManager.state;
@@ -113997,8 +113997,11 @@
                 await manager.useWebWorkers(true, state.worker.path);
             if (state.webIfcSettings)
                 await manager.applyWebIfcConfig(state.webIfcSettings);
-            const model = await loader.loadAsync(ifcFileUrl, onProgress);
-            const result = [];
+            const model = await loader.loadAsync(ifcFileUrl, (event) => {
+                if (onProgress)
+                    onProgress(event.loaded, event.total, 'IFC');
+            });
+            const result = { gltf: [], json: [] };
             if (categories) {
                 const items = [];
                 for (let i = 0; i < categories.length; i++) {
@@ -114009,11 +114012,25 @@
                         items.push(...foundItems);
                     }
                     // eslint-disable-next-line no-await-in-loop
-                    result.push(await this.exportModelPartToGltf(model, items, true));
+                    const gltf = await this.exportModelPartToGltf(model, items, true);
+                    result.gltf.push(new File([new Blob([gltf])], 'model-part.gltf'));
+                    if (onProgress)
+                        onProgress(i, categories === null || categories === void 0 ? void 0 : categories.length, 'GLTF');
                 }
             }
             else {
-                result.push(await this.exportMeshToGltf(model));
+                const gltf = await this.exportMeshToGltf(model);
+                result.gltf.push(new File([new Blob([gltf])], 'full-model.gltf'));
+            }
+            if (getProperties) {
+                const previousLoader = this.IFC.properties.loader;
+                this.IFC.properties.loader = this.tempIfcLoader;
+                const jsons = await this.IFC.properties.serializeAllProperties(model, maxJSONSize, (progress, total) => {
+                    if (onProgress)
+                        onProgress(progress, total, 'JSON');
+                });
+                result.json = jsons.map((json) => new File([json], 'properties.json'));
+                this.IFC.properties.loader = previousLoader;
             }
             await loader.ifcManager.dispose();
             this.tempIfcLoader = null;
@@ -115220,67 +115237,49 @@
 
     // Setup loader
 
-    new LineBasicMaterial({ color: 0x555555 });
-    new MeshBasicMaterial({ color: 0xffffff, side: 2 });
+    const lineMaterial = new LineBasicMaterial({ color: 0x555555 });
+    const baseMaterial = new MeshBasicMaterial({ color: 0xffffff, side: 2 });
+
+    let first = true;
+    let model;
 
     const loadIfc = async (event) => {
 
-      const url = URL.createObjectURL(event.target.files[0]);
+      const overlay = document.getElementById('loading-overlay');
+      const progressText = document.getElementById('loading-progress');
 
-      const result = await viewer.GLTF.exportIfcFileAsGltf(url, [
-        [IFCWALLSTANDARDCASE],
-        [IFCWINDOW]
-      ]);
+      overlay.classList.remove('hidden');
+      progressText.innerText = `Loading`;
 
-      console.log(result);
-
-      const link = document.createElement('a');
-      link.download = "part.gltf";
-      document.body.appendChild(link);
-
-      result.forEach(data => {
-        const file = new File([new Blob([data])], "example");
-        link.href = URL.createObjectURL(file);
-        link.click();
+      viewer.IFC.loader.ifcManager.setOnProgress((event) => {
+        const percentage = Math.floor((event.loaded * 100) / event.total);
+        progressText.innerText = `Loaded ${percentage}%`;
       });
 
-      link.remove();
+      viewer.IFC.loader.ifcManager.applyWebIfcConfig({
+        USE_FAST_BOOLS: true,
+        COORDINATE_TO_ORIGIN: true
+      });
 
-      // const overlay = document.getElementById('loading-overlay');
-      // const progressText = document.getElementById('loading-progress');
-      //
-      // overlay.classList.remove('hidden');
-      // progressText.innerText = `Loading`;
-      //
-      // viewer.IFC.loader.ifcManager.setOnProgress((event) => {
-      //   const percentage = Math.floor((event.loaded * 100) / event.total);
-      //   progressText.innerText = `Loaded ${percentage}%`;
-      // });
-      //
-      // viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-      //   USE_FAST_BOOLS: true,
-      //   COORDINATE_TO_ORIGIN: true
-      // })
-      //
-      // viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
-      //   [IFCSPACE]: false,
-      //   [IFCOPENINGELEMENT]: false
-      // });
-      //
-      // model = await viewer.IFC.loadIfc(event.target.files[0], false);
-      // model.material.forEach(mat => mat.side = 2);
-      //
-      // if(first) first = false
-      // else {
-      //   ClippingEdges.forceStyleUpdate = true;
-      // }
-      //
-      // // await createFill(model.modelID);
-      // viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
-      //
-      // await viewer.shadowDropper.renderShadow(model.modelID);
-      //
-      // overlay.classList.add('hidden');
+      viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
+        [IFCSPACE]: false,
+        [IFCOPENINGELEMENT]: false
+      });
+
+      model = await viewer.IFC.loadIfc(event.target.files[0], false);
+      model.material.forEach(mat => mat.side = 2);
+
+      if(first) first = false;
+      else {
+        ClippingEdges.forceStyleUpdate = true;
+      }
+
+      // await createFill(model.modelID);
+      viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
+
+      await viewer.shadowDropper.renderShadow(model.modelID);
+
+      overlay.classList.add('hidden');
 
     };
 

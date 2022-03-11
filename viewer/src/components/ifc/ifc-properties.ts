@@ -4,8 +4,6 @@ import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
 import { IfcContext } from '../context';
 import { geometryTypes } from './geometry-types';
 
-export type Progress = (progress: number, total: number) => void;
-
 export class IfcProperties {
   loader: IFCLoader;
   private readonly context: IfcContext;
@@ -29,7 +27,11 @@ export class IfcProperties {
    * @maxSize (optional) maximum number of entities for each Blob. If not defined, it's infinite (only one Blob will be created).
    * @event (optional) callback called every time a 10% of entities are serialized into Blobs.
    */
-  async serializeAllProperties(model: IFCModel, maxSize?: number, event?: Progress) {
+  async serializeAllProperties(
+    model: IFCModel,
+    maxSize?: number,
+    event?: (progress: number, total: number) => void
+  ) {
     this.webIfc = this.loader.ifcManager.ifcAPI;
     if (!model) throw new Error('The requested model was not found.');
     const blobs: Blob[] = [];
@@ -41,7 +43,7 @@ export class IfcProperties {
     modelID: number,
     blobs: Blob[],
     maxSize?: number,
-    event?: Progress
+    event?: (progress: number, total: number) => void
   ) {
     const geometriesIDs = await this.getAllGeometriesIDs(modelID);
     let properties = await this.initializePropertiesObject(modelID);
