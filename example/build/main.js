@@ -113981,6 +113981,7 @@
             this.setupMeshAsModel(gltfMesh);
             return gltfMesh;
         }
+        // TODO: Split up in smaller methods
         /**
          * Exports the specified IFC file (or file subset) as glTF.
          * @fileURL The URL of the IFC file to convert to glTF
@@ -114001,7 +114002,14 @@
                 if (onProgress)
                     onProgress(event.loaded, event.total, 'IFC');
             });
-            const result = { gltf: [], json: [] };
+            const result = { gltf: [], json: [], id: '' };
+            const projects = await manager.getAllItemsOfType(model.modelID, IFCPROJECT, true);
+            if (!projects.length)
+                throw new Error('No IfcProject instances were found in the IFC.');
+            const GUID = projects[0].GlobalId;
+            if (!GUID)
+                throw new Error('The found IfcProject does not have a GUID');
+            result.id = GUID.value;
             if (categories) {
                 const items = [];
                 for (let i = 0; i < categories.length; i++) {
@@ -114140,7 +114148,7 @@
                 const material = mesh.material;
                 return new MeshLambertMaterial({
                     color: material.color,
-                    transparent: true,
+                    transparent: material.opacity !== 1,
                     opacity: material.opacity,
                     side: 2
                 });
@@ -115240,13 +115248,15 @@
 
     // Setup loader
 
-    new LineBasicMaterial({ color: 0x555555 });
-    new MeshBasicMaterial({ color: 0xffffff, side: 2 });
+    const lineMaterial = new LineBasicMaterial({ color: 0x555555 });
+    const baseMaterial = new MeshBasicMaterial({ color: 0xffffff, side: 2 });
+
+    let first = true;
+    let model;
 
     const loadIfc = async (event) => {
 
-      const url = URL.createObjectURL(event.target.files[0]);
-      viewer.GLTF.loadModel(url);
+      // // tests with glTF
       // const result = await viewer.GLTF.exportIfcFileAsGltf(
       //   url,
       //   false,
@@ -115266,41 +115276,41 @@
       //
       // link.remove();
 
-      // const overlay = document.getElementById('loading-overlay');
-      // const progressText = document.getElementById('loading-progress');
-      //
-      // overlay.classList.remove('hidden');
-      // progressText.innerText = `Loading`;
-      //
-      // viewer.IFC.loader.ifcManager.setOnProgress((event) => {
-      //   const percentage = Math.floor((event.loaded * 100) / event.total);
-      //   progressText.innerText = `Loaded ${percentage}%`;
-      // });
-      //
-      // viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-      //   USE_FAST_BOOLS: true,
-      //   COORDINATE_TO_ORIGIN: true
-      // })
-      //
-      // viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
-      //   [IFCSPACE]: false,
-      //   [IFCOPENINGELEMENT]: false
-      // });
-      //
-      // model = await viewer.IFC.loadIfc(event.target.files[0], false);
-      // model.material.forEach(mat => mat.side = 2);
-      //
-      // if(first) first = false
-      // else {
-      //   ClippingEdges.forceStyleUpdate = true;
-      // }
-      //
-      // // await createFill(model.modelID);
-      // viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
-      //
-      // await viewer.shadowDropper.renderShadow(model.modelID);
-      //
-      // overlay.classList.add('hidden');
+      const overlay = document.getElementById('loading-overlay');
+      const progressText = document.getElementById('loading-progress');
+
+      overlay.classList.remove('hidden');
+      progressText.innerText = `Loading`;
+
+      viewer.IFC.loader.ifcManager.setOnProgress((event) => {
+        const percentage = Math.floor((event.loaded * 100) / event.total);
+        progressText.innerText = `Loaded ${percentage}%`;
+      });
+
+      viewer.IFC.loader.ifcManager.applyWebIfcConfig({
+        USE_FAST_BOOLS: true,
+        COORDINATE_TO_ORIGIN: true
+      });
+
+      viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
+        [IFCSPACE]: false,
+        [IFCOPENINGELEMENT]: false
+      });
+
+      model = await viewer.IFC.loadIfc(event.target.files[0], false);
+      model.material.forEach(mat => mat.side = 2);
+
+      if(first) first = false;
+      else {
+        ClippingEdges.forceStyleUpdate = true;
+      }
+
+      // await createFill(model.modelID);
+      viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
+
+      await viewer.shadowDropper.renderShadow(model.modelID);
+
+      overlay.classList.add('hidden');
 
     };
 

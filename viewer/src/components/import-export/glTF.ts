@@ -11,6 +11,7 @@ import {
 import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter';
 import { IFCLoader } from 'web-ifc-three/IFCLoader';
+import { IFCPROJECT } from 'web-ifc';
 import { IfcComponent } from '../../base-types';
 import { IfcContext } from '../context';
 import { IfcManager } from '../ifc';
@@ -73,6 +74,7 @@ export class GLTFManager extends IfcComponent {
     return gltfMesh;
   }
 
+  // TODO: Split up in smaller methods
   /**
    * Exports the specified IFC file (or file subset) as glTF.
    * @fileURL The URL of the IFC file to convert to glTF
@@ -98,7 +100,13 @@ export class GLTFManager extends IfcComponent {
       if (onProgress) onProgress(event.loaded, event.total, 'IFC');
     });
 
-    const result: { gltf: File[]; json: File[] } = { gltf: [], json: [] };
+    const result: { gltf: File[]; json: File[]; id: string } = { gltf: [], json: [], id: '' };
+
+    const projects = await manager.getAllItemsOfType(model.modelID, IFCPROJECT, true);
+    if (!projects.length) throw new Error('No IfcProject instances were found in the IFC.');
+    const GUID = projects[0].GlobalId;
+    if (!GUID) throw new Error('The found IfcProject does not have a GUID');
+    result.id = GUID.value;
 
     if (categories) {
       const items: number[] = [];
@@ -264,7 +272,7 @@ export class GLTFManager extends IfcComponent {
       const material = mesh.material as MeshStandardMaterial;
       return new MeshLambertMaterial({
         color: material.color,
-        transparent: true,
+        transparent: material.opacity !== 1,
         opacity: material.opacity,
         side: 2
       });
