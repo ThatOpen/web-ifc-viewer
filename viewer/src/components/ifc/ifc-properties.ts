@@ -76,6 +76,9 @@ export class IfcProperties {
   private async getItemProperty(modelID: number, id: number, properties: any) {
     // eslint-disable-next-line no-await-in-loop
     const props = await this.webIfc!.GetLine(modelID, id);
+    if (props.type) {
+      props.type = this.loader.ifcManager.typesMap[props.type];
+    }
     delete props.expressID;
     this.formatItemProperties(props);
     properties[id] = props;

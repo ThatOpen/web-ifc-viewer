@@ -98598,6 +98598,7 @@
         this.BVH = new BvhManager();
         this.parser = new IFCParser(this.state, this.BVH);
         this.subsets = new SubsetManager(this.state, this.BVH);
+        this.typesMap = IfcTypesMap;
         this.properties = new PropertyManager(this.state);
         this.types = new TypeManager(this.state);
         this.cleaner = new MemoryCleaner(this.state);
@@ -99112,6 +99113,9 @@
         async getItemProperty(modelID, id, properties) {
             // eslint-disable-next-line no-await-in-loop
             const props = await this.webIfc.GetLine(modelID, id);
+            if (props.type) {
+                props.type = this.loader.ifcManager.typesMap[props.type];
+            }
             delete props.expressID;
             this.formatItemProperties(props);
             properties[id] = props;
@@ -115244,6 +115248,12 @@
     viewer.context.stats = stats;
 
     viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+
+    viewer.IFC.loader.ifcManager.applyWebIfcConfig({
+      USE_FAST_BOOLS: true,
+      COORDINATE_TO_ORIGIN: true
+    });
+
     // viewer.IFC.setWasmPath('files/');
 
     // Setup loader
@@ -115256,16 +115266,14 @@
 
     const loadIfc = async (event) => {
 
-      // // tests with glTF
-      // const result = await viewer.GLTF.exportIfcFileAsGltf(
-      //   url,
-      //   false,
-      //   [
-      //     [IFCPLATE, IFCMEMBER],
-      //   ]);
+
+      // tests with glTF
+      // const file = event.target.files[0];
+      // const url = URL.createObjectURL(file);
+      // const result = await viewer.GLTF.exportIfcFileAsGltf(url);
       //
       // const link = document.createElement('a');
-      // link.download = "model-part.gltf";
+      // link.download = `${file.name}.gltf`;
       // document.body.appendChild(link);
       //
       // result.gltf.forEach(file => {
@@ -115285,11 +115293,6 @@
       viewer.IFC.loader.ifcManager.setOnProgress((event) => {
         const percentage = Math.floor((event.loaded * 100) / event.total);
         progressText.innerText = `Loaded ${percentage}%`;
-      });
-
-      viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-        USE_FAST_BOOLS: true,
-        COORDINATE_TO_ORIGIN: true
       });
 
       viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({

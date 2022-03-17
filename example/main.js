@@ -22,6 +22,12 @@ stats.dom.style.left = 'auto';
 viewer.context.stats = stats;
 
 viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+
+viewer.IFC.loader.ifcManager.applyWebIfcConfig({
+  USE_FAST_BOOLS: true,
+  COORDINATE_TO_ORIGIN: true
+});
+
 // viewer.IFC.setWasmPath('files/');
 
 // Setup loader
@@ -34,16 +40,14 @@ let model;
 
 const loadIfc = async (event) => {
 
-  // // tests with glTF
-  // const result = await viewer.GLTF.exportIfcFileAsGltf(
-  //   url,
-  //   false,
-  //   [
-  //     [IFCPLATE, IFCMEMBER],
-  //   ]);
+
+  // tests with glTF
+  // const file = event.target.files[0];
+  // const url = URL.createObjectURL(file);
+  // const result = await viewer.GLTF.exportIfcFileAsGltf(url);
   //
   // const link = document.createElement('a');
-  // link.download = "model-part.gltf";
+  // link.download = `${file.name}.gltf`;
   // document.body.appendChild(link);
   //
   // result.gltf.forEach(file => {
@@ -64,11 +68,6 @@ const loadIfc = async (event) => {
     const percentage = Math.floor((event.loaded * 100) / event.total);
     progressText.innerText = `Loaded ${percentage}%`;
   });
-
-  viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-    USE_FAST_BOOLS: true,
-    COORDINATE_TO_ORIGIN: true
-  })
 
   viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
     [IFCSPACE]: false,
