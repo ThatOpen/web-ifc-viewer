@@ -1,5 +1,4 @@
-import { LineSegments, EdgesGeometry, Material } from 'three';
-import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
+import { LineSegments, EdgesGeometry, Material, Mesh } from 'three';
 import { IfcContext } from '../context';
 import { disposeMeshRecursively } from '../../utils/ThreeUtils';
 
@@ -10,7 +9,7 @@ export class Edges {
       edges: LineSegments;
       originalMaterials: Material | Material[];
       baseMaterial: Material | undefined;
-      model: IFCModel;
+      model: Mesh;
       active: boolean;
     };
   };
@@ -49,17 +48,21 @@ export class Edges {
   create(name: string, modelID: number, lineMaterial: Material, material?: Material) {
     const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
     if (!model) return;
+    this.createFromMesh(name, model, lineMaterial, material);
+  }
+
+  createFromMesh(name: string, mesh: Mesh, lineMaterial: Material, material?: Material) {
     const planes = this.context.getClippingPlanes();
     lineMaterial.clippingPlanes = planes;
     if (material) material.clippingPlanes = planes;
-    this.setupModelMaterials(model);
-    const geo = new EdgesGeometry(model.geometry, this.threshold);
+    this.setupModelMaterials(mesh);
+    const geo = new EdgesGeometry(mesh.geometry, this.threshold);
     lineMaterial.clippingPlanes = this.context.getClippingPlanes();
     this.edges[name] = {
       edges: new LineSegments(geo, lineMaterial),
-      originalMaterials: model.material,
+      originalMaterials: mesh.material,
       baseMaterial: material,
-      model,
+      model: mesh,
       active: false
     };
   }
@@ -82,7 +85,7 @@ export class Edges {
     selected.edges.removeFromParent();
   }
 
-  private setupModelMaterials(model: IFCModel) {
+  private setupModelMaterials(model: Mesh) {
     if (Array.isArray(model.material)) {
       model.material.forEach((mat) => Edges.setupModelMaterial(mat));
       return;

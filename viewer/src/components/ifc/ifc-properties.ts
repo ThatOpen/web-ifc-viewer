@@ -1,6 +1,7 @@
 import { IFCLoader } from 'web-ifc-three/IFCLoader';
 import { WebIfcAPI } from 'web-ifc-three/IFC/BaseDefinitions';
 import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
+import { IFCBUILDING } from 'web-ifc';
 import { IfcContext } from '../context';
 import { geometryTypes } from './geometry-types';
 
@@ -98,8 +99,23 @@ export class IfcProperties {
 
   private async initializePropertiesObject(modelID: number): Promise<any> {
     return {
-      0: await this.webIfc!.GetCoordinationMatrix(modelID)
+      coordinationMatrix: await this.webIfc!.GetCoordinationMatrix(modelID),
+      globalHeight: await this.getBuildingHeight(modelID)
     };
+  }
+
+  private async getBuildingHeight(modelID: number) {
+    const building = await this.getBuilding(modelID);
+    const sitePlace = building.ObjectPlacement.PlacementRelTo.RelativePlacement.Location;
+    const transform = sitePlace.Coordinates.map((coord: any) => coord.value);
+    return transform[2];
+  }
+
+  private async getBuilding(modelID: number) {
+    const ifc = this.loader.ifcManager;
+    const allBuildingsIDs = await ifc.getAllItemsOfType(modelID, IFCBUILDING, false);
+    const buildingID = allBuildingsIDs[0];
+    return ifc.getItemProperties(modelID, buildingID, true);
   }
 
   private async getAllGeometriesIDs(modelID: number) {

@@ -105,9 +105,9 @@ export class IfcClipper extends IfcComponent {
   };
 
   deleteAllPlanes = () => {
-    this.planes.forEach((plane) => plane.removeFromScene());
-    this.planes = [];
-    this.updateMaterials();
+    while (this.planes.length > 0) {
+      this.deletePlane(this.planes[0]);
+    }
   };
 
   private pickPlane = () => {
