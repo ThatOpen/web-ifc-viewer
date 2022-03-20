@@ -80,7 +80,6 @@ export class IfcProperties {
     if (props.type) {
       props.type = this.loader.ifcManager.typesMap[props.type];
     }
-    delete props.expressID;
     this.formatItemProperties(props);
     properties[id] = props;
   }
