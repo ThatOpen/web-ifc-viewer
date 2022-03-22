@@ -29,7 +29,7 @@ export interface Shadow {
 }
 
 export class ShadowDropper {
-  shadows: { [modelID: number]: Shadow } = {};
+  shadows: { [id: string]: Shadow } = {};
 
   // Controls how far away the shadow is computed
   cameraHeight = 10;
@@ -39,6 +39,7 @@ export class ShadowDropper {
   resolution = 512;
   amount = 3.5;
   planeColor = 0xffffff;
+  shadowOffset = 0;
 
   private tempMaterial = new MeshBasicMaterial({ visible: false });
   private depthMaterial = new MeshDepthMaterial();
@@ -53,13 +54,8 @@ export class ShadowDropper {
   }
 
   dispose() {
-    const allShadows = Object.values(this.shadows);
-    allShadows.forEach((shadow) => {
-      disposeMeshRecursively(shadow.root as any);
-      disposeMeshRecursively(shadow.blurPlane);
-      shadow.rt.dispose();
-      shadow.rtBlur.dispose();
-    });
+    const shadowIDs = Object.keys(this.shadows);
+    shadowIDs.forEach((shadowID) => this.deleteShadow(shadowID));
     (this.shadows as any) = null;
     this.tempMaterial.dispose();
     (this.tempMaterial as any) = null;
@@ -70,29 +66,45 @@ export class ShadowDropper {
   }
 
   async renderShadow(modelID: number) {
-    const { size, center } = this.getSizeAndCenter(modelID);
+    const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
+    if (!model) throw new Error('The requested model was not found.');
+    await this.renderShadowOfMesh(model, `${model.modelID}`);
+  }
+
+  renderShadowOfMesh(model: Mesh, id = model.uuid) {
+    if (this.shadows[id]) throw new Error(`There is already a shadow with ID ${id}`);
+    const { size, center } = this.getSizeAndCenter(model);
     const scene = this.context.getScene();
-    const shadow = this.createShadow(modelID, size);
-    await this.initializeShadow(modelID, shadow, scene, center);
+    const shadow = this.createShadow(id, size);
+    this.initializeShadow(model, shadow, scene, center);
     this.createPlanes(shadow, size);
-    this.bakeShadow(modelID, shadow, scene);
+    this.bakeShadow(model, shadow, scene);
+  }
+
+  deleteShadow(id: string) {
+    const shadow = this.shadows[id];
+    delete this.shadows[id];
+    if (!shadow) throw new Error(`No shadow with ID ${id} was found.`);
+    disposeMeshRecursively(shadow.root as any);
+    disposeMeshRecursively(shadow.blurPlane);
+    shadow.rt.dispose();
+    shadow.rtBlur.dispose();
   }
 
   private createPlanes(currentShadow: Shadow, size: Vector3) {
     const planeGeometry = new PlaneGeometry(size.x, size.z).rotateX(Math.PI / 2);
     this.createBasePlane(currentShadow, planeGeometry);
     this.createBlurPlane(currentShadow, planeGeometry);
-    this.createGroundColorPlane(currentShadow, planeGeometry);
+    // this.createGroundColorPlane(currentShadow, planeGeometry);
   }
 
-  private async initializeShadow(modelID: number, shadow: Shadow, scene: Scene, center: Vector3) {
-    await this.initializeRoot(modelID, shadow, scene, center);
+  private initializeShadow(model: Mesh, shadow: Shadow, scene: Scene, center: Vector3) {
+    this.initializeRoot(model, shadow, scene, center);
     this.initializeRenderTargets(shadow);
     this.initializeCamera(shadow);
   }
 
-  private bakeShadow(modelID: number, shadow: Shadow, scene: Scene) {
-    const model = this.context.items.ifcModels[modelID];
+  private bakeShadow(model: Mesh, shadow: Shadow, scene: Scene) {
     const isModelInScene = model.parent !== null && model.parent !== undefined;
     if (!isModelInScene) scene.add(model);
     const children = scene.children.filter((obj) => obj !== model && obj !== shadow.root);
@@ -142,31 +154,32 @@ export class ShadowDropper {
     shadow.rtBlur.texture.generateMipmaps = false;
   }
 
-  private async initializeRoot(modelID: number, shadow: Shadow, scene: Scene, center: Vector3) {
-    const minPosition = await this.getLowestYCoordinate(modelID);
-    shadow.root.position.set(center.x, minPosition - 0.1, center.z);
+  private initializeRoot(model: Mesh, shadow: Shadow, scene: Scene, center: Vector3) {
+    const minPosition = this.getLowestYCoordinate(model);
+    shadow.root.position.set(center.x, minPosition - this.shadowOffset, center.z);
     scene.add(shadow.root);
   }
 
-  private createGroundColorPlane(shadow: Shadow, planeGeometry: BufferGeometry) {
-    const fillPlaneMaterial = new MeshBasicMaterial({
-      color: this.planeColor,
-      opacity: this.opacity,
-      transparent: true,
-      depthWrite: false,
-      clippingPlanes: this.context.getClippingPlanes()
-    });
-    const fillPlane = new Mesh(planeGeometry, fillPlaneMaterial);
-    fillPlane.rotateX(Math.PI);
-    fillPlane.renderOrder = -1;
-    shadow.root.add(fillPlane);
-  }
+  // Plane simulating the "ground". This is not needed for BIM models generally
+  // private createGroundColorPlane(_shadow: Shadow, planeGeometry: BufferGeometry) {
+  //   const fillPlaneMaterial = new MeshBasicMaterial({
+  //     color: this.planeColor,
+  //     opacity: this.opacity,
+  //     transparent: true,
+  //     depthWrite: false,
+  //     clippingPlanes: this.context.getClippingPlanes()
+  //   });
+  //   const fillPlane = new Mesh(planeGeometry, fillPlaneMaterial);
+  //   fillPlane.rotateX(Math.PI);
+  //   fillPlane.renderOrder = -1;
+  //   shadow.root.add(fillPlane);
+  // }
 
   private createBasePlane(shadow: Shadow, planeGeometry: BufferGeometry) {
     const planeMaterial = this.createPlaneMaterial(shadow);
     const plane = new Mesh(planeGeometry, planeMaterial);
     // make sure it's rendered after the fillPlane
-    plane.renderOrder = 0;
+    plane.renderOrder = 2;
     shadow.root.add(plane);
     // the y from the texture is flipped!
     plane.scale.y = -1;
@@ -204,15 +217,15 @@ export class ShadowDropper {
     };
   }
 
-  private createShadow(modelID: number, size: Vector3) {
-    this.shadows[modelID] = {
+  private createShadow(id: string, size: Vector3) {
+    this.shadows[id] = {
       root: new Group(),
       rt: new WebGLRenderTarget(this.resolution, this.resolution),
       rtBlur: new WebGLRenderTarget(this.resolution, this.resolution),
       blurPlane: new Mesh(),
       camera: this.createCamera(size)
     };
-    return this.shadows[modelID];
+    return this.shadows[id];
   }
 
   private createCamera(size: Vector3) {
@@ -226,9 +239,7 @@ export class ShadowDropper {
     );
   }
 
-  private getSizeAndCenter(modelID: number) {
-    const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
-    if (!model) throw new Error('The requested model was not found.');
+  private getSizeAndCenter(model: Mesh) {
     const geometry = model.geometry;
     geometry.computeBoundingBox();
     if (geometry.boundingBox) {
@@ -240,19 +251,17 @@ export class ShadowDropper {
       geometry.boundingBox.getCenter(center);
       return { size, center };
     }
-    throw new Error(`Bounding box could not be computed for model ${modelID}`);
+    throw new Error(`Bounding box could not be computed for the mesh ${model.uuid}`);
   }
 
-  private async getLowestYCoordinate(modelID: number) {
-    const mesh = this.context.items.ifcModels[modelID];
-    const indices = mesh.geometry.index as BufferAttribute;
-    const position = mesh.geometry.attributes.position;
+  private getLowestYCoordinate(model: Mesh) {
+    const indices = model.geometry.index as BufferAttribute;
+    const position = model.geometry.attributes.position;
     let minPosition = Number.MAX_VALUE;
     for (let i = 0; i <= indices.count; i++) {
       const current = position.getY(indices.array[i]);
       if (current < minPosition) minPosition = current;
     }
-    this.IFC.loader.ifcManager.removeSubset(modelID, this.tempMaterial);
     return minPosition;
   }
 
