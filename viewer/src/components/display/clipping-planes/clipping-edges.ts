@@ -56,10 +56,11 @@ export class ClippingEdges {
   static readonly styles: StyleList = {};
   static forceStyleUpdate = false;
   static createDefaultIfcStyles = true;
+  static edgesParent: any = null;
   private static invisibleMaterial = new MeshBasicMaterial({ visible: false });
   private static defaultMaterial = new LineMaterial({ color: 0x000000, linewidth: 0.001 });
   // Helpers
-  private static readonly basicEdges = new LineSegments();
+  private static basicEdges = new LineSegments();
   edges: EdgesItems = {};
   private isVisible = true;
   private inverseMatrix = new Matrix4();
@@ -123,6 +124,7 @@ export class ClippingEdges {
       ClippingEdges.basicEdges.removeFromParent();
       ClippingEdges.basicEdges.geometry.dispose();
       (ClippingEdges.basicEdges as any) = null;
+      ClippingEdges.basicEdges = new LineSegments();
     }
 
     if (!ClippingEdges.styles) return;
@@ -143,6 +145,7 @@ export class ClippingEdges {
     });
 
     (ClippingEdges.styles as any) = null;
+    (ClippingEdges.styles as any) = {};
   }
 
   async updateEdges() {
@@ -384,7 +387,8 @@ export class ClippingEdges {
     if (!Number.isNaN(edges.generatorGeometry.attributes.position.array[0])) {
       ClippingEdges.basicEdges.geometry = edges.generatorGeometry;
       edges.mesh.geometry.fromLineSegments(ClippingEdges.basicEdges);
-      this.context.getScene().add(edges.mesh);
+      const parent = ClippingEdges.edgesParent || this.context.getScene();
+      parent.add(edges.mesh);
     }
   }
 }
