@@ -268,13 +268,15 @@ export class GLTFManager extends IfcComponent {
   }
 
   private getMaterials(allMeshes: Mesh[]) {
+    const clippingPlanes = this.context.getClippingPlanes();
     return allMeshes.map((mesh) => {
       const material = mesh.material as MeshStandardMaterial;
       return new MeshLambertMaterial({
         color: material.color,
         transparent: material.opacity !== 1,
         opacity: material.opacity,
-        side: 2
+        side: 2,
+        clippingPlanes
       });
     });
   }
