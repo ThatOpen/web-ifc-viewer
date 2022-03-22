@@ -15,13 +15,8 @@ import { IfcManager } from '../../ifc';
 import { IfcContext } from '../../context';
 
 export class IfcPlane extends IfcComponent {
-  static planeMaterial = new MeshBasicMaterial({
-    color: 0xffff00,
-    side: DoubleSide,
-    transparent: true,
-    opacity: 0.2
-  });
-  private static hiddenMaterial = new MeshBasicMaterial({ visible: false });
+  static planeMaterial = IfcPlane.getPlaneMaterial();
+  private static hiddenMaterial = IfcPlane.getHiddenMaterial();
   readonly arrowBoundingBox = new Mesh();
   readonly plane: Plane;
   readonly planeMesh: Mesh;
@@ -99,10 +94,12 @@ export class IfcPlane extends IfcComponent {
     if (IfcPlane.planeMaterial) {
       IfcPlane.planeMaterial.dispose();
       (IfcPlane.planeMaterial as any) = null;
+      IfcPlane.planeMaterial = IfcPlane.getPlaneMaterial();
     }
     if (IfcPlane.hiddenMaterial) {
       IfcPlane.hiddenMaterial.dispose();
       (IfcPlane.hiddenMaterial as any) = null;
+      IfcPlane.hiddenMaterial = IfcPlane.getHiddenMaterial();
     }
     this.removeFromScene();
     this.edges.disposeStylesAndHelpers();
@@ -126,6 +123,19 @@ export class IfcPlane extends IfcComponent {
 
     this.helper.removeFromParent();
   };
+
+  private static getPlaneMaterial() {
+    return new MeshBasicMaterial({
+      color: 0xffff00,
+      side: DoubleSide,
+      transparent: true,
+      opacity: 0.2
+    });
+  }
+
+  private static getHiddenMaterial() {
+    return new MeshBasicMaterial({ visible: false });
+  }
 
   private newTransformControls() {
     const camera = this.context.getCamera();

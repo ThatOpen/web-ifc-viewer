@@ -127,6 +127,8 @@ export class ClippingEdges {
       ClippingEdges.basicEdges = new LineSegments();
     }
 
+    ClippingEdges.edgesParent = undefined;
+
     if (!ClippingEdges.styles) return;
     const styles = Object.values(ClippingEdges.styles);
 
