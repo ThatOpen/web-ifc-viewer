@@ -86874,7 +86874,10 @@ class MemoryCleaner {
             if (geom.disposeBoundsTree)
                 geom.disposeBoundsTree();
             geom.dispose();
-            model.mesh.material.forEach(mat => mat.dispose());
+            if (!Array.isArray(model.mesh.material))
+                model.mesh.material.dispose();
+            else
+                model.mesh.material.forEach(mat => mat.dispose());
             model.mesh = null;
             model.types = null;
             model.jsonData = null;
