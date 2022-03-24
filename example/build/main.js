@@ -114041,7 +114041,13 @@
                 if (onProgress)
                     onProgress(event.loaded, event.total, 'IFC');
             });
-            const result = { gltf: [], json: [], id: '' };
+            // If there are no geometry of a group of categories, it adds "null" to the result
+            // because it makes no sense to create an empty gltf file
+            const result = {
+                gltf: [],
+                json: [],
+                id: ''
+            };
             const projects = await manager.getAllItemsOfType(model.modelID, IFCPROJECT, true);
             if (!projects.length)
                 throw new Error('No IfcProject instances were found in the IFC.');
@@ -114058,9 +114064,14 @@
                         const foundItems = await manager.getAllItemsOfType(0, currentCategories[j], false);
                         items.push(...foundItems);
                     }
-                    // eslint-disable-next-line no-await-in-loop
-                    const gltf = await this.exportModelPartToGltf(model, items, true);
-                    result.gltf.push(new File([new Blob([gltf])], 'model-part.gltf'));
+                    if (items.length) {
+                        // eslint-disable-next-line no-await-in-loop
+                        const gltf = await this.exportModelPartToGltf(model, items, true);
+                        result.gltf.push(new File([new Blob([gltf])], 'model-part.gltf'));
+                    }
+                    else {
+                        result.gltf.push(null);
+                    }
                     if (onProgress)
                         onProgress(i, categories === null || categories === void 0 ? void 0 : categories.length, 'GLTF');
                     items.length = 0;

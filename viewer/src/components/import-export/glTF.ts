@@ -100,7 +100,13 @@ export class GLTFManager extends IfcComponent {
       if (onProgress) onProgress(event.loaded, event.total, 'IFC');
     });
 
-    const result: { gltf: File[]; json: File[]; id: string } = { gltf: [], json: [], id: '' };
+    // If there are no geometry of a group of categories, it adds "null" to the result
+    // because it makes no sense to create an empty gltf file
+    const result: { gltf: (File | null)[]; json: File[]; id: string } = {
+      gltf: [],
+      json: [],
+      id: ''
+    };
 
     const projects = await manager.getAllItemsOfType(model.modelID, IFCPROJECT, true);
     if (!projects.length) throw new Error('No IfcProject instances were found in the IFC.');
@@ -119,9 +125,13 @@ export class GLTFManager extends IfcComponent {
           items.push(...foundItems);
         }
 
-        // eslint-disable-next-line no-await-in-loop
-        const gltf = await this.exportModelPartToGltf(model, items, true);
-        result.gltf.push(new File([new Blob([gltf])], 'model-part.gltf'));
+        if (items.length) {
+          // eslint-disable-next-line no-await-in-loop
+          const gltf = await this.exportModelPartToGltf(model, items, true);
+          result.gltf.push(new File([new Blob([gltf])], 'model-part.gltf'));
+        } else {
+          result.gltf.push(null);
+        }
 
         if (onProgress) onProgress(i, categories?.length, 'GLTF');
         items.length = 0;
