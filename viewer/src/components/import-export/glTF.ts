@@ -24,7 +24,7 @@ export class GLTFManager extends IfcComponent {
   private exporter = new GLTFExporter();
   private tempIfcLoader: IFCLoader | null = null;
 
-  private options = {
+  options = {
     trs: false,
     onlyVisible: false,
     truncateDrawRange: true,
@@ -173,6 +173,16 @@ export class GLTFManager extends IfcComponent {
     return ids ? this.exportModelPartToGltf(model, ids) : this.exportMeshToGltf(model);
   }
 
+  /**
+   * Exports the given mesh as glTF.
+   * @mesh The mesh to export.
+   */
+  exportMeshToGltf(mesh: Mesh) {
+    return new Promise<any>((resolve) => {
+      this.exporter.parse(mesh, (result: any) => resolve(result), this.options);
+    });
+  }
+
   // TODO: Split up in smaller methods
   private exportModelPartToGltf(model: IFCModel, ids: number[], useTempLoader = false) {
     const coordinates: number[] = [];
@@ -237,12 +247,6 @@ export class GLTFManager extends IfcComponent {
     const mesh = new Mesh(geometryToExport, newMaterials);
 
     return this.exportMeshToGltf(mesh);
-  }
-
-  private exportMeshToGltf(model: Mesh) {
-    return new Promise<any>((resolve) => {
-      this.exporter.parse(model, (result: any) => resolve(result), this.options);
-    });
   }
 
   private getModelID() {

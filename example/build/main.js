@@ -114106,6 +114106,15 @@
                 throw new Error('The specified model does not exist!');
             return ids ? this.exportModelPartToGltf(model, ids) : this.exportMeshToGltf(model);
         }
+        /**
+         * Exports the given mesh as glTF.
+         * @mesh The mesh to export.
+         */
+        exportMeshToGltf(mesh) {
+            return new Promise((resolve) => {
+                this.exporter.parse(mesh, (result) => resolve(result), this.options);
+            });
+        }
         // TODO: Split up in smaller methods
         exportModelPartToGltf(model, ids, useTempLoader = false) {
             const coordinates = [];
@@ -114158,11 +114167,6 @@
             loader.ifcManager.removeSubset(model.modelID, undefined, customID);
             const mesh = new Mesh(geometryToExport, newMaterials);
             return this.exportMeshToGltf(mesh);
-        }
-        exportMeshToGltf(model) {
-            return new Promise((resolve) => {
-                this.exporter.parse(model, (result) => resolve(result), this.options);
-            });
         }
         getModelID() {
             const models = this.context.items.ifcModels;
