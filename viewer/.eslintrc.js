@@ -29,6 +29,7 @@ module.exports = {
     'eol-last': 'off',
     'no-unused-vars': 'off',
     'class-methods-use-this': 'off',
+    'no-await-in-loop': 'off',
     'import/extensions': [
       'error',
       'ignorePackages',

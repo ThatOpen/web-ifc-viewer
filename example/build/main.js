@@ -113977,6 +113977,8 @@
             this.loader = new GLTFLoader();
             this.exporter = new GLTFExporter();
             this.tempIfcLoader = null;
+            this.allFloors = 'allFloors';
+            this.allCategories = 'allCategories';
             this.options = {
                 trs: false,
                 onlyVisible: false,
@@ -114026,11 +114028,12 @@
          * @fileURL The URL of the IFC file to convert to glTF
          * @ids (optional) The ids of the items to export. If not defined, the full model is exported
          */
-        async exportIfcFileAsGltf(ifcFileUrl, getProperties = false, categories, maxJSONSize, onProgress) {
+        async exportIfcFileAsGltf(config) {
             const loader = new IFCLoader();
             this.tempIfcLoader = loader;
             const state = this.IFC.loader.ifcManager.state;
             const manager = loader.ifcManager;
+            const { ifcFileUrl, getProperties, categories, splitByFloors, maxJSONSize, onProgress } = config;
             if (state.wasmPath)
                 await manager.setWasmPath(state.wasmPath);
             if (state.worker.active)
@@ -114041,10 +114044,10 @@
                 if (onProgress)
                     onProgress(event.loaded, event.total, 'IFC');
             });
-            // If there are no geometry of a group of categories, it adds "null" to the result
+            // If there are no geometry of a group of categories, it returns "null" as result
             // because it makes no sense to create an empty gltf file
             const result = {
-                gltf: [],
+                gltf: {},
                 json: [],
                 id: ''
             };
@@ -114055,31 +114058,65 @@
             if (!GUID)
                 throw new Error('The found IfcProject does not have a GUID');
             result.id = GUID.value;
+            let allIdsByFloor = {};
+            let floorNames = [];
+            if (splitByFloors) {
+                allIdsByFloor = await this.getIDsByFloor(loader);
+                floorNames = Object.keys(allIdsByFloor);
+            }
             if (categories) {
                 const items = [];
-                for (let i = 0; i < categories.length; i++) {
-                    const currentCategories = categories[i];
+                const categoryNames = Object.keys(categories);
+                for (let i = 0; i < categoryNames.length; i++) {
+                    const categoryName = categoryNames[i];
+                    const currentCategories = categories[categoryName];
+                    if (!result.gltf[categoryName])
+                        result.gltf[categoryName] = {};
                     for (let j = 0; j < currentCategories.length; j++) {
-                        // eslint-disable-next-line no-await-in-loop
                         const foundItems = await manager.getAllItemsOfType(0, currentCategories[j], false);
                         items.push(...foundItems);
                     }
-                    if (items.length) {
-                        // eslint-disable-next-line no-await-in-loop
-                        const gltf = await this.exportModelPartToGltf(model, items, true);
-                        result.gltf.push(new File([new Blob([gltf])], 'model-part.gltf'));
+                    const groupedIDs = {};
+                    if (splitByFloors) {
+                        floorNames.forEach((floorName) => {
+                            const floorIDs = allIdsByFloor[floorName];
+                            groupedIDs[floorName] = items.filter((id) => floorIDs.has(id));
+                        });
                     }
                     else {
-                        result.gltf.push(null);
+                        groupedIDs[this.allFloors] = items;
+                    }
+                    const idsByFloor = Object.keys(groupedIDs);
+                    for (let j = 0; j < idsByFloor.length; j++) {
+                        const floorName = idsByFloor[j];
+                        const items = groupedIDs[floorName];
+                        if (items.length) {
+                            const gltf = await this.exportModelPartToGltf(model, items, true);
+                            result.gltf[categoryName][floorName] = this.glTFToFile(gltf, 'model-part.gltf');
+                        }
+                        else {
+                            result.gltf[categoryName][floorName] = null;
+                        }
                     }
                     if (onProgress)
-                        onProgress(i, categories === null || categories === void 0 ? void 0 : categories.length, 'GLTF');
+                        onProgress(i, categoryNames === null || categoryNames === void 0 ? void 0 : categoryNames.length, 'GLTF');
                     items.length = 0;
                 }
             }
             else {
-                const gltf = await this.exportMeshToGltf(model);
-                result.gltf.push(new File([new Blob([gltf])], 'full-model.gltf'));
+                result.gltf[this.allCategories] = {};
+                if (splitByFloors) {
+                    for (let i = 0; i < floorNames.length; i++) {
+                        const floorName = floorNames[i];
+                        const floorIDs = Array.from(allIdsByFloor[floorName]);
+                        const gltf = await this.exportModelPartToGltf(model, floorIDs, true);
+                        result.gltf[this.allCategories][floorName] = this.glTFToFile(gltf);
+                    }
+                }
+                else {
+                    const gltf = await this.exportMeshToGltf(model);
+                    result.gltf[this.allCategories][this.allFloors] = this.glTFToFile(gltf);
+                }
             }
             if (getProperties) {
                 const previousLoader = this.IFC.properties.loader;
@@ -114167,6 +114204,42 @@
             loader.ifcManager.removeSubset(model.modelID, undefined, customID);
             const mesh = new Mesh(geometryToExport, newMaterials);
             return this.exportMeshToGltf(mesh);
+        }
+        glTFToFile(gltf, name = 'model.gltf') {
+            return new File([new Blob([gltf])], name);
+        }
+        async getIDsByFloor(loader) {
+            const ifcProject = await loader.ifcManager.getSpatialStructure(0);
+            console.log(ifcProject);
+            const idsByFloor = {};
+            const storeys = ifcProject.children[0].children[0].children;
+            const storeysIDs = storeys.map((storey) => storey.expressID);
+            for (let i = 0; i < storeysIDs.length; i++) {
+                const storey = storeys[i];
+                const ids = [];
+                this.getChildrenRecursively(storey, ids);
+                const storeyID = storeysIDs[i];
+                const properties = await loader.ifcManager.getItemProperties(0, storeyID);
+                const name = this.getStoreyName(properties);
+                idsByFloor[name] = new Set(ids);
+            }
+            return idsByFloor;
+        }
+        getStoreyName(storey) {
+            if (storey.Name)
+                return storey.Name.value;
+            if (storey.LongName)
+                return storey.LongName.value;
+            return storey.GlobalId;
+        }
+        getChildrenRecursively(spatialNode, result) {
+            const ids = spatialNode.children.map((child) => child.expressID);
+            result.push(...ids);
+            spatialNode.children.forEach((child) => {
+                if (child.children.length) {
+                    this.getChildrenRecursively(child, result);
+                }
+            });
         }
         getModelID() {
             const models = this.context.items.ifcModels;
