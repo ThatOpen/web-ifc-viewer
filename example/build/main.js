@@ -113979,6 +113979,11 @@
             this.tempIfcLoader = null;
             this.allFloors = 'allFloors';
             this.allCategories = 'allCategories';
+            this.unitsFactor = {
+                MILLI: 0.001,
+                CENTI: 0.01,
+                DECI: 0.1
+            };
             this.options = {
                 trs: false,
                 onlyVisible: false,
@@ -114022,30 +114027,19 @@
             this.setupMeshAsModel(gltfMesh);
             return gltfMesh;
         }
-        // TODO: Split up in smaller methods
+        // TODO: Split up in smaller methods AND bring to new file
         /**
          * Exports the specified IFC file (or file subset) as glTF.
          * @fileURL The URL of the IFC file to convert to glTF
          * @ids (optional) The ids of the items to export. If not defined, the full model is exported
          */
         async exportIfcFileAsGltf(config) {
-            const loader = new IFCLoader();
-            this.tempIfcLoader = loader;
-            const state = this.IFC.loader.ifcManager.state;
-            const manager = loader.ifcManager;
             const { ifcFileUrl, getProperties, categories, splitByFloors, maxJSONSize, onProgress } = config;
-            if (state.wasmPath)
-                await manager.setWasmPath(state.wasmPath);
-            if (state.worker.active)
-                await manager.useWebWorkers(true, state.worker.path);
-            if (state.webIfcSettings)
-                await manager.applyWebIfcConfig(state.webIfcSettings);
+            const { loader, manager } = await this.setupIfcLoader();
             const model = await loader.loadAsync(ifcFileUrl, (event) => {
                 if (onProgress)
                     onProgress(event.loaded, event.total, 'IFC');
             });
-            // If there are no geometry of a group of categories, it returns "null" as result
-            // because it makes no sense to create an empty gltf file
             const result = {
                 gltf: {},
                 json: [],
@@ -114064,74 +114058,114 @@
                 allIdsByFloor = await this.getIDsByFloor(loader);
                 floorNames = Object.keys(allIdsByFloor);
             }
-            if (categories) {
-                const items = [];
-                const categoryNames = Object.keys(categories);
-                for (let i = 0; i < categoryNames.length; i++) {
-                    const categoryName = categoryNames[i];
-                    const currentCategories = categories[categoryName];
-                    if (!result.gltf[categoryName])
-                        result.gltf[categoryName] = {};
-                    for (let j = 0; j < currentCategories.length; j++) {
-                        const foundItems = await manager.getAllItemsOfType(0, currentCategories[j], false);
-                        items.push(...foundItems);
-                    }
-                    const groupedIDs = {};
-                    if (splitByFloors) {
-                        floorNames.forEach((floorName) => {
-                            const floorIDs = allIdsByFloor[floorName];
-                            groupedIDs[floorName] = items.filter((id) => floorIDs.has(id));
-                        });
-                    }
-                    else {
-                        groupedIDs[this.allFloors] = items;
-                    }
-                    const idsByFloor = Object.keys(groupedIDs);
-                    for (let j = 0; j < idsByFloor.length; j++) {
-                        const floorName = idsByFloor[j];
-                        const items = groupedIDs[floorName];
-                        if (items.length) {
-                            const gltf = await this.exportModelPartToGltf(model, items, true);
-                            result.gltf[categoryName][floorName] = this.glTFToFile(gltf, 'model-part.gltf');
-                        }
-                        else {
-                            result.gltf[categoryName][floorName] = null;
-                        }
-                    }
-                    if (onProgress)
-                        onProgress(i, categoryNames === null || categoryNames === void 0 ? void 0 : categoryNames.length, 'GLTF');
-                    items.length = 0;
-                }
-            }
-            else {
-                result.gltf[this.allCategories] = {};
-                if (splitByFloors) {
-                    for (let i = 0; i < floorNames.length; i++) {
-                        const floorName = floorNames[i];
-                        const floorIDs = Array.from(allIdsByFloor[floorName]);
-                        const gltf = await this.exportModelPartToGltf(model, floorIDs, true);
-                        result.gltf[this.allCategories][floorName] = this.glTFToFile(gltf);
-                    }
-                }
-                else {
-                    const gltf = await this.exportMeshToGltf(model);
-                    result.gltf[this.allCategories][this.allFloors] = this.glTFToFile(gltf);
-                }
-            }
+            await this.getModels(categories, result, manager, splitByFloors, floorNames, allIdsByFloor, model, onProgress);
             if (getProperties) {
-                const previousLoader = this.IFC.properties.loader;
-                this.IFC.properties.loader = this.tempIfcLoader;
-                const jsons = await this.IFC.properties.serializeAllProperties(model, maxJSONSize, (progress, total) => {
-                    if (onProgress)
-                        onProgress(progress, total, 'JSON');
-                });
-                result.json = jsons.map((json) => new File([json], 'properties.json'));
-                this.IFC.properties.loader = previousLoader;
+                await this.getProperties(model, maxJSONSize, onProgress, result);
             }
             await loader.ifcManager.dispose();
             this.tempIfcLoader = null;
             return result;
         }
+        async getProperties(model, maxJSONSize, onProgress, result) {
+            const previousLoader = this.IFC.properties.loader;
+            this.IFC.properties.loader = this.tempIfcLoader;
+            const jsons = await this.IFC.properties.serializeAllProperties(model, maxJSONSize, (progress, total) => {
+                if (onProgress)
+                    onProgress(progress, total, 'JSON');
+            });
+            result.json = jsons.map((json) => new File([json], 'properties.json'));
+            this.IFC.properties.loader = previousLoader;
+        }
+        async getModels(categories, result, manager, splitByFloors, floorNames, allIdsByFloor, model, onProgress) {
+            if (categories) {
+                await this.getModelsByCategory(categories, result, manager, splitByFloors, floorNames, allIdsByFloor, model, onProgress);
+            }
+            else {
+                await this.getModelsWithoutCategories(result, splitByFloors, floorNames, allIdsByFloor, model);
+            }
+        }
+        async setupIfcLoader() {
+            const loader = new IFCLoader();
+            this.tempIfcLoader = loader;
+            const state = this.IFC.loader.ifcManager.state;
+            const manager = loader.ifcManager;
+            if (state.wasmPath)
+                await manager.setWasmPath(state.wasmPath);
+            if (state.worker.active)
+                await manager.useWebWorkers(true, state.worker.path);
+            if (state.webIfcSettings)
+                await manager.applyWebIfcConfig(state.webIfcSettings);
+            return { loader, manager };
+        }
+        async getModelsByCategory(categories, result, manager, splitByFloors, floorNames, allIdsByFloor, model, onProgress) {
+            var _a;
+            const items = [];
+            const categoryNames = Object.keys(categories);
+            for (let i = 0; i < categoryNames.length; i++) {
+                const categoryName = categoryNames[i];
+                const currentCategories = categories[categoryName];
+                if (!result.gltf[categoryName])
+                    result.gltf[categoryName] = {};
+                for (let j = 0; j < currentCategories.length; j++) {
+                    const foundItems = await manager.getAllItemsOfType(0, currentCategories[j], false);
+                    items.push(...foundItems);
+                }
+                const groupedIDs = {};
+                if (splitByFloors) {
+                    floorNames.forEach((floorName) => {
+                        const floorIDs = allIdsByFloor[floorName];
+                        groupedIDs[floorName] = items.filter((id) => floorIDs.ids.has(id));
+                    });
+                }
+                else {
+                    groupedIDs[this.allFloors] = items;
+                }
+                const foundFloorNames = Object.keys(groupedIDs);
+                for (let j = 0; j < foundFloorNames.length; j++) {
+                    const foundFloorName = foundFloorNames[j];
+                    const items = groupedIDs[foundFloorName];
+                    if (items.length) {
+                        const gltf = await this.exportModelPartToGltf(model, items, true);
+                        const height = ((_a = allIdsByFloor[foundFloorName]) === null || _a === void 0 ? void 0 : _a.height) || 0;
+                        result.gltf[categoryName][foundFloorName] = {
+                            file: this.glTFToFile(gltf, 'model-part.gltf'),
+                            height
+                        };
+                    }
+                    else {
+                        result.gltf[categoryName][foundFloorName] = {
+                            file: null,
+                            height: 0
+                        };
+                    }
+                }
+                if (onProgress)
+                    onProgress(i, categoryNames === null || categoryNames === void 0 ? void 0 : categoryNames.length, 'GLTF');
+                items.length = 0;
+            }
+        }
+        async getModelsWithoutCategories(result, splitByFloors, floorNames, allIdsByFloor, model) {
+            result.gltf[this.allCategories] = {};
+            if (splitByFloors) {
+                for (let i = 0; i < floorNames.length; i++) {
+                    const floorName = floorNames[i];
+                    const floorIDs = Array.from(allIdsByFloor[floorName].ids);
+                    const gltf = await this.exportModelPartToGltf(model, floorIDs, true);
+                    result.gltf[this.allCategories][floorName] = {
+                        file: this.glTFToFile(gltf),
+                        height: allIdsByFloor[floorName].height
+                    };
+                }
+            }
+            else {
+                const gltf = await this.exportMeshToGltf(model);
+                result.gltf[this.allCategories][this.allFloors] = {
+                    file: this.glTFToFile(gltf),
+                    height: 0
+                };
+            }
+        }
+        // TODO: Is this really necessary? Maybe with exporting the file is enough
         /**
          * Exports the specified model (or model subset) as glTF.
          * @modelID The ID of the IFC model to convert to glTF
@@ -114152,7 +114186,7 @@
                 this.exporter.parse(mesh, (result) => resolve(result), this.options);
             });
         }
-        // TODO: Split up in smaller methods
+        // TODO: Split up in smaller methods AND bring to new file
         exportModelPartToGltf(model, ids, useTempLoader = false) {
             const coordinates = [];
             const expressIDs = [];
@@ -114209,8 +114243,8 @@
             return new File([new Blob([gltf])], name);
         }
         async getIDsByFloor(loader) {
+            var _a;
             const ifcProject = await loader.ifcManager.getSpatialStructure(0);
-            console.log(ifcProject);
             const idsByFloor = {};
             const storeys = ifcProject.children[0].children[0].children;
             const storeysIDs = storeys.map((storey) => storey.expressID);
@@ -114221,9 +114255,26 @@
                 const storeyID = storeysIDs[i];
                 const properties = await loader.ifcManager.getItemProperties(0, storeyID);
                 const name = this.getStoreyName(properties);
-                idsByFloor[name] = new Set(ids);
+                const factor = await this.getUnitsFactor(loader);
+                const height = ((_a = properties.Elevation) === null || _a === void 0 ? void 0 : _a.value) * factor || 0;
+                idsByFloor[name] = {
+                    ids: new Set(ids),
+                    height
+                };
             }
             return idsByFloor;
+        }
+        // TODO: This assumes the first unit is the length, which is true in most cases
+        // Might need to fix this in the future
+        async getUnitsFactor(loader) {
+            var _a;
+            const allUnitsIDs = await loader.ifcManager.getAllItemsOfType(0, IFCUNITASSIGNMENT, false);
+            const unitsID = allUnitsIDs[0];
+            const unitsProps = await loader.ifcManager.getItemProperties(0, unitsID);
+            const lengthUnitID = unitsProps.Units[0].value;
+            const lengthUnit = await loader.ifcManager.getItemProperties(0, lengthUnitID);
+            const prefix = (_a = lengthUnit.Prefix) === null || _a === void 0 ? void 0 : _a.value;
+            return this.unitsFactor[prefix] || 1;
         }
         getStoreyName(storey) {
             if (storey.Name)
