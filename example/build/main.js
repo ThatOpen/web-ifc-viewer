@@ -99163,8 +99163,13 @@
         }
         async getBuildingHeight(modelID) {
             const building = await this.getBuilding(modelID);
-            const sitePlace = building.ObjectPlacement.PlacementRelTo.RelativePlacement.Location;
-            const transform = sitePlace.Coordinates.map((coord) => coord.value);
+            let placement;
+            const siteReference = building.ObjectPlacement.PlacementRelTo;
+            if (siteReference)
+                placement = siteReference.RelativePlacement.Location;
+            else
+                placement = building.ObjectPlacement.RelativePlacement.Location;
+            const transform = placement.Coordinates.map((coord) => coord.value);
             return transform[2];
         }
         async getBuilding(modelID) {
@@ -99411,7 +99416,14 @@
             };
             this.loader = loader;
             this.counter = 0;
-            this.initializeAPI();
+        }
+        initializeAPI() {
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = 'https://www.dropbox.com/static/api/2/dropins.js';
+            script.id = 'dropboxjs';
+            script.setAttribute('data-app-key', 'iej3z16hhyca35a');
+            document.getElementsByTagName('head')[0].appendChild(script);
         }
         loadDropboxIfc() {
             this.openDropboxChooser(this.getOptions());
@@ -99436,14 +99448,6 @@
         }
         onDBChooserCancel(_files) {
             console.log('Canceled!');
-        }
-        initializeAPI() {
-            const script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = 'https://www.dropbox.com/static/api/2/dropins.js';
-            script.id = 'dropboxjs';
-            script.setAttribute('data-app-key', 'iej3z16hhyca35a');
-            document.getElementsByTagName('head')[0].appendChild(script);
         }
     }
 
@@ -115432,31 +115436,29 @@
     stats.dom.style.left = 'auto';
     viewer.context.stats = stats;
 
-    viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+    // viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
+    viewer.IFC.setWasmPath('files/');
 
     viewer.IFC.loader.ifcManager.applyWebIfcConfig({
       USE_FAST_BOOLS: true,
       COORDINATE_TO_ORIGIN: true
     });
 
-    // viewer.IFC.setWasmPath('files/');
 
     // Setup loader
 
-    const lineMaterial = new LineBasicMaterial({ color: 0x555555 });
-    const baseMaterial = new MeshBasicMaterial({ color: 0xffffff, side: 2 });
-
-    let first = true;
-    let model;
+    new LineBasicMaterial({ color: 0x555555 });
+    new MeshBasicMaterial({ color: 0xffffff, side: 2 });
 
     const loadIfc = async (event) => {
 
 
       // tests with glTF
-      // const file = event.target.files[0];
-      // const url = URL.createObjectURL(file);
-      // const result = await viewer.GLTF.exportIfcFileAsGltf(url);
-      //
+      const file = event.target.files[0];
+      const url = URL.createObjectURL(file);
+      const result = await viewer.GLTF.exportIfcFileAsGltf({ ifcFileUrl: url, getProperties: true });
+      console.log(result);
+
       // const link = document.createElement('a');
       // link.download = `${file.name}.gltf`;
       // document.body.appendChild(link);
@@ -115469,36 +115471,36 @@
       //
       // link.remove();
 
-      const overlay = document.getElementById('loading-overlay');
-      const progressText = document.getElementById('loading-progress');
-
-      overlay.classList.remove('hidden');
-      progressText.innerText = `Loading`;
-
-      viewer.IFC.loader.ifcManager.setOnProgress((event) => {
-        const percentage = Math.floor((event.loaded * 100) / event.total);
-        progressText.innerText = `Loaded ${percentage}%`;
-      });
-
-      viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
-        [IFCSPACE]: false,
-        [IFCOPENINGELEMENT]: false
-      });
-
-      model = await viewer.IFC.loadIfc(event.target.files[0], false);
-      model.material.forEach(mat => mat.side = 2);
-
-      if(first) first = false;
-      else {
-        ClippingEdges.forceStyleUpdate = true;
-      }
-
-      // await createFill(model.modelID);
-      viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
-
-      await viewer.shadowDropper.renderShadow(model.modelID);
-
-      overlay.classList.add('hidden');
+      // const overlay = document.getElementById('loading-overlay');
+      // const progressText = document.getElementById('loading-progress');
+      //
+      // overlay.classList.remove('hidden');
+      // progressText.innerText = `Loading`;
+      //
+      // viewer.IFC.loader.ifcManager.setOnProgress((event) => {
+      //   const percentage = Math.floor((event.loaded * 100) / event.total);
+      //   progressText.innerText = `Loaded ${percentage}%`;
+      // });
+      //
+      // viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
+      //   [IFCSPACE]: false,
+      //   [IFCOPENINGELEMENT]: false
+      // });
+      //
+      // model = await viewer.IFC.loadIfc(event.target.files[0], false);
+      // model.material.forEach(mat => mat.side = 2);
+      //
+      // if(first) first = false
+      // else {
+      //   ClippingEdges.forceStyleUpdate = true;
+      // }
+      //
+      // // await createFill(model.modelID);
+      // viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
+      //
+      // await viewer.shadowDropper.renderShadow(model.modelID);
+      //
+      // overlay.classList.add('hidden');
 
     };
 

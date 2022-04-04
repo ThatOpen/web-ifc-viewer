@@ -108,8 +108,11 @@ export class IfcProperties {
 
   private async getBuildingHeight(modelID: number) {
     const building = await this.getBuilding(modelID);
-    const sitePlace = building.ObjectPlacement.PlacementRelTo.RelativePlacement.Location;
-    const transform = sitePlace.Coordinates.map((coord: any) => coord.value);
+    let placement: any;
+    const siteReference = building.ObjectPlacement.PlacementRelTo;
+    if (siteReference) placement = siteReference.RelativePlacement.Location;
+    else placement = building.ObjectPlacement.RelativePlacement.Location;
+    const transform = placement.Coordinates.map((coord: any) => coord.value);
     return transform[2];
   }
 
