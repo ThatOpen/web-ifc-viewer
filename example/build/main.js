@@ -115447,17 +115447,20 @@
 
     // Setup loader
 
-    new LineBasicMaterial({ color: 0x555555 });
-    new MeshBasicMaterial({ color: 0xffffff, side: 2 });
+    const lineMaterial = new LineBasicMaterial({ color: 0x555555 });
+    const baseMaterial = new MeshBasicMaterial({ color: 0xffffff, side: 2 });
+
+    let first = true;
+    let model;
 
     const loadIfc = async (event) => {
 
 
       // tests with glTF
-      const file = event.target.files[0];
-      const url = URL.createObjectURL(file);
-      const result = await viewer.GLTF.exportIfcFileAsGltf({ ifcFileUrl: url, getProperties: true });
-      console.log(result);
+      // const file = event.target.files[0];
+      // const url = URL.createObjectURL(file);
+      // const result = await viewer.GLTF.exportIfcFileAsGltf({ ifcFileUrl: url, getProperties: true });
+      // console.log(result);
 
       // const link = document.createElement('a');
       // link.download = `${file.name}.gltf`;
@@ -115471,36 +115474,36 @@
       //
       // link.remove();
 
-      // const overlay = document.getElementById('loading-overlay');
-      // const progressText = document.getElementById('loading-progress');
-      //
-      // overlay.classList.remove('hidden');
-      // progressText.innerText = `Loading`;
-      //
-      // viewer.IFC.loader.ifcManager.setOnProgress((event) => {
-      //   const percentage = Math.floor((event.loaded * 100) / event.total);
-      //   progressText.innerText = `Loaded ${percentage}%`;
-      // });
-      //
-      // viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
-      //   [IFCSPACE]: false,
-      //   [IFCOPENINGELEMENT]: false
-      // });
-      //
-      // model = await viewer.IFC.loadIfc(event.target.files[0], false);
-      // model.material.forEach(mat => mat.side = 2);
-      //
-      // if(first) first = false
-      // else {
-      //   ClippingEdges.forceStyleUpdate = true;
-      // }
-      //
-      // // await createFill(model.modelID);
-      // viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
-      //
-      // await viewer.shadowDropper.renderShadow(model.modelID);
-      //
-      // overlay.classList.add('hidden');
+      const overlay = document.getElementById('loading-overlay');
+      const progressText = document.getElementById('loading-progress');
+
+      overlay.classList.remove('hidden');
+      progressText.innerText = `Loading`;
+
+      viewer.IFC.loader.ifcManager.setOnProgress((event) => {
+        const percentage = Math.floor((event.loaded * 100) / event.total);
+        progressText.innerText = `Loaded ${percentage}%`;
+      });
+
+      viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
+        [IFCSPACE]: false,
+        [IFCOPENINGELEMENT]: false
+      });
+
+      model = await viewer.IFC.loadIfc(event.target.files[0], false);
+      model.material.forEach(mat => mat.side = 2);
+
+      if(first) first = false;
+      else {
+        ClippingEdges.forceStyleUpdate = true;
+      }
+
+      // await createFill(model.modelID);
+      viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
+
+      await viewer.shadowDropper.renderShadow(model.modelID);
+
+      overlay.classList.add('hidden');
 
     };
 
