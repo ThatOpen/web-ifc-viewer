@@ -6,6 +6,7 @@ import {
 import { MeshBasicMaterial, LineBasicMaterial, Color } from 'three';
 import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
 import Stats from 'stats.js/src/Stats';
+import {DRACOLoader} from "three/examples/jsm/loaders/DRACOLoader";
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255, 255) });
@@ -75,7 +76,20 @@ const loadIfc = async (event) => {
     [IFCOPENINGELEMENT]: false
   });
 
-  model = await viewer.IFC.loadIfc(event.target.files[0], false);
+  // load an IFC or a GLTF
+  const loadIFC = true;
+  if (loadIFC) {
+      model = await viewer.IFC.loadIfc(event.target.files[0], false);
+  } else {
+      const dracoLoader = new DRACOLoader();
+      dracoLoader.setDecoderPath(`./files/draco/gltf/`);
+      viewer.GLTF.loader.setDRACOLoader(dracoLoader);
+      const file = event.target.files[0];
+      const url = URL.createObjectURL(file);
+      model = await viewer.GLTF.loadModel(url);
+  }
+
+
   model.material.forEach(mat => mat.side = 2);
 
   if(first) first = false
