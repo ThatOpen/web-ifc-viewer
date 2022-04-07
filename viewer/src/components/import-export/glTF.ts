@@ -1,4 +1,4 @@
-import {GLTF, GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader';
+import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import {
   BufferAttribute,
   BufferGeometry,
@@ -8,15 +8,15 @@ import {
   MeshLambertMaterial,
   MeshStandardMaterial
 } from 'three';
-import {IFCModel} from 'web-ifc-three/IFC/components/IFCModel';
-import {GLTFExporter} from 'three/examples/jsm/exporters/GLTFExporter';
-import {IFCLoader} from 'web-ifc-three/IFCLoader';
-import {IFCPROJECT, IFCUNITASSIGNMENT} from 'web-ifc';
-import {IFCManager} from 'web-ifc-three/IFC/components/IFCManager';
-import {IfcComponent} from '../../base-types';
-import {IfcContext} from '../context';
-import {IfcManager} from '../ifc';
-import {disposeMeshRecursively} from '../../utils/ThreeUtils';
+import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
+import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter';
+import { IFCLoader } from 'web-ifc-three/IFCLoader';
+import { IFCPROJECT, IFCUNITASSIGNMENT } from 'web-ifc';
+import { IFCManager } from 'web-ifc-three/IFC/components/IFCManager';
+import { IfcComponent } from '../../base-types';
+import { IfcContext } from '../context';
+import { IfcManager } from '../ifc';
+import { disposeMeshRecursively } from '../../utils/ThreeUtils';
 
 export interface ExportConfig {
   ifcFileUrl: string;
@@ -118,10 +118,10 @@ export class GLTFManager extends IfcComponent {
    * @ids (optional) The ids of the items to export. If not defined, the full model is exported
    */
   async exportIfcFileAsGltf(config: ExportConfig) {
-    const {ifcFileUrl, getProperties, categories, splitByFloors, maxJSONSize, onProgress} =
+    const { ifcFileUrl, getProperties, categories, splitByFloors, maxJSONSize, onProgress } =
       config;
 
-    const {loader, manager} = await this.setupIfcLoader();
+    const { loader, manager } = await this.setupIfcLoader();
 
     const model = await loader.loadAsync(ifcFileUrl, (event) => {
       if (onProgress) onProgress(event.loaded, event.total, 'IFC');
@@ -227,7 +227,7 @@ export class GLTFManager extends IfcComponent {
     if (state.wasmPath) await manager.setWasmPath(state.wasmPath);
     if (state.worker.active) await manager.useWebWorkers(true, state.worker.path);
     if (state.webIfcSettings) await manager.applyWebIfcConfig(state.webIfcSettings);
-    return {loader, manager};
+    return { loader, manager };
   }
 
   private async getModelsByCategory(
@@ -490,7 +490,7 @@ export class GLTFManager extends IfcComponent {
   // Necessary to make the glTF work as a model
   private setupMeshAsModel(newMesh: IFCModel) {
     // TODO: In the future we might want to rethink this or at least fix the typings
-    this.IFC.loader.ifcManager.state.models[newMesh.modelID] = {mesh: newMesh} as any;
+    this.IFC.loader.ifcManager.state.models[newMesh.modelID] = { mesh: newMesh } as any;
     const items = this.context.items;
     items.ifcModels.push(newMesh);
     items.pickableIfcModels.push(newMesh);
@@ -533,9 +533,9 @@ export class GLTFManager extends IfcComponent {
       meshes.length <= 1
         ? false
         : !this.arraysEqual(
-          meshes[0].geometry.attributes.position.array,
-          meshes[1].geometry.attributes.position.array
-        );
+            meshes[0].geometry.attributes.position.array,
+            meshes[1].geometry.attributes.position.array
+          );
     const geometry = new BufferGeometry();
     if (parseDraco) {
       this.setupGeometryAttributesDraco(geometry, meshes);
@@ -649,7 +649,7 @@ export class GLTFManager extends IfcComponent {
     let start = 0;
     let materialIndex = 0;
     geometry.groups = groupLengths.map((count) => {
-      const result = {start, count, materialIndex};
+      const result = { start, count, materialIndex };
       materialIndex++;
       start += count;
       return result;
