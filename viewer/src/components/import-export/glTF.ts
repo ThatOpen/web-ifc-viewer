@@ -532,10 +532,8 @@ export class GLTFManager extends IfcComponent {
     const parseDraco =
       meshes.length <= 1
         ? false
-        : !this.arraysEqual(
-            meshes[0].geometry.attributes.position.array,
-            meshes[1].geometry.attributes.position.array
-          );
+        : meshes[0].geometry.attributes.position.array !==
+          meshes[1].geometry.attributes.position.array;
     const geometry = new BufferGeometry();
     if (parseDraco) {
       this.setupGeometryAttributesDraco(geometry, meshes);
@@ -546,17 +544,6 @@ export class GLTFManager extends IfcComponent {
     }
     this.setupGroups(meshes, geometry);
     return geometry;
-  }
-
-  private arraysEqual(a: any, b: any) {
-    if (a === b) return true;
-    if (a == null || b == null) return false;
-    if (a.length !== b.length) return false;
-
-    for (let i = 0; i < a.length; ++i) {
-      if (a[i] !== b[i]) return false;
-    }
-    return true;
   }
 
   private setupGeometryAttributes(geometry: BufferGeometry, meshes: Mesh[]) {
