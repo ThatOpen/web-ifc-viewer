@@ -3,6 +3,7 @@ import { IfcComponent } from '../../../base-types';
 import { IfcPlane } from './planes';
 import { IfcManager } from '../../ifc';
 import { IfcContext } from '../../context';
+import { Subset, Subsets } from 'web-ifc-three/IFC/components/subsets/SubsetManager';
 
 export class IfcClipper extends IfcComponent {
   dragging: boolean;
@@ -176,12 +177,14 @@ export class IfcClipper extends IfcComponent {
 
   private updateMaterials = () => {
     const planes = this.context.getClippingPlanes();
-    // Applying clipping to IfcObjects only. This could be improved.
-    this.context.items.ifcModels.forEach((obj: Object3D) => {
-      const mesh = obj as Mesh;
-      if (mesh.material) this.updateMaterial(mesh, planes);
-      if (mesh.userData.wireframe) this.updateMaterial(mesh.userData.wireframe, planes);
-    });
+    // Applying clipping to all subsets. then we can also filter and apply only to specified subsest as parameter
+    Object.values(this.ifc.loader.ifcManager.subsets.getAllSubsets()).forEach(
+      (subset: Subsets[string]) => {
+        const mesh = subset.mesh as Mesh;
+        if (mesh.material) this.updateMaterial(mesh, planes);
+        if (mesh.userData.wireframe) this.updateMaterial(mesh.userData.wireframe, planes);
+      }
+    );
   };
 
   private updateMaterial(mesh: Mesh, planes: Plane[]) {
