@@ -1,10 +1,10 @@
 import {IfcViewerAPI} from 'web-ifc-viewer';
 import {createSideMenuButton} from './utils/gui-creator';
 import {
-    IFCSPACE, IFCOPENINGELEMENT, IFCWALLSTANDARDCASE, IFCWALL, IFCWINDOW, IFCCURTAINWALL, IFCMEMBER, IFCPLATE
+  IFCSPACE, IFCOPENINGELEMENT, IFCWALLSTANDARDCASE, IFCFLOWTERMINAL,IFCWALL, IFCWINDOW, IFCCURTAINWALL, IFCMEMBER, IFCPLATE
 } from 'web-ifc';
-import {MeshBasicMaterial, LineBasicMaterial, Color} from 'three';
-import {ClippingEdges} from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
+import { MeshBasicMaterial, LineBasicMaterial, Color, Matrix4 } from 'three';
+import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
 import Stats from 'stats.js/src/Stats';
 import {DRACOLoader} from "three/examples/jsm/loaders/DRACOLoader";
 
@@ -25,10 +25,17 @@ viewer.context.stats = stats;
 // viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
 viewer.IFC.setWasmPath('files/');
 
+viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
+  [IFCSPACE]: false,
+  [IFCOPENINGELEMENT]: false
+});
+
 viewer.IFC.loader.ifcManager.applyWebIfcConfig({
     USE_FAST_BOOLS: true,
     COORDINATE_TO_ORIGIN: true
 });
+
+let matrix;
 
 
 // Setup loader
@@ -47,60 +54,61 @@ const loadIfc = async (event) => {
     // const result = await viewer.GLTF.exportIfcFileAsGltf({ ifcFileUrl: url, getProperties: true });
     // console.log(result);
 
-    // const link = document.createElement('a');
-    // link.download = `${file.name}.gltf`;
-    // document.body.appendChild(link);
-    //
-    // result.gltf.forEach(file => {
-    //   link.href = URL.createObjectURL(file);
-    //   link.click();
-    //   }
-    // )
-    //
-    // link.remove();
+  // tests with glTF
+  const file = event.target.files[0];
+  const url = URL.createObjectURL(file);
+  const result = await viewer.GLTF.exportIfcFileAsGltf({ ifcFileUrl: url, coordinationMatrix: matrix });
+  console.log(result);
 
-    const overlay = document.getElementById('loading-overlay');
-    const progressText = document.getElementById('loading-progress');
+  const link = document.createElement('a');
+  link.download = `${file.name}.gltf`;
+  document.body.appendChild(link);
 
-    overlay.classList.remove('hidden');
-    progressText.innerText = `Loading`;
+  let first = true;
 
-    viewer.IFC.loader.ifcManager.setOnProgress((event) => {
-        const percentage = Math.floor((event.loaded * 100) / event.total);
-        progressText.innerText = `Loaded ${percentage}%`;
-    });
-
-    viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
-        [IFCSPACE]: false,
-        [IFCOPENINGELEMENT]: false
-    });
-
-    // load an IFC or a GLTF
-    const loadIFC = true;
-    if (loadIFC) {
-        model = await viewer.IFC.loadIfc(event.target.files[0], false);
-    } else {
-        const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath(`./files/draco/`);
-        viewer.GLTF.loader.setDRACOLoader(dracoLoader);
-        const file = event.target.files[0];
-        const url = URL.createObjectURL(file);
-        model = await viewer.GLTF.loadModel(url);
+  for(const categoryName in result.gltf) {
+    const category = result.gltf[categoryName];
+    for(const levelName in category) {
+      if(!first) break;
+      const file = category[levelName].file;
+      link.href = URL.createObjectURL(file);
+      link.click();
+      first = false;
     }
+  }
 
-    model.material.forEach(mat => mat.side = 2);
+  link.remove();
 
-    if (first) first = false
-    else {
-        ClippingEdges.forceStyleUpdate = true;
-    }
-
-    // await createFill(model.modelID);
-    viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
-
-    await viewer.shadowDropper.renderShadow(model.modelID);
-
-    overlay.classList.add('hidden');
+  // const overlay = document.getElementById('loading-overlay');
+  // const progressText = document.getElementById('loading-progress');
+  //
+  // overlay.classList.remove('hidden');
+  // progressText.innerText = `Loading`;
+  //
+  // viewer.IFC.loader.ifcManager.setOnProgress((event) => {
+  //   const percentage = Math.floor((event.loaded * 100) / event.total);
+  //   progressText.innerText = `Loaded ${percentage}%`;
+  // });
+  //
+  // viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
+  //   [IFCSPACE]: false,
+  //   [IFCOPENINGELEMENT]: false
+  // });
+  //
+  // model = await viewer.IFC.loadIfc(event.target.files[0], false);
+  // model.material.forEach(mat => mat.side = 2);
+  //
+  // if(first) first = false
+  // else {
+  //   ClippingEdges.forceStyleUpdate = true;
+  // }
+  //
+  // // await createFill(model.modelID);
+  // viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
+  //
+  // await viewer.shadowDropper.renderShadow(model.modelID);
+  //
+  // overlay.classList.add('hidden');
 
 };
 

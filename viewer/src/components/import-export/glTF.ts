@@ -4,6 +4,7 @@ import {
   BufferGeometry,
   Group,
   Material,
+  Matrix4,
   Mesh,
   MeshLambertMaterial,
   MeshStandardMaterial
@@ -25,6 +26,7 @@ export interface ExportConfig {
   splitByFloors?: boolean;
   maxJSONSize?: number;
   onProgress?: (progress: number, total: number, process: string) => void;
+  coordinationMatrix?: Matrix4;
 }
 
 // If there are no geometry of a group of categories, it returns "null" as result
@@ -39,6 +41,7 @@ export interface ExportResponse {
     };
   };
   json: File[];
+  coordinationMatrix: number[];
   id: string;
 }
 
@@ -118,10 +121,17 @@ export class GLTFManager extends IfcComponent {
    * @ids (optional) The ids of the items to export. If not defined, the full model is exported
    */
   async exportIfcFileAsGltf(config: ExportConfig) {
-    const { ifcFileUrl, getProperties, categories, splitByFloors, maxJSONSize, onProgress } =
-      config;
+    const {
+      ifcFileUrl,
+      getProperties,
+      categories,
+      splitByFloors,
+      maxJSONSize,
+      onProgress,
+      coordinationMatrix
+    } = config;
 
-    const { loader, manager } = await this.setupIfcLoader();
+    const { loader, manager } = await this.setupIfcLoader(coordinationMatrix);
 
     const model = await loader.loadAsync(ifcFileUrl, (event) => {
       if (onProgress) onProgress(event.loaded, event.total, 'IFC');
@@ -130,7 +140,8 @@ export class GLTFManager extends IfcComponent {
     const result: ExportResponse = {
       gltf: {},
       json: [],
-      id: ''
+      id: '',
+      coordinationMatrix: []
     };
 
     const projects = await manager.getAllItemsOfType(model.modelID, IFCPROJECT, true);
@@ -138,6 +149,8 @@ export class GLTFManager extends IfcComponent {
     const GUID = projects[0].GlobalId;
     if (!GUID) throw new Error('The found IfcProject does not have a GUID');
     result.id = GUID.value;
+
+    result.coordinationMatrix = await manager.ifcAPI.GetCoordinationMatrix(0);
 
     let allIdsByFloor: IdsByFloorplan = {};
     let floorNames: string[] = [];
@@ -219,7 +232,7 @@ export class GLTFManager extends IfcComponent {
     }
   }
 
-  private async setupIfcLoader() {
+  private async setupIfcLoader(coordinationMatrix?: Matrix4) {
     const loader = new IFCLoader();
     this.tempIfcLoader = loader;
     const state = this.IFC.loader.ifcManager.state;
@@ -227,7 +240,20 @@ export class GLTFManager extends IfcComponent {
     if (state.wasmPath) await manager.setWasmPath(state.wasmPath);
     if (state.worker.active) await manager.useWebWorkers(true, state.worker.path);
     if (state.webIfcSettings) await manager.applyWebIfcConfig(state.webIfcSettings);
+
+    await manager.parser.setupOptionalCategories(
+      this.IFC.loader.ifcManager.parser.optionalCategories
+    );
+
+    if (coordinationMatrix) {
+      await this.overrideCoordMatrix(manager, coordinationMatrix);
+    }
+
     return { loader, manager };
+  }
+
+  private async overrideCoordMatrix(manager: IFCManager, coordinationMatrix: Matrix4) {
+    manager.setupCoordinationMatrix(coordinationMatrix);
   }
 
   private async getModelsByCategory(

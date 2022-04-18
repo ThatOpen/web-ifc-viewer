@@ -48,6 +48,7 @@ export class EdgesVectorizer {
   }
 
   async vectorize(bucketWidth: number) {
+    this.polygons = [];
     this.setupCamera();
 
     this.updateBucketDimensions(bucketWidth);

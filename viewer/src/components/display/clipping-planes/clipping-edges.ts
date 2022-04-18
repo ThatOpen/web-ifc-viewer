@@ -59,23 +59,25 @@ export class ClippingEdges {
   static edgesParent: any = null;
   private static invisibleMaterial = new MeshBasicMaterial({ visible: false });
   private static defaultMaterial = new LineMaterial({ color: 0x000000, linewidth: 0.001 });
+  private static context: IfcContext;
+  private static ifc: IfcManager;
+
   // Helpers
   private static basicEdges = new LineSegments();
   edges: EdgesItems = {};
+
   private isVisible = true;
   private inverseMatrix = new Matrix4();
   private localPlane = new Plane();
   private tempLine = new Line3();
   private tempVector = new Vector3();
-  private context: IfcContext;
   private clippingPlane: Plane;
-  private ifc: IfcManager;
   private stylesInitialized = false;
 
   constructor(context: IfcContext, clippingPlane: Plane, ifc: IfcManager) {
-    this.context = context;
     this.clippingPlane = clippingPlane;
-    this.ifc = ifc;
+    ClippingEdges.ifc = ifc;
+    ClippingEdges.context = context;
   }
 
   get visible() {
@@ -87,7 +89,7 @@ export class ClippingEdges {
     const allEdges = Object.values(this.edges);
     allEdges.forEach((edges) => {
       edges.mesh.visible = visible;
-      if (visible) this.context.getScene().add(edges.mesh);
+      if (visible) ClippingEdges.context.getScene().add(edges.mesh);
       else edges.mesh.removeFromParent();
     });
     if (visible) this.updateEdges();
@@ -114,9 +116,9 @@ export class ClippingEdges {
     });
 
     (this.edges as any) = null;
-    (this.context as any) = null;
     (this.clippingPlane as any) = null;
-    (this.ifc as any) = null;
+    (ClippingEdges.context as any) = null;
+    (ClippingEdges.ifc as any) = null;
   }
 
   disposeStylesAndHelpers() {
@@ -152,19 +154,8 @@ export class ClippingEdges {
 
   async updateEdges() {
     if (ClippingEdges.createDefaultIfcStyles) {
-      if (!this.stylesInitialized) {
-        await this.createDefaultStyles();
-      }
-
-      if (ClippingEdges.forceStyleUpdate) {
-        await this.updateStylesGeometry();
-        ClippingEdges.forceStyleUpdate = false;
-      }
+      await this.updateIfcStyles();
     }
-
-    // TODO: This is temporary; probably the edges object need to be located in the scene
-    // Need to solve Z-fighting with models in that case
-    // const model = this.context.items.ifcModels[0];
 
     Object.keys(ClippingEdges.styles).forEach((styleName) => {
       this.drawEdges(styleName);
@@ -172,20 +163,20 @@ export class ClippingEdges {
   }
 
   // Creates a new style that applies to all clipping edges for IFC models
-  async newStyle(
+  static async newStyle(
     styleName: string,
     categories: number[],
     material = ClippingEdges.defaultMaterial
   ) {
     const subsets: Mesh[] = [];
-    const ids = this.context.items.ifcModels.map((model) => model.modelID);
+    const ids = ClippingEdges.context.items.ifcModels.map((model) => model.modelID);
 
     for (let i = 0; i < ids.length; i++) {
       // eslint-disable-next-line no-await-in-loop
       subsets.push(await this.newSubset(styleName, ids[i], categories));
     }
 
-    material.clippingPlanes = this.context.getClippingPlanes();
+    material.clippingPlanes = ClippingEdges.context.getClippingPlanes();
     ClippingEdges.styles[styleName] = {
       ids,
       categories,
@@ -206,7 +197,7 @@ export class ClippingEdges {
       if (!mesh.geometry.boundsTree) mesh.geometry.computeBoundsTree();
     });
 
-    material.clippingPlanes = this.context.getClippingPlanes();
+    material.clippingPlanes = ClippingEdges.context.getClippingPlanes();
     ClippingEdges.styles[styleName] = {
       ids,
       categories: [],
@@ -215,33 +206,44 @@ export class ClippingEdges {
     };
   }
 
-  async updateStylesGeometry() {
+  async updateStylesIfcGeometry() {
     const styleNames = Object.keys(ClippingEdges.styles);
     for (let i = 0; i < styleNames.length; i++) {
       const name = styleNames[i];
       const style = ClippingEdges.styles[name];
 
-      const ids = this.context.items.ifcModels.map((model) => model.modelID);
+      const ids = ClippingEdges.context.items.ifcModels.map((model) => model.modelID);
 
       style.meshes.length = 0;
 
       for (let i = 0; i < ids.length; i++) {
         // eslint-disable-next-line no-await-in-loop
-        style.meshes.push(await this.newSubset(name, ids[i], style.categories));
+        style.meshes.push(await ClippingEdges.newSubset(name, ids[i], style.categories));
       }
     }
   }
 
+  private async updateIfcStyles() {
+    if (!this.stylesInitialized) {
+      await this.createDefaultIfcStyles();
+    }
+
+    if (ClippingEdges.forceStyleUpdate) {
+      await this.updateStylesIfcGeometry();
+      ClippingEdges.forceStyleUpdate = false;
+    }
+  }
+
   // Creates some basic styles so that users don't have to create it each time
-  private async createDefaultStyles() {
+  private async createDefaultIfcStyles() {
     if (Object.keys(ClippingEdges.styles).length === 0) {
-      await this.newStyle(
+      await ClippingEdges.newStyle(
         'thick',
         [IFCWALLSTANDARDCASE, IFCWALL, IFCSLAB, IFCSTAIRFLIGHT, IFCCOLUMN, IFCBEAM, IFCROOF],
         new LineMaterial({ color: 0x000000, linewidth: 0.0015 })
       );
 
-      await this.newStyle(
+      await ClippingEdges.newStyle(
         'thin',
         [IFCWINDOW, IFCPLATE, IFCMEMBER, IFCDOOR, IFCFURNISHINGELEMENT],
         new LineMaterial({ color: 0x333333, linewidth: 0.001 })
@@ -252,7 +254,7 @@ export class ClippingEdges {
   }
 
   // Creates a new subset. This allows to apply a style just to a specific set of items
-  private async newSubset(styleName: string, modelID: number, categories: number[]) {
+  private static async newSubset(styleName: string, modelID: number, categories: number[]) {
     const ids = await this.getItemIDs(modelID, categories);
     const manager = this.ifc.loader.ifcManager;
     if (ids.length > 0) {
@@ -262,7 +264,7 @@ export class ClippingEdges {
         customID: styleName,
         material: ClippingEdges.invisibleMaterial,
         removePrevious: true,
-        scene: this.context.getScene(),
+        scene: ClippingEdges.context.getScene(),
         applyBVH: true
       });
     }
@@ -274,7 +276,7 @@ export class ClippingEdges {
     return new Mesh();
   }
 
-  private async getItemIDs(modelID: number, categories: number[]) {
+  private static async getItemIDs(modelID: number, categories: number[]) {
     const ids: number[] = [];
     for (let j = 0; j < categories.length; j++) {
       // eslint-disable-next-line no-await-in-loop
@@ -285,7 +287,7 @@ export class ClippingEdges {
     return ids.filter((id) => visibleItems.has(id));
   }
 
-  private getVisibileItems(modelID: number) {
+  private static getVisibileItems(modelID: number) {
     const visibleItems = new Set<number>();
     const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
     if (!model) throw new Error('IFC model was not found for computing clipping edges.');
@@ -389,7 +391,7 @@ export class ClippingEdges {
     if (!Number.isNaN(edges.generatorGeometry.attributes.position.array[0])) {
       ClippingEdges.basicEdges.geometry = edges.generatorGeometry;
       edges.mesh.geometry.fromLineSegments(ClippingEdges.basicEdges);
-      const parent = ClippingEdges.edgesParent || this.context.getScene();
+      const parent = ClippingEdges.edgesParent || ClippingEdges.context.getScene();
       parent.add(edges.mesh);
     }
   }
