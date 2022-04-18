@@ -528,9 +528,20 @@ export class GLTFManager extends IfcComponent {
   }
 
   private getGeometry(meshes: Mesh[]) {
+    // eslint-disable-next-line no-underscore-dangle
+    const parseDraco =
+      meshes.length <= 1
+        ? false
+        : meshes[0].geometry.attributes.position.array !==
+          meshes[1].geometry.attributes.position.array;
     const geometry = new BufferGeometry();
-    this.setupGeometryAttributes(geometry, meshes);
-    this.setupGeometryIndex(meshes, geometry);
+    if (parseDraco) {
+      this.setupGeometryAttributesDraco(geometry, meshes);
+      this.setupGeometryIndexDraco(meshes, geometry);
+    } else {
+      this.setupGeometryAttributes(geometry, meshes);
+      this.setupGeometryIndex(meshes, geometry);
+    }
     this.setupGroups(meshes, geometry);
     return geometry;
   }
@@ -540,6 +551,39 @@ export class GLTFManager extends IfcComponent {
     geometry.setAttribute('expressID', meshes[0].geometry.attributes._expressid);
     geometry.setAttribute('position', meshes[0].geometry.attributes.position);
     geometry.setAttribute('normal', meshes[0].geometry.attributes.normal);
+  }
+
+  private setupGeometryAttributesDraco(geometry: BufferGeometry, meshes: Mesh[]) {
+    let intArraryLength = 0;
+    let floatArrayLength = 0;
+    for (let i = 0; i < meshes.length; i++) {
+      const mesh = meshes[i];
+      const attributes = mesh.geometry.attributes;
+      // eslint-disable-next-line no-underscore-dangle
+      intArraryLength += attributes._expressid.array.length;
+      floatArrayLength += attributes.position.array.length;
+    }
+
+    const expressidArray = new Uint32Array(intArraryLength);
+    const positionArray = new Float32Array(floatArrayLength);
+    const normalArray = new Float32Array(floatArrayLength);
+
+    this.fillArray(meshes, '_expressid', expressidArray);
+    this.fillArray(meshes, 'position', positionArray);
+    this.fillArray(meshes, 'normal', normalArray);
+
+    geometry.setAttribute('expressID', new BufferAttribute(expressidArray, 1));
+    geometry.setAttribute('position', new BufferAttribute(positionArray, 3));
+    geometry.setAttribute('normal', new BufferAttribute(normalArray, 3));
+  }
+
+  private fillArray(meshes: Mesh[], key: string, arr: Uint32Array | Float32Array) {
+    let offset = 0;
+    for (let i = 0; i < meshes.length; i++) {
+      const mesh = meshes[i];
+      arr.set(mesh.geometry.attributes[key].array, offset);
+      offset += mesh.geometry.attributes[key].array.length;
+    }
   }
 
   private setupGeometryIndex(meshes: Mesh[], geometry: BufferGeometry) {
@@ -556,6 +600,33 @@ export class GLTFManager extends IfcComponent {
     }
     geometry.setIndex(indexArray);
   }
+
+  private setupGeometryIndexDraco = (meshes: Mesh[], geometry: BufferGeometry) => {
+    let off = 0;
+    const offsets: number[] = [];
+    for (let i = 0; i < meshes.length; i++) {
+      offsets.push(off);
+      // eslint-disable-next-line no-underscore-dangle
+      off += meshes[i].geometry.attributes._expressid.count;
+    }
+
+    const indices = meshes.map((mesh, i) => {
+      const index = mesh.geometry.index;
+      return !index ? [] : new Uint32Array(index.array).map((value: number) => value + offsets[i]);
+    });
+
+    geometry.setIndex(this.flattenIndices(indices));
+  };
+
+  private flattenIndices = (indices: ArrayLike<number>[]) => {
+    const indexArray = [];
+    for (let i = 0; i < indices.length; i++) {
+      for (let j = 0; j < indices[i].length; j++) {
+        indexArray.push(indices[i][j]);
+      }
+    }
+    return indexArray;
+  };
 
   private setupGroups(meshes: Mesh[], geometry: BufferGeometry) {
     const groupLengths = meshes.map((mesh) => {
