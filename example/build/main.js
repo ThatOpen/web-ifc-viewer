@@ -90338,9 +90338,9 @@
             };
             this.updateMaterials = () => {
                 const planes = this.context.getClippingPlanes();
-                // Applying clipping to IfcObjects only. This could be improved.
-                this.context.items.ifcModels.forEach((obj) => {
-                    const mesh = obj;
+                // Applying clipping to all subsets. then we can also filter and apply only to specified subsest as parameter
+                Object.values(this.ifc.loader.ifcManager.subsets.getAllSubsets()).forEach((subset) => {
+                    const mesh = subset.mesh;
                     if (mesh.material)
                         this.updateMaterial(mesh, planes);
                     if (mesh.userData.wireframe)
@@ -96274,6 +96274,10 @@
         this.items = new ItemsMap(state);
         this.BVH = BVH;
         this.subsetCreator = new SubsetCreator(state, this.items, this.subsets, this.BVH);
+      }
+
+      getAllSubsets() {
+        return this.subsets;
       }
 
       getSubset(modelID, material, customId) {
@@ -114234,6 +114238,29 @@
                 binary: true,
                 maxTextureSize: 0
             };
+            this.setupGeometryIndexDraco = (meshes, geometry) => {
+                let off = 0;
+                const offsets = [];
+                for (let i = 0; i < meshes.length; i++) {
+                    offsets.push(off);
+                    // eslint-disable-next-line no-underscore-dangle
+                    off += meshes[i].geometry.attributes._expressid.count;
+                }
+                const indices = meshes.map((mesh, i) => {
+                    const index = mesh.geometry.index;
+                    return !index ? [] : new Uint32Array(index.array).map((value) => value + offsets[i]);
+                });
+                geometry.setIndex(this.flattenIndices(indices));
+            };
+            this.flattenIndices = (indices) => {
+                const indexArray = [];
+                for (let i = 0; i < indices.length; i++) {
+                    for (let j = 0; j < indices[i].length; j++) {
+                        indexArray.push(indices[i][j]);
+                    }
+                }
+                return indexArray;
+            };
         }
         dispose() {
             this.loader = null;
@@ -114594,9 +114621,20 @@
             return meshes;
         }
         getGeometry(meshes) {
+            // eslint-disable-next-line no-underscore-dangle
+            const parseDraco = meshes.length <= 1
+                ? false
+                : meshes[0].geometry.attributes.position.array !==
+                    meshes[1].geometry.attributes.position.array;
             const geometry = new BufferGeometry();
-            this.setupGeometryAttributes(geometry, meshes);
-            this.setupGeometryIndex(meshes, geometry);
+            if (parseDraco) {
+                this.setupGeometryAttributesDraco(geometry, meshes);
+                this.setupGeometryIndexDraco(meshes, geometry);
+            }
+            else {
+                this.setupGeometryAttributes(geometry, meshes);
+                this.setupGeometryIndex(meshes, geometry);
+            }
             this.setupGroups(meshes, geometry);
             return geometry;
         }
@@ -114605,6 +114643,34 @@
             geometry.setAttribute('expressID', meshes[0].geometry.attributes._expressid);
             geometry.setAttribute('position', meshes[0].geometry.attributes.position);
             geometry.setAttribute('normal', meshes[0].geometry.attributes.normal);
+        }
+        setupGeometryAttributesDraco(geometry, meshes) {
+            let intArraryLength = 0;
+            let floatArrayLength = 0;
+            for (let i = 0; i < meshes.length; i++) {
+                const mesh = meshes[i];
+                const attributes = mesh.geometry.attributes;
+                // eslint-disable-next-line no-underscore-dangle
+                intArraryLength += attributes._expressid.array.length;
+                floatArrayLength += attributes.position.array.length;
+            }
+            const expressidArray = new Uint32Array(intArraryLength);
+            const positionArray = new Float32Array(floatArrayLength);
+            const normalArray = new Float32Array(floatArrayLength);
+            this.fillArray(meshes, '_expressid', expressidArray);
+            this.fillArray(meshes, 'position', positionArray);
+            this.fillArray(meshes, 'normal', normalArray);
+            geometry.setAttribute('expressID', new BufferAttribute(expressidArray, 1));
+            geometry.setAttribute('position', new BufferAttribute(positionArray, 3));
+            geometry.setAttribute('normal', new BufferAttribute(normalArray, 3));
+        }
+        fillArray(meshes, key, arr) {
+            let offset = 0;
+            for (let i = 0; i < meshes.length; i++) {
+                const mesh = meshes[i];
+                arr.set(mesh.geometry.attributes[key].array, offset);
+                offset += mesh.geometry.attributes[key].array.length;
+            }
         }
         setupGeometryIndex(meshes, geometry) {
             const indices = meshes.map((mesh) => {
@@ -115672,7 +115738,7 @@
     };
 
     const container = document.getElementById('viewer-container');
-    const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255, 255) });
+    const viewer = new IfcViewerAPI({container, backgroundColor: new Color(255, 255, 255)});
     viewer.axes.setAxes();
     viewer.grid.setGrid();
     viewer.shadowDropper.darkness = 1.5;
@@ -115694,8 +115760,8 @@
     });
 
     viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-      USE_FAST_BOOLS: true,
-      COORDINATE_TO_ORIGIN: true
+        USE_FAST_BOOLS: true,
+        COORDINATE_TO_ORIGIN: true
     });
 
     let matrix;
@@ -115703,11 +115769,16 @@
 
     // Setup loader
 
-    new LineBasicMaterial({ color: 0x555555 });
-    new MeshBasicMaterial({ color: 0xffffff, side: 2 });
+    new LineBasicMaterial({color: 0x555555});
+    new MeshBasicMaterial({color: 0xffffff, side: 2});
 
     const loadIfc = async (event) => {
 
+        // tests with glTF
+        // const file = event.target.files[0];
+        // const url = URL.createObjectURL(file);
+        // const result = await viewer.GLTF.exportIfcFileAsGltf({ ifcFileUrl: url, getProperties: true });
+        // console.log(result);
 
       // tests with glTF
       const file = event.target.files[0];
@@ -115773,47 +115844,47 @@
     inputElement.addEventListener('change', loadIfc, false);
 
     const handleKeyDown = async (event) => {
-      if (event.code === 'Delete') {
-        viewer.clipper.deletePlane();
-        viewer.dimensions.delete();
-      }
-      if (event.code === 'Escape') {
-        viewer.IFC.selector.unpickIfcItems();
-      }
+        if (event.code === 'Delete') {
+            viewer.clipper.deletePlane();
+            viewer.dimensions.delete();
+        }
+        if (event.code === 'Escape') {
+            viewer.IFC.selector.unpickIfcItems();
+        }
     };
 
     window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
     window.onkeydown = handleKeyDown;
     window.ondblclick = async () => {
 
-      if (viewer.clipper.active) {
-        viewer.clipper.createPlane();
-      } else {
-        const result = await viewer.IFC.selector.pickIfcItem(true);
-        if (!result) return;
-        const { modelID, id } = result;
-        const props = await viewer.IFC.getProperties(modelID, id, true, false);
-        console.log(props);
-      }
+        if (viewer.clipper.active) {
+            viewer.clipper.createPlane();
+        } else {
+            const result = await viewer.IFC.selector.pickIfcItem(true);
+            if (!result) return;
+            const {modelID, id} = result;
+            const props = await viewer.IFC.getProperties(modelID, id, true, false);
+            console.log(props);
+        }
     };
 
     //Setup UI
     const loadButton = createSideMenuButton('./resources/folder-icon.svg');
     loadButton.addEventListener('click', () => {
-      loadButton.blur();
-      inputElement.click();
+        loadButton.blur();
+        inputElement.click();
     });
 
     const sectionButton = createSideMenuButton('./resources/section-plane-down.svg');
     sectionButton.addEventListener('click', () => {
-      sectionButton.blur();
-      viewer.clipper.toggle();
+        sectionButton.blur();
+        viewer.clipper.toggle();
     });
 
     const dropBoxButton = createSideMenuButton('./resources/dropbox-icon.svg');
     dropBoxButton.addEventListener('click', () => {
-      dropBoxButton.blur();
-      viewer.dropbox.loadDropboxIfc();
+        dropBoxButton.blur();
+        viewer.dropbox.loadDropboxIfc();
     });
 
 }());

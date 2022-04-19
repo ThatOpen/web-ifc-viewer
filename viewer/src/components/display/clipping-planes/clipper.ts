@@ -1,9 +1,9 @@
-import { Object3D, Vector3, Matrix3, Intersection, Mesh, Plane } from 'three';
+import { Vector3, Matrix3, Intersection, Mesh, Plane } from 'three';
+import { Subsets } from 'web-ifc-three/IFC/components/subsets/SubsetManager';
 import { IfcComponent } from '../../../base-types';
 import { IfcPlane } from './planes';
 import { IfcManager } from '../../ifc';
 import { IfcContext } from '../../context';
-import { Subset, Subsets } from 'web-ifc-three/IFC/components/subsets/SubsetManager';
 
 export class IfcClipper extends IfcComponent {
   dragging: boolean;
