@@ -115738,7 +115738,7 @@
     };
 
     const container = document.getElementById('viewer-container');
-    const viewer = new IfcViewerAPI({container, backgroundColor: new Color(255, 255, 255)});
+    const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255, 255) });
     viewer.axes.setAxes();
     viewer.grid.setGrid();
     viewer.shadowDropper.darkness = 1.5;
@@ -115754,87 +115754,71 @@
     // viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
     viewer.IFC.setWasmPath('files/');
 
-    viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
-      [IFCSPACE]: false,
-      [IFCOPENINGELEMENT]: false
-    });
-
     viewer.IFC.loader.ifcManager.applyWebIfcConfig({
-        USE_FAST_BOOLS: true,
-        COORDINATE_TO_ORIGIN: true
+      USE_FAST_BOOLS: true,
+      COORDINATE_TO_ORIGIN: true
     });
-
-    let matrix;
 
 
     // Setup loader
 
-    new LineBasicMaterial({color: 0x555555});
-    new MeshBasicMaterial({color: 0xffffff, side: 2});
+    const lineMaterial = new LineBasicMaterial({ color: 0x555555 });
+    const baseMaterial = new MeshBasicMaterial({ color: 0xffffff, side: 2 });
+
+    let first = true;
+    let model;
 
     const loadIfc = async (event) => {
 
-        // tests with glTF
-        // const file = event.target.files[0];
-        // const url = URL.createObjectURL(file);
-        // const result = await viewer.GLTF.exportIfcFileAsGltf({ ifcFileUrl: url, getProperties: true });
-        // console.log(result);
 
       // tests with glTF
-      const file = event.target.files[0];
-      const url = URL.createObjectURL(file);
-      const result = await viewer.GLTF.exportIfcFileAsGltf({ ifcFileUrl: url, coordinationMatrix: matrix });
-      console.log(result);
+      // const file = event.target.files[0];
+      // const url = URL.createObjectURL(file);
+      // const result = await viewer.GLTF.exportIfcFileAsGltf({ ifcFileUrl: url, getProperties: true });
+      // console.log(result);
 
-      const link = document.createElement('a');
-      link.download = `${file.name}.gltf`;
-      document.body.appendChild(link);
+      // const link = document.createElement('a');
+      // link.download = `${file.name}.gltf`;
+      // document.body.appendChild(link);
+      //
+      // result.gltf.forEach(file => {
+      //   link.href = URL.createObjectURL(file);
+      //   link.click();
+      //   }
+      // )
+      //
+      // link.remove();
 
-      let first = true;
+      const overlay = document.getElementById('loading-overlay');
+      const progressText = document.getElementById('loading-progress');
 
-      for(const categoryName in result.gltf) {
-        const category = result.gltf[categoryName];
-        for(const levelName in category) {
-          if(!first) break;
-          const file = category[levelName].file;
-          link.href = URL.createObjectURL(file);
-          link.click();
-          first = false;
-        }
+      overlay.classList.remove('hidden');
+      progressText.innerText = `Loading`;
+
+      viewer.IFC.loader.ifcManager.setOnProgress((event) => {
+        const percentage = Math.floor((event.loaded * 100) / event.total);
+        progressText.innerText = `Loaded ${percentage}%`;
+      });
+
+      viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
+        [IFCSPACE]: false,
+        [IFCOPENINGELEMENT]: false
+      });
+
+      model = await viewer.IFC.loadIfc(event.target.files[0], false);
+      model.material.forEach(mat => mat.side = 2);
+
+      if(first) first = false;
+      else {
+        ClippingEdges.forceStyleUpdate = true;
       }
 
-      link.remove();
+      // await createFill(model.modelID);
+      viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
 
-      // const overlay = document.getElementById('loading-overlay');
-      // const progressText = document.getElementById('loading-progress');
-      //
-      // overlay.classList.remove('hidden');
-      // progressText.innerText = `Loading`;
-      //
-      // viewer.IFC.loader.ifcManager.setOnProgress((event) => {
-      //   const percentage = Math.floor((event.loaded * 100) / event.total);
-      //   progressText.innerText = `Loaded ${percentage}%`;
-      // });
-      //
-      // viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
-      //   [IFCSPACE]: false,
-      //   [IFCOPENINGELEMENT]: false
-      // });
-      //
-      // model = await viewer.IFC.loadIfc(event.target.files[0], false);
-      // model.material.forEach(mat => mat.side = 2);
-      //
-      // if(first) first = false
-      // else {
-      //   ClippingEdges.forceStyleUpdate = true;
-      // }
-      //
-      // // await createFill(model.modelID);
-      // viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
-      //
-      // await viewer.shadowDropper.renderShadow(model.modelID);
-      //
-      // overlay.classList.add('hidden');
+      await viewer.shadowDropper.renderShadow(model.modelID);
+
+      overlay.classList.add('hidden');
 
     };
 
@@ -115844,47 +115828,47 @@
     inputElement.addEventListener('change', loadIfc, false);
 
     const handleKeyDown = async (event) => {
-        if (event.code === 'Delete') {
-            viewer.clipper.deletePlane();
-            viewer.dimensions.delete();
-        }
-        if (event.code === 'Escape') {
-            viewer.IFC.selector.unpickIfcItems();
-        }
+      if (event.code === 'Delete') {
+        viewer.clipper.deletePlane();
+        viewer.dimensions.delete();
+      }
+      if (event.code === 'Escape') {
+        viewer.IFC.selector.unpickIfcItems();
+      }
     };
 
     window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
     window.onkeydown = handleKeyDown;
     window.ondblclick = async () => {
 
-        if (viewer.clipper.active) {
-            viewer.clipper.createPlane();
-        } else {
-            const result = await viewer.IFC.selector.pickIfcItem(true);
-            if (!result) return;
-            const {modelID, id} = result;
-            const props = await viewer.IFC.getProperties(modelID, id, true, false);
-            console.log(props);
-        }
+      if (viewer.clipper.active) {
+        viewer.clipper.createPlane();
+      } else {
+        const result = await viewer.IFC.selector.pickIfcItem(true);
+        if (!result) return;
+        const { modelID, id } = result;
+        const props = await viewer.IFC.getProperties(modelID, id, true, false);
+        console.log(props);
+      }
     };
 
     //Setup UI
     const loadButton = createSideMenuButton('./resources/folder-icon.svg');
     loadButton.addEventListener('click', () => {
-        loadButton.blur();
-        inputElement.click();
+      loadButton.blur();
+      inputElement.click();
     });
 
     const sectionButton = createSideMenuButton('./resources/section-plane-down.svg');
     sectionButton.addEventListener('click', () => {
-        sectionButton.blur();
-        viewer.clipper.toggle();
+      sectionButton.blur();
+      viewer.clipper.toggle();
     });
 
     const dropBoxButton = createSideMenuButton('./resources/dropbox-icon.svg');
     dropBoxButton.addEventListener('click', () => {
-        dropBoxButton.blur();
-        viewer.dropbox.loadDropboxIfc();
+      dropBoxButton.blur();
+      viewer.dropbox.loadDropboxIfc();
     });
 
 }());
