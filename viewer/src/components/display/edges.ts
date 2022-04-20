@@ -50,7 +50,6 @@ export class Edges {
     if (!model) return;
     this.createFromMesh(name, model, lineMaterial, material);
   }
-
   createFromMesh(name: string, mesh: Mesh, lineMaterial: Material, material?: Material) {
     const planes = this.context.getClippingPlanes();
     lineMaterial.clippingPlanes = planes;

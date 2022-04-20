@@ -47,8 +47,17 @@ export class EdgesVectorizer {
     this.cv = openCV;
   }
 
-  async vectorize(bucketWidth: number) {
+  onVectorizationFinished?: () => Promise<void>;
+
+  clear() {
     this.polygons = [];
+    this.currentBucketIndex = 0;
+    this.buckets = [];
+    this.dims = { pixels: new Vector2(), real: new Vector2() };
+  }
+
+  async vectorize(bucketWidth: number) {
+    this.clear();
     this.setupCamera();
 
     this.updateBucketDimensions(bucketWidth);
@@ -83,7 +92,7 @@ export class EdgesVectorizer {
     this.bucketMesh.position.copy(bucket.position);
     await controls.fitToBox(this.bucketMesh, false);
     controls.update(0);
-    this.htmlImage.src = this.context.renderer.newScreenshot(false, this.cvCamera);
+    this.htmlImage.src = this.context.renderer.newScreenshot(this.cvCamera);
   }
 
   private computeBucketsOrigin(size: Vector3, center: Vector3) {
@@ -216,6 +225,7 @@ export class EdgesVectorizer {
       this.toggleVisibility(true);
       await this.controls.reset(false);
       this.controls.camera = this.context.getCamera() as any;
+      if (this.onVectorizationFinished) await this.onVectorizationFinished();
     }
   }
 }

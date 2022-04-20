@@ -59,8 +59,8 @@ export class ClippingEdges {
   static edgesParent: any = null;
   private static invisibleMaterial = new MeshBasicMaterial({ visible: false });
   private static defaultMaterial = new LineMaterial({ color: 0x000000, linewidth: 0.001 });
-  private static context: IfcContext;
-  private static ifc: IfcManager;
+  static context: IfcContext;
+  static ifc: IfcManager;
 
   // Helpers
   private static basicEdges = new LineSegments();
@@ -71,13 +71,11 @@ export class ClippingEdges {
   private localPlane = new Plane();
   private tempLine = new Line3();
   private tempVector = new Vector3();
-  private clippingPlane: Plane;
+  private readonly clippingPlane: Plane;
   private stylesInitialized = false;
 
-  constructor(context: IfcContext, clippingPlane: Plane, ifc: IfcManager) {
+  constructor(clippingPlane: Plane) {
     this.clippingPlane = clippingPlane;
-    ClippingEdges.ifc = ifc;
-    ClippingEdges.context = context;
   }
 
   get visible() {
@@ -186,7 +184,7 @@ export class ClippingEdges {
   }
 
   // Creates a new style that applies to all clipping edges for generic models
-  async newStyleFromMesh(
+  static async newStyleFromMesh(
     styleName: string,
     meshes: Model[],
     material = ClippingEdges.defaultMaterial

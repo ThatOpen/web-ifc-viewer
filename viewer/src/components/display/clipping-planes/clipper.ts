@@ -75,7 +75,6 @@ export class IfcClipper extends IfcComponent {
   createFromNormalAndCoplanarPoint = (normal: Vector3, point: Vector3, isPlan = false) => {
     const plane = new IfcPlane(
       this.context,
-      this.ifc,
       point,
       normal,
       this.activateDragging,
@@ -157,7 +156,6 @@ export class IfcClipper extends IfcComponent {
   private newPlane(intersection: Intersection, worldNormal: Vector3) {
     return new IfcPlane(
       this.context,
-      this.ifc,
       intersection.point,
       worldNormal,
       this.activateDragging,

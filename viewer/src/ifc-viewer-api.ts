@@ -17,6 +17,7 @@ import { ShadowDropper } from './components/display/shadow-dropper';
 import { DXFWriter } from './components/import-export/dxf';
 import { PDFWriter } from './components/import-export/pdf';
 import { EdgesVectorizer } from './components/import-export/edges-vectorizer';
+import { ClippingEdges } from './components/display/clipping-planes/clipping-edges';
 
 export class IfcViewerAPI {
   context: IfcContext;
@@ -52,6 +53,8 @@ export class IfcViewerAPI {
     this.pdf = new PDFWriter();
     this.GLTF = new GLTFManager(this.context, this.IFC);
     this.dropbox = new DropboxAPI(this.context, this.IFC);
+    ClippingEdges.ifc = this.IFC;
+    ClippingEdges.context = this.context;
   }
 
   /**
