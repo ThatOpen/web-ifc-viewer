@@ -28,7 +28,7 @@ Check out their `README` files to better understand where the project currently 
 
 ## Documentation
 
-Check out [our official docs](https://ifcjs.github.io/info/docs/Guide/web-ifc-viewer/Introduction) for API reference, guides and tutorials.
+Check out [our official docs](https://github.com/IFCjs/web-ifc-viewer/blob/master/CONTRIBUTING.md) for API reference, guides and tutorials.
 
 ## Install
 
