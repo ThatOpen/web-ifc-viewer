@@ -111,6 +111,6 @@ This project consists of the following folders:
 
 Want to help out? Great!
 
-Please checkout [our contribution suggestsions](https://github.com/IFCjs/web-ifc-viewer/blob/main/contributing.md) or speak to us directly in [Discord](https://discord.gg/FXfyR4XrKT).
+Please checkout [our contribution suggestsions](https://github.com/IFCjs/web-ifc-viewer/blob/master/CONTRIBUTING.md) or speak to us directly in [Discord](https://discord.gg/FXfyR4XrKT).
 
 
