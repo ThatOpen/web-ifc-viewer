@@ -10,8 +10,6 @@
   <a href="https://github.com/IFCjs/web-ifc-viewer/tree/master/example">usage example</a>
   |
   <a href="https://www.npmjs.com/package/web-ifc-viewer">npm package</a>
-  |
-  <a href="https://github.com/IFCjs/web-ifc-viewer/blob/main/contributing.md">contributing</a>
 </p>
 
 <img src="banner.png">
