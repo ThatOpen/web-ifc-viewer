@@ -45,8 +45,8 @@ import { IfcViewerAPI } from 'web-ifc-viewer';
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container });
-viewer.addAxes();
-viewer.addGrid();
+viewer.axes.setAxes();
+viewer.grid.setGrid();
 
 const input = document.getElementById("file-input");
 
