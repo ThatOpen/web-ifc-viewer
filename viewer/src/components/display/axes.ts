@@ -11,7 +11,9 @@ export class IfcAxes extends IfcComponent {
   }
 
   dispose() {
-    disposeMeshRecursively(this.axes as any);
+    if (this.axes) {
+      disposeMeshRecursively(this.axes as any);
+    }
     (this.axes as any) = null;
   }
 
