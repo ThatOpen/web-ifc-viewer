@@ -51,7 +51,7 @@ export class PlanManager {
 
   getAll(modelID: number) {
     const currentPlans = this.planLists[modelID];
-    if (!currentPlans) throw new Error('The requested model doesn\'t have floor plans generated');
+    if (!currentPlans) throw new Error("The requested model doesn't have floor plans generated");
     return Object.keys(currentPlans);
   }
 
@@ -160,7 +160,6 @@ export class PlanManager {
     if (!this.storeys[modelID]) {
       this.storeys[modelID] = await this.ifc.getAllItemsOfType(modelID, IFCBUILDINGSTOREY, true);
     }
-    console.log('thistoreys', this.storeys);
   }
 
   private async getSiteCoords(modelID: number) {
