@@ -89827,9 +89827,9 @@
             this.tempLine = new Line3();
             this.tempVector = new Vector3();
             this.stylesInitialized = false;
-            this.context = context;
             this.clippingPlane = clippingPlane;
-            this.ifc = ifc;
+            ClippingEdges.ifc = ifc;
+            ClippingEdges.context = context;
         }
         get visible() {
             return this.isVisible;
@@ -89840,7 +89840,7 @@
             allEdges.forEach((edges) => {
                 edges.mesh.visible = visible;
                 if (visible)
-                    this.context.getScene().add(edges.mesh);
+                    ClippingEdges.context.getScene().add(edges.mesh);
                 else
                     edges.mesh.removeFromParent();
             });
@@ -89868,9 +89868,9 @@
                 edge.mesh = null;
             });
             this.edges = null;
-            this.context = null;
             this.clippingPlane = null;
-            this.ifc = null;
+            ClippingEdges.context = null;
+            ClippingEdges.ifc = null;
         }
         disposeStylesAndHelpers() {
             if (ClippingEdges.basicEdges) {
@@ -89904,30 +89904,21 @@
         }
         async updateEdges() {
             if (ClippingEdges.createDefaultIfcStyles) {
-                if (!this.stylesInitialized) {
-                    await this.createDefaultStyles();
-                }
-                if (ClippingEdges.forceStyleUpdate) {
-                    await this.updateStylesGeometry();
-                    ClippingEdges.forceStyleUpdate = false;
-                }
+                await this.updateIfcStyles();
             }
-            // TODO: This is temporary; probably the edges object need to be located in the scene
-            // Need to solve Z-fighting with models in that case
-            // const model = this.context.items.ifcModels[0];
             Object.keys(ClippingEdges.styles).forEach((styleName) => {
                 this.drawEdges(styleName);
             });
         }
         // Creates a new style that applies to all clipping edges for IFC models
-        async newStyle(styleName, categories, material = ClippingEdges.defaultMaterial) {
+        static async newStyle(styleName, categories, material = ClippingEdges.defaultMaterial) {
             const subsets = [];
-            const ids = this.context.items.ifcModels.map((model) => model.modelID);
+            const ids = ClippingEdges.context.items.ifcModels.map((model) => model.modelID);
             for (let i = 0; i < ids.length; i++) {
                 // eslint-disable-next-line no-await-in-loop
                 subsets.push(await this.newSubset(styleName, ids[i], categories));
             }
-            material.clippingPlanes = this.context.getClippingPlanes();
+            material.clippingPlanes = ClippingEdges.context.getClippingPlanes();
             ClippingEdges.styles[styleName] = {
                 ids,
                 categories,
@@ -89942,7 +89933,7 @@
                 if (!mesh.geometry.boundsTree)
                     mesh.geometry.computeBoundsTree();
             });
-            material.clippingPlanes = this.context.getClippingPlanes();
+            material.clippingPlanes = ClippingEdges.context.getClippingPlanes();
             ClippingEdges.styles[styleName] = {
                 ids,
                 categories: [],
@@ -89950,29 +89941,38 @@
                 meshes
             };
         }
-        async updateStylesGeometry() {
+        async updateStylesIfcGeometry() {
             const styleNames = Object.keys(ClippingEdges.styles);
             for (let i = 0; i < styleNames.length; i++) {
                 const name = styleNames[i];
                 const style = ClippingEdges.styles[name];
-                const ids = this.context.items.ifcModels.map((model) => model.modelID);
+                const ids = ClippingEdges.context.items.ifcModels.map((model) => model.modelID);
                 style.meshes.length = 0;
                 for (let i = 0; i < ids.length; i++) {
                     // eslint-disable-next-line no-await-in-loop
-                    style.meshes.push(await this.newSubset(name, ids[i], style.categories));
+                    style.meshes.push(await ClippingEdges.newSubset(name, ids[i], style.categories));
                 }
             }
         }
+        async updateIfcStyles() {
+            if (!this.stylesInitialized) {
+                await this.createDefaultIfcStyles();
+            }
+            if (ClippingEdges.forceStyleUpdate) {
+                await this.updateStylesIfcGeometry();
+                ClippingEdges.forceStyleUpdate = false;
+            }
+        }
         // Creates some basic styles so that users don't have to create it each time
-        async createDefaultStyles() {
+        async createDefaultIfcStyles() {
             if (Object.keys(ClippingEdges.styles).length === 0) {
-                await this.newStyle('thick', [IFCWALLSTANDARDCASE, IFCWALL, IFCSLAB, IFCSTAIRFLIGHT, IFCCOLUMN, IFCBEAM, IFCROOF], new LineMaterial({ color: 0x000000, linewidth: 0.0015 }));
-                await this.newStyle('thin', [IFCWINDOW, IFCPLATE, IFCMEMBER, IFCDOOR, IFCFURNISHINGELEMENT], new LineMaterial({ color: 0x333333, linewidth: 0.001 }));
+                await ClippingEdges.newStyle('thick', [IFCWALLSTANDARDCASE, IFCWALL, IFCSLAB, IFCSTAIRFLIGHT, IFCCOLUMN, IFCBEAM, IFCROOF], new LineMaterial({ color: 0x000000, linewidth: 0.0015 }));
+                await ClippingEdges.newStyle('thin', [IFCWINDOW, IFCPLATE, IFCMEMBER, IFCDOOR, IFCFURNISHINGELEMENT], new LineMaterial({ color: 0x333333, linewidth: 0.001 }));
                 this.stylesInitialized = true;
             }
         }
         // Creates a new subset. This allows to apply a style just to a specific set of items
-        async newSubset(styleName, modelID, categories) {
+        static async newSubset(styleName, modelID, categories) {
             const ids = await this.getItemIDs(modelID, categories);
             const manager = this.ifc.loader.ifcManager;
             if (ids.length > 0) {
@@ -89982,7 +89982,7 @@
                     customID: styleName,
                     material: ClippingEdges.invisibleMaterial,
                     removePrevious: true,
-                    scene: this.context.getScene(),
+                    scene: ClippingEdges.context.getScene(),
                     applyBVH: true
                 });
             }
@@ -89993,7 +89993,7 @@
             }
             return new Mesh();
         }
-        async getItemIDs(modelID, categories) {
+        static async getItemIDs(modelID, categories) {
             const ids = [];
             for (let j = 0; j < categories.length; j++) {
                 // eslint-disable-next-line no-await-in-loop
@@ -90003,7 +90003,7 @@
             const visibleItems = this.getVisibileItems(modelID);
             return ids.filter((id) => visibleItems.has(id));
         }
-        getVisibileItems(modelID) {
+        static getVisibileItems(modelID) {
             const visibleItems = new Set();
             const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
             if (!model)
@@ -90094,7 +90094,7 @@
             if (!Number.isNaN(edges.generatorGeometry.attributes.position.array[0])) {
                 ClippingEdges.basicEdges.geometry = edges.generatorGeometry;
                 edges.mesh.geometry.fromLineSegments(ClippingEdges.basicEdges);
-                const parent = ClippingEdges.edgesParent || this.context.getScene();
+                const parent = ClippingEdges.edgesParent || ClippingEdges.context.getScene();
                 parent.add(edges.mesh);
             }
         }
@@ -90338,9 +90338,9 @@
             };
             this.updateMaterials = () => {
                 const planes = this.context.getClippingPlanes();
-                // Applying clipping to IfcObjects only. This could be improved.
-                this.context.items.ifcModels.forEach((obj) => {
-                    const mesh = obj;
+                // Applying clipping to all subsets. then we can also filter and apply only to specified subsest as parameter
+                Object.values(this.ifc.loader.ifcManager.subsets.getAllSubsets()).forEach((subset) => {
+                    const mesh = subset.mesh;
                     if (mesh.material)
                         this.updateMaterial(mesh, planes);
                     if (mesh.userData.wireframe)
@@ -96276,6 +96276,10 @@
         this.subsetCreator = new SubsetCreator(state, this.items, this.subsets, this.BVH);
       }
 
+      getAllSubsets() {
+        return this.subsets;
+      }
+
       getSubset(modelID, material, customId) {
         const subsetID = this.getSubsetID(modelID, material, customId);
         return this.subsets[subsetID].mesh;
@@ -97896,7 +97900,8 @@
         return new MeshLambertMaterial({
           color: new Color(material.color[0], material.color[1], material.color[2]),
           opacity: material.opacity,
-          transparent: material.transparent
+          transparent: material.transparent,
+          side: DoubleSide
         });
       }
 
@@ -98433,10 +98438,15 @@
         this.serializer = serializer;
         this.BVH = BVH;
         this.IDB = IDB;
+        this.optionalCategories = {
+          [IFCSPACE]: true,
+          [IFCOPENINGELEMENT]: false
+        };
         this.API = WorkerAPIs.parser;
       }
 
       async setupOptionalCategories(config) {
+        this.optionalCategories = config;
         return this.handler.request(this.API, WorkerActions.setupOptionalCategories, {
           config
         });
@@ -98602,6 +98612,215 @@
 
     }
 
+    class IFCUtils {
+
+      constructor(state) {
+        this.state = state;
+        this.map = {};
+      }
+
+      getMapping() {
+        this.map = this.reverseElementMapping(IfcTypesMap);
+      }
+
+      releaseMapping() {
+        this.map = {};
+      }
+
+      reverseElementMapping(obj) {
+        let reverseElement = {};
+        Object.keys(obj).forEach(key => {
+          reverseElement[obj[key]] = key;
+        });
+        return reverseElement;
+      }
+
+      isA(entity, entity_class) {
+        var test = false;
+        if (entity_class) {
+          if (IfcTypesMap[entity.type] === entity_class.toUpperCase()) {
+            test = true;
+          }
+          return test;
+        } else {
+          return IfcTypesMap[entity.type];
+        }
+      }
+
+      async byId(modelID, id) {
+        return this.state.api.GetLine(modelID, id);
+      }
+
+      async idsByType(modelID, entity_class) {
+        this.getMapping();
+        let entities_ids = await this.state.api.GetLineIDsWithType(modelID, Number(this.map[entity_class.toUpperCase()]));
+        this.releaseMapping();
+        return entities_ids;
+      }
+
+      async byType(modelID, entity_class) {
+        let entities_ids = await this.idsByType(modelID, entity_class);
+        if (entities_ids !== null) {
+          this.getMapping();
+          let items = [];
+          for (let i = 0; i < entities_ids.size(); i++) {
+            let entity = await this.byId(modelID, entities_ids.get(i));
+            items.push(entity);
+          }
+          this.releaseMapping();
+          return items;
+        }
+      }
+
+    }
+
+    class Data {
+
+      constructor(state) {
+        this.state = state;
+        this.is_loaded = false;
+        this.work_plans = {};
+        this.workSchedules = {};
+        this.work_calendars = {};
+        this.work_times = {};
+        this.recurrence_patterns = {};
+        this.time_periods = {};
+        this.tasks = {};
+        this.task_times = {};
+        this.lag_times = {};
+        this.sequences = {};
+        this.utils = new IFCUtils(this.state);
+      }
+
+      async load(modelID) {
+        await this.loadTasks(modelID);
+        this.loadWorkSchedules(modelID);
+      }
+
+      async loadWorkSchedules(modelID) {
+        let workSchedules = await this.utils.byType(modelID, "IfcWorkSchedule");
+        for (let i = 0; i < workSchedules.length; i++) {
+          let workSchedule = workSchedules[i];
+          this.workSchedules[workSchedule.expressID] = {
+            "Id": workSchedule.expressID,
+            "Name": workSchedule.Name.value,
+            "Description": ((workSchedule.Description) ? workSchedule.Description.value : ""),
+            "Creators": [],
+            "CreationDate": ((workSchedule.CreationDate) ? workSchedule.CreationDate.value : ""),
+            "StartTime": ((workSchedule.StartTime) ? workSchedule.StartTime.value : ""),
+            "FinishTime": ((workSchedule.FinishTime) ? workSchedule.FinishTime.value : ""),
+            "TotalFloat": ((workSchedule.TotalFloat) ? workSchedule.TotalFloat.value : ""),
+            "RelatedObjects": [],
+          };
+        }
+        this.loadWorkScheduleRelatedObjects(modelID);
+      }
+
+      async loadWorkScheduleRelatedObjects(modelID) {
+        let relsControls = await this.utils.byType(modelID, "IfcRelAssignsToControl");
+        console.log("Rel Controls:", relsControls);
+        for (let i = 0; i < relsControls.length; i++) {
+          let relControls = relsControls[i];
+          let relatingControl = await this.utils.byId(modelID, relControls.RelatingControl.value);
+          let relatedObjects = relControls.RelatedObjects;
+          if (this.utils.isA(relatingControl, "IfcWorkSchedule")) {
+            for (var objectIndex = 0; objectIndex < relatedObjects.length; objectIndex++) {
+              this.workSchedules[relatingControl.expressID]["RelatedObjects"].push(relatedObjects[objectIndex].value);
+            }
+          }
+        }
+      }
+
+      async loadTasks(modelID) {
+        let tasks = await this.utils.byType(modelID, "IfcTask");
+        for (let i = 0; i < tasks.length; i++) {
+          let task = tasks[i];
+          this.tasks[task.expressID] = {
+            "Id": task.expressID,
+            "Name": task.Name.value,
+            "TaskTime": ((task.TaskTime) ? await this.utils.byId(modelID, task.TaskTime.value) : ""),
+            "Identification": task.Identification.value,
+            "IsMilestone": task.IsMilestone.value,
+            "IsPredecessorTo": [],
+            "IsSucessorFrom": [],
+            "Inputs": [],
+            "Resources": [],
+            "Outputs": [],
+            "Controls": [],
+            "Nests": [],
+            "IsNestedBy": [],
+            "OperatesOn": [],
+          };
+        }
+        await this.loadTaskSequence(modelID);
+        await this.loadTaskOutputs(modelID);
+        await this.loadTaskNesting(modelID);
+        await this.loadTaskOperations(modelID);
+      }
+
+      async loadTaskSequence(modelID) {
+        let relsSequence = await this.utils.idsByType(modelID, "IfcRelSequence");
+        for (let i = 0; i < relsSequence.size(); i++) {
+          let relSequenceId = relsSequence.get(i);
+          if (relSequenceId !== 0) {
+            let relSequence = await this.utils.byId(modelID, relSequenceId);
+            let related_process = relSequence.RelatedProcess.value;
+            let relatingProcess = relSequence.RelatingProcess.value;
+            this.tasks[relatingProcess]["IsPredecessorTo"].push(relSequence.expressID);
+            let successorData = {
+              "RelId": relSequence.expressID,
+              "Rel": relSequence
+            };
+            this.tasks[related_process]["IsSucessorFrom"].push(successorData);
+          }
+        }
+      }
+
+      async loadTaskOutputs(modelID) {
+        let rels_assigns_to_product = await this.utils.byType(modelID, "IfcRelAssignsToProduct");
+        for (let i = 0; i < rels_assigns_to_product.length; i++) {
+          let relAssignsToProduct = rels_assigns_to_product[i];
+          let relatingProduct = await this.utils.byId(modelID, relAssignsToProduct.RelatingProduct.value);
+          let relatedObject = await this.utils.byId(modelID, relAssignsToProduct.RelatedObjects[0].value);
+          if (this.utils.isA(relatedObject, "IfcTask")) {
+            this.tasks[relatedObject.expressID]["Outputs"].push(relatingProduct.expressID);
+          }
+        }
+      }
+
+      async loadTaskNesting(modelID) {
+        let rels_nests = await this.utils.byType(modelID, "IfcRelNests");
+        for (let i = 0; i < rels_nests.length; i++) {
+          let relNests = rels_nests[i];
+          let relating_object = await this.utils.byId(modelID, relNests.RelatingObject.value);
+          let relatedObjects = relNests.RelatedObjects;
+          if (this.utils.isA(relating_object, "IfcTask")) {
+            for (var object_index = 0; object_index < relatedObjects.length; object_index++) {
+              this.tasks[relating_object.expressID]["IsNestedBy"].push(relatedObjects[object_index].value);
+              this.tasks[relatedObjects[object_index].value]["Nests"].push(relating_object.expressID);
+            }
+          }
+        }
+      }
+
+      async loadTaskOperations(modelID) {
+        let relsAssignsToProcess = await this.utils.byType(modelID, "IfcRelAssignsToProcess");
+        for (let i = 0; i < relsAssignsToProcess.length; i++) {
+          let relAssignToProcess = relsAssignsToProcess[i];
+          let relatingProcess = await this.utils.byId(modelID, relAssignToProcess.RelatingProcess.value);
+          let relatedObjects = relAssignToProcess.RelatedObjects;
+          if (this.utils.isA(relatingProcess, "IfcTask")) {
+            for (var object_index = 0; object_index < relatedObjects.length; object_index++) {
+              this.tasks[relatingProcess.expressID]["OperatesOn"].push(relatedObjects[object_index].value);
+              console.log(relatingProcess.expressID);
+              console.log("Has Operations");
+            }
+          }
+        }
+      }
+
+    }
+
     class IFCManager {
 
       constructor() {
@@ -98615,9 +98834,11 @@
           }
         };
         this.BVH = new BvhManager();
+        this.typesMap = IfcTypesMap;
         this.parser = new IFCParser(this.state, this.BVH);
         this.subsets = new SubsetManager(this.state, this.BVH);
-        this.typesMap = IfcTypesMap;
+        this.utils = new IFCUtils(this.state);
+        this.sequenceData = new Data(this.state);
         this.properties = new PropertyManager(this.state);
         this.types = new TypeManager(this.state);
         this.cleaner = new MemoryCleaner(this.state);
@@ -98768,6 +98989,27 @@
         return this.subsets.clearSubset(modelID, customID, material);
       }
 
+      async isA(entity, entity_class) {
+        return this.utils.isA(entity, entity_class);
+      }
+
+      async getSequenceData(modelID) {
+        await this.sequenceData.load(modelID);
+        return this.sequenceData;
+      }
+
+      async byType(modelID, entityClass) {
+        return this.utils.byType(modelID, entityClass);
+      }
+
+      async byId(modelID, id) {
+        return this.utils.byId(modelID, id);
+      }
+
+      async idsByType(modelID, entityClass) {
+        return this.utils.idsByType(modelID, entityClass);
+      }
+
       async dispose() {
         IFCModel.dispose();
         await this.cleaner.dispose();
@@ -98796,6 +99038,7 @@
         this.worker = new IFCWorkerHandler(this.state, this.BVH);
         this.state.api = this.worker.webIfc;
         this.properties = this.worker.properties;
+        await this.worker.parser.setupOptionalCategories(this.parser.optionalCategories);
         this.parser = this.worker.parser;
         await this.worker.workerState.updateStateUseJson();
         await this.worker.workerState.updateStateWebIfcSettings();
@@ -113995,6 +114238,29 @@
                 binary: true,
                 maxTextureSize: 0
             };
+            this.setupGeometryIndexDraco = (meshes, geometry) => {
+                let off = 0;
+                const offsets = [];
+                for (let i = 0; i < meshes.length; i++) {
+                    offsets.push(off);
+                    // eslint-disable-next-line no-underscore-dangle
+                    off += meshes[i].geometry.attributes._expressid.count;
+                }
+                const indices = meshes.map((mesh, i) => {
+                    const index = mesh.geometry.index;
+                    return !index ? [] : new Uint32Array(index.array).map((value) => value + offsets[i]);
+                });
+                geometry.setIndex(this.flattenIndices(indices));
+            };
+            this.flattenIndices = (indices) => {
+                const indexArray = [];
+                for (let i = 0; i < indices.length; i++) {
+                    for (let j = 0; j < indices[i].length; j++) {
+                        indexArray.push(indices[i][j]);
+                    }
+                }
+                return indexArray;
+            };
         }
         dispose() {
             this.loader = null;
@@ -114038,8 +114304,8 @@
          * @ids (optional) The ids of the items to export. If not defined, the full model is exported
          */
         async exportIfcFileAsGltf(config) {
-            const { ifcFileUrl, getProperties, categories, splitByFloors, maxJSONSize, onProgress } = config;
-            const { loader, manager } = await this.setupIfcLoader();
+            const { ifcFileUrl, getProperties, categories, splitByFloors, maxJSONSize, onProgress, coordinationMatrix } = config;
+            const { loader, manager } = await this.setupIfcLoader(coordinationMatrix);
             const model = await loader.loadAsync(ifcFileUrl, (event) => {
                 if (onProgress)
                     onProgress(event.loaded, event.total, 'IFC');
@@ -114047,7 +114313,8 @@
             const result = {
                 gltf: {},
                 json: [],
-                id: ''
+                id: '',
+                coordinationMatrix: []
             };
             const projects = await manager.getAllItemsOfType(model.modelID, IFCPROJECT, true);
             if (!projects.length)
@@ -114056,6 +114323,7 @@
             if (!GUID)
                 throw new Error('The found IfcProject does not have a GUID');
             result.id = GUID.value;
+            result.coordinationMatrix = await manager.ifcAPI.GetCoordinationMatrix(0);
             let allIdsByFloor = {};
             let floorNames = [];
             if (splitByFloors) {
@@ -114088,7 +114356,7 @@
                 await this.getModelsWithoutCategories(result, splitByFloors, floorNames, allIdsByFloor, model);
             }
         }
-        async setupIfcLoader() {
+        async setupIfcLoader(coordinationMatrix) {
             const loader = new IFCLoader();
             this.tempIfcLoader = loader;
             const state = this.IFC.loader.ifcManager.state;
@@ -114099,7 +114367,14 @@
                 await manager.useWebWorkers(true, state.worker.path);
             if (state.webIfcSettings)
                 await manager.applyWebIfcConfig(state.webIfcSettings);
+            await manager.parser.setupOptionalCategories(this.IFC.loader.ifcManager.parser.optionalCategories);
+            if (coordinationMatrix) {
+                await this.overrideCoordMatrix(manager, coordinationMatrix);
+            }
             return { loader, manager };
+        }
+        async overrideCoordMatrix(manager, coordinationMatrix) {
+            manager.setupCoordinationMatrix(coordinationMatrix);
         }
         async getModelsByCategory(categories, result, manager, splitByFloors, floorNames, allIdsByFloor, model, onProgress) {
             var _a;
@@ -114346,9 +114621,20 @@
             return meshes;
         }
         getGeometry(meshes) {
+            // eslint-disable-next-line no-underscore-dangle
+            const parseDraco = meshes.length <= 1
+                ? false
+                : meshes[0].geometry.attributes.position.array !==
+                    meshes[1].geometry.attributes.position.array;
             const geometry = new BufferGeometry();
-            this.setupGeometryAttributes(geometry, meshes);
-            this.setupGeometryIndex(meshes, geometry);
+            if (parseDraco) {
+                this.setupGeometryAttributesDraco(geometry, meshes);
+                this.setupGeometryIndexDraco(meshes, geometry);
+            }
+            else {
+                this.setupGeometryAttributes(geometry, meshes);
+                this.setupGeometryIndex(meshes, geometry);
+            }
             this.setupGroups(meshes, geometry);
             return geometry;
         }
@@ -114357,6 +114643,34 @@
             geometry.setAttribute('expressID', meshes[0].geometry.attributes._expressid);
             geometry.setAttribute('position', meshes[0].geometry.attributes.position);
             geometry.setAttribute('normal', meshes[0].geometry.attributes.normal);
+        }
+        setupGeometryAttributesDraco(geometry, meshes) {
+            let intArraryLength = 0;
+            let floatArrayLength = 0;
+            for (let i = 0; i < meshes.length; i++) {
+                const mesh = meshes[i];
+                const attributes = mesh.geometry.attributes;
+                // eslint-disable-next-line no-underscore-dangle
+                intArraryLength += attributes._expressid.array.length;
+                floatArrayLength += attributes.position.array.length;
+            }
+            const expressidArray = new Uint32Array(intArraryLength);
+            const positionArray = new Float32Array(floatArrayLength);
+            const normalArray = new Float32Array(floatArrayLength);
+            this.fillArray(meshes, '_expressid', expressidArray);
+            this.fillArray(meshes, 'position', positionArray);
+            this.fillArray(meshes, 'normal', normalArray);
+            geometry.setAttribute('expressID', new BufferAttribute(expressidArray, 1));
+            geometry.setAttribute('position', new BufferAttribute(positionArray, 3));
+            geometry.setAttribute('normal', new BufferAttribute(normalArray, 3));
+        }
+        fillArray(meshes, key, arr) {
+            let offset = 0;
+            for (let i = 0; i < meshes.length; i++) {
+                const mesh = meshes[i];
+                arr.set(mesh.geometry.attributes[key].array, offset);
+                offset += mesh.geometry.attributes[key].array.length;
+            }
         }
         setupGeometryIndex(meshes, geometry) {
             const indices = meshes.map((mesh) => {
@@ -114886,6 +115200,7 @@
             this.cv = openCV;
         }
         async vectorize(bucketWidth) {
+            this.polygons = [];
             this.setupCamera();
             this.updateBucketDimensions(bucketWidth);
             const { size, center } = this.getSizeAndCenter();

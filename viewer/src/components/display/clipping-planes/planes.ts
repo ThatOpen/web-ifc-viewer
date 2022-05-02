@@ -11,7 +11,6 @@ import {
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 import { IfcComponent } from '../../../base-types';
 import { ClippingEdges } from './clipping-edges';
-import { IfcManager } from '../../ifc';
 import { IfcContext } from '../../context';
 
 export class IfcPlane extends IfcComponent {
@@ -39,7 +38,6 @@ export class IfcPlane extends IfcComponent {
 
   constructor(
     context: IfcContext,
-    ifc: IfcManager,
     origin: Vector3,
     normal: Vector3,
     onStartDragging: Function,
@@ -59,7 +57,7 @@ export class IfcPlane extends IfcComponent {
     this.setupEvents(onStartDragging, onEndDragging);
     this.plane.setFromNormalAndCoplanarPoint(normal, origin);
 
-    this.edges = new ClippingEdges(this.context, this.plane, ifc);
+    this.edges = new ClippingEdges(this.plane);
     this.edgesActive = edgesEnabled;
   }
 

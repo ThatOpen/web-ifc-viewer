@@ -140,4 +140,3 @@ dropBoxButton.addEventListener('click', () => {
   dropBoxButton.blur();
   viewer.dropbox.loadDropboxIfc();
 });
-

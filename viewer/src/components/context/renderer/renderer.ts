@@ -19,6 +19,7 @@ export class IfcRenderer extends IfcComponent {
   renderer: RendererAPI = this.basicRenderer;
 
   postProductionActive = false;
+  blocked = false;
 
   private readonly container: HTMLElement;
   private readonly context: IfcContext;
@@ -59,6 +60,7 @@ export class IfcRenderer extends IfcComponent {
   }
 
   update(_delta: number) {
+    if (this.blocked) return;
     const scene = this.context.getScene();
     const camera = this.context.getCamera();
     this.renderer.render(scene, camera);
@@ -78,27 +80,30 @@ export class IfcRenderer extends IfcComponent {
     this.postProductionRenderer.setSize(this.container.clientWidth, this.container.clientHeight);
   }
 
-  newScreenshot(usePostproduction = false, camera?: Camera, dimensions?: Vector2) {
-    const domElement = usePostproduction
-      ? this.basicRenderer.domElement
-      : this.postProductionRenderer.renderer.domElement;
-
+  newScreenshot(camera?: Camera, dimensions?: Vector2) {
     const previousDimensions = this.getSize();
 
+    const domElement = this.basicRenderer.domElement;
+    const tempCanvas = domElement.cloneNode(true) as HTMLCanvasElement;
+
+    // Using a new renderer to make screenshots without updating what the user sees in the canvas
+    const tempRenderer = new WebGLRenderer({ canvas: tempCanvas, antialias: true });
+    tempRenderer.localClippingEnabled = true;
+
     if (dimensions) {
-      this.basicRenderer.setSize(dimensions.x, dimensions.y);
+      tempRenderer.setSize(dimensions.x, dimensions.y);
       this.context.ifcCamera.updateAspect(dimensions);
     }
 
     const scene = this.context.getScene();
     const cameraToRender = camera || this.context.getCamera();
-    this.renderer.render(scene, cameraToRender);
-    const result = domElement.toDataURL();
+    tempRenderer.render(scene, cameraToRender);
+    const result = tempRenderer.domElement.toDataURL();
 
-    if (dimensions) {
-      this.basicRenderer.setSize(previousDimensions.x, previousDimensions.y);
-      this.context.ifcCamera.updateAspect(previousDimensions);
-    }
+    if (dimensions) this.context.ifcCamera.updateAspect(previousDimensions);
+
+    tempRenderer.dispose();
+    tempCanvas.remove();
 
     return result;
   }
