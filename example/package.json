@@ -28,7 +28,6 @@
     "jspdf": "^2.4.0",
     "stats.js": "0.17.0",
     "three": "0.135",
-    "web-ifc": "0.0.33",
-    "web-ifc-viewer": "1.0.169"
+    "web-ifc": "0.0.33"
   }
 }

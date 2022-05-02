@@ -1,10 +1,10 @@
-import { IfcViewerAPI } from 'web-ifc-viewer';
+import { IfcViewerAPI } from '../viewer/dist/index';
 import { createSideMenuButton } from './utils/gui-creator';
 import {
   IFCSPACE, IFCOPENINGELEMENT, IFCWALLSTANDARDCASE, IFCWALL, IFCWINDOW, IFCCURTAINWALL, IFCMEMBER, IFCPLATE
 } from 'web-ifc';
 import { MeshBasicMaterial, LineBasicMaterial, Color } from 'three';
-import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
+import { ClippingEdges } from '../viewer/dist/components/display/clipping-planes/clipping-edges';
 import Stats from 'stats.js/src/Stats';
 
 const container = document.getElementById('viewer-container');
@@ -78,7 +78,7 @@ const loadIfc = async (event) => {
   model = await viewer.IFC.loadIfc(event.target.files[0], false);
   model.material.forEach(mat => mat.side = 2);
 
-  if(first) first = false
+  if (first) first = false;
   else {
     ClippingEdges.forceStyleUpdate = true;
   }
@@ -140,4 +140,50 @@ dropBoxButton.addEventListener('click', () => {
   dropBoxButton.blur();
   viewer.dropbox.loadDropboxIfc();
 });
+
+function createList(array) {
+  const container = document.createElement('div');
+  container.setAttribute('class', 'floating-top');
+
+  array.forEach(function(rowData) {
+    const row = document.createElement('input');
+    const label = document.createElement('label');
+    row.setAttribute('type', 'radio');
+    row.setAttribute('value', rowData);
+    row.setAttribute('id', rowData);
+    row.setAttribute('name', 'floorselector');
+    row.onclick = async () => viewer.plans.goTo(0, rowData, true).then(() => console.log(rowData));
+
+    label.setAttribute('for', rowData);
+    label.innerText = rowData;
+
+    container.appendChild(row);
+    container.appendChild(label);
+  });
+
+  document.body.appendChild(container);
+}
+
+
+let planNames = [];
+const mode2dButton = createSideMenuButton('./resources/2d-icon.png');
+mode2dButton.addEventListener('click', async () => {
+  dropBoxButton.blur();
+  await viewer.plans.computeAllPlanViews(0);
+
+  const edgesName = 'exampleEdges';
+  const lineMaterial = new LineBasicMaterial({ color: 0x000000 });
+  const meshMaterial = new MeshBasicMaterial();
+  await viewer.edges.create(edgesName, 0, lineMaterial, meshMaterial);
+  viewer.edges.toggle(edgesName, true);
+
+  viewer.shadowDropper.shadows[0].root.visible = false;
+
+  const currentPlans = viewer.plans.planLists[0];
+  planNames = Object.keys(currentPlans);
+  createList(planNames);
+  await viewer.plans.goTo(0, planNames[0], true);
+
+});
+
 

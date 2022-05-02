@@ -266,10 +266,14 @@ export class ClippingEdges {
         applyBVH: true
       });
     }
-    const subset = manager.getSubset(modelID, ClippingEdges.invisibleMaterial, styleName);
-    if (subset) {
-      manager.clearSubset(modelID, styleName, ClippingEdges.invisibleMaterial);
-      return subset;
+    try {
+      const subset = manager.getSubset(modelID, ClippingEdges.invisibleMaterial, styleName);
+      if (subset) {
+        manager.clearSubset(modelID, styleName, ClippingEdges.invisibleMaterial);
+        return subset;
+      }
+    } catch (e) {
+      console.error(e);
     }
     return new Mesh();
   }

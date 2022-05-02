@@ -1,4 +1,4 @@
-import resolve from '@rollup/plugin-node-resolve';
+import {nodeResolve} from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 
 export default {
@@ -8,5 +8,5 @@ export default {
     format: 'iife',
     inlineDynamicImports: true, //Necessary for jspdf
   },
-  plugins: [ resolve(), commonjs() ]
+  plugins: [ nodeResolve(), commonjs() ]
 };

@@ -90577,7 +90577,7 @@
         getAll(modelID) {
             const currentPlans = this.planLists[modelID];
             if (!currentPlans)
-                throw new Error("The requested model doesn't have floor plans generated");
+                throw new Error('The requested model doesn\'t have floor plans generated');
             return Object.keys(currentPlans);
         }
         async create(config) {
@@ -90591,6 +90591,7 @@
                 return;
             currentPlanlist[name] = { modelID, name, ortho, expressID };
             await this.createClippingPlane(config, currentPlanlist[name]);
+            console.log(currentPlanlist);
         }
         async goTo(modelID, name, animate = false) {
             var _a;
@@ -90631,7 +90632,7 @@
                 // eslint-disable-next-line no-await-in-loop
                 await this.create({
                     modelID,
-                    name: this.getFloorplanName(storeys[i]),
+                    name: this.getFloorplanName(storeys[i]) + i,
                     point: new Vector3(0, elevation + this.defaultSectionOffset, 0),
                     normal: new Vector3(0, -1, 0),
                     rotation: 0,
@@ -90649,13 +90650,16 @@
             }
         }
         async createClippingPlane(config, plan) {
+            console.log('into creating clippingplane', config);
             if (config.normal && config.point) {
+                console.log('into IF  creating clippingplane');
                 const { normal, point } = config;
                 const plane = this.clipper.createFromNormalAndCoplanarPoint(normal, point, true);
                 plane.visible = false;
                 plane.active = false;
                 plan.plane = plane;
                 await plane.edges.updateEdges();
+                console.log(plane);
                 plane.edges.visible = false;
             }
         }
@@ -90667,6 +90671,7 @@
             if (!this.storeys[modelID]) {
                 this.storeys[modelID] = await this.ifc.getAllItemsOfType(modelID, IFCBUILDINGSTOREY, true);
             }
+            console.log('thistoreys', this.storeys);
         }
         async getSiteCoords(modelID) {
             const building = await this.getBuilding(modelID);
@@ -115493,7 +115498,7 @@
       model = await viewer.IFC.loadIfc(event.target.files[0], false);
       model.material.forEach(mat => mat.side = 2);
 
-      if(first) first = false;
+      if (first) first = false;
       else {
         ClippingEdges.forceStyleUpdate = true;
       }
@@ -115554,6 +115559,51 @@
     dropBoxButton.addEventListener('click', () => {
       dropBoxButton.blur();
       viewer.dropbox.loadDropboxIfc();
+    });
+
+    function createList(array) {
+      const container = document.createElement('div');
+      container.setAttribute('class', 'floating-top');
+
+      array.forEach(function(rowData) {
+        const row = document.createElement('input');
+        const label = document.createElement('label');
+        row.setAttribute('type', 'radio');
+        row.setAttribute('value', rowData);
+        row.setAttribute('id', rowData);
+        row.setAttribute('name', 'floorselector');
+        row.onclick = async () => viewer.plans.goTo(0, rowData, true).then(() => console.log(rowData));
+
+        label.setAttribute('for', rowData);
+        label.innerText = rowData;
+
+        container.appendChild(row);
+        container.appendChild(label);
+      });
+
+      document.body.appendChild(container);
+    }
+
+
+    let planNames = [];
+    const mode2dButton = createSideMenuButton('./resources/2d-icon.png');
+    mode2dButton.addEventListener('click', async () => {
+      dropBoxButton.blur();
+      await viewer.plans.computeAllPlanViews(0);
+
+      const edgesName = 'exampleEdges';
+      const lineMaterial = new LineBasicMaterial({ color: 0x000000 });
+      const meshMaterial = new MeshBasicMaterial();
+      await viewer.edges.create(edgesName, 0, lineMaterial, meshMaterial);
+      viewer.edges.toggle(edgesName, true);
+
+      viewer.shadowDropper.shadows[0].root.visible = false;
+
+      const currentPlans = viewer.plans.planLists[0];
+      planNames = Object.keys(currentPlans);
+      createList(planNames);
+      await viewer.plans.goTo(0, planNames[0], true);
+
     });
 
 }());
