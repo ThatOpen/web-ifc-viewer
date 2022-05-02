@@ -1,7 +1,7 @@
 <p align="center">
   <a href="https://ifcjs.github.io/info/">ifc.js</a>
   |
-  <a href="https://https://ifcjs.github.io/info/docs/Guide/web-ifc-viewer/Introduction">documentation</a>
+  <a href="https://ifcjs.github.io/info/docs/Guide/web-ifc-viewer/Introduction">documentation</a>
   |
   <a href="https://ifcjs.github.io/web-ifc-viewer/example/index">demo</a>
   |
@@ -10,8 +10,6 @@
   <a href="https://github.com/IFCjs/web-ifc-viewer/tree/master/example">usage example</a>
   |
   <a href="https://www.npmjs.com/package/web-ifc-viewer">npm package</a>
-  |
-  <a href="https://github.com/IFCjs/web-ifc-viewer/blob/main/contributing.md">contributing</a>
 </p>
 
 <img src="banner.png">
@@ -30,7 +28,7 @@ Check out their `README` files to better understand where the project currently 
 
 ## Documentation
 
-Check out [our official docs](https://ifcjs.github.io/info/docs/Guide/web-ifc-viewer/Introduction) for API reference, guides and tutorials.
+Check out [our official docs](https://github.com/IFCjs/web-ifc-viewer/blob/master/CONTRIBUTING.md) for API reference, guides and tutorials.
 
 ## Install
 
@@ -45,8 +43,8 @@ import { IfcViewerAPI } from 'web-ifc-viewer';
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container });
-viewer.addAxes();
-viewer.addGrid();
+viewer.axes.setAxes();
+viewer.grid.setGrid();
 
 const input = document.getElementById("file-input");
 
@@ -113,6 +111,6 @@ This project consists of the following folders:
 
 Want to help out? Great!
 
-Please checkout [our contribution suggestsions](https://github.com/IFCjs/web-ifc-viewer/blob/main/contributing.md) or speak to us directly in [Discord](https://discord.gg/FXfyR4XrKT).
+Please checkout [our contribution suggestsions](https://github.com/IFCjs/web-ifc-viewer/blob/master/CONTRIBUTING.md) or speak to us directly in [Discord](https://discord.gg/FXfyR4XrKT).
 
 

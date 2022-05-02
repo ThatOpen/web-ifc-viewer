@@ -57,10 +57,13 @@ export class IfcCamera extends IfcComponent {
   navMode: NavModeManager;
   currentNavMode: NavigationMode;
 
-  public readonly onChange = new LiteEvent<any>();
-  public readonly onChangeProjection = new LiteEvent<Camera>();
+  readonly onChange = new LiteEvent<any>();
+  readonly onChangeProjection = new LiteEvent<Camera>();
+
   private readonly context: IfcContext;
   private readonly projectionManager: ProjectionManager;
+
+  private previousUserInput: any = {};
 
   constructor(context: IfcContext) {
     super(context);
@@ -173,6 +176,26 @@ export class IfcCamera extends IfcComponent {
   async targetItem(mesh: Mesh) {
     const center = this.context.getCenter(mesh);
     await this.cameraControls.moveTo(center.x, center.y, center.z, true);
+  }
+
+  toggleUserInput(active: boolean) {
+    if (active) {
+      if (Object.keys(this.previousUserInput).length === 0) return;
+      this.cameraControls.mouseButtons.left = this.previousUserInput.left;
+      this.cameraControls.mouseButtons.right = this.previousUserInput.right;
+      this.cameraControls.mouseButtons.middle = this.previousUserInput.middle;
+      this.cameraControls.mouseButtons.wheel = this.previousUserInput.wheel;
+    } else {
+      this.previousUserInput.left = this.cameraControls.mouseButtons.left;
+      this.previousUserInput.right = this.cameraControls.mouseButtons.right;
+      this.previousUserInput.middle = this.cameraControls.mouseButtons.middle;
+      this.previousUserInput.wheel = this.cameraControls.mouseButtons.wheel;
+
+      this.cameraControls.mouseButtons.left = 0;
+      this.cameraControls.mouseButtons.right = 0;
+      this.cameraControls.mouseButtons.middle = 0;
+      this.cameraControls.mouseButtons.wheel = 0;
+    }
   }
 
   private setOrthoCameraAspect(dims: Vector2) {
