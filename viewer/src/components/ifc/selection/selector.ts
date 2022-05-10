@@ -55,11 +55,12 @@ export class IfcSelector {
   /**
    * Highlights the item pointed by the cursor and gets is properties.
    * @focusSelection If true, animate the perspectiveCamera to focus the current selection
+   * @removePrevious whether to remove the previous subset
    */
-  async pickIfcItem(focusSelection = false) {
+  async pickIfcItem(focusSelection = false, removePrevious = true) {
     const found = this.context.castRayIfc();
     if (!found) return null;
-    const result = await this.selection.pick(found, focusSelection);
+    const result = await this.selection.pick(found, focusSelection, removePrevious);
     if (result == null || result.modelID == null || result.id == null) return null;
     return result;
   }
@@ -67,15 +68,16 @@ export class IfcSelector {
   /**
    * Highlights the item pointed by the cursor and gets is properties, without applying any material to it.
    * @focusSelection If true, animate the perspectiveCamera to focus the current selection
+   * @removePrevious whether to remove the previous subset
    */
-  async highlightIfcItem(focusSelection = false) {
+  async highlightIfcItem(focusSelection = false, removePrevious = true) {
     const found = this.context.castRayIfc();
     if (!found) return null;
 
     const model = found.object as IFCModel;
     this.fadeAwayModel(model);
 
-    const result = await this.highlight.pick(found, focusSelection);
+    const result = await this.highlight.pick(found, focusSelection, removePrevious);
     if (result == null || result.modelID == null || result.id == null) return null;
     return result;
   }
@@ -85,9 +87,15 @@ export class IfcSelector {
    * @modelID ID of the IFC model.
    * @id Express ID of the item.
    * @focusSelection If true, animate the perspectiveCamera to focus the current selection
+   * @removePrevious whether to remove the previous subset
    */
-  async pickIfcItemsByID(modelID: number, ids: number[], focusSelection = false) {
-    await this.selection.pickByID(modelID, ids, focusSelection);
+  async pickIfcItemsByID(
+    modelID: number,
+    ids: number[],
+    focusSelection = false,
+    removePrevious = true
+  ) {
+    await this.selection.pickByID(modelID, ids, focusSelection, removePrevious);
   }
 
   /**
@@ -95,9 +103,15 @@ export class IfcSelector {
    * @modelID ID of the IFC model.
    * @id Express ID of the item.
    * @focusSelection If true, animate the perspectiveCamera to focus the current selection
+   * @removePrevious whether to remove the previous subset
    */
-  async prepickIfcItemsByID(modelID: number, ids: number[], focusSelection = false) {
-    await this.preselection.pickByID(modelID, ids, focusSelection);
+  async prepickIfcItemsByID(
+    modelID: number,
+    ids: number[],
+    focusSelection = false,
+    removePrevious = true
+  ) {
+    await this.preselection.pickByID(modelID, ids, focusSelection, removePrevious);
   }
 
   /**
@@ -106,11 +120,18 @@ export class IfcSelector {
    * @id Express ID of the item.
    * @focusSelection If true, animate the perspectiveCamera to focus the current selection
    * @mesh Mesh to fade away. By default it's the IFCModel
+   * @removePrevious whether to remove the previous subset
    */
-  async highlightIfcItemsByID(modelID: number, ids: number[], focusSelection = false, mesh?: Mesh) {
+  async highlightIfcItemsByID(
+    modelID: number,
+    ids: number[],
+    focusSelection = false,
+    mesh?: Mesh,
+    removePrevious = true
+  ) {
     const model = (mesh as IFCModel) || this.context.items.ifcModels[modelID];
     this.fadeAwayModel(model);
-    await this.highlight.pickByID(modelID, ids, focusSelection);
+    await this.highlight.pickByID(modelID, ids, focusSelection, removePrevious);
   }
 
   /**

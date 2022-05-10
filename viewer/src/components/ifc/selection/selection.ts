@@ -32,7 +32,7 @@ export class IfcSelection extends IfcComponent {
     (this.context as any) = null;
   }
 
-  pick = async (item: Intersection, focusSelection = false) => {
+  pick = async (item: Intersection, focusSelection = false, removePrevious = true) => {
     if (this.selected === item.faceIndex || item.faceIndex == null) return null;
     this.selected = item.faceIndex;
     const mesh = item.object as IfcMesh;
@@ -40,7 +40,7 @@ export class IfcSelection extends IfcComponent {
     if (id === undefined) return null;
     this.hideSelection(mesh);
     this.modelID = mesh.modelID;
-    this.newSelection([id]);
+    this.newSelection([id], removePrevious);
     if (focusSelection) this.focusSelection();
     return { modelID: this.modelID, id };
   };
@@ -50,18 +50,23 @@ export class IfcSelection extends IfcComponent {
     this.loader.ifcManager.removeSubset(this.modelID, this.material);
   }
 
-  pickByID = async (modelID: number, ids: number[], focusSelection = false) => {
+  pickByID = async (
+    modelID: number,
+    ids: number[],
+    focusSelection = false,
+    removePrevious = true
+  ) => {
     this.modelID = modelID;
-    this.newSelection(ids);
+    this.newSelection(ids, removePrevious);
     if (focusSelection) await this.focusSelection();
   };
 
-  newSelection = (ids: number[]) => {
+  newSelection = (ids: number[], removePrevious: boolean) => {
     const mesh = this.loader.ifcManager.createSubset({
       scene: this.scene,
       modelID: this.modelID,
       ids,
-      removePrevious: true,
+      removePrevious,
       material: this.material
     });
     if (mesh) {

@@ -90743,7 +90743,9 @@
             this.context = context;
         }
         dispose() {
-            disposeMeshRecursively(this.grid);
+            if (this.grid) {
+                disposeMeshRecursively(this.grid);
+            }
             this.grid = null;
         }
         setGrid(size, divisions, colorCenterLine, colorGrid) {
@@ -90765,7 +90767,9 @@
             this.context = context;
         }
         dispose() {
-            disposeMeshRecursively(this.axes);
+            if (this.axes) {
+                disposeMeshRecursively(this.axes);
+            }
             this.axes = null;
         }
         setAxes(size) {
@@ -99096,7 +99100,7 @@
             super(context);
             this.context = context;
             this.mesh = null;
-            this.pick = async (item, focusSelection = false) => {
+            this.pick = async (item, focusSelection = false, removePrevious = true) => {
                 if (this.selected === item.faceIndex || item.faceIndex == null)
                     return null;
                 this.selected = item.faceIndex;
@@ -99106,23 +99110,23 @@
                     return null;
                 this.hideSelection(mesh);
                 this.modelID = mesh.modelID;
-                this.newSelection([id]);
+                this.newSelection([id], removePrevious);
                 if (focusSelection)
                     this.focusSelection();
                 return { modelID: this.modelID, id };
             };
-            this.pickByID = async (modelID, ids, focusSelection = false) => {
+            this.pickByID = async (modelID, ids, focusSelection = false, removePrevious = true) => {
                 this.modelID = modelID;
-                this.newSelection(ids);
+                this.newSelection(ids, removePrevious);
                 if (focusSelection)
                     await this.focusSelection();
             };
-            this.newSelection = (ids) => {
+            this.newSelection = (ids, removePrevious) => {
                 const mesh = this.loader.ifcManager.createSubset({
                     scene: this.scene,
                     modelID: this.modelID,
                     ids,
-                    removePrevious: true,
+                    removePrevious,
                     material: this.material
                 });
                 if (mesh) {
@@ -99205,12 +99209,13 @@
         /**
          * Highlights the item pointed by the cursor and gets is properties.
          * @focusSelection If true, animate the perspectiveCamera to focus the current selection
+         * @removePrevious whether to remove the previous subset
          */
-        async pickIfcItem(focusSelection = false) {
+        async pickIfcItem(focusSelection = false, removePrevious = true) {
             const found = this.context.castRayIfc();
             if (!found)
                 return null;
-            const result = await this.selection.pick(found, focusSelection);
+            const result = await this.selection.pick(found, focusSelection, removePrevious);
             if (result == null || result.modelID == null || result.id == null)
                 return null;
             return result;
@@ -99218,14 +99223,15 @@
         /**
          * Highlights the item pointed by the cursor and gets is properties, without applying any material to it.
          * @focusSelection If true, animate the perspectiveCamera to focus the current selection
+         * @removePrevious whether to remove the previous subset
          */
-        async highlightIfcItem(focusSelection = false) {
+        async highlightIfcItem(focusSelection = false, removePrevious = true) {
             const found = this.context.castRayIfc();
             if (!found)
                 return null;
             const model = found.object;
             this.fadeAwayModel(model);
-            const result = await this.highlight.pick(found, focusSelection);
+            const result = await this.highlight.pick(found, focusSelection, removePrevious);
             if (result == null || result.modelID == null || result.id == null)
                 return null;
             return result;
@@ -99235,18 +99241,20 @@
          * @modelID ID of the IFC model.
          * @id Express ID of the item.
          * @focusSelection If true, animate the perspectiveCamera to focus the current selection
+         * @removePrevious whether to remove the previous subset
          */
-        async pickIfcItemsByID(modelID, ids, focusSelection = false) {
-            await this.selection.pickByID(modelID, ids, focusSelection);
+        async pickIfcItemsByID(modelID, ids, focusSelection = false, removePrevious = true) {
+            await this.selection.pickByID(modelID, ids, focusSelection, removePrevious);
         }
         /**
          * Highlights the item with the given ID with the prepicking material.
          * @modelID ID of the IFC model.
          * @id Express ID of the item.
          * @focusSelection If true, animate the perspectiveCamera to focus the current selection
+         * @removePrevious whether to remove the previous subset
          */
-        async prepickIfcItemsByID(modelID, ids, focusSelection = false) {
-            await this.preselection.pickByID(modelID, ids, focusSelection);
+        async prepickIfcItemsByID(modelID, ids, focusSelection = false, removePrevious = true) {
+            await this.preselection.pickByID(modelID, ids, focusSelection, removePrevious);
         }
         /**
          * Highlights the item with the given ID and fades away the model.
@@ -99254,11 +99262,12 @@
          * @id Express ID of the item.
          * @focusSelection If true, animate the perspectiveCamera to focus the current selection
          * @mesh Mesh to fade away. By default it's the IFCModel
+         * @removePrevious whether to remove the previous subset
          */
-        async highlightIfcItemsByID(modelID, ids, focusSelection = false, mesh) {
+        async highlightIfcItemsByID(modelID, ids, focusSelection = false, mesh, removePrevious = true) {
             const model = mesh || this.context.items.ifcModels[modelID];
             this.fadeAwayModel(model);
-            await this.highlight.pickByID(modelID, ids, focusSelection);
+            await this.highlight.pickByID(modelID, ids, focusSelection, removePrevious);
         }
         /**
          * Unapplies the picking material.
@@ -101780,6 +101789,7 @@
                 this.restoreRendererBackgroundColor();
         }
         dispose() {
+            var _a, _b;
             this.basicRenderer.domElement.remove();
             this.basicRenderer.dispose();
             this.postProductionRenderer.dispose();
@@ -101789,6 +101799,8 @@
             this.renderer = null;
             this.container = null;
             this.context = null;
+            (_a = this.tempRenderer) === null || _a === void 0 ? void 0 : _a.dispose();
+            (_b = this.tempCanvas) === null || _b === void 0 ? void 0 : _b.remove();
         }
         update(_delta) {
             if (this.blocked)
@@ -101811,20 +101823,20 @@
             const domElement = this.basicRenderer.domElement;
             const tempCanvas = domElement.cloneNode(true);
             // Using a new renderer to make screenshots without updating what the user sees in the canvas
-            const tempRenderer = new WebGLRenderer({ canvas: tempCanvas, antialias: true });
-            tempRenderer.localClippingEnabled = true;
+            if (!this.tempRenderer) {
+                this.tempRenderer = new WebGLRenderer({ canvas: tempCanvas, antialias: true });
+                this.tempRenderer.localClippingEnabled = true;
+            }
             if (dimensions) {
-                tempRenderer.setSize(dimensions.x, dimensions.y);
+                this.tempRenderer.setSize(dimensions.x, dimensions.y);
                 this.context.ifcCamera.updateAspect(dimensions);
             }
             const scene = this.context.getScene();
             const cameraToRender = camera || this.context.getCamera();
-            tempRenderer.render(scene, cameraToRender);
-            const result = tempRenderer.domElement.toDataURL();
+            this.tempRenderer.render(scene, cameraToRender);
+            const result = this.tempRenderer.domElement.toDataURL();
             if (dimensions)
                 this.context.ifcCamera.updateAspect(previousDimensions);
-            tempRenderer.dispose();
-            tempCanvas.remove();
             return result;
         }
         setupRenderers() {
