@@ -179,6 +179,7 @@ export class IfcCamera extends IfcComponent {
   }
 
   toggleUserInput(active: boolean) {
+    console.log(this.previousUserInput);
     if (active) {
       if (Object.keys(this.previousUserInput).length === 0) return;
       this.cameraControls.mouseButtons.left = this.previousUserInput.left;

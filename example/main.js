@@ -6,6 +6,7 @@ import {
 import { MeshBasicMaterial, LineBasicMaterial, Color } from 'three';
 import { ClippingEdges } from '../viewer/dist/components/display/clipping-planes/clipping-edges';
 import Stats from 'stats.js/src/Stats';
+import jsPDF from 'jspdf';
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255, 255) });
@@ -141,6 +142,10 @@ dropBoxButton.addEventListener('click', () => {
   viewer.dropbox.loadDropboxIfc();
 });
 
+
+let planNames = [];
+let currentPlan = 'a'
+
 function createList(array) {
   const container = document.createElement('div');
   container.setAttribute('class', 'floating-top');
@@ -152,7 +157,10 @@ function createList(array) {
     row.setAttribute('value', rowData);
     row.setAttribute('id', rowData);
     row.setAttribute('name', 'floorselector');
-    row.onclick = async () => viewer.plans.goTo(0, rowData, true).then(() => console.log(rowData));
+    row.onclick = async () => {
+      viewer.plans.goTo(0, rowData, true).then(() => console.log(rowData));
+      currentPlan = rowData
+    }
 
     label.setAttribute('for', rowData);
     label.innerText = rowData;
@@ -165,7 +173,7 @@ function createList(array) {
 }
 
 
-let planNames = [];
+
 const mode2dButton = createSideMenuButton('./resources/2d-icon.png');
 mode2dButton.addEventListener('click', async () => {
   dropBoxButton.blur();
@@ -187,3 +195,59 @@ mode2dButton.addEventListener('click', async () => {
 });
 
 
+const exportButton = createSideMenuButton('./resources/2d-icon.png');
+exportButton.addEventListener('click', async () => {
+  // const doc = new jsPDF();
+  //
+  // const planObj = viewer.plans.planLists[0];
+  //
+  // const plannames = Object.keys(planObj);
+  //
+  // console.log(planObj);
+  //
+  // viewer.pdf.newDocument('a', doc, 2);
+  //
+  // viewer.pdf.drawNamedLayer('a', planObj[plannames[2]], 'thick');
+  // viewer.pdf.drawNamedLayer('a', planObj[plannames[2]], 'thin');
+  //
+  // const result = viewer.pdf.exportPDF('a', 'test');
+  // const link = document.createElement('a');
+  // link.download = 'floorplan.dxf';
+  // link.href = URL.createObjectURL(result);
+  // document.body.appendChild(link);
+  // link.click();
+  // link.remove();
+
+  console.log(viewer);
+  const imgData = viewer.context.renderer.renderer.domElement.toDataURL("image/jpeg", 1.0);
+  const pdf = new jsPDF();
+
+  pdf.addImage(imgData, 'JPEG', 0, 0);
+  pdf.save("download.pdf");
+
+
+});
+
+
+const exportButton2 = createSideMenuButton('./resources/2d-icon.png');
+exportButton2.addEventListener('click', async () => {
+  const doc = new jsPDF('l', 'mm', 'a4');
+
+  const planObj = viewer.plans.planLists[0];
+
+  const plannames = Object.keys(planObj);
+
+  console.log(planObj);
+
+  viewer.pdf.newDocument('a', doc, 10);
+
+  viewer.pdf.drawNamedLayer('a', planObj[currentPlan], 'thick');
+  viewer.pdf.drawNamedLayer('a', planObj[currentPlan], 'thin');
+
+
+  const result = viewer.pdf.exportPDF('a', 'test');
+  const link = document.createElement('a');
+
+
+
+});

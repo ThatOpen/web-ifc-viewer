@@ -13,7 +13,7 @@ export interface RendererAPI {
 }
 
 export class IfcRenderer extends IfcComponent {
-  basicRenderer = new WebGLRenderer({ antialias: true });
+  basicRenderer = new WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
   renderer2D = new CSS2DRenderer();
   postProductionRenderer: IfcPostproduction;
   renderer: RendererAPI = this.basicRenderer;

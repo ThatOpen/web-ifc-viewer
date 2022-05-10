@@ -5277,6 +5277,11 @@ web-ifc@0.0.33, web-ifc@^0.0.33:
   resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.33.tgz#a1eadc22dd2e683fa03064d71269850333e5c24f"
   integrity sha512-9JeOia81u7GzGf/HHgtxm/USLVJATx8ZqNxtnbXTbQEiV2Utz7qdm8LpQyrcLucMQF/9tqUxkBgAYxJITf08Zw==
 
+web-ifc@0.0.34:
+  version "0.0.34"
+  resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.34.tgz#988cc9879e340320058bd1aefab9542705c3010c"
+  integrity sha512-crrrp9VXvxZQ7n4Uia7vqx4Dlp9FQy4Z4EwB5Ok9Hd7+dtcTMe8lPOFQYR1AxzNcqBzFxFzSiXX0v6VbRJzZKA==
+
 webidl-conversions@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-5.0.0.tgz#ae59c8a00b121543a2acc65c0434f57b0fc11aff"

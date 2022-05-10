@@ -1,8 +1,10 @@
 import { Camera } from 'three';
+import CameraControls from 'camera-controls';
 import { IfcComponent, NavigationMode, NavigationModes } from '../../../../base-types';
 import { LiteEvent } from '../../../../utils/LiteEvent';
 import { IfcCamera } from '../camera';
 import { IfcContext } from '../../context';
+
 
 export class PlanControl extends IfcComponent implements NavigationMode {
   readonly mode = NavigationModes.Plan;
@@ -24,5 +26,6 @@ export class PlanControl extends IfcComponent implements NavigationMode {
     const controls = this.ifcCamera.cameraControls;
     controls.azimuthRotateSpeed = active ? 0 : this.defaultAzimuthSpeed;
     controls.polarRotateSpeed = active ? 0 : this.defaultPolarSpeed;
+    controls.mouseButtons.left = CameraControls.ACTION.ROTATE;
   }
 }
