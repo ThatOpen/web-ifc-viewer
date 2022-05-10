@@ -174,7 +174,15 @@ export class IfcClipper extends IfcComponent {
   };
 
   private updateMaterials = () => {
+    // Apply clipping to all models
     const planes = this.context.getClippingPlanes();
+    this.context.items.ifcModels.forEach((model) => {
+      if (Array.isArray(model.material)) {
+        model.material.forEach((mat) => (mat.clippingPlanes = planes));
+      } else {
+        model.material.clippingPlanes = planes;
+      }
+    });
     // Applying clipping to all subsets. then we can also filter and apply only to specified subsest as parameter
     Object.values(this.ifc.loader.ifcManager.subsets.getAllSubsets()).forEach(
       (subset: Subsets[string]) => {

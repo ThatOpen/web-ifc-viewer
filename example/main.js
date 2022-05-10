@@ -44,18 +44,20 @@ const loadIfc = async (event) => {
   // tests with glTF
   // const file = event.target.files[0];
   // const url = URL.createObjectURL(file);
-  // const result = await viewer.GLTF.exportIfcFileAsGltf({ ifcFileUrl: url, getProperties: true });
-  // console.log(result);
-
+  // const result = await viewer.GLTF.exportIfcFileAsGltf({ ifcFileUrl: url });
+  //
   // const link = document.createElement('a');
   // link.download = `${file.name}.gltf`;
   // document.body.appendChild(link);
   //
-  // result.gltf.forEach(file => {
-  //   link.href = URL.createObjectURL(file);
-  //   link.click();
+  // for(const levelName in result.gltf) {
+  //   const level = result.gltf[levelName];
+  //   for(const categoryName in level) {
+  //     const category = level[categoryName];
+  //     link.href = URL.createObjectURL(category.file);
+  //     link.click();
   //   }
-  // )
+  // }
   //
   // link.remove();
 

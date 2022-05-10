@@ -89819,7 +89819,7 @@
     };
 
     class ClippingEdges {
-        constructor(context, clippingPlane, ifc) {
+        constructor(clippingPlane) {
             this.edges = {};
             this.isVisible = true;
             this.inverseMatrix = new Matrix4();
@@ -89828,8 +89828,6 @@
             this.tempVector = new Vector3();
             this.stylesInitialized = false;
             this.clippingPlane = clippingPlane;
-            ClippingEdges.ifc = ifc;
-            ClippingEdges.context = context;
         }
         get visible() {
             return this.isVisible;
@@ -89927,7 +89925,7 @@
             };
         }
         // Creates a new style that applies to all clipping edges for generic models
-        async newStyleFromMesh(styleName, meshes, material = ClippingEdges.defaultMaterial) {
+        static async newStyleFromMesh(styleName, meshes, material = ClippingEdges.defaultMaterial) {
             const ids = meshes.map((mesh) => mesh.modelID);
             meshes.forEach((mesh) => {
                 if (!mesh.geometry.boundsTree)
@@ -90109,7 +90107,7 @@
     ClippingEdges.basicEdges = new LineSegments();
 
     class IfcPlane extends IfcComponent {
-        constructor(context, ifc, origin, normal, onStartDragging, onEndDragging, planeSize, edgesEnabled) {
+        constructor(context, origin, normal, onStartDragging, onEndDragging, planeSize, edgesEnabled) {
             super(context);
             this.arrowBoundingBox = new Mesh();
             this.isVisible = true;
@@ -90139,7 +90137,7 @@
             this.controls = this.newTransformControls();
             this.setupEvents(onStartDragging, onEndDragging);
             this.plane.setFromNormalAndCoplanarPoint(normal, origin);
-            this.edges = new ClippingEdges(this.context, this.plane, ifc);
+            this.edges = new ClippingEdges(this.plane);
             this.edgesActive = edgesEnabled;
         }
         get active() {
@@ -90273,7 +90271,7 @@
                 this.intersection = undefined;
             };
             this.createFromNormalAndCoplanarPoint = (normal, point, isPlan = false) => {
-                const plane = new IfcPlane(this.context, this.ifc, point, normal, this.activateDragging, this.deactivateDragging, this.planeSize, this.edgesEnabled);
+                const plane = new IfcPlane(this.context, point, normal, this.activateDragging, this.deactivateDragging, this.planeSize, this.edgesEnabled);
                 plane.isPlan = isPlan;
                 this.planes.push(plane);
                 this.context.addClippingPlane(plane.plane);
@@ -90337,7 +90335,16 @@
                 this.dragging = false;
             };
             this.updateMaterials = () => {
+                // Apply clipping to all models
                 const planes = this.context.getClippingPlanes();
+                this.context.items.ifcModels.forEach((model) => {
+                    if (Array.isArray(model.material)) {
+                        model.material.forEach((mat) => (mat.clippingPlanes = planes));
+                    }
+                    else {
+                        model.material.clippingPlanes = planes;
+                    }
+                });
                 // Applying clipping to all subsets. then we can also filter and apply only to specified subsest as parameter
                 Object.values(this.ifc.loader.ifcManager.subsets.getAllSubsets()).forEach((subset) => {
                     const mesh = subset.mesh;
@@ -90400,7 +90407,7 @@
             }
         }
         newPlane(intersection, worldNormal) {
-            return new IfcPlane(this.context, this.ifc, intersection.point, worldNormal, this.activateDragging, this.deactivateDragging, this.planeSize, this.edgesEnabled);
+            return new IfcPlane(this.context, intersection.point, worldNormal, this.activateDragging, this.deactivateDragging, this.planeSize, this.edgesEnabled);
         }
         updateMaterial(mesh, planes) {
             if (!Array.isArray(mesh.material)) {
@@ -101426,6 +101433,7 @@
             super(context);
             this.onChange = new LiteEvent();
             this.onChangeProjection = new LiteEvent();
+            this.previousUserInput = {};
             this.context = context;
             const dims = this.context.getDimensions();
             const aspect = dims.x / dims.y;
@@ -101511,6 +101519,26 @@
         async targetItem(mesh) {
             const center = this.context.getCenter(mesh);
             await this.cameraControls.moveTo(center.x, center.y, center.z, true);
+        }
+        toggleUserInput(active) {
+            if (active) {
+                if (Object.keys(this.previousUserInput).length === 0)
+                    return;
+                this.cameraControls.mouseButtons.left = this.previousUserInput.left;
+                this.cameraControls.mouseButtons.right = this.previousUserInput.right;
+                this.cameraControls.mouseButtons.middle = this.previousUserInput.middle;
+                this.cameraControls.mouseButtons.wheel = this.previousUserInput.wheel;
+            }
+            else {
+                this.previousUserInput.left = this.cameraControls.mouseButtons.left;
+                this.previousUserInput.right = this.cameraControls.mouseButtons.right;
+                this.previousUserInput.middle = this.cameraControls.mouseButtons.middle;
+                this.previousUserInput.wheel = this.cameraControls.mouseButtons.wheel;
+                this.cameraControls.mouseButtons.left = 0;
+                this.cameraControls.mouseButtons.right = 0;
+                this.cameraControls.mouseButtons.middle = 0;
+                this.cameraControls.mouseButtons.wheel = 0;
+            }
         }
         setOrthoCameraAspect(dims) {
             const aspect = dims.x / dims.y;
@@ -101733,6 +101761,7 @@
             this.renderer2D = new CSS2DRenderer();
             this.renderer = this.basicRenderer;
             this.postProductionActive = false;
+            this.blocked = false;
             this.context = context;
             this.container = context.options.container;
             this.setupRenderers();
@@ -101762,6 +101791,8 @@
             this.context = null;
         }
         update(_delta) {
+            if (this.blocked)
+                return;
             const scene = this.context.getScene();
             const camera = this.context.getCamera();
             this.renderer.render(scene, camera);
@@ -101775,23 +101806,25 @@
             this.renderer2D.setSize(this.container.clientWidth, this.container.clientHeight);
             this.postProductionRenderer.setSize(this.container.clientWidth, this.container.clientHeight);
         }
-        newScreenshot(usePostproduction = false, camera, dimensions) {
-            const domElement = usePostproduction
-                ? this.basicRenderer.domElement
-                : this.postProductionRenderer.renderer.domElement;
+        newScreenshot(camera, dimensions) {
             const previousDimensions = this.getSize();
+            const domElement = this.basicRenderer.domElement;
+            const tempCanvas = domElement.cloneNode(true);
+            // Using a new renderer to make screenshots without updating what the user sees in the canvas
+            const tempRenderer = new WebGLRenderer({ canvas: tempCanvas, antialias: true });
+            tempRenderer.localClippingEnabled = true;
             if (dimensions) {
-                this.basicRenderer.setSize(dimensions.x, dimensions.y);
+                tempRenderer.setSize(dimensions.x, dimensions.y);
                 this.context.ifcCamera.updateAspect(dimensions);
             }
             const scene = this.context.getScene();
             const cameraToRender = camera || this.context.getCamera();
-            this.renderer.render(scene, cameraToRender);
-            const result = domElement.toDataURL();
-            if (dimensions) {
-                this.basicRenderer.setSize(previousDimensions.x, previousDimensions.y);
+            tempRenderer.render(scene, cameraToRender);
+            const result = tempRenderer.domElement.toDataURL();
+            if (dimensions)
                 this.context.ifcCamera.updateAspect(previousDimensions);
-            }
+            tempRenderer.dispose();
+            tempCanvas.remove();
             return result;
         }
         setupRenderers() {
@@ -115199,8 +115232,14 @@
         initializeOpenCV(openCV) {
             this.cv = openCV;
         }
-        async vectorize(bucketWidth) {
+        clear() {
             this.polygons = [];
+            this.currentBucketIndex = 0;
+            this.buckets = [];
+            this.dims = { pixels: new Vector2(), real: new Vector2() };
+        }
+        async vectorize(bucketWidth) {
+            this.clear();
             this.setupCamera();
             this.updateBucketDimensions(bucketWidth);
             const { size, center } = this.getSizeAndCenter();
@@ -115232,7 +115271,7 @@
             this.bucketMesh.position.copy(bucket.position);
             await controls.fitToBox(this.bucketMesh, false);
             controls.update(0);
-            this.htmlImage.src = this.context.renderer.newScreenshot(false, this.cvCamera);
+            this.htmlImage.src = this.context.renderer.newScreenshot(this.cvCamera);
         }
         computeBucketsOrigin(size, center) {
             this.bucketsOffset.copy(center);
@@ -115346,6 +115385,8 @@
                 this.toggleVisibility(true);
                 await this.controls.reset(false);
                 this.controls.camera = this.context.getCamera();
+                if (this.onVectorizationFinished)
+                    await this.onVectorizationFinished();
             }
         }
     }
@@ -115413,6 +115454,8 @@
             this.pdf = new PDFWriter();
             this.GLTF = new GLTFManager(this.context, this.IFC);
             this.dropbox = new DropboxAPI(this.context, this.IFC);
+            ClippingEdges.ifc = this.IFC;
+            ClippingEdges.context = this.context;
         }
         /**
          * @deprecated Use `this.dropbox.loadDropboxIfc()` instead.
@@ -115774,18 +115817,20 @@
       // tests with glTF
       // const file = event.target.files[0];
       // const url = URL.createObjectURL(file);
-      // const result = await viewer.GLTF.exportIfcFileAsGltf({ ifcFileUrl: url, getProperties: true });
-      // console.log(result);
-
+      // const result = await viewer.GLTF.exportIfcFileAsGltf({ ifcFileUrl: url });
+      //
       // const link = document.createElement('a');
       // link.download = `${file.name}.gltf`;
       // document.body.appendChild(link);
       //
-      // result.gltf.forEach(file => {
-      //   link.href = URL.createObjectURL(file);
-      //   link.click();
+      // for(const levelName in result.gltf) {
+      //   const level = result.gltf[levelName];
+      //   for(const categoryName in level) {
+      //     const category = level[categoryName];
+      //     link.href = URL.createObjectURL(category.file);
+      //     link.click();
       //   }
-      // )
+      // }
       //
       // link.remove();
 
