@@ -115,8 +115,6 @@ export class ClippingEdges {
 
     (this.edges as any) = null;
     (this.clippingPlane as any) = null;
-    (ClippingEdges.context as any) = null;
-    (ClippingEdges.ifc as any) = null;
   }
 
   disposeStylesAndHelpers() {
@@ -127,6 +125,8 @@ export class ClippingEdges {
       ClippingEdges.basicEdges = new LineSegments();
     }
 
+    (ClippingEdges.context as any) = null;
+    (ClippingEdges.ifc as any) = null;
     ClippingEdges.edgesParent = undefined;
 
     if (!ClippingEdges.styles) return;

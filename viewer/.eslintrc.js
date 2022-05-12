@@ -30,6 +30,8 @@ module.exports = {
     'no-unused-vars': 'off',
     'class-methods-use-this': 'off',
     'no-await-in-loop': 'off',
+    'no-return-assign': 'off',
+    'no-restricted-syntax': 'off',
     'import/extensions': [
       'error',
       'ignorePackages',

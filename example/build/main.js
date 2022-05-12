@@ -89867,8 +89867,6 @@
             });
             this.edges = null;
             this.clippingPlane = null;
-            ClippingEdges.context = null;
-            ClippingEdges.ifc = null;
         }
         disposeStylesAndHelpers() {
             if (ClippingEdges.basicEdges) {
@@ -89877,6 +89875,8 @@
                 ClippingEdges.basicEdges = null;
                 ClippingEdges.basicEdges = new LineSegments();
             }
+            ClippingEdges.context = null;
+            ClippingEdges.ifc = null;
             ClippingEdges.edgesParent = undefined;
             if (!ClippingEdges.styles)
                 return;
@@ -99099,72 +99099,94 @@
         constructor(context, loader, material) {
             super(context);
             this.context = context;
-            this.mesh = null;
+            this.meshes = new Set();
+            // True only for prepick
+            this.fastRemovePrevious = false;
+            this.modelIDs = new Set();
+            this.selectedFaces = {};
             this.pick = async (item, focusSelection = false, removePrevious = true) => {
-                if (this.selected === item.faceIndex || item.faceIndex == null)
-                    return null;
-                this.selected = item.faceIndex;
+                var _a;
                 const mesh = item.object;
+                if (item.faceIndex === undefined || ((_a = this.selectedFaces[mesh.modelID]) === null || _a === void 0 ? void 0 : _a.has(item.faceIndex))) {
+                    return null;
+                }
                 const id = await this.loader.ifcManager.getExpressId(mesh.geometry, item.faceIndex);
                 if (id === undefined)
                     return null;
-                this.hideSelection(mesh);
-                this.modelID = mesh.modelID;
-                this.newSelection([id], removePrevious);
-                if (focusSelection)
-                    this.focusSelection();
-                return { modelID: this.modelID, id };
+                if (removePrevious) {
+                    if (this.fastRemovePrevious) {
+                        this.toggleVisibility(false);
+                        this.modelIDs.clear();
+                        this.selectedFaces = {};
+                    }
+                    else {
+                        this.unpick();
+                    }
+                }
+                if (!this.selectedFaces[mesh.modelID])
+                    this.selectedFaces[mesh.modelID] = new Set();
+                this.selectedFaces[mesh.modelID].add(item.faceIndex);
+                this.modelIDs.add(mesh.modelID);
+                const selected = this.newSelection(mesh.modelID, [id], removePrevious);
+                selected.visible = true;
+                if (focusSelection) {
+                    await this.focusSelection(selected);
+                }
+                return { modelID: mesh.modelID, id };
             };
             this.pickByID = async (modelID, ids, focusSelection = false, removePrevious = true) => {
-                this.modelID = modelID;
-                this.newSelection(ids, removePrevious);
+                if (removePrevious) {
+                    this.modelIDs.clear();
+                }
+                this.modelIDs.add(modelID);
+                const mesh = this.newSelection(modelID, ids, removePrevious);
                 if (focusSelection)
-                    await this.focusSelection();
+                    await this.focusSelection(mesh);
             };
-            this.newSelection = (ids, removePrevious) => {
+            this.newSelection = (modelID, ids, removePrevious) => {
                 const mesh = this.loader.ifcManager.createSubset({
                     scene: this.scene,
-                    modelID: this.modelID,
+                    modelID,
                     ids,
                     removePrevious,
                     material: this.material
                 });
                 if (mesh) {
-                    this.mesh = mesh;
-                    this.mesh.visible = true;
+                    this.meshes.add(mesh);
                 }
+                return mesh;
             };
             this.scene = context.getScene();
             this.loader = loader;
             if (material)
                 this.material = material;
-            this.selected = -1;
-            this.modelID = -1;
         }
         dispose() {
-            var _a, _b, _c;
-            (_a = this.mesh) === null || _a === void 0 ? void 0 : _a.removeFromParent();
-            (_b = this.mesh) === null || _b === void 0 ? void 0 : _b.geometry.dispose();
-            (_c = this.material) === null || _c === void 0 ? void 0 : _c.dispose();
-            this.mesh = null;
+            var _a;
+            this.meshes.forEach((mesh) => {
+                mesh.removeFromParent();
+                mesh.geometry.dispose();
+            });
+            (_a = this.material) === null || _a === void 0 ? void 0 : _a.dispose();
+            this.meshes = null;
             this.material = null;
             this.scene = null;
             this.loader = null;
             this.context = null;
         }
         unpick() {
-            this.mesh = null;
-            this.loader.ifcManager.removeSubset(this.modelID, this.material);
-        }
-        hideSelection(mesh) {
-            if (this.mesh && this.modelID !== undefined && this.modelID !== (mesh === null || mesh === void 0 ? void 0 : mesh.modelID)) {
-                this.mesh.visible = false;
+            for (const modelID of this.modelIDs) {
+                this.loader.ifcManager.removeSubset(modelID, this.material);
             }
+            this.modelIDs.clear();
+            this.meshes.clear();
+            this.selectedFaces = {};
         }
-        async focusSelection() {
-            if (this.mesh) {
-                await this.context.ifcCamera.targetItem(this.mesh);
-            }
+        toggleVisibility(visible) {
+            this.meshes.forEach((mesh) => (mesh.visible = visible));
+        }
+        async focusSelection(mesh) {
+            await this.context.ifcCamera.targetItem(mesh);
         }
     }
 
@@ -99177,6 +99199,7 @@
             this.defPreselectMat = this.initializeDefMaterial(0xffccff, 0.5);
             this.defHighlightMat = this.initializeDefMaterial(0xeeeeee, 0.05);
             this.preselection = new IfcSelection(context, this.ifc.loader, this.defPreselectMat);
+            this.preselection.fastRemovePrevious = true;
             this.selection = new IfcSelection(context, this.ifc.loader, this.defSelectMat);
             this.highlight = new IfcSelection(context, this.ifc.loader);
         }
@@ -99200,8 +99223,9 @@
          */
         async prePickIfcItem() {
             const found = this.context.castRayIfc();
+            // This is more efficient than destroying and recreating the subset when the user hovers away
             if (!found) {
-                this.preselection.hideSelection();
+                this.preselection.toggleVisibility(false);
                 return;
             }
             await this.preselection.pick(found);
@@ -99229,8 +99253,7 @@
             const found = this.context.castRayIfc();
             if (!found)
                 return null;
-            const model = found.object;
-            this.fadeAwayModel(model);
+            this.fadeAwayModels();
             const result = await this.highlight.pick(found, focusSelection, removePrevious);
             if (result == null || result.modelID == null || result.id == null)
                 return null;
@@ -99261,12 +99284,10 @@
          * @modelID ID of the IFC model.
          * @id Express ID of the item.
          * @focusSelection If true, animate the perspectiveCamera to focus the current selection
-         * @mesh Mesh to fade away. By default it's the IFCModel
          * @removePrevious whether to remove the previous subset
          */
-        async highlightIfcItemsByID(modelID, ids, focusSelection = false, mesh, removePrevious = true) {
-            const model = mesh || this.context.items.ifcModels[modelID];
-            this.fadeAwayModel(model);
+        async highlightIfcItemsByID(modelID, ids, focusSelection = false, removePrevious = true) {
+            this.fadeAwayModels();
             await this.highlight.pickByID(modelID, ids, focusSelection, removePrevious);
         }
         /**
@@ -99295,14 +99316,16 @@
                 fadedModel.removeFromParent();
             }
         }
-        fadeAwayModel(model) {
-            if (!model.userData[this.userDataField]) {
-                model.userData[this.userDataField] = new Mesh(model.geometry, this.defHighlightMat);
-            }
-            if (model.parent) {
-                model.parent.add(model.userData[this.userDataField]);
-                model.removeFromParent();
-            }
+        fadeAwayModels() {
+            this.context.items.ifcModels.forEach((model) => {
+                if (!model.userData[this.userDataField]) {
+                    model.userData[this.userDataField] = new Mesh(model.geometry, this.defHighlightMat);
+                }
+                if (model.parent) {
+                    model.parent.add(model.userData[this.userDataField]);
+                    model.removeFromParent();
+                }
+            });
         }
         initializeDefMaterial(color, opacity) {
             const planes = this.context.getClippingPlanes();

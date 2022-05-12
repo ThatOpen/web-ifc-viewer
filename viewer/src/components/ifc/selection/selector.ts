@@ -20,6 +20,7 @@ export class IfcSelector {
     this.defHighlightMat = this.initializeDefMaterial(0xeeeeee, 0.05);
 
     this.preselection = new IfcSelection(context, this.ifc.loader, this.defPreselectMat);
+    this.preselection.fastRemovePrevious = true;
     this.selection = new IfcSelection(context, this.ifc.loader, this.defSelectMat);
     this.highlight = new IfcSelection(context, this.ifc.loader);
   }
@@ -45,10 +46,12 @@ export class IfcSelector {
    */
   async prePickIfcItem() {
     const found = this.context.castRayIfc();
+    // This is more efficient than destroying and recreating the subset when the user hovers away
     if (!found) {
-      this.preselection.hideSelection();
+      this.preselection.toggleVisibility(false);
       return;
     }
+
     await this.preselection.pick(found);
   }
 
@@ -74,8 +77,7 @@ export class IfcSelector {
     const found = this.context.castRayIfc();
     if (!found) return null;
 
-    const model = found.object as IFCModel;
-    this.fadeAwayModel(model);
+    this.fadeAwayModels();
 
     const result = await this.highlight.pick(found, focusSelection, removePrevious);
     if (result == null || result.modelID == null || result.id == null) return null;
@@ -119,18 +121,15 @@ export class IfcSelector {
    * @modelID ID of the IFC model.
    * @id Express ID of the item.
    * @focusSelection If true, animate the perspectiveCamera to focus the current selection
-   * @mesh Mesh to fade away. By default it's the IFCModel
    * @removePrevious whether to remove the previous subset
    */
   async highlightIfcItemsByID(
     modelID: number,
     ids: number[],
     focusSelection = false,
-    mesh?: Mesh,
     removePrevious = true
   ) {
-    const model = (mesh as IFCModel) || this.context.items.ifcModels[modelID];
-    this.fadeAwayModel(model);
+    this.fadeAwayModels();
     await this.highlight.pickByID(modelID, ids, focusSelection, removePrevious);
   }
 
@@ -164,15 +163,17 @@ export class IfcSelector {
     }
   }
 
-  private fadeAwayModel(model: IFCModel) {
-    if (!model.userData[this.userDataField]) {
-      model.userData[this.userDataField] = new Mesh(model.geometry, this.defHighlightMat);
-    }
+  private fadeAwayModels() {
+    this.context.items.ifcModels.forEach((model) => {
+      if (!model.userData[this.userDataField]) {
+        model.userData[this.userDataField] = new Mesh(model.geometry, this.defHighlightMat);
+      }
 
-    if (model.parent) {
-      model.parent.add(model.userData[this.userDataField]);
-      model.removeFromParent();
-    }
+      if (model.parent) {
+        model.parent.add(model.userData[this.userDataField]);
+        model.removeFromParent();
+      }
+    });
   }
 
   private initializeDefMaterial(color: number, opacity: number) {

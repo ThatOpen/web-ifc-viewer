@@ -5,10 +5,14 @@ import { IfcComponent } from '../../../base-types';
 import { IfcContext } from '../../context';
 
 export class IfcSelection extends IfcComponent {
-  mesh: Mesh | null = null;
   material?: Material;
-  private selected: number;
-  private modelID: number;
+  meshes = new Set<Mesh>();
+
+  // True only for prepick
+  fastRemovePrevious = false;
+
+  private modelIDs = new Set<number>();
+  private selectedFaces: { [modelID: number]: Set<number> } = {};
   private loader: IFCLoader;
   private readonly scene: Scene;
 
@@ -17,15 +21,15 @@ export class IfcSelection extends IfcComponent {
     this.scene = context.getScene();
     this.loader = loader;
     if (material) this.material = material;
-    this.selected = -1;
-    this.modelID = -1;
   }
 
   dispose() {
-    this.mesh?.removeFromParent();
-    this.mesh?.geometry.dispose();
+    this.meshes.forEach((mesh) => {
+      mesh.removeFromParent();
+      mesh.geometry.dispose();
+    });
     this.material?.dispose();
-    (this.mesh as any) = null;
+    (this.meshes as any) = null;
     (this.material as any) = null;
     (this.scene as any) = null;
     (this.loader as any) = null;
@@ -33,21 +37,45 @@ export class IfcSelection extends IfcComponent {
   }
 
   pick = async (item: Intersection, focusSelection = false, removePrevious = true) => {
-    if (this.selected === item.faceIndex || item.faceIndex == null) return null;
-    this.selected = item.faceIndex;
     const mesh = item.object as IfcMesh;
+
+    if (item.faceIndex === undefined || this.selectedFaces[mesh.modelID]?.has(item.faceIndex)) {
+      return null;
+    }
+
     const id = await this.loader.ifcManager.getExpressId(mesh.geometry, item.faceIndex);
     if (id === undefined) return null;
-    this.hideSelection(mesh);
-    this.modelID = mesh.modelID;
-    this.newSelection([id], removePrevious);
-    if (focusSelection) this.focusSelection();
-    return { modelID: this.modelID, id };
+
+    if (removePrevious) {
+      if (this.fastRemovePrevious) {
+        this.toggleVisibility(false);
+        this.modelIDs.clear();
+        this.selectedFaces = {};
+      } else {
+        this.unpick();
+      }
+    }
+
+    if (!this.selectedFaces[mesh.modelID]) this.selectedFaces[mesh.modelID] = new Set<number>();
+    this.selectedFaces[mesh.modelID].add(item.faceIndex);
+    this.modelIDs.add(mesh.modelID);
+    const selected = this.newSelection(mesh.modelID, [id], removePrevious);
+    selected.visible = true;
+
+    if (focusSelection) {
+      await this.focusSelection(selected);
+    }
+
+    return { modelID: mesh.modelID, id };
   };
 
   unpick() {
-    this.mesh = null;
-    this.loader.ifcManager.removeSubset(this.modelID, this.material);
+    for (const modelID of this.modelIDs) {
+      this.loader.ifcManager.removeSubset(modelID, this.material);
+    }
+    this.modelIDs.clear();
+    this.meshes.clear();
+    this.selectedFaces = {};
   }
 
   pickByID = async (
@@ -56,34 +84,33 @@ export class IfcSelection extends IfcComponent {
     focusSelection = false,
     removePrevious = true
   ) => {
-    this.modelID = modelID;
-    this.newSelection(ids, removePrevious);
-    if (focusSelection) await this.focusSelection();
+    if (removePrevious) {
+      this.modelIDs.clear();
+    }
+    this.modelIDs.add(modelID);
+    const mesh = this.newSelection(modelID, ids, removePrevious);
+    if (focusSelection) await this.focusSelection(mesh);
   };
 
-  newSelection = (ids: number[], removePrevious: boolean) => {
+  newSelection = (modelID: number, ids: number[], removePrevious: boolean) => {
     const mesh = this.loader.ifcManager.createSubset({
       scene: this.scene,
-      modelID: this.modelID,
+      modelID,
       ids,
       removePrevious,
       material: this.material
     });
     if (mesh) {
-      this.mesh = mesh;
-      this.mesh.visible = true;
+      this.meshes.add(mesh);
     }
+    return mesh;
   };
 
-  hideSelection(mesh?: IfcMesh) {
-    if (this.mesh && this.modelID !== undefined && this.modelID !== mesh?.modelID) {
-      this.mesh.visible = false;
-    }
+  toggleVisibility(visible: boolean) {
+    this.meshes.forEach((mesh) => (mesh.visible = visible));
   }
 
-  private async focusSelection() {
-    if (this.mesh) {
-      await this.context.ifcCamera.targetItem(this.mesh);
-    }
+  private async focusSelection(mesh: Mesh) {
+    await this.context.ifcCamera.targetItem(mesh);
   }
 }
