@@ -64,8 +64,8 @@ export class PDFWriter {
     const offsetX = Math.abs(box.min.x) + 1;
     const offsetY = Math.abs(box.min.z) + 1;
 
-    const height = box.max.x - box.min.x;
-    const width = box.max.z - box.min.z;
+    // const height = box.max.x - box.min.x;
+    // const width = box.max.z - box.min.z;
 
     for (let i = 0; i < coordinates.length - 5; i += 6) {
       const start = [(coordinates[i] + offsetX) * scale, (coordinates[i + 2] + offsetY) * scale];
@@ -76,7 +76,7 @@ export class PDFWriter {
     }
 
     // document.drawing.rect(1, 1, width * scale, height * scale); for debug purposes
-    console.log(document);
+    // console.log(document);
   }
 
   exportPDF(id: string, exportName: string) {

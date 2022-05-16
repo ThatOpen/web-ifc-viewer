@@ -16,10 +16,10 @@ import {
 import {
   IFCBEAM,
   IFCCOLUMN,
-  IFCDOOR,
+  IFCDOOR, IFCFOOTING,
   IFCFURNISHINGELEMENT,
   IFCMEMBER,
-  IFCPLATE,
+  IFCPLATE, IFCPROXY,
   IFCROOF,
   IFCSLAB,
   IFCSTAIRFLIGHT,
@@ -115,8 +115,6 @@ export class ClippingEdges {
 
     (this.edges as any) = null;
     (this.clippingPlane as any) = null;
-    (ClippingEdges.context as any) = null;
-    (ClippingEdges.ifc as any) = null;
   }
 
   disposeStylesAndHelpers() {
@@ -127,6 +125,8 @@ export class ClippingEdges {
       ClippingEdges.basicEdges = new LineSegments();
     }
 
+    (ClippingEdges.context as any) = null;
+    (ClippingEdges.ifc as any) = null;
     ClippingEdges.edgesParent = undefined;
 
     if (!ClippingEdges.styles) return;
@@ -243,7 +243,7 @@ export class ClippingEdges {
 
       await ClippingEdges.newStyle(
         'thin',
-        [IFCWINDOW, IFCPLATE, IFCMEMBER, IFCDOOR, IFCFURNISHINGELEMENT],
+        [IFCWINDOW, IFCPLATE, IFCMEMBER, IFCDOOR, IFCFURNISHINGELEMENT, IFCPROXY, IFCFOOTING],
         new LineMaterial({ color: 0x333333, linewidth: 0.001 })
       );
 

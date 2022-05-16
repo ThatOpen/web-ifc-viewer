@@ -17,6 +17,8 @@ export class IfcRenderer extends IfcComponent {
   renderer2D = new CSS2DRenderer();
   postProductionRenderer: IfcPostproduction;
   renderer: RendererAPI = this.basicRenderer;
+  tempCanvas?: HTMLCanvasElement;
+  tempRenderer?: WebGLRenderer;
 
   postProductionActive = false;
   blocked = false;
@@ -57,6 +59,8 @@ export class IfcRenderer extends IfcComponent {
     (this.renderer as any) = null;
     (this.container as any) = null;
     (this.context as any) = null;
+    this.tempRenderer?.dispose();
+    this.tempCanvas?.remove();
   }
 
   update(_delta: number) {
@@ -87,23 +91,22 @@ export class IfcRenderer extends IfcComponent {
     const tempCanvas = domElement.cloneNode(true) as HTMLCanvasElement;
 
     // Using a new renderer to make screenshots without updating what the user sees in the canvas
-    const tempRenderer = new WebGLRenderer({ canvas: tempCanvas, antialias: true });
-    tempRenderer.localClippingEnabled = true;
+    if (!this.tempRenderer) {
+      this.tempRenderer = new WebGLRenderer({ canvas: tempCanvas, antialias: true });
+      this.tempRenderer.localClippingEnabled = true;
+    }
 
     if (dimensions) {
-      tempRenderer.setSize(dimensions.x, dimensions.y);
+      this.tempRenderer.setSize(dimensions.x, dimensions.y);
       this.context.ifcCamera.updateAspect(dimensions);
     }
 
     const scene = this.context.getScene();
     const cameraToRender = camera || this.context.getCamera();
-    tempRenderer.render(scene, cameraToRender);
-    const result = tempRenderer.domElement.toDataURL();
+    this.tempRenderer.render(scene, cameraToRender);
+    const result = this.tempRenderer.domElement.toDataURL();
 
     if (dimensions) this.context.ifcCamera.updateAspect(previousDimensions);
-
-    tempRenderer.dispose();
-    tempCanvas.remove();
 
     return result;
   }

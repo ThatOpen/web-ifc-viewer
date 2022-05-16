@@ -11,7 +11,9 @@ export class IfcGrid extends IfcComponent {
   }
 
   dispose() {
-    disposeMeshRecursively(this.grid as any);
+    if (this.grid) {
+      disposeMeshRecursively(this.grid as any);
+    }
     (this.grid as any) = null;
   }
 
