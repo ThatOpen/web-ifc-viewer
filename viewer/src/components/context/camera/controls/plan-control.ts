@@ -1,4 +1,4 @@
-import { Camera } from 'three';
+import { Box3, Camera } from 'three';
 import CameraControls from 'camera-controls';
 import { IfcComponent, NavigationMode, NavigationModes } from '../../../../base-types';
 import { LiteEvent } from '../../../../utils/LiteEvent';
@@ -15,7 +15,7 @@ export class PlanControl extends IfcComponent implements NavigationMode {
   private readonly defaultAzimuthSpeed: number;
   private readonly defaultPolarSpeed: number;
 
-  constructor(context: IfcContext, private ifcCamera: IfcCamera) {
+  constructor(private context: IfcContext, private ifcCamera: IfcCamera) {
     super(context);
     this.defaultAzimuthSpeed = ifcCamera.cameraControls.azimuthRotateSpeed;
     this.defaultPolarSpeed = ifcCamera.cameraControls.polarRotateSpeed;
@@ -27,5 +27,15 @@ export class PlanControl extends IfcComponent implements NavigationMode {
     controls.azimuthRotateSpeed = active ? 0 : this.defaultAzimuthSpeed;
     controls.polarRotateSpeed = active ? 0 : this.defaultPolarSpeed;
     controls.mouseButtons.left = CameraControls.ACTION.ROTATE;
+  }
+
+  async fitModelToFrame() {
+
+    if (!this.enabled) return;
+    const scene = this.context.getScene();
+    console.log(scene);
+    const box = new Box3().setFromObject(scene.children[scene.children.length - 1]);
+
+    await this.ifcCamera.cameraControls.fitToBox(box, false);
   }
 }

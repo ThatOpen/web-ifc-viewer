@@ -14,7 +14,7 @@ import {
   Vector3
 } from 'three';
 import {
-  IFCBEAM,
+  IFCBEAM, IFCBUILDINGELEMENTPROXY,
   IFCCOLUMN,
   IFCDOOR, IFCFOOTING,
   IFCFURNISHINGELEMENT,
@@ -243,7 +243,16 @@ export class ClippingEdges {
 
       await ClippingEdges.newStyle(
         'thin',
-        [IFCWINDOW, IFCPLATE, IFCMEMBER, IFCDOOR, IFCFURNISHINGELEMENT, IFCPROXY, IFCFOOTING],
+        [
+          IFCWINDOW,
+          IFCPLATE,
+          IFCMEMBER,
+          IFCDOOR,
+          IFCFURNISHINGELEMENT,
+          IFCPROXY,
+          IFCBUILDINGELEMENTPROXY,
+          IFCFOOTING
+        ],
         new LineMaterial({ color: 0x333333, linewidth: 0.001 })
       );
 

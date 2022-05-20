@@ -29,6 +29,7 @@ export interface NavigationMode {
   enabled: boolean;
   onChange: LiteEvent<any>;
   onChangeProjection: LiteEvent<Camera>;
+  fitModelToFrame : any
 }
 
 export interface NavModeManager {

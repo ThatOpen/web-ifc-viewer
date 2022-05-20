@@ -92,7 +92,7 @@ export class EdgesVectorizer {
     this.bucketMesh.position.copy(bucket.position);
     await controls.fitToBox(this.bucketMesh, false);
     controls.update(0);
-    this.htmlImage.src = this.context.renderer.newScreenshot(this.cvCamera);
+    this.htmlImage.src = await this.context.renderer.newScreenshot(this.cvCamera);
   }
 
   private computeBucketsOrigin(size: Vector3, center: Vector3) {

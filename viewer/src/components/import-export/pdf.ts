@@ -1,5 +1,5 @@
 import { Color, Box3 } from 'three';
-import { PlanView } from '../display';
+import { IfcDimensions, PlanView } from '../display';
 
 export class PDFWriter {
   documents: { [id: string]: { scale: number; drawing: any } } = {};
@@ -41,7 +41,7 @@ export class PDFWriter {
     return minPagesize / maxBoxDim;
   }
 
-  drawNamedLayer(id: string, plan: PlanView, layerName: string, offsetX = 0, offsetY = 0) {
+  drawNamedLayer(id: string, plan: PlanView, layerName: string, dims : any) {
     if (!plan.plane) return;
     const layer = plan.plane.edges.edges[layerName];
     if (!layer) return;
@@ -56,6 +56,8 @@ export class PDFWriter {
     // const min = Math.min.apply(null, Array.from(coordinates));
     // console.log(min);
     this.draw(id, coordinates, bbox);
+    this.addLabels(id, dims, bbox )
+
   }
 
   draw(id: string, coordinates: ArrayLike<number>, box: Box3) {
@@ -77,6 +79,26 @@ export class PDFWriter {
 
     // document.drawing.rect(1, 1, width * scale, height * scale); for debug purposes
     // console.log(document);
+  }
+
+  addLabels(id: string, ifcDimensions: IfcDimensions, box: Box3) {
+    const document = this.getDocument(id);
+    const scale = this.getScale(box, 210, 297);
+    const offsetX = Math.abs(box.min.x) + 1;
+    const offsetY = Math.abs(box.min.z) + 1;
+
+    const dimLines = ifcDimensions.getDimensionsLines;
+    dimLines.forEach((dimLine) => {
+      document.drawing.text(
+        dimLine.text.element.textContent,
+        (dimLine.center.x + offsetX) * scale,
+        (dimLine.center.z + offsetY) * scale
+      );
+      console.log(dimLine.text.element.textContent);
+      console.log('dimlinecenter', dimLine.center);
+    });
+
+
   }
 
   exportPDF(id: string, exportName: string) {

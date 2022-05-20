@@ -113,7 +113,6 @@ export class PlanManager {
 
     for (let i = 0; i < storeys.length; i++) {
       if (storeys[i]) {
-        console.log(storeys[i])
         const baseHeight = storeys[i].Elevation?.value || 1;
         const elevation = (baseHeight + siteCoords[2]) * unitsScale + transformHeight;
         const expressID = storeys[i].expressID;

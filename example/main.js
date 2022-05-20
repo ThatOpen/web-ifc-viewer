@@ -3,7 +3,7 @@ import { createSideMenuButton } from './utils/gui-creator';
 import {
   IFCSPACE, IFCOPENINGELEMENT, IFCWALLSTANDARDCASE, IFCWALL, IFCWINDOW, IFCCURTAINWALL, IFCMEMBER, IFCPLATE
 } from 'web-ifc';
-import { MeshBasicMaterial, LineBasicMaterial, Color } from 'three';
+import { MeshBasicMaterial, LineBasicMaterial, Color, Vector2 } from 'three';
 import { ClippingEdges } from '../viewer/dist/components/display/clipping-planes/clipping-edges';
 import Stats from 'stats.js/src/Stats';
 import jsPDF from 'jspdf';
@@ -22,6 +22,9 @@ stats.dom.style.right = '0px';
 stats.dom.style.left = 'auto';
 viewer.context.stats = stats;
 
+let currentPlan = 'a';
+
+
 // viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
 viewer.IFC.setWasmPath('files/');
 
@@ -38,6 +41,8 @@ const baseMaterial = new MeshBasicMaterial({ color: 0xffffff, side: 2 });
 
 let first = true;
 let model;
+
+let drawingstate = false;
 
 const loadIfc = async (event) => {
 
@@ -112,6 +117,13 @@ const handleKeyDown = async (event) => {
 
 window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
 window.onkeydown = handleKeyDown;
+window.onclick = () =>{
+  if (drawingstate) {
+    const currentPlanObj = viewer.plans.planLists[0]?.[currentPlan];
+    const planemesh = currentPlanObj.plane.planeMesh
+    viewer.dimensions.createInPlane(planemesh);
+  }
+}
 window.ondblclick = async () => {
 
   if (viewer.clipper.active) {
@@ -122,6 +134,16 @@ window.ondblclick = async () => {
     const { modelID, id } = result;
     const props = await viewer.IFC.getProperties(modelID, id, true, false);
     console.log(props);
+    const flatmesh = await viewer.IFC.loader.ifcManager.ifcAPI.GetFlatMesh(modelID, id);
+    console.log('flatmesh', flatmesh.geometries.get(0));
+    const geo = await viewer.IFC.loader.ifcManager.ifcAPI.GetGeometry(modelID, id);
+    console.log('geo', geo.GetVertexData());
+    const geometry = this.state.api.GetGeometry(modelID, placedGeometry.geometryExpressID);
+    const verts = this.state.api.GetVertexArray(geometry.GetVertexData(), geometry.GetVertexDataSize());
+    const indices = this.state.api.GetIndexArray(geometry.GetIndexData(), geometry.GetIndexDataSize());
+    const buffer = this.ifcGeometryToBuffer(expressID, verts, indices);
+
+
   }
 };
 
@@ -146,7 +168,6 @@ dropBoxButton.addEventListener('click', () => {
 
 
 let planNames = [];
-let currentPlan = 'a'
 
 function createList(array) {
   const container = document.createElement('div');
@@ -161,8 +182,8 @@ function createList(array) {
     row.setAttribute('name', 'floorselector');
     row.onclick = async () => {
       viewer.plans.goTo(0, rowData, true).then(() => console.log(rowData));
-      currentPlan = rowData
-    }
+      currentPlan = rowData;
+    };
 
     label.setAttribute('for', rowData);
     label.innerText = rowData;
@@ -173,7 +194,6 @@ function createList(array) {
 
   document.body.appendChild(container);
 }
-
 
 
 const mode2dButton = createSideMenuButton('./resources/2d-icon.png');
@@ -221,11 +241,11 @@ exportButton.addEventListener('click', async () => {
   // link.remove();
 
   console.log(viewer);
-  const imgData = viewer.context.renderer.renderer.domElement.toDataURL("image/jpeg", 1.0);
+  const imgData = await viewer.context.renderer.newScreenshot();
   const pdf = new jsPDF();
 
   pdf.addImage(imgData, 'JPEG', 0, 0);
-  pdf.save("download.pdf");
+  pdf.save('download.pdf');
 
 
 });
@@ -242,14 +262,26 @@ exportButton2.addEventListener('click', async () => {
   console.log(planObj);
 
   viewer.pdf.newDocument('a', doc, 10);
+  // viewer.pdf.addLabels('a', viewer.dimensions)
 
-  viewer.pdf.drawNamedLayer('a', planObj[currentPlan], 'thick');
-  viewer.pdf.drawNamedLayer('a', planObj[currentPlan], 'thin');
+  viewer.pdf.drawNamedLayer('a', planObj[currentPlan], 'thick', viewer.dimensions);
+  viewer.pdf.drawNamedLayer('a', planObj[currentPlan], 'thin', viewer.dimensions);
 
 
   const result = viewer.pdf.exportPDF('a', 'test');
   const link = document.createElement('a');
 
+
+});
+
+
+const dimensions = createSideMenuButton('./resources/dimensions.png');
+dimensions.addEventListener('click', async () => {
+
+
+  viewer.dimensions.previewActive = true;
+  viewer.dimensions.active = true;
+  drawingstate = true;
 
 
 });

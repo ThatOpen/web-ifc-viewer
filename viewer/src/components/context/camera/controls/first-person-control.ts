@@ -46,4 +46,6 @@ export class FirstPersonControl extends IfcComponent implements NavigationMode {
     controls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
     controls.touches.two = CameraControls.ACTION.TOUCH_ZOOM_TRUCK;
   }
+
+  fitModelToFrame() {}
 }
