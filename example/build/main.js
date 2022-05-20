@@ -114283,6 +114283,77 @@
 
     };
 
+    class StoreyManager {
+        constructor() {
+            this.list = [];
+            this.unitsFactor = {
+                MILLI: 0.001,
+                CENTI: 0.01,
+                DECI: 0.1
+            };
+            this.loaderError = 'Loader must be defined!';
+        }
+        dispose() {
+            this.list = null;
+            this.unitsFactor = null;
+        }
+        async getAbsoluteElevation(modelID) {
+            if (!this.loader)
+                throw new Error(this.loaderError);
+            await this.getCurrentStoreys(modelID);
+            const unitsScale = await this.getUnitsFactor(modelID);
+            const siteCoords = await this.getSiteCoords(modelID);
+            const transformHeight = await this.getTransformHeight(modelID);
+            const storeys = this.list[modelID];
+            const result = {};
+            for (let i = 0; i < storeys.length; i++) {
+                const storey = storeys[i];
+                const baseHeight = storey.Elevation.value;
+                const name = this.getStoreyName(storey);
+                result[name] = (baseHeight + siteCoords[2]) * unitsScale + transformHeight;
+            }
+            return result;
+        }
+        async getCurrentStoreys(modelID) {
+            if (!this.list[modelID]) {
+                this.list[modelID] = await this.loader.ifcManager.getAllItemsOfType(modelID, IFCBUILDINGSTOREY, true);
+            }
+        }
+        async getSiteCoords(modelID) {
+            const building = await this.getBuilding(modelID);
+            const sitePlace = building.ObjectPlacement.PlacementRelTo.RelativePlacement.Location;
+            return sitePlace.Coordinates.map((coord) => coord.value);
+        }
+        async getBuilding(modelID) {
+            const allBuildingsIDs = await this.loader.ifcManager.getAllItemsOfType(modelID, IFCBUILDING, false);
+            const buildingID = allBuildingsIDs[0];
+            return this.loader.ifcManager.getItemProperties(modelID, buildingID, true);
+        }
+        async getTransformHeight(modelID) {
+            const transformMatrix = await this.loader.ifcManager.ifcAPI.GetCoordinationMatrix(modelID);
+            return transformMatrix[13];
+        }
+        getStoreyName(storey) {
+            if (storey.Name)
+                return storey.Name.value;
+            if (storey.LongName)
+                return storey.LongName.value;
+            return storey.GlobalId;
+        }
+        // TODO: This assumes the first unit is the length, which is true in most cases
+        // Might need to fix this in the future
+        async getUnitsFactor(modelID) {
+            var _a;
+            const allUnitsIDs = await this.loader.ifcManager.getAllItemsOfType(modelID, IFCUNITASSIGNMENT, false);
+            const unitsID = allUnitsIDs[0];
+            const unitsProps = await this.loader.ifcManager.getItemProperties(modelID, unitsID);
+            const lengthUnitID = unitsProps.Units[0].value;
+            const lengthUnit = await this.loader.ifcManager.getItemProperties(modelID, lengthUnitID);
+            const prefix = (_a = lengthUnit.Prefix) === null || _a === void 0 ? void 0 : _a.value;
+            return this.unitsFactor[prefix] || 1;
+        }
+    }
+
     class GLTFManager extends IfcComponent {
         constructor(context, IFC) {
             super(context);
@@ -114294,11 +114365,7 @@
             this.tempIfcLoader = null;
             this.allFloors = 'allFloors';
             this.allCategories = 'allCategories';
-            this.unitsFactor = {
-                MILLI: 0.001,
-                CENTI: 0.01,
-                DECI: 0.1
-            };
+            this.stories = new StoreyManager();
             this.options = {
                 trs: false,
                 onlyVisible: false,
@@ -114339,6 +114406,8 @@
                 model.children.forEach((child) => disposeMeshRecursively(child));
             });
             this.GLTFModels = null;
+            this.stories.dispose();
+            this.stories = null;
         }
         /**
          * Loads any glTF file into the scene using [Three.js loader](https://threejs.org/docs/#examples/en/loaders/GLTFLoader).
@@ -114590,11 +114659,13 @@
             return new File([new Blob([gltf])], name);
         }
         async getIDsByFloor(loader) {
-            var _a;
             const ifcProject = await loader.ifcManager.getSpatialStructure(0);
             const idsByFloor = {};
             const storeys = ifcProject.children[0].children[0].children;
             const storeysIDs = storeys.map((storey) => storey.expressID);
+            this.stories.loader = loader;
+            const heightsByName = await this.stories.getAbsoluteElevation(0);
+            const heights = Object.values(heightsByName);
             for (let i = 0; i < storeysIDs.length; i++) {
                 const storey = storeys[i];
                 const ids = [];
@@ -114602,26 +114673,13 @@
                 const storeyID = storeysIDs[i];
                 const properties = await loader.ifcManager.getItemProperties(0, storeyID);
                 const name = this.getStoreyName(properties);
-                const factor = await this.getUnitsFactor(loader);
-                const height = ((_a = properties.Elevation) === null || _a === void 0 ? void 0 : _a.value) * factor || 0;
+                const height = heights[i];
                 idsByFloor[name] = {
                     ids: new Set(ids),
                     height
                 };
             }
             return idsByFloor;
-        }
-        // TODO: This assumes the first unit is the length, which is true in most cases
-        // Might need to fix this in the future
-        async getUnitsFactor(loader) {
-            var _a;
-            const allUnitsIDs = await loader.ifcManager.getAllItemsOfType(0, IFCUNITASSIGNMENT, false);
-            const unitsID = allUnitsIDs[0];
-            const unitsProps = await loader.ifcManager.getItemProperties(0, unitsID);
-            const lengthUnitID = unitsProps.Units[0].value;
-            const lengthUnit = await loader.ifcManager.getItemProperties(0, lengthUnitID);
-            const prefix = (_a = lengthUnit.Prefix) === null || _a === void 0 ? void 0 : _a.value;
-            return this.unitsFactor[prefix] || 1;
         }
         getStoreyName(storey) {
             if (storey.Name)
