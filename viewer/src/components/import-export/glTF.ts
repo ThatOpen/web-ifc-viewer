@@ -12,12 +12,13 @@ import {
 import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter';
 import { IFCLoader } from 'web-ifc-three/IFCLoader';
-import { IFCPROJECT, IFCUNITASSIGNMENT } from 'web-ifc';
+import { IFCPROJECT } from 'web-ifc';
 import { IFCManager } from 'web-ifc-three/IFC/components/IFCManager';
 import { IfcComponent } from '../../base-types';
 import { IfcContext } from '../context';
 import { IfcManager } from '../ifc';
 import { disposeMeshRecursively } from '../../utils/ThreeUtils';
+import { StoreyManager } from '../display/plans/storey-manager';
 
 export interface ExportConfig {
   ifcFileUrl: string;
@@ -58,11 +59,7 @@ export class GLTFManager extends IfcComponent {
   private allFloors = 'allFloors';
   private allCategories = 'allCategories';
 
-  private unitsFactor: { [name: string]: number } = {
-    MILLI: 0.001,
-    CENTI: 0.01,
-    DECI: 0.1
-  };
+  private stories = new StoreyManager();
 
   options = {
     trs: false,
@@ -85,6 +82,8 @@ export class GLTFManager extends IfcComponent {
       model.children.forEach((child) => disposeMeshRecursively(child as Mesh));
     });
     (this.GLTFModels as any) = null;
+    this.stories.dispose();
+    (this.stories as any) = null;
   }
 
   /**
@@ -450,6 +449,10 @@ export class GLTFManager extends IfcComponent {
     const storeys = ifcProject.children[0].children[0].children as any[];
     const storeysIDs = storeys.map((storey: any) => storey.expressID);
 
+    this.stories.loader = loader;
+    const heightsByName = await this.stories.getAbsoluteElevation(0);
+    const heights = Object.values(heightsByName);
+
     for (let i = 0; i < storeysIDs.length; i++) {
       const storey = storeys[i];
       const ids: number[] = [];
@@ -458,8 +461,7 @@ export class GLTFManager extends IfcComponent {
       const storeyID = storeysIDs[i];
       const properties = await loader.ifcManager.getItemProperties(0, storeyID);
       const name = this.getStoreyName(properties);
-      const factor = await this.getUnitsFactor(loader);
-      const height = properties.Elevation?.value * factor || 0;
+      const height = heights[i];
 
       idsByFloor[name] = {
         ids: new Set<number>(ids),
@@ -468,18 +470,6 @@ export class GLTFManager extends IfcComponent {
     }
 
     return idsByFloor;
-  }
-
-  // TODO: This assumes the first unit is the length, which is true in most cases
-  // Might need to fix this in the future
-  private async getUnitsFactor(loader: IFCLoader) {
-    const allUnitsIDs = await loader.ifcManager.getAllItemsOfType(0, IFCUNITASSIGNMENT, false);
-    const unitsID = allUnitsIDs[0];
-    const unitsProps = await loader.ifcManager.getItemProperties(0, unitsID);
-    const lengthUnitID = unitsProps.Units[0].value;
-    const lengthUnit = await loader.ifcManager.getItemProperties(0, lengthUnitID);
-    const prefix = lengthUnit.Prefix?.value;
-    return this.unitsFactor[prefix] || 1;
   }
 
   private getStoreyName(storey: any) {

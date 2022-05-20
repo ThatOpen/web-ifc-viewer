@@ -32,6 +32,8 @@ module.exports = {
     'no-await-in-loop': 'off',
     'no-return-assign': 'off',
     'no-restricted-syntax': 'off',
+    'no-useless-constructor': 'off',
+    'no-empty-function': 'off',
     'import/extensions': [
       'error',
       'ignorePackages',
