@@ -1,7 +1,14 @@
 import { IfcViewerAPI } from '../viewer/dist/index';
 import { createSideMenuButton } from './utils/gui-creator';
 import {
-  IFCSPACE, IFCOPENINGELEMENT, IFCWALLSTANDARDCASE, IFCWALL, IFCWINDOW, IFCCURTAINWALL, IFCMEMBER, IFCPLATE
+  IFCSPACE,
+  IFCOPENINGELEMENT,
+  IFCWALLSTANDARDCASE,
+  IFCWALL,
+  IFCWINDOW,
+  IFCCURTAINWALL,
+  IFCMEMBER,
+  IFCPLATE
 } from 'web-ifc';
 import { MeshBasicMaterial, LineBasicMaterial, Color, Vector2 } from 'three';
 import { ClippingEdges } from '../viewer/dist/components/display/clipping-planes/clipping-edges';
@@ -24,7 +31,6 @@ viewer.context.stats = stats;
 
 let currentPlan = 'a';
 
-
 // viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
 viewer.IFC.setWasmPath('files/');
 
@@ -32,7 +38,6 @@ viewer.IFC.loader.ifcManager.applyWebIfcConfig({
   USE_FAST_BOOLS: true,
   COORDINATE_TO_ORIGIN: true
 });
-
 
 // Setup loader
 
@@ -45,8 +50,6 @@ let model;
 let drawingstate = false;
 
 const loadIfc = async (event) => {
-
-
   // tests with glTF
   // const file = event.target.files[0];
   // const url = URL.createObjectURL(file);
@@ -84,7 +87,7 @@ const loadIfc = async (event) => {
   });
 
   model = await viewer.IFC.loadIfc(event.target.files[0], false);
-  model.material.forEach(mat => mat.side = 2);
+  model.material.forEach((mat) => (mat.side = 2));
 
   if (first) first = false;
   else {
@@ -97,7 +100,6 @@ const loadIfc = async (event) => {
   await viewer.shadowDropper.renderShadow(model.modelID);
 
   overlay.classList.add('hidden');
-
 };
 
 const inputElement = document.createElement('input');
@@ -117,15 +119,14 @@ const handleKeyDown = async (event) => {
 
 window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
 window.onkeydown = handleKeyDown;
-window.onclick = () =>{
+window.onclick = () => {
   if (drawingstate) {
     const currentPlanObj = viewer.plans.planLists[0]?.[currentPlan];
-    const planemesh = currentPlanObj.plane.planeMesh
+    const planemesh = currentPlanObj.plane.planeMesh;
     viewer.dimensions.createInPlane(planemesh);
   }
-}
+};
 window.ondblclick = async () => {
-
   if (viewer.clipper.active) {
     viewer.clipper.createPlane();
   } else {
@@ -139,11 +140,15 @@ window.ondblclick = async () => {
     const geo = await viewer.IFC.loader.ifcManager.ifcAPI.GetGeometry(modelID, id);
     console.log('geo', geo.GetVertexData());
     const geometry = this.state.api.GetGeometry(modelID, placedGeometry.geometryExpressID);
-    const verts = this.state.api.GetVertexArray(geometry.GetVertexData(), geometry.GetVertexDataSize());
-    const indices = this.state.api.GetIndexArray(geometry.GetIndexData(), geometry.GetIndexDataSize());
+    const verts = this.state.api.GetVertexArray(
+      geometry.GetVertexData(),
+      geometry.GetVertexDataSize()
+    );
+    const indices = this.state.api.GetIndexArray(
+      geometry.GetIndexData(),
+      geometry.GetIndexDataSize()
+    );
     const buffer = this.ifcGeometryToBuffer(expressID, verts, indices);
-
-
   }
 };
 
@@ -166,14 +171,13 @@ dropBoxButton.addEventListener('click', () => {
   viewer.dropbox.loadDropboxIfc();
 });
 
-
 let planNames = [];
 
 function createList(array) {
   const container = document.createElement('div');
   container.setAttribute('class', 'floating-top');
 
-  array.forEach(function(rowData) {
+  array.forEach(function (rowData) {
     const row = document.createElement('input');
     const label = document.createElement('label');
     row.setAttribute('type', 'radio');
@@ -195,7 +199,6 @@ function createList(array) {
   document.body.appendChild(container);
 }
 
-
 const mode2dButton = createSideMenuButton('./resources/2d-icon.png');
 mode2dButton.addEventListener('click', async () => {
   dropBoxButton.blur();
@@ -213,9 +216,7 @@ mode2dButton.addEventListener('click', async () => {
   planNames = Object.keys(currentPlans);
   createList(planNames);
   await viewer.plans.goTo(0, planNames[0], true);
-
 });
-
 
 const exportButton = createSideMenuButton('./resources/2d-icon.png');
 exportButton.addEventListener('click', async () => {
@@ -233,23 +234,23 @@ exportButton.addEventListener('click', async () => {
   // viewer.pdf.drawNamedLayer('a', planObj[plannames[2]], 'thin');
   //
   // const result = viewer.pdf.exportPDF('a', 'test');
-  // const link = document.createElement('a');
-  // link.download = 'floorplan.dxf';
-  // link.href = URL.createObjectURL(result);
-  // document.body.appendChild(link);
-  // link.click();
-  // link.remove();
 
   console.log(viewer);
   const imgData = await viewer.context.renderer.newScreenshot();
   const pdf = new jsPDF();
 
-  pdf.addImage(imgData, 'JPEG', 0, 0);
-  pdf.save('download.pdf');
+  const link = document.createElement('a');
+  document.body.appendChild(link);
 
+  link.setAttribute('download', 'MintyPaper.png');
+  link.setAttribute('href', imgData.replace('image/png', 'image/octet-stream'));
+  link.click();
 
+  link.remove();
+  //
+  // pdf.addImage(imgData, 'JPEG', 0, 0);
+  // pdf.save('download.pdf');
 });
-
 
 const exportButton2 = createSideMenuButton('./resources/2d-icon.png');
 exportButton2.addEventListener('click', async () => {
@@ -267,21 +268,13 @@ exportButton2.addEventListener('click', async () => {
   viewer.pdf.drawNamedLayer('a', planObj[currentPlan], 'thick', viewer.dimensions);
   viewer.pdf.drawNamedLayer('a', planObj[currentPlan], 'thin', viewer.dimensions);
 
-
   const result = viewer.pdf.exportPDF('a', 'test');
   const link = document.createElement('a');
-
-
 });
-
 
 const dimensions = createSideMenuButton('./resources/dimensions.png');
 dimensions.addEventListener('click', async () => {
-
-
   viewer.dimensions.previewActive = true;
   viewer.dimensions.active = true;
   drawingstate = true;
-
-
 });

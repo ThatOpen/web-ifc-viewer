@@ -242,7 +242,6 @@ export class ClippingEdges {
   // Creates some basic styles so that users don't have to create it each time
   private async createDefaultIfcStyles() {
     if (Object.keys(ClippingEdges.styles).length === 0) {
-      console.log('creatingstyles', ClippingEdges.styles);
       await ClippingEdges.newStyle(
         'thick',
         [
@@ -281,7 +280,6 @@ export class ClippingEdges {
   // Creates a new subset. This allows to apply a style just to a specific set of items
   private static async newSubset(styleName: string, modelID: number, categories: number[]) {
     const ids = await this.getItemIDs(modelID, categories);
-    console.log('elemids', ids);
     const manager = this.ifc.loader.ifcManager;
     if (ids.length > 0) {
       return manager.createSubset({

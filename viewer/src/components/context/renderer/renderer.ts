@@ -13,7 +13,7 @@ export interface RendererAPI {
 }
 
 export class IfcRenderer extends IfcComponent {
-  basicRenderer = new WebGLRenderer({ antialias: true});
+  basicRenderer = new WebGLRenderer({ antialias: true });
   renderer2D = new CSS2DRenderer();
   postProductionRenderer: IfcPostproduction;
   renderer: RendererAPI = this.basicRenderer;
@@ -101,8 +101,7 @@ export class IfcRenderer extends IfcComponent {
       this.context.ifcCamera.updateAspect(dimensions);
     }
 
-
-    await this.context.getIfcCamera().currentNavMode.fitModelToFrame()
+    // await this.context.getIfcCamera().currentNavMode.fitModelToFrame();
 
     const scene = this.context.getScene();
     const cameraToRender = camera || this.context.getCamera();

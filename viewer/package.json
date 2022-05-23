@@ -1,6 +1,6 @@
 {
   "name": "@tiberiog/web-ifc-viewer",
-  "version": "1.0.185",
+  "version": "1.0.187",
   "description": "IFC viewer",
   "main": "dist/index.js",
   "scripts": {
