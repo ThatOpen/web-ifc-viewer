@@ -29,7 +29,6 @@ export class PDFWriter {
   }
 
   getScale(bbox: Box3, pageHeight: number, pageWidth: number) {
-
     const height = bbox.max.x - bbox.min.x;
     const width = bbox.max.z - bbox.min.z;
 
@@ -41,7 +40,7 @@ export class PDFWriter {
     return minPagesize / maxBoxDim;
   }
 
-  drawNamedLayer(id: string, plan: PlanView, layerName: string, dims : any) {
+  drawNamedLayer(id: string, plan: PlanView, layerName: string, dims: any | undefined) {
     if (!plan.plane) return;
     const layer = plan.plane.edges.edges[layerName];
     if (!layer) return;
@@ -51,13 +50,13 @@ export class PDFWriter {
     console.log('bbox', bbox);
     const coordinates = layer.generatorGeometry.attributes.position.array;
 
-
     // console.log(coordinates);
     // const min = Math.min.apply(null, Array.from(coordinates));
     // console.log(min);
     this.draw(id, coordinates, bbox);
-    this.addLabels(id, dims, bbox )
-
+    if (dims) {
+      this.addLabels(id, dims, bbox);
+    }
   }
 
   draw(id: string, coordinates: ArrayLike<number>, box: Box3) {
@@ -97,8 +96,6 @@ export class PDFWriter {
       console.log(dimLine.text.element.textContent);
       console.log('dimlinecenter', dimLine.center);
     });
-
-
   }
 
   exportPDF(id: string, exportName: string) {

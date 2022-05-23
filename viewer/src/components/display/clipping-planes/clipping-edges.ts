@@ -14,12 +14,15 @@ import {
   Vector3
 } from 'three';
 import {
-  IFCBEAM, IFCBUILDINGELEMENTPROXY,
+  IFCBEAM,
+  IFCBUILDINGELEMENTPROXY,
   IFCCOLUMN,
-  IFCDOOR, IFCFOOTING,
+  IFCDOOR,
+  IFCFOOTING,
   IFCFURNISHINGELEMENT,
   IFCMEMBER,
-  IFCPLATE, IFCPROXY,
+  IFCPLATE,
+  IFCPROXY,
   IFCROOF,
   IFCSLAB,
   IFCSTAIRFLIGHT,
@@ -156,7 +159,11 @@ export class ClippingEdges {
     }
 
     Object.keys(ClippingEdges.styles).forEach((styleName) => {
-      this.drawEdges(styleName);
+      try {
+        this.drawEdges(styleName);
+      } catch (e: unknown) {
+        console.log('error', e);
+      }
     });
   }
 
@@ -235,9 +242,20 @@ export class ClippingEdges {
   // Creates some basic styles so that users don't have to create it each time
   private async createDefaultIfcStyles() {
     if (Object.keys(ClippingEdges.styles).length === 0) {
+      console.log('creatingstyles', ClippingEdges.styles);
       await ClippingEdges.newStyle(
         'thick',
-        [IFCWALLSTANDARDCASE, IFCWALL, IFCSLAB, IFCSTAIRFLIGHT, IFCCOLUMN, IFCBEAM, IFCROOF],
+        [
+          IFCWALLSTANDARDCASE,
+          IFCWALL,
+          IFCSLAB,
+          IFCSTAIRFLIGHT,
+          IFCCOLUMN,
+          IFCBEAM,
+          IFCROOF,
+          IFCBUILDINGELEMENTPROXY,
+          IFCPROXY
+        ],
         new LineMaterial({ color: 0x000000, linewidth: 0.0015 })
       );
 
@@ -263,6 +281,7 @@ export class ClippingEdges {
   // Creates a new subset. This allows to apply a style just to a specific set of items
   private static async newSubset(styleName: string, modelID: number, categories: number[]) {
     const ids = await this.getItemIDs(modelID, categories);
+    console.log('elemids', ids);
     const manager = this.ifc.loader.ifcManager;
     if (ids.length > 0) {
       return manager.createSubset({
