@@ -218,58 +218,30 @@ mode2dButton.addEventListener('click', async () => {
   await viewer.plans.goTo(0, planNames[0], true);
 });
 
-const exportButton = createSideMenuButton('./resources/2d-icon.png');
-exportButton.addEventListener('click', async () => {
-  // const doc = new jsPDF();
-  //
-  // const planObj = viewer.plans.planLists[0];
-  //
-  // const plannames = Object.keys(planObj);
-  //
-  // console.log(planObj);
-  //
-  // viewer.pdf.newDocument('a', doc, 2);
-  //
-  // viewer.pdf.drawNamedLayer('a', planObj[plannames[2]], 'thick');
-  // viewer.pdf.drawNamedLayer('a', planObj[plannames[2]], 'thin');
-  //
-  // const result = viewer.pdf.exportPDF('a', 'test');
-
-  console.log(viewer);
+const screenshotButton = createSideMenuButton('./resources/png-icon.png');
+screenshotButton.addEventListener('click', async () => {
   const imgData = await viewer.context.renderer.newScreenshot();
-  const pdf = new jsPDF();
-
   const link = document.createElement('a');
   document.body.appendChild(link);
 
-  link.setAttribute('download', 'MintyPaper.png');
+  link.setAttribute('download', 'screenshot.png');
   link.setAttribute('href', imgData.replace('image/png', 'image/octet-stream'));
   link.click();
-
   link.remove();
-  //
-  // pdf.addImage(imgData, 'JPEG', 0, 0);
-  // pdf.save('download.pdf');
 });
 
-const exportButton2 = createSideMenuButton('./resources/2d-icon.png');
-exportButton2.addEventListener('click', async () => {
+const pdfExportButton = createSideMenuButton('./resources/pdf-icon.png');
+pdfExportButton.addEventListener('click', async () => {
   const doc = new jsPDF('l', 'mm', 'a4');
 
   const planObj = viewer.plans.planLists[0];
 
-  const plannames = Object.keys(planObj);
-
-  console.log(planObj);
-
   viewer.pdf.newDocument('a', doc, 10);
-  // viewer.pdf.addLabels('a', viewer.dimensions)
 
   viewer.pdf.drawNamedLayer('a', planObj[currentPlan], 'thick', viewer.dimensions);
-  viewer.pdf.drawNamedLayer('a', planObj[currentPlan], 'thin', viewer.dimensions);
+  viewer.pdf.drawNamedLayer('a', planObj[currentPlan], 'thin', undefined);
 
-  const result = viewer.pdf.exportPDF('a', 'test');
-  const link = document.createElement('a');
+  viewer.pdf.exportPDF('a', 'test');
 });
 
 const dimensions = createSideMenuButton('./resources/dimensions.png');
