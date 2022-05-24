@@ -160,9 +160,10 @@ export class ClippingEdges {
 
     Object.keys(ClippingEdges.styles).forEach((styleName) => {
       try {
+        //this can trow error if there is an empty mesh, we still want to update other edges so we catch ere
         this.drawEdges(styleName);
       } catch (e: unknown) {
-        console.log('error', e);
+        console.error('error in drawing edges', e);
       }
     });
   }
@@ -240,6 +241,7 @@ export class ClippingEdges {
   }
 
   // Creates some basic styles so that users don't have to create it each time
+  // todo check all possible IFC classes are handled
   private async createDefaultIfcStyles() {
     if (Object.keys(ClippingEdges.styles).length === 0) {
       await ClippingEdges.newStyle(
@@ -281,6 +283,7 @@ export class ClippingEdges {
   private static async newSubset(styleName: string, modelID: number, categories: number[]) {
     const ids = await this.getItemIDs(modelID, categories);
     const manager = this.ifc.loader.ifcManager;
+    // todo handle case with empty ids list
     if (ids.length > 0) {
       return manager.createSubset({
         modelID,
@@ -298,8 +301,9 @@ export class ClippingEdges {
         manager.clearSubset(modelID, styleName, ClippingEdges.invisibleMaterial);
         return subset;
       }
+      // todo handling in case getSubset does not find one because above the creation was not successful
     } catch (e) {
-      console.error(e);
+      console.error('unable to find a subset', e);
     }
     return new Mesh();
   }

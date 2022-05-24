@@ -1,8 +1,7 @@
 import { LineSegments, EdgesGeometry, Material, Mesh } from 'three';
+import { Subset } from 'web-ifc-three/IFC/components/subsets/SubsetManager';
 import { IfcContext } from '../context';
 import { disposeMeshRecursively } from '../../utils/ThreeUtils';
-import { Subset } from 'web-ifc-three/IFC/components/subsets/SubsetManager';
-
 
 export class Edges {
   threshold = 30;
@@ -46,23 +45,16 @@ export class Edges {
     return this.edges[name];
   }
 
-  // TODO: Implement ids to create filtered edges / edges by floor plan
   create(name: string, modelID: number, lineMaterial: Material, material?: Material) {
     const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
     if (!model) return;
     this.createFromMesh(name, model, lineMaterial, material);
   }
 
-
-  createFromSubset(
-    name: string,
-    subset: Subset,
-    lineMaterial: Material,
-    material?: Material
-  ) {
+  // use this to create edges of a subset this implements a todo of allowing subsets of edges
+  createFromSubset(name: string, subset: Subset, lineMaterial: Material, material?: Material) {
     this.createFromMesh(name, subset, lineMaterial, material);
   }
-
 
   createFromMesh(name: string, mesh: Mesh, lineMaterial: Material, material?: Material) {
     const planes = this.context.getClippingPlanes();

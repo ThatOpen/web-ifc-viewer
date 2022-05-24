@@ -40,19 +40,14 @@ export class PDFWriter {
     return minPagesize / maxBoxDim;
   }
 
-  drawNamedLayer(id: string, plan: PlanView, layerName: string, dims: any | undefined) {
+  drawNamedLayer(id: string, plan: PlanView, layerName: string, dims?: IfcDimensions) {
     if (!plan.plane) return;
     const layer = plan.plane.edges.edges[layerName];
     if (!layer) return;
     layer.mesh.geometry.computeBoundingBox();
     console.log(layer);
     const bbox = new Box3().setFromObject(layer.mesh);
-    console.log('bbox', bbox);
     const coordinates = layer.generatorGeometry.attributes.position.array;
-
-    // console.log(coordinates);
-    // const min = Math.min.apply(null, Array.from(coordinates));
-    // console.log(min);
     this.draw(id, coordinates, bbox);
     if (dims) {
       this.addLabels(id, dims, bbox);
@@ -65,9 +60,6 @@ export class PDFWriter {
     const offsetX = Math.abs(box.min.x) + 1;
     const offsetY = Math.abs(box.min.z) + 1;
 
-    // const height = box.max.x - box.min.x;
-    // const width = box.max.z - box.min.z;
-
     for (let i = 0; i < coordinates.length - 5; i += 6) {
       const start = [(coordinates[i] + offsetX) * scale, (coordinates[i + 2] + offsetY) * scale];
       const end = [(coordinates[i + 3] + offsetX) * scale, (coordinates[i + 5] + offsetY) * scale];
@@ -75,9 +67,6 @@ export class PDFWriter {
       if (start[0] === 0 && start[1] === 0 && end[0] === 0 && end[1] === 0) continue;
       document.drawing.line(start[0], start[1], end[0], end[1], 'S');
     }
-
-    // document.drawing.rect(1, 1, width * scale, height * scale); for debug purposes
-    // console.log(document);
   }
 
   addLabels(id: string, ifcDimensions: IfcDimensions, box: Box3) {
@@ -93,8 +82,6 @@ export class PDFWriter {
         (dimLine.center.x + offsetX) * scale,
         (dimLine.center.z + offsetY) * scale
       );
-      console.log(dimLine.text.element.textContent);
-      console.log('dimlinecenter', dimLine.center);
     });
   }
 

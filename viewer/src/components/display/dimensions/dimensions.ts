@@ -5,7 +5,8 @@ import {
   Intersection,
   LineDashedMaterial,
   Mesh,
-  MeshBasicMaterial, Object3D,
+  MeshBasicMaterial,
+  Object3D,
   Vector3
 } from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
@@ -27,8 +28,7 @@ export class IfcDimensions extends IfcComponent {
   snapDistance = 0.25;
 
   // Measures
-  // private arrowHeight = 0.02;
-  // private arrowRadius = 0.05;
+
   private baseScale = new Vector3(1, 1, 1);
 
   // Geometries
@@ -211,8 +211,6 @@ export class IfcDimensions extends IfcComponent {
     const intersects = this.context.castRay([plane]);
     if (!intersects || intersects.length < 1) return;
     this.startPoint = intersects[0].point;
-
-
   }
 
   private drawInProcess() {

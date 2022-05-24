@@ -84,7 +84,7 @@ export class IfcRenderer extends IfcComponent {
     this.postProductionRenderer.setSize(this.container.clientWidth, this.container.clientHeight);
   }
 
-  async newScreenshot(camera?: Camera, dimensions?: Vector2) {
+  newScreenshot(camera?: Camera, dimensions?: Vector2) {
     const previousDimensions = this.getSize();
 
     const domElement = this.basicRenderer.domElement;
@@ -101,6 +101,7 @@ export class IfcRenderer extends IfcComponent {
       this.context.ifcCamera.updateAspect(dimensions);
     }
 
+    // todo add this later to have a centered screenshot
     // await this.context.getIfcCamera().currentNavMode.fitModelToFrame();
 
     const scene = this.context.getScene();

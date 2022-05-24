@@ -31,15 +31,15 @@ export class IfcDimensionLine {
   private endpoint: BufferGeometry;
 
   // Dimensions
-  public start: Vector3;
-  private end: Vector3;
-  public center: Vector3;
+  start: Vector3;
+  end: Vector3;
+  center: Vector3;
   private length: number;
   private scale = new Vector3(1, 1, 1);
 
   // Materials
-  private lineMaterial: LineBasicMaterial;
-  private endpointMaterial: MeshBasicMaterial;
+  private readonly lineMaterial: LineBasicMaterial;
+  private readonly endpointMaterial: MeshBasicMaterial;
 
   // Bounding box
   private boundingMesh?: Mesh;
@@ -119,7 +119,6 @@ export class IfcDimensionLine {
   get text() {
     return this.textLabel;
   }
-
 
   set dimensionColor(dimensionColor: Color) {
     this.endpointMaterial.color = dimensionColor;

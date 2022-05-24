@@ -1,4 +1,4 @@
-import { IfcViewerAPI } from '../viewer/dist/index';
+import { IfcViewerAPI } from 'web-ifc-viewer';
 import { createSideMenuButton } from './utils/gui-creator';
 import {
   IFCSPACE,
@@ -11,7 +11,7 @@ import {
   IFCPLATE
 } from 'web-ifc';
 import { MeshBasicMaterial, LineBasicMaterial, Color, Vector2 } from 'three';
-import { ClippingEdges } from '../viewer/dist/components/display/clipping-planes/clipping-edges';
+import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
 import Stats from 'stats.js/src/Stats';
 import jsPDF from 'jspdf';
 
@@ -239,7 +239,7 @@ pdfExportButton.addEventListener('click', async () => {
   viewer.pdf.newDocument('a', doc, 10);
 
   viewer.pdf.drawNamedLayer('a', planObj[currentPlan], 'thick', viewer.dimensions);
-  viewer.pdf.drawNamedLayer('a', planObj[currentPlan], 'thin', undefined);
+  viewer.pdf.drawNamedLayer('a', planObj[currentPlan], 'thin');
 
   viewer.pdf.exportPDF('a', 'test');
 });
