@@ -9419,6 +9419,16 @@
 
     BufferAttribute.prototype.isBufferAttribute = true;
 
+    class Uint8BufferAttribute extends BufferAttribute {
+
+    	constructor( array, itemSize, normalized ) {
+
+    		super( new Uint8Array( array ), itemSize, normalized );
+
+    	}
+
+    }
+
     class Uint16BufferAttribute extends BufferAttribute {
 
     	constructor( array, itemSize, normalized ) {
@@ -34304,6 +34314,157 @@
     	static fromJSON( data ) {
 
     		return new TorusGeometry( data.radius, data.tube, data.radialSegments, data.tubularSegments, data.arc );
+
+    	}
+
+    }
+
+    class TorusKnotGeometry extends BufferGeometry {
+
+    	constructor( radius = 1, tube = 0.4, tubularSegments = 64, radialSegments = 8, p = 2, q = 3 ) {
+
+    		super();
+    		this.type = 'TorusKnotGeometry';
+
+    		this.parameters = {
+    			radius: radius,
+    			tube: tube,
+    			tubularSegments: tubularSegments,
+    			radialSegments: radialSegments,
+    			p: p,
+    			q: q
+    		};
+
+    		tubularSegments = Math.floor( tubularSegments );
+    		radialSegments = Math.floor( radialSegments );
+
+    		// buffers
+
+    		const indices = [];
+    		const vertices = [];
+    		const normals = [];
+    		const uvs = [];
+
+    		// helper variables
+
+    		const vertex = new Vector3();
+    		const normal = new Vector3();
+
+    		const P1 = new Vector3();
+    		const P2 = new Vector3();
+
+    		const B = new Vector3();
+    		const T = new Vector3();
+    		const N = new Vector3();
+
+    		// generate vertices, normals and uvs
+
+    		for ( let i = 0; i <= tubularSegments; ++ i ) {
+
+    			// the radian "u" is used to calculate the position on the torus curve of the current tubular segement
+
+    			const u = i / tubularSegments * p * Math.PI * 2;
+
+    			// now we calculate two points. P1 is our current position on the curve, P2 is a little farther ahead.
+    			// these points are used to create a special "coordinate space", which is necessary to calculate the correct vertex positions
+
+    			calculatePositionOnCurve( u, p, q, radius, P1 );
+    			calculatePositionOnCurve( u + 0.01, p, q, radius, P2 );
+
+    			// calculate orthonormal basis
+
+    			T.subVectors( P2, P1 );
+    			N.addVectors( P2, P1 );
+    			B.crossVectors( T, N );
+    			N.crossVectors( B, T );
+
+    			// normalize B, N. T can be ignored, we don't use it
+
+    			B.normalize();
+    			N.normalize();
+
+    			for ( let j = 0; j <= radialSegments; ++ j ) {
+
+    				// now calculate the vertices. they are nothing more than an extrusion of the torus curve.
+    				// because we extrude a shape in the xy-plane, there is no need to calculate a z-value.
+
+    				const v = j / radialSegments * Math.PI * 2;
+    				const cx = - tube * Math.cos( v );
+    				const cy = tube * Math.sin( v );
+
+    				// now calculate the final vertex position.
+    				// first we orient the extrusion with our basis vectos, then we add it to the current position on the curve
+
+    				vertex.x = P1.x + ( cx * N.x + cy * B.x );
+    				vertex.y = P1.y + ( cx * N.y + cy * B.y );
+    				vertex.z = P1.z + ( cx * N.z + cy * B.z );
+
+    				vertices.push( vertex.x, vertex.y, vertex.z );
+
+    				// normal (P1 is always the center/origin of the extrusion, thus we can use it to calculate the normal)
+
+    				normal.subVectors( vertex, P1 ).normalize();
+
+    				normals.push( normal.x, normal.y, normal.z );
+
+    				// uv
+
+    				uvs.push( i / tubularSegments );
+    				uvs.push( j / radialSegments );
+
+    			}
+
+    		}
+
+    		// generate indices
+
+    		for ( let j = 1; j <= tubularSegments; j ++ ) {
+
+    			for ( let i = 1; i <= radialSegments; i ++ ) {
+
+    				// indices
+
+    				const a = ( radialSegments + 1 ) * ( j - 1 ) + ( i - 1 );
+    				const b = ( radialSegments + 1 ) * j + ( i - 1 );
+    				const c = ( radialSegments + 1 ) * j + i;
+    				const d = ( radialSegments + 1 ) * ( j - 1 ) + i;
+
+    				// faces
+
+    				indices.push( a, b, d );
+    				indices.push( b, c, d );
+
+    			}
+
+    		}
+
+    		// build geometry
+
+    		this.setIndex( indices );
+    		this.setAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
+    		this.setAttribute( 'normal', new Float32BufferAttribute( normals, 3 ) );
+    		this.setAttribute( 'uv', new Float32BufferAttribute( uvs, 2 ) );
+
+    		// this function calculates the current position on the torus curve
+
+    		function calculatePositionOnCurve( u, p, q, radius, position ) {
+
+    			const cu = Math.cos( u );
+    			const su = Math.sin( u );
+    			const quOverP = q / p * u;
+    			const cs = Math.cos( quOverP );
+
+    			position.x = radius * ( 2 + cs ) * 0.5 * cu;
+    			position.y = radius * ( 2 + cs ) * su * 0.5;
+    			position.z = radius * Math.sin( quOverP ) * 0.5;
+
+    		}
+
+    	}
+
+    	static fromJSON( data ) {
+
+    		return new TorusKnotGeometry( data.radius, data.tube, data.tubularSegments, data.radialSegments, data.p, data.q );
 
     	}
 
@@ -91465,6 +91626,10 @@
     const CENTER = 0;
     const AVERAGE = 1;
     const SAH = 2;
+
+    // Traversal constants
+    const NOT_INTERSECTED = 0;
+    const INTERSECTED = 1;
     const CONTAINED = 2;
 
     // SAH cost constants
@@ -115484,6 +115649,424 @@
         }
     }
 
+    // Math Functions
+    class SelectionWindowMath {
+        constructor() {
+            this.p0 = new Vector3();
+            this.getConvexHull = (points) => {
+                // find the lowest point in 2d
+                let lowestY = Infinity;
+                let lowestIndex = -1;
+                for (let i = 0, l = points.length; i < l; i++) {
+                    const p = points[i];
+                    if (p.y < lowestY) {
+                        lowestIndex = i;
+                        lowestY = p.y;
+                    }
+                }
+                // sort the points
+                this.p0 = points[lowestIndex];
+                points[lowestIndex] = points[0];
+                points[0] = this.p0;
+                points = points.sort(this.compare);
+                // filter the points
+                let m = 1;
+                const n = points.length;
+                for (let i = 1; i < n; i++) {
+                    while (i < n - 1 && this.orientation(this.p0, points[i], points[i + 1]) === 0) {
+                        i++;
+                    }
+                    points[m] = points[i];
+                    m++;
+                }
+                // early out if we don't have enough points for a hull
+                if (m < 3)
+                    return null;
+                // generate the hull
+                const hull = [points[0], points[1], points[2]];
+                for (let i = 3; i < m; i++) {
+                    while (this.orientation(hull[hull.length - 2], hull[hull.length - 1], points[i]) !== 2) {
+                        hull.pop();
+                    }
+                    hull.push(points[i]);
+                }
+                return hull;
+            };
+            this.orientation = (p, q, r) => {
+                const val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
+                if (val === 0) {
+                    return 0; // colinear
+                }
+                // clock or counterclock wise
+                return val > 0 ? 1 : 2;
+            };
+            this.distSq = (p1, p2) => {
+                return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
+            };
+            this.compare = (p1, p2) => {
+                // Find orientation
+                const o = this.orientation(this.p0, p1, p2);
+                if (o === 0)
+                    return this.distSq(this.p0, p2) >= this.distSq(this.p0, p1) ? -1 : 1;
+                return o === 2 ? -1 : 1;
+            };
+            this.pointRayCrossesLine = (point, line, prevDirection, thisDirection) => {
+                const { start, end } = line;
+                const px = point.x;
+                const py = point.y;
+                const sy = start.y;
+                const ey = end.y;
+                if (sy === ey)
+                    return false;
+                if (py > sy && py > ey)
+                    return false; // above
+                if (py < sy && py < ey)
+                    return false; // below
+                const sx = start.x;
+                const ex = end.x;
+                if (px > sx && px > ex)
+                    return false; // right
+                if (px < sx && px < ex) {
+                    // left
+                    if (py === sy && prevDirection !== thisDirection) {
+                        return false;
+                    }
+                    return true;
+                }
+                // check the side
+                const dx = ex - sx;
+                const dy = ey - sy;
+                const perpx = dy;
+                const perpy = -dx;
+                const pdx = px - sx;
+                const pdy = py - sy;
+                const dot = perpx * pdx + perpy * pdy;
+                if (Math.sign(dot) !== Math.sign(perpx)) {
+                    return true;
+                }
+                return false;
+            };
+            this.pointRayCrossesSegments = (point, segments) => {
+                let crossings = 0;
+                const firstSeg = segments[segments.length - 1];
+                let prevDirection = firstSeg.start.y > firstSeg.end.y;
+                for (let s = 0, l = segments.length; s < l; s++) {
+                    const line = segments[s];
+                    const thisDirection = line.start.y > line.end.y;
+                    if (this.pointRayCrossesLine(point, line, prevDirection, thisDirection)) {
+                        crossings++;
+                    }
+                    prevDirection = thisDirection;
+                }
+                return crossings;
+            };
+            // https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
+            this.lineCrossesLine = (l1, l2) => {
+                const A = l1.start;
+                const B = l1.end;
+                const C = l2.start;
+                const D = l2.end;
+                return this.ccw(A, C, D) !== this.ccw(B, C, D) && this.ccw(A, B, C) !== this.ccw(A, B, D);
+            };
+            this.ccw = (A, B, C) => {
+                return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);
+            };
+        }
+    }
+
+    // Source: https://gkjohnson.github.io/three-mesh-bvh/example/bundle/selection.html
+    class SelectionWindow {
+        constructor(context) {
+            this.context = context;
+            this.selectionColor = 0xff9800;
+            this.isDragging = false;
+            this.selectionShape = new Line();
+            this.selectionShapeInitialized = false;
+            this.selectionPoints = [];
+            this.prevX = -Infinity;
+            this.prevY = -Infinity;
+            this.startX = -Infinity;
+            this.startY = -Infinity;
+            this.toScreenSpaceMatrix = new Matrix4();
+            this.boxPoints = new Array(8).fill(new Vector3());
+            this.boxLines = new Array(12).fill(new Vector3());
+            this.lassoSegments = [];
+            this.perBoundsSegments = [];
+            this.indices = [];
+            this.params = {
+                selectModel: false,
+                selectionMode: 'intersection'
+            };
+            this.math = new SelectionWindowMath();
+            // temp
+            this.mesh = new Mesh(new TorusKnotGeometry(1.5, 0.5, 500, 60).toNonIndexed(), new MeshStandardMaterial({
+                polygonOffset: true,
+                polygonOffsetFactor: 1
+            }));
+            this.highlightMesh = new Mesh();
+            console.log(this.context);
+            console.log(this.prevX);
+            console.log(this.prevY);
+        }
+        startSelection(e) {
+            this.initializeSelectionShape();
+            this.prevX = e.clientX;
+            this.prevY = e.clientY;
+            this.startX = (e.clientX / window.innerWidth) * 2 - 1;
+            this.startY = -((e.clientY / window.innerHeight) * 2 - 1);
+            this.selectionPoints.length = 0;
+            // this.selectionShape.visible = true;
+            this.isDragging = true;
+        }
+        updateSelection(e) {
+            if (!this.isDragging)
+                return;
+            const ex = e.clientX;
+            const ey = e.clientY;
+            const nx = (e.clientX / window.innerWidth) * 2 - 1;
+            const ny = -((e.clientY / window.innerHeight) * 2 - 1);
+            this.selectionPoints[0] = this.startX;
+            this.selectionPoints[1] = this.startY;
+            this.selectionPoints[2] = 0;
+            this.selectionPoints[3] = nx;
+            this.selectionPoints[4] = this.startY;
+            this.selectionPoints[5] = 0;
+            this.selectionPoints[6] = nx;
+            this.selectionPoints[7] = ny;
+            this.selectionPoints[8] = 0;
+            this.selectionPoints[9] = this.startX;
+            this.selectionPoints[10] = ny;
+            this.selectionPoints[11] = 0;
+            this.selectionPoints[12] = this.startX;
+            this.selectionPoints[13] = this.startY;
+            this.selectionPoints[14] = 0;
+            this.prevX = ex;
+            this.prevY = ey;
+            this.selectionShape.geometry.setAttribute('position', new Float32BufferAttribute(this.selectionPoints, 3, false));
+            this.selectionShape.geometry.attributes.position.needsUpdate = true;
+            const camera = this.context.getCamera();
+            const yScale = Math.tan((MathUtils.DEG2RAD * camera.fov) / 2) * this.selectionShape.position.z;
+            this.selectionShape.scale.set(-yScale * camera.aspect, -yScale, 1);
+        }
+        endSelection() {
+            this.updateSelectedGeometry();
+            // this.selectionShape.visible = false;
+            console.log(this.selectionPoints);
+            this.isDragging = false;
+        }
+        updateSelectedGeometry() {
+            const camera = this.context.getCamera();
+            this.toScreenSpaceMatrix
+                .copy(this.mesh.matrixWorld)
+                .premultiply(camera.matrixWorldInverse)
+                .premultiply(camera.projectionMatrix);
+            // create scratch points and lines to use for selection
+            while (this.lassoSegments.length < this.selectionPoints.length) {
+                this.lassoSegments.push(new Line3());
+            }
+            this.lassoSegments.length = this.selectionPoints.length;
+            for (let s = 0, l = this.selectionPoints.length; s < l; s += 3) {
+                const line = this.lassoSegments[s];
+                const sNext = (s + 3) % l;
+                line.start.x = this.selectionPoints[s];
+                line.start.y = this.selectionPoints[s + 1];
+                line.end.x = this.selectionPoints[sNext];
+                line.end.y = this.selectionPoints[sNext + 1];
+            }
+            this.indices = [];
+            this.shapeCast();
+            console.log(this.indices);
+        }
+        shapeCast() {
+            if (!this.mesh.geometry.boundsTree) {
+                this.mesh.geometry.computeBoundsTree();
+            }
+            if (!this.mesh.geometry.boundsTree)
+                return;
+            this.mesh.geometry.boundsTree.shapecast({
+                intersectsBounds: (box, _isLeaf, _score, depth) => {
+                    // Get the bounding box points
+                    const { min, max } = box;
+                    let index = 0;
+                    let minY = Infinity;
+                    let maxY = -Infinity;
+                    let minX = Infinity;
+                    for (let x = 0; x <= 1; x++) {
+                        for (let y = 0; y <= 1; y++) {
+                            for (let z = 0; z <= 1; z++) {
+                                const v = this.boxPoints[index];
+                                v.x = x === 0 ? min.x : max.x;
+                                v.y = y === 0 ? min.y : max.y;
+                                v.z = z === 0 ? min.z : max.z;
+                                v.w = 1;
+                                v.applyMatrix4(this.toScreenSpaceMatrix);
+                                index++;
+                                if (v.y < minY)
+                                    minY = v.y;
+                                if (v.y > maxY)
+                                    maxY = v.y;
+                                if (v.x < minX)
+                                    minX = v.x;
+                            }
+                        }
+                    }
+                    // Find all the relevant segments here and cache them in the above array for
+                    // subsequent child checks to use.
+                    const parentSegments = this.perBoundsSegments[depth - 1] || this.lassoSegments;
+                    const segmentsToCheck = this.perBoundsSegments[depth] || [];
+                    segmentsToCheck.length = 0;
+                    this.perBoundsSegments[depth] = segmentsToCheck;
+                    for (let i = 0, l = parentSegments.length; i < l; i++) {
+                        const line = parentSegments[i];
+                        const sx = line.start.x;
+                        const sy = line.start.y;
+                        const ex = line.end.x;
+                        const ey = line.end.y;
+                        if (sx < minX && ex < minX)
+                            continue;
+                        const startAbove = sy > maxY;
+                        const endAbove = ey > maxY;
+                        if (startAbove && endAbove)
+                            continue;
+                        const startBelow = sy < minY;
+                        const endBelow = ey < minY;
+                        if (startBelow && endBelow)
+                            continue;
+                        segmentsToCheck.push(line);
+                    }
+                    if (segmentsToCheck.length === 0) {
+                        return NOT_INTERSECTED;
+                    }
+                    // Get the screen space hull lines
+                    const hull = this.math.getConvexHull(this.boxPoints);
+                    if (!hull) {
+                        return NOT_INTERSECTED;
+                    }
+                    const lines = hull.map((p, i) => {
+                        const nextP = hull[(i + 1) % hull.length];
+                        const line = this.boxLines[i];
+                        line.start.copy(p);
+                        line.end.copy(nextP);
+                        return line;
+                    });
+                    // If a lasso point is inside the hull then it's intersected and cannot be contained
+                    if (this.math.pointRayCrossesSegments(segmentsToCheck[0].start, lines) % 2 === 1) {
+                        return INTERSECTED;
+                    }
+                    // check if the screen space hull is in the lasso
+                    let crossings = 0;
+                    for (let i = 0, l = hull.length; i < l; i++) {
+                        const v = hull[i];
+                        const pCrossings = this.math.pointRayCrossesSegments(v, segmentsToCheck);
+                        if (i === 0) {
+                            crossings = pCrossings;
+                        }
+                        // if two points on the hull have different amounts of crossings then
+                        // it can only be intersected
+                        if (crossings !== pCrossings) {
+                            return INTERSECTED;
+                        }
+                    }
+                    // check if there are any intersections
+                    for (let i = 0, l = lines.length; i < l; i++) {
+                        const boxLine = lines[i];
+                        for (let s = 0, ls = segmentsToCheck.length; s < ls; s++) {
+                            if (this.math.lineCrossesLine(boxLine, segmentsToCheck[s])) {
+                                return INTERSECTED;
+                            }
+                        }
+                    }
+                    return crossings % 2 === 0 ? NOT_INTERSECTED : CONTAINED;
+                },
+                intersectsTriangle: (tri, index, contained, depth) => {
+                    const i3 = index * 3;
+                    const a = i3 + 0;
+                    const b = i3 + 1;
+                    const c = i3 + 2;
+                    // if the parent bounds were marked as contained
+                    if (contained) {
+                        this.indices.push(a, b, c);
+                        return this.params.selectModel;
+                    }
+                    // check all the segments if using no bounds tree
+                    const segmentsToCheck = this.perBoundsSegments[depth];
+                    if (this.params.selectionMode === 'centroid') {
+                        // get the center of the triangle
+                        const centroid = tri.a
+                            .add(tri.b)
+                            .add(tri.c)
+                            .multiplyScalar(1 / 3);
+                        centroid.applyMatrix4(this.toScreenSpaceMatrix);
+                        // counting the crossings
+                        const crossings = this.math.pointRayCrossesSegments(centroid, segmentsToCheck);
+                        if (crossings % 2 === 1) {
+                            this.indices.push(a, b, c);
+                            return this.params.selectModel;
+                        }
+                    }
+                    else if (this.params.selectionMode === 'intersection') {
+                        // get the projected vertices
+                        const vertices = [tri.a, tri.b, tri.c];
+                        for (let j = 0; j < 3; j++) {
+                            const v = vertices[j];
+                            v.applyMatrix4(this.toScreenSpaceMatrix);
+                            const crossings = this.math.pointRayCrossesSegments(v, segmentsToCheck);
+                            if (crossings % 2 === 1) {
+                                this.indices.push(a, b, c);
+                                return this.params.selectModel;
+                            }
+                        }
+                        // get the lines for the triangle
+                        const lines = [this.boxLines[0], this.boxLines[1], this.boxLines[2]];
+                        lines[0].start.copy(tri.a);
+                        lines[0].end.copy(tri.b);
+                        lines[1].start.copy(tri.b);
+                        lines[1].end.copy(tri.c);
+                        lines[2].start.copy(tri.c);
+                        lines[2].end.copy(tri.a);
+                        for (let i = 0; i < 3; i++) {
+                            const l = lines[i];
+                            for (let s = 0, sl = segmentsToCheck.length; s < sl; s++) {
+                                if (this.math.lineCrossesLine(l, segmentsToCheck[s])) {
+                                    this.indices.push(a, b, c);
+                                    return this.params.selectModel;
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                }
+            });
+        }
+        initializeSelectionShape() {
+            if (this.selectionShapeInitialized)
+                return;
+            console.log(this.mesh);
+            const selectionShapeMaterial = this.selectionShape.material;
+            selectionShapeMaterial.color.set(this.selectionColor).convertSRGBToLinear();
+            selectionShapeMaterial.depthTest = false;
+            this.selectionShape.renderOrder = 1;
+            this.selectionShape.position.z = -1;
+            this.selectionShape.scale.setScalar(1);
+            // this.selectionShape.visible = false;
+            this.selectionShape.frustumCulled = false;
+            const camera = this.context.getCamera();
+            const scene = this.context.getScene();
+            camera.add(this.selectionShape);
+            scene.add(camera);
+            scene.add(this.mesh);
+            this.highlightMesh.geometry = this.mesh.geometry.clone();
+            this.highlightMesh.geometry.drawRange.count = 0;
+            this.highlightMesh.material = new MeshBasicMaterial({
+                opacity: 0.05,
+                transparent: true,
+                depthWrite: false
+            });
+            this.highlightMesh.material.color.set(0xff9800).convertSRGBToLinear();
+            this.highlightMesh.renderOrder = 1;
+        }
+    }
+
     class IfcViewerAPI {
         constructor(options) {
             /**
@@ -115547,6 +116130,7 @@
             this.pdf = new PDFWriter();
             this.GLTF = new GLTFManager(this.context, this.IFC);
             this.dropbox = new DropboxAPI(this.context, this.IFC);
+            this.selectionWindow = new SelectionWindow(this.context);
             ClippingEdges.ifc = this.IFC;
             ClippingEdges.context = this.context;
         }
@@ -115873,6 +116457,718 @@
 
     };
 
+    const params = {
+
+      toolMode: 'box',
+      selectionMode: 'intersection',
+      liveUpdate: false,
+      selectModel: false,
+      wireframe: false,
+      useBoundsTree: true,
+
+      displayHelper: false,
+      helperDepth: 10,
+      rotate: true,
+
+    };
+
+    let selectionShape, mesh;
+    let highlightMesh, highlightWireframeMesh, group;
+    const selectionPoints = [];
+    let selectionShapeNeedsUpdate = false;
+    let selectionNeedsUpdate = false;
+
+    let camera$1;
+
+
+    function init(scene, currentCamera) {
+
+      // camera setup
+      // camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 50 );
+      // camera.position.set( 2, 4, 6 );
+      // camera.far = 100;
+      // camera.updateProjectionMatrix();
+      // scene.add( camera );
+
+      camera$1 = currentCamera;
+
+      // selection shape
+      selectionShape = new Line();
+      selectionShape.material.color.set( 0xff9800 ).convertSRGBToLinear();
+      selectionShape.renderOrder = 1;
+      selectionShape.position.z = - .2;
+      selectionShape.depthTest = false;
+      selectionShape.scale.setScalar( 1 );
+      selectionShape.frustumCulled = false;
+      camera$1.add( selectionShape );
+
+      // group for rotation
+      group = new Group();
+      scene.add( group );
+
+      // base mesh
+      mesh = new Mesh(
+        new TorusKnotGeometry( 1.5, 0.5, 500, 60 ).toNonIndexed(),
+        new MeshStandardMaterial( {
+          polygonOffset: true,
+          polygonOffsetFactor: 1,
+        } )
+      );
+      mesh.geometry.boundsTree = new MeshBVH( mesh.geometry );
+      mesh.geometry.setAttribute( 'color', new Uint8BufferAttribute(
+        new Array( mesh.geometry.index.count * 3 ).fill( 255 ), 3, true
+      ) );
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      group.add( mesh );
+
+      // meshes for selection highlights
+      highlightMesh = new Mesh();
+      highlightMesh.geometry = mesh.geometry.clone();
+      highlightMesh.geometry.drawRange.count = 0;
+      highlightMesh.material = new MeshBasicMaterial( {
+        opacity: 0.05,
+        transparent: true,
+        depthWrite: false,
+      } );
+      highlightMesh.material.color.set( 0xff9800 ).convertSRGBToLinear();
+      highlightMesh.renderOrder = 1;
+      group.add( highlightMesh );
+
+      highlightWireframeMesh = new Mesh();
+      highlightWireframeMesh.geometry = highlightMesh.geometry;
+      highlightWireframeMesh.material = new MeshBasicMaterial( {
+        opacity: 0.25,
+        transparent: true,
+        wireframe: true,
+        depthWrite: false,
+      } );
+      highlightWireframeMesh.material.color.copy( highlightMesh.material.color );
+      highlightWireframeMesh.renderOrder = 2;
+      group.add( highlightWireframeMesh );
+
+      // add floor
+      const shadowPlane = new Mesh(
+        new PlaneGeometry(),
+        new ShadowMaterial( { color: 0, opacity: 0.2, depthWrite: false } )
+      );
+      shadowPlane.position.y = - 2.74;
+      shadowPlane.rotation.x = - Math.PI / 2;
+      shadowPlane.scale.setScalar( 20 );
+      shadowPlane.renderOrder = 2;
+      shadowPlane.receiveShadow = true;
+      scene.add( shadowPlane );
+
+
+      // handle building lasso shape
+      let startX = - Infinity;
+      let startY = - Infinity;
+
+      let prevX = - Infinity;
+      let prevY = - Infinity;
+
+      new Vector2();
+      new Vector2();
+      new Vector2();
+
+      window.addEventListener( 'pointerdown', e => {
+
+        prevX = e.clientX;
+        prevY = e.clientY;
+        startX = ( e.clientX / window.innerWidth ) * 2 - 1;
+        startY = - ( ( e.clientY / window.innerHeight ) * 2 - 1 );
+        selectionPoints.length = 0;
+
+      } );
+
+      window.addEventListener( 'pointerup', () => {
+
+        selectionShape.visible = false;
+        if ( selectionPoints.length ) {
+
+          selectionNeedsUpdate = true;
+
+        }
+
+        update();
+
+      } );
+
+      window.addEventListener( 'pointermove', e => {
+
+        // If the left mouse button is not pressed
+        if ( ( 1 & e.buttons ) === 0 ) {
+
+          return;
+
+        }
+
+        const ex = e.clientX;
+        const ey = e.clientY;
+
+        const nx = ( e.clientX / window.innerWidth ) * 2 - 1;
+        const ny = - ( ( e.clientY / window.innerHeight ) * 2 - 1 );
+
+        {
+
+          // set points for the corner of the box
+          selectionPoints.length = 3 * 5;
+
+          selectionPoints[ 0 ] = startX;
+          selectionPoints[ 1 ] = startY;
+          selectionPoints[ 2 ] = 0;
+
+          selectionPoints[ 3 ] = nx;
+          selectionPoints[ 4 ] = startY;
+          selectionPoints[ 5 ] = 0;
+
+          selectionPoints[ 6 ] = nx;
+          selectionPoints[ 7 ] = ny;
+          selectionPoints[ 8 ] = 0;
+
+          selectionPoints[ 9 ] = startX;
+          selectionPoints[ 10 ] = ny;
+          selectionPoints[ 11 ] = 0;
+
+          selectionPoints[ 12 ] = startX;
+          selectionPoints[ 13 ] = startY;
+          selectionPoints[ 14 ] = 0;
+
+          if ( ex !== prevX || ey !== prevY ) {
+
+            selectionShapeNeedsUpdate = true;
+
+
+          }
+
+          prevX = ex;
+          prevY = ey;
+          selectionShape.visible = true;
+
+        }
+
+        updateSelectionLasso();
+
+      } );
+
+      update();
+
+    }
+
+    function updateSelectionLasso() {
+      if ( selectionShapeNeedsUpdate ) {
+
+        {
+
+          selectionShape.geometry.setAttribute(
+            'position',
+            new Float32BufferAttribute( selectionPoints, 3, false )
+          );
+
+        }
+
+        selectionShapeNeedsUpdate = false;
+
+      }
+    }
+
+    function update() {
+
+      // requestAnimationFrame( render );
+
+      mesh.material.wireframe = params.wireframe;
+
+      // Update the selection lasso lines
+
+
+      if ( selectionNeedsUpdate ) {
+
+        selectionNeedsUpdate = false;
+
+        if ( selectionPoints.length > 0 ) {
+
+          updateSelection();
+
+        }
+
+      }
+
+      const yScale = Math.tan( MathUtils.DEG2RAD * camera$1.fov / 2 ) * selectionShape.position.z;
+      selectionShape.scale.set( - yScale * camera$1.aspect, - yScale, 1 );
+
+    }
+
+    const toScreenSpaceMatrix = new Matrix4();
+    const boxPoints = new Array( 8 ).fill().map( () => new Vector3() );
+    const boxLines = new Array( 12 ).fill().map( () => new Line3() );
+    const lassoSegments = [];
+    const perBoundsSegments = [];
+    function updateSelection() {
+
+      // TODO: Possible improvements
+      // - Correctly handle the camera near clip
+      // - Improve line line intersect performance?
+
+      toScreenSpaceMatrix
+        .copy( mesh.matrixWorld )
+        .premultiply( camera$1.matrixWorldInverse )
+        .premultiply( camera$1.projectionMatrix );
+
+      // create scratch points and lines to use for selection
+      while ( lassoSegments.length < selectionPoints.length ) {
+
+        lassoSegments.push( new Line3() );
+
+      }
+
+      lassoSegments.length = selectionPoints.length;
+
+      for ( let s = 0, l = selectionPoints.length; s < l; s += 3 ) {
+
+        const line = lassoSegments[ s ];
+        const sNext = ( s + 3 ) % l;
+        line.start.x = selectionPoints[ s ];
+        line.start.y = selectionPoints[ s + 1 ];
+
+        line.end.x = selectionPoints[ sNext ];
+        line.end.y = selectionPoints[ sNext + 1 ];
+
+      }
+
+      const indices = [];
+      mesh.geometry.boundsTree.shapecast( {
+        intersectsBounds: ( box, isLeaf, score, depth ) => {
+
+          // Get the bounding box points
+          const { min, max } = box;
+          let index = 0;
+
+          let minY = Infinity;
+          let maxY = - Infinity;
+          let minX = Infinity;
+          for ( let x = 0; x <= 1; x ++ ) {
+
+            for ( let y = 0; y <= 1; y ++ ) {
+
+              for ( let z = 0; z <= 1; z ++ ) {
+
+                const v = boxPoints[ index ];
+                v.x = x === 0 ? min.x : max.x;
+                v.y = y === 0 ? min.y : max.y;
+                v.z = z === 0 ? min.z : max.z;
+                v.w = 1;
+                v.applyMatrix4( toScreenSpaceMatrix );
+                index ++;
+
+                if ( v.y < minY ) minY = v.y;
+                if ( v.y > maxY ) maxY = v.y;
+                if ( v.x < minX ) minX = v.x;
+
+              }
+
+            }
+
+          }
+
+          // Find all the relevant segments here and cache them in the above array for
+          // subsequent child checks to use.
+          const parentSegments = perBoundsSegments[ depth - 1 ] || lassoSegments;
+          const segmentsToCheck = perBoundsSegments[ depth ] || [];
+          segmentsToCheck.length = 0;
+          perBoundsSegments[ depth ] = segmentsToCheck;
+          for ( let i = 0, l = parentSegments.length; i < l; i ++ ) {
+
+            const line = parentSegments[ i ];
+            const sx = line.start.x;
+            const sy = line.start.y;
+            const ex = line.end.x;
+            const ey = line.end.y;
+            if ( sx < minX && ex < minX ) continue;
+
+            const startAbove = sy > maxY;
+            const endAbove = ey > maxY;
+            if ( startAbove && endAbove ) continue;
+
+            const startBelow = sy < minY;
+            const endBelow = ey < minY;
+            if ( startBelow && endBelow ) continue;
+
+            segmentsToCheck.push( line );
+
+          }
+
+          if ( segmentsToCheck.length === 0 ) {
+
+            return NOT_INTERSECTED;
+
+          }
+
+          // Get the screen space hull lines
+          const hull = getConvexHull( boxPoints );
+          const lines = hull.map( ( p, i ) => {
+
+            const nextP = hull[ ( i + 1 ) % hull.length ];
+            const line = boxLines[ i ];
+            line.start.copy( p );
+            line.end.copy( nextP );
+            return line;
+
+          } );
+
+          // If a lasso point is inside the hull then it's intersected and cannot be contained
+          if ( pointRayCrossesSegments( segmentsToCheck[ 0 ].start, lines ) % 2 === 1 ) {
+
+            return INTERSECTED;
+
+          }
+
+          // check if the screen space hull is in the lasso
+          let crossings = 0;
+          for ( let i = 0, l = hull.length; i < l; i ++ ) {
+
+            const v = hull[ i ];
+            const pCrossings = pointRayCrossesSegments( v, segmentsToCheck );
+
+            if ( i === 0 ) {
+
+              crossings = pCrossings;
+
+            }
+
+            // if two points on the hull have different amounts of crossings then
+            // it can only be intersected
+            if ( crossings !== pCrossings ) {
+
+              return INTERSECTED;
+
+            }
+
+          }
+
+          // check if there are any intersections
+          for ( let i = 0, l = lines.length; i < l; i ++ ) {
+
+            const boxLine = lines[ i ];
+            for ( let s = 0, ls = segmentsToCheck.length; s < ls; s ++ ) {
+
+              if ( lineCrossesLine( boxLine, segmentsToCheck[ s ] ) ) {
+
+                return INTERSECTED;
+
+              }
+
+            }
+
+          }
+
+          return crossings % 2 === 0 ? NOT_INTERSECTED : CONTAINED;
+
+        },
+
+        intersectsTriangle: ( tri, index, contained, depth ) => {
+
+          const i3 = index * 3;
+          const a = i3 + 0;
+          const b = i3 + 1;
+          const c = i3 + 2;
+
+          // if the parent bounds were marked as contained
+          if ( contained ) {
+
+            indices.push( a, b, c );
+            return params.selectModel;
+
+          }
+
+          // check all the segments if using no bounds tree
+          const segmentsToCheck = perBoundsSegments[ depth ] ;
+          {
+
+            // get the projected vertices
+            const vertices = [
+              tri.a,
+              tri.b,
+              tri.c,
+            ];
+
+            for ( let j = 0; j < 3; j ++ ) {
+
+              const v = vertices[ j ];
+              v.applyMatrix4( toScreenSpaceMatrix );
+
+              const crossings = pointRayCrossesSegments( v, segmentsToCheck );
+              if ( crossings % 2 === 1 ) {
+
+                indices.push( a, b, c );
+                return params.selectModel;
+
+              }
+
+            }
+
+            // get the lines for the triangle
+            const lines = [
+              boxLines[ 0 ],
+              boxLines[ 1 ],
+              boxLines[ 2 ],
+            ];
+
+            lines[ 0 ].start.copy( tri.a );
+            lines[ 0 ].end.copy( tri.b );
+
+            lines[ 1 ].start.copy( tri.b );
+            lines[ 1 ].end.copy( tri.c );
+
+            lines[ 2 ].start.copy( tri.c );
+            lines[ 2 ].end.copy( tri.a );
+
+            for ( let i = 0; i < 3; i ++ ) {
+
+              const l = lines[ i ];
+              for ( let s = 0, sl = segmentsToCheck.length; s < sl; s ++ ) {
+
+                if ( lineCrossesLine( l, segmentsToCheck[ s ] ) ) {
+
+                  indices.push( a, b, c );
+                  return params.selectModel;
+
+                }
+
+              }
+
+            }
+
+          }
+
+          return false;
+
+        }
+
+      } );
+
+
+      const indexAttr = mesh.geometry.index;
+      const newIndexAttr = highlightMesh.geometry.index;
+      if ( indices.length && params.selectModel ) {
+
+        // if we found indices and we want to select the whole model
+        for ( let i = 0, l = indexAttr.count; i < l; i ++ ) {
+
+          const i2 = indexAttr.getX( i );
+          newIndexAttr.setX( i, i2 );
+
+        }
+
+        highlightMesh.geometry.drawRange.count = Infinity;
+        newIndexAttr.needsUpdate = true;
+
+      } else {
+
+        // update the highlight mesh
+        for ( let i = 0, l = indices.length; i < l; i ++ ) {
+
+          const i2 = indexAttr.getX( indices[ i ] );
+          newIndexAttr.setX( i, i2 );
+
+        }
+
+        highlightMesh.geometry.drawRange.count = indices.length;
+        newIndexAttr.needsUpdate = true;
+
+      }
+
+    }
+
+    // Math Functions
+    // https://www.geeksforgeeks.org/convex-hull-set-2-graham-scan/
+    function getConvexHull( points ) {
+
+      function orientation( p, q, r ) {
+
+        const val =
+          ( q.y - p.y ) * ( r.x - q.x ) -
+          ( q.x - p.x ) * ( r.y - q.y );
+
+        if ( val == 0 ) {
+
+          return 0; // colinear
+
+        }
+
+        // clock or counterclock wise
+        return ( val > 0 ) ? 1 : 2;
+
+      }
+
+      function distSq( p1, p2 ) {
+
+        return ( p1.x - p2.x ) * ( p1.x - p2.x ) +
+          ( p1.y - p2.y ) * ( p1.y - p2.y );
+
+      }
+
+      function compare( p1, p2 ) {
+
+        // Find orientation
+        const o = orientation( p0, p1, p2 );
+        if ( o == 0 )
+          return ( distSq( p0, p2 ) >= distSq( p0, p1 ) ) ? - 1 : 1;
+
+        return ( o == 2 ) ? - 1 : 1;
+
+      }
+
+      // find the lowest point in 2d
+      let lowestY = Infinity;
+      let lowestIndex = - 1;
+      for ( let i = 0, l = points.length; i < l; i ++ ) {
+
+        const p = points[ i ];
+        if ( p.y < lowestY ) {
+
+          lowestIndex = i;
+          lowestY = p.y;
+
+        }
+
+      }
+
+      // sort the points
+      const p0 = points[ lowestIndex ];
+      points[ lowestIndex ] = points[ 0 ];
+      points[ 0 ] = p0;
+
+      points = points.sort( compare );
+
+      // filter the points
+      let m = 1;
+      const n = points.length;
+      for ( let i = 1; i < n; i ++ ) {
+
+        while ( i < n - 1 && orientation( p0, points[ i ], points[ i + 1 ] ) == 0 ) {
+
+          i ++;
+
+        }
+
+        points[ m ] = points[ i ];
+        m ++;
+
+      }
+
+      // early out if we don't have enough points for a hull
+      if ( m < 3 ) return null;
+
+      // generate the hull
+      const hull = [ points[ 0 ], points[ 1 ], points[ 2 ] ];
+      for ( let i = 3; i < m; i ++ ) {
+
+        while ( orientation( hull[ hull.length - 2 ], hull[ hull.length - 1 ], points[ i ] ) !== 2 ) {
+
+          hull.pop();
+
+        }
+
+        hull.push( points[ i ] );
+
+      }
+
+      return hull;
+
+    }
+
+    function pointRayCrossesLine( point, line, prevDirection, thisDirection ) {
+
+      const { start, end } = line;
+      const px = point.x;
+      const py = point.y;
+
+      const sy = start.y;
+      const ey = end.y;
+
+      if ( sy === ey ) return false;
+
+      if ( py > sy && py > ey ) return false; // above
+      if ( py < sy && py < ey ) return false; // below
+
+      const sx = start.x;
+      const ex = end.x;
+      if ( px > sx && px > ex ) return false; // right
+      if ( px < sx && px < ex ) { // left
+
+        if ( py === sy && prevDirection !== thisDirection ) {
+
+          return false;
+
+        }
+
+        return true;
+
+      }
+
+      // check the side
+      const dx = ex - sx;
+      const dy = ey - sy;
+      const perpx = dy;
+      const perpy = - dx;
+
+      const pdx = px - sx;
+      const pdy = py - sy;
+
+      const dot = perpx * pdx + perpy * pdy;
+
+      if ( Math.sign( dot ) !== Math.sign( perpx ) ) {
+
+        return true;
+
+      }
+
+      return false;
+
+    }
+
+    function pointRayCrossesSegments( point, segments ) {
+
+      let crossings = 0;
+      const firstSeg = segments[ segments.length - 1 ];
+      let prevDirection = firstSeg.start.y > firstSeg.end.y;
+      for ( let s = 0, l = segments.length; s < l; s ++ ) {
+
+        const line = segments[ s ];
+        const thisDirection = line.start.y > line.end.y;
+        if ( pointRayCrossesLine( point, line, prevDirection, thisDirection ) ) {
+
+          crossings ++;
+
+        }
+
+        prevDirection = thisDirection;
+
+      }
+
+      return crossings;
+
+    }
+
+    // https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
+    function lineCrossesLine( l1, l2 ) {
+
+      function ccw( A, B, C ) {
+
+        return ( C.y - A.y ) * ( B.x - A.x ) > ( B.y - A.y ) * ( C.x - A.x );
+
+      }
+
+      const A = l1.start;
+      const B = l1.end;
+
+      const C = l2.start;
+      const D = l2.end;
+
+      return ccw( A, C, D ) !== ccw( B, C, D ) && ccw( A, B, C ) !== ccw( A, B, D );
+
+    }
+
     const container = document.getElementById('viewer-container');
     const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255, 255) });
     viewer.axes.setAxes();
@@ -115965,18 +117261,30 @@
     inputElement.classList.add('hidden');
     inputElement.addEventListener('change', loadIfc, false);
 
-    const handleKeyDown = async (event) => {
-      if (event.code === 'Delete') {
-        viewer.clipper.deletePlane();
-        viewer.dimensions.delete();
-      }
-      if (event.code === 'Escape') {
-        viewer.IFC.selector.unpickIfcItems();
-      }
-    };
+    const scene = viewer.context.getScene();
+    const camera = viewer.context.getCamera();
+    scene.add(camera);
+    init(scene, camera);
 
-    window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
-    window.onkeydown = handleKeyDown;
+    viewer.context.ifcCamera.cameraControls.mouseButtons.left = 0;
+
+    // const handleKeyDown = async (event) => {
+      // if (event.code === 'Delete') {
+      //   viewer.clipper.deletePlane();
+      //   viewer.dimensions.delete();
+      // }
+      // if (event.code === 'Escape') {
+      //   viewer.IFC.selector.unpickIfcItems();
+      // }
+    // };
+    // window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
+
+
+    // window.onmousedown = (e) => viewer.selectionWindow.startSelection(e);
+    // window.onmousemove = (e) => viewer.selectionWindow.updateSelection(e);
+    // window.onmouseup = (e) => viewer.selectionWindow.endSelection(e);
+
+
     window.ondblclick = async () => {
 
       if (viewer.clipper.active) {
@@ -115989,6 +117297,9 @@
         console.log(props);
       }
     };
+
+    const controls = viewer.context.ifcCamera.cameraControls;
+    controls.mouseButtons.left = 0;
 
     //Setup UI
     const loadButton = createSideMenuButton('./resources/folder-icon.svg');

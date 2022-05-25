@@ -34,6 +34,7 @@ module.exports = {
     'no-restricted-syntax': 'off',
     'no-useless-constructor': 'off',
     'no-empty-function': 'off',
+    'no-continue': 'off',
     'import/extensions': [
       'error',
       'ignorePackages',

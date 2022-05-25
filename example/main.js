@@ -6,6 +6,7 @@ import {
 import { MeshBasicMaterial, LineBasicMaterial, Color } from 'three';
 import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
 import Stats from 'stats.js/src/Stats';
+import { init } from './box-selection';
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255, 255) });
@@ -99,18 +100,30 @@ inputElement.setAttribute('type', 'file');
 inputElement.classList.add('hidden');
 inputElement.addEventListener('change', loadIfc, false);
 
-const handleKeyDown = async (event) => {
-  if (event.code === 'Delete') {
-    viewer.clipper.deletePlane();
-    viewer.dimensions.delete();
-  }
-  if (event.code === 'Escape') {
-    viewer.IFC.selector.unpickIfcItems();
-  }
-};
+const scene = viewer.context.getScene();
+const camera = viewer.context.getCamera();
+scene.add(camera);
+init(scene, camera);
 
-window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
-window.onkeydown = handleKeyDown;
+viewer.context.ifcCamera.cameraControls.mouseButtons.left = 0;
+
+// const handleKeyDown = async (event) => {
+  // if (event.code === 'Delete') {
+  //   viewer.clipper.deletePlane();
+  //   viewer.dimensions.delete();
+  // }
+  // if (event.code === 'Escape') {
+  //   viewer.IFC.selector.unpickIfcItems();
+  // }
+// };
+// window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
+
+
+// window.onmousedown = (e) => viewer.selectionWindow.startSelection(e);
+// window.onmousemove = (e) => viewer.selectionWindow.updateSelection(e);
+// window.onmouseup = (e) => viewer.selectionWindow.endSelection(e);
+
+
 window.ondblclick = async () => {
 
   if (viewer.clipper.active) {
@@ -123,6 +136,9 @@ window.ondblclick = async () => {
     console.log(props);
   }
 };
+
+const controls = viewer.context.ifcCamera.cameraControls;
+controls.mouseButtons.left = 0;
 
 //Setup UI
 const loadButton = createSideMenuButton('./resources/folder-icon.svg');
