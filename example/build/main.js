@@ -9419,16 +9419,6 @@
 
     BufferAttribute.prototype.isBufferAttribute = true;
 
-    class Uint8BufferAttribute extends BufferAttribute {
-
-    	constructor( array, itemSize, normalized ) {
-
-    		super( new Uint8Array( array ), itemSize, normalized );
-
-    	}
-
-    }
-
     class Uint16BufferAttribute extends BufferAttribute {
 
     	constructor( array, itemSize, normalized ) {
@@ -116459,7 +116449,7 @@
 
     const params = {
 
-      toolMode: 'box',
+      toolMode: 'lasso',
       selectionMode: 'intersection',
       liveUpdate: false,
       selectModel: false,
@@ -116472,25 +116462,20 @@
 
     };
 
-    let selectionShape, mesh;
-    let highlightMesh, highlightWireframeMesh, group;
+    let selectionShape;
+    let group;
     const selectionPoints = [];
     let selectionShapeNeedsUpdate = false;
     let selectionNeedsUpdate = false;
 
     let camera$1;
+    let onSelected;
 
 
-    function init(scene, currentCamera) {
-
-      // camera setup
-      // camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 50 );
-      // camera.position.set( 2, 4, 6 );
-      // camera.far = 100;
-      // camera.updateProjectionMatrix();
-      // scene.add( camera );
+    function init(scene, currentCamera, meshes, onSelectedCallback) {
 
       camera$1 = currentCamera;
+      onSelected = onSelectedCallback;
 
       // selection shape
       selectionShape = new Line();
@@ -116506,78 +116491,23 @@
       group = new Group();
       scene.add( group );
 
-      // base mesh
-      mesh = new Mesh(
-        new TorusKnotGeometry( 1.5, 0.5, 500, 60 ).toNonIndexed(),
-        new MeshStandardMaterial( {
-          polygonOffset: true,
-          polygonOffsetFactor: 1,
-        } )
-      );
-      mesh.geometry.boundsTree = new MeshBVH( mesh.geometry );
-      mesh.geometry.setAttribute( 'color', new Uint8BufferAttribute(
-        new Array( mesh.geometry.index.count * 3 ).fill( 255 ), 3, true
-      ) );
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
-      group.add( mesh );
-
-      // meshes for selection highlights
-      highlightMesh = new Mesh();
-      highlightMesh.geometry = mesh.geometry.clone();
-      highlightMesh.geometry.drawRange.count = 0;
-      highlightMesh.material = new MeshBasicMaterial( {
-        opacity: 0.05,
-        transparent: true,
-        depthWrite: false,
-      } );
-      highlightMesh.material.color.set( 0xff9800 ).convertSRGBToLinear();
-      highlightMesh.renderOrder = 1;
-      group.add( highlightMesh );
-
-      highlightWireframeMesh = new Mesh();
-      highlightWireframeMesh.geometry = highlightMesh.geometry;
-      highlightWireframeMesh.material = new MeshBasicMaterial( {
-        opacity: 0.25,
-        transparent: true,
-        wireframe: true,
-        depthWrite: false,
-      } );
-      highlightWireframeMesh.material.color.copy( highlightMesh.material.color );
-      highlightWireframeMesh.renderOrder = 2;
-      group.add( highlightWireframeMesh );
-
-      // add floor
-      const shadowPlane = new Mesh(
-        new PlaneGeometry(),
-        new ShadowMaterial( { color: 0, opacity: 0.2, depthWrite: false } )
-      );
-      shadowPlane.position.y = - 2.74;
-      shadowPlane.rotation.x = - Math.PI / 2;
-      shadowPlane.scale.setScalar( 20 );
-      shadowPlane.renderOrder = 2;
-      shadowPlane.receiveShadow = true;
-      scene.add( shadowPlane );
-
-
-      // handle building lasso shape
-      let startX = - Infinity;
-      let startY = - Infinity;
-
       let prevX = - Infinity;
       let prevY = - Infinity;
 
-      new Vector2();
-      new Vector2();
-      new Vector2();
+      const tempVec0 = new Vector2();
+      const tempVec1 = new Vector2();
+      const tempVec2 = new Vector2();
 
       window.addEventListener( 'pointerdown', e => {
 
         prevX = e.clientX;
         prevY = e.clientY;
-        startX = ( e.clientX / window.innerWidth ) * 2 - 1;
-        startY = - ( ( e.clientY / window.innerHeight ) * 2 - 1 );
+        ( e.clientX / window.innerWidth ) * 2 - 1;
+        - ( ( e.clientY / window.innerHeight ) * 2 - 1 );
         selectionPoints.length = 0;
+
+        const yScale = Math.tan( MathUtils.DEG2RAD * camera$1.fov / 2 ) * selectionShape.position.z;
+        selectionShape.scale.set( - yScale * camera$1.aspect, - yScale, 1 );
 
       } );
 
@@ -116590,7 +116520,7 @@
 
         }
 
-        update();
+        updateAll(meshes);
 
       } );
 
@@ -116611,39 +116541,52 @@
 
         {
 
-          // set points for the corner of the box
-          selectionPoints.length = 3 * 5;
+          // If the mouse hasn't moved a lot since the last point
+          if (
+            Math.abs( ex - prevX ) >= 3 ||
+            Math.abs( ey - prevY ) >= 3
+          ) {
 
-          selectionPoints[ 0 ] = startX;
-          selectionPoints[ 1 ] = startY;
-          selectionPoints[ 2 ] = 0;
+            // Check if the mouse moved in roughly the same direction as the previous point
+            // and replace it if so.
+            const i = ( selectionPoints.length / 3 ) - 1;
+            const i3 = i * 3;
+            let doReplace = false;
+            if ( selectionPoints.length > 3 ) {
 
-          selectionPoints[ 3 ] = nx;
-          selectionPoints[ 4 ] = startY;
-          selectionPoints[ 5 ] = 0;
+              // prev segment direction
+              tempVec0.set( selectionPoints[ i3 - 3 ], selectionPoints[ i3 - 3 + 1 ] );
+              tempVec1.set( selectionPoints[ i3 ], selectionPoints[ i3 + 1 ] );
+              tempVec1.sub( tempVec0 ).normalize();
 
-          selectionPoints[ 6 ] = nx;
-          selectionPoints[ 7 ] = ny;
-          selectionPoints[ 8 ] = 0;
+              // this segment direction
+              tempVec0.set( selectionPoints[ i3 ], selectionPoints[ i3 + 1 ] );
+              tempVec2.set( nx, ny );
+              tempVec2.sub( tempVec0 ).normalize();
 
-          selectionPoints[ 9 ] = startX;
-          selectionPoints[ 10 ] = ny;
-          selectionPoints[ 11 ] = 0;
+              const dot = tempVec1.dot( tempVec2 );
+              doReplace = dot > 0.99;
 
-          selectionPoints[ 12 ] = startX;
-          selectionPoints[ 13 ] = startY;
-          selectionPoints[ 14 ] = 0;
+            }
 
-          if ( ex !== prevX || ey !== prevY ) {
+            if ( doReplace ) {
+
+              selectionPoints[ i3 ] = nx;
+              selectionPoints[ i3 + 1 ] = ny;
+
+            } else {
+
+              selectionPoints.push( nx, ny, 0 );
+
+            }
 
             selectionShapeNeedsUpdate = true;
+            selectionShape.visible = true;
 
+            prevX = ex;
+            prevY = ey;
 
           }
-
-          prevX = ex;
-          prevY = ey;
-          selectionShape.visible = true;
 
         }
 
@@ -116651,7 +116594,7 @@
 
       } );
 
-      update();
+      updateAll(meshes);
 
     }
 
@@ -116660,10 +116603,19 @@
 
         {
 
+          const ogLength = selectionPoints.length;
+          selectionPoints.push(
+            selectionPoints[ 0 ],
+            selectionPoints[ 1 ],
+            selectionPoints[ 2 ]
+          );
+
           selectionShape.geometry.setAttribute(
             'position',
             new Float32BufferAttribute( selectionPoints, 3, false )
           );
+
+          selectionPoints.length = ogLength;
 
         }
 
@@ -116672,30 +116624,19 @@
       }
     }
 
-    function update() {
+    function updateAll(meshes) {
+      meshes.forEach(mesh => {
+        update(mesh);
+      });
+    }
 
-      // requestAnimationFrame( render );
-
-      mesh.material.wireframe = params.wireframe;
-
-      // Update the selection lasso lines
-
-
+    function update(mesh) {
       if ( selectionNeedsUpdate ) {
-
         selectionNeedsUpdate = false;
-
         if ( selectionPoints.length > 0 ) {
-
-          updateSelection();
-
+          updateSelection(mesh);
         }
-
       }
-
-      const yScale = Math.tan( MathUtils.DEG2RAD * camera$1.fov / 2 ) * selectionShape.position.z;
-      selectionShape.scale.set( - yScale * camera$1.aspect, - yScale, 1 );
-
     }
 
     const toScreenSpaceMatrix = new Matrix4();
@@ -116703,7 +116644,8 @@
     const boxLines = new Array( 12 ).fill().map( () => new Line3() );
     const lassoSegments = [];
     const perBoundsSegments = [];
-    function updateSelection() {
+
+    function updateSelection(mesh) {
 
       // TODO: Possible improvements
       // - Correctly handle the camera near clip
@@ -116736,6 +116678,12 @@
       }
 
       const indices = [];
+      shapeCast(mesh, indices);
+      onSelected(mesh, indices);
+
+    }
+
+    function shapeCast(mesh, indices) {
       mesh.geometry.boundsTree.shapecast( {
         intersectsBounds: ( box, isLeaf, score, depth ) => {
 
@@ -116945,38 +116893,6 @@
         }
 
       } );
-
-
-      const indexAttr = mesh.geometry.index;
-      const newIndexAttr = highlightMesh.geometry.index;
-      if ( indices.length && params.selectModel ) {
-
-        // if we found indices and we want to select the whole model
-        for ( let i = 0, l = indexAttr.count; i < l; i ++ ) {
-
-          const i2 = indexAttr.getX( i );
-          newIndexAttr.setX( i, i2 );
-
-        }
-
-        highlightMesh.geometry.drawRange.count = Infinity;
-        newIndexAttr.needsUpdate = true;
-
-      } else {
-
-        // update the highlight mesh
-        for ( let i = 0, l = indices.length; i < l; i ++ ) {
-
-          const i2 = indexAttr.getX( indices[ i ] );
-          newIndexAttr.setX( i, i2 );
-
-        }
-
-        highlightMesh.geometry.drawRange.count = indices.length;
-        newIndexAttr.needsUpdate = true;
-
-      }
-
     }
 
     // Math Functions
@@ -117200,6 +117116,8 @@
     let first = true;
     let model;
 
+    const meshes = [];
+
     const loadIfc = async (event) => {
 
 
@@ -117242,6 +117160,8 @@
       model = await viewer.IFC.loadIfc(event.target.files[0], false);
       model.material.forEach(mat => mat.side = 2);
 
+      meshes.push(model);
+
       if(first) first = false;
       else {
         ClippingEdges.forceStyleUpdate = true;
@@ -117264,7 +117184,23 @@
     const scene = viewer.context.getScene();
     const camera = viewer.context.getCamera();
     scene.add(camera);
-    init(scene, camera);
+
+    init(scene, camera, meshes, (mesh, indices) => {
+      console.log(mesh);
+      console.log(indices);
+
+      const expressIDs = new Set();
+      for(let index of indices) {
+        const geomIndex = mesh.geometry.index.array[index];
+        const id = mesh.geometry.attributes.expressID.array[geomIndex];
+        expressIDs.add(id);
+      }
+
+      const ids = Array.from(expressIDs);
+
+      viewer.IFC.selector.pickIfcItemsByID(0, ids);
+
+    });
 
     viewer.context.ifcCamera.cameraControls.mouseButtons.left = 0;
 

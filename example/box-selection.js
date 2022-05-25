@@ -1,15 +1,9 @@
 import * as THREE from 'three';
-import {
-  MeshBVHVisualizer,
-  MeshBVH,
-  CONTAINED,
-  INTERSECTED,
-  NOT_INTERSECTED,
-} from 'three-mesh-bvh';
+import { CONTAINED, INTERSECTED, NOT_INTERSECTED, } from 'three-mesh-bvh';
 
 const params = {
 
-  toolMode: 'box',
+  toolMode: 'lasso',
   selectionMode: 'intersection',
   liveUpdate: false,
   selectModel: false,
@@ -22,26 +16,21 @@ const params = {
 
 };
 
-let selectionShape, mesh;
-let highlightMesh, highlightWireframeMesh, outputContainer, group;
+let selectionShape;
+let group;
 const selectionPoints = [];
 let dragging = false;
 let selectionShapeNeedsUpdate = false;
 let selectionNeedsUpdate = false;
 
 let camera;
+let onSelected;
 
 
-export function init(scene, currentCamera) {
-
-  // camera setup
-  // camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 50 );
-  // camera.position.set( 2, 4, 6 );
-  // camera.far = 100;
-  // camera.updateProjectionMatrix();
-  // scene.add( camera );
+export function init(scene, currentCamera, meshes, onSelectedCallback) {
 
   camera = currentCamera;
+  onSelected = onSelectedCallback;
 
   // selection shape
   selectionShape = new THREE.Line();
@@ -56,59 +45,6 @@ export function init(scene, currentCamera) {
   // group for rotation
   group = new THREE.Group();
   scene.add( group );
-
-  // base mesh
-  mesh = new THREE.Mesh(
-    new THREE.TorusKnotBufferGeometry( 1.5, 0.5, 500, 60 ).toNonIndexed(),
-    new THREE.MeshStandardMaterial( {
-      polygonOffset: true,
-      polygonOffsetFactor: 1,
-    } )
-  );
-  mesh.geometry.boundsTree = new MeshBVH( mesh.geometry );
-  mesh.geometry.setAttribute( 'color', new THREE.Uint8BufferAttribute(
-    new Array( mesh.geometry.index.count * 3 ).fill( 255 ), 3, true
-  ) );
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-  group.add( mesh );
-
-  // meshes for selection highlights
-  highlightMesh = new THREE.Mesh();
-  highlightMesh.geometry = mesh.geometry.clone();
-  highlightMesh.geometry.drawRange.count = 0;
-  highlightMesh.material = new THREE.MeshBasicMaterial( {
-    opacity: 0.05,
-    transparent: true,
-    depthWrite: false,
-  } );
-  highlightMesh.material.color.set( 0xff9800 ).convertSRGBToLinear();
-  highlightMesh.renderOrder = 1;
-  group.add( highlightMesh );
-
-  highlightWireframeMesh = new THREE.Mesh();
-  highlightWireframeMesh.geometry = highlightMesh.geometry;
-  highlightWireframeMesh.material = new THREE.MeshBasicMaterial( {
-    opacity: 0.25,
-    transparent: true,
-    wireframe: true,
-    depthWrite: false,
-  } );
-  highlightWireframeMesh.material.color.copy( highlightMesh.material.color );
-  highlightWireframeMesh.renderOrder = 2;
-  group.add( highlightWireframeMesh );
-
-  // add floor
-  const shadowPlane = new THREE.Mesh(
-    new THREE.PlaneBufferGeometry(),
-    new THREE.ShadowMaterial( { color: 0, opacity: 0.2, depthWrite: false } )
-  );
-  shadowPlane.position.y = - 2.74;
-  shadowPlane.rotation.x = - Math.PI / 2;
-  shadowPlane.scale.setScalar( 20 );
-  shadowPlane.renderOrder = 2;
-  shadowPlane.receiveShadow = true;
-  scene.add( shadowPlane );
 
 
   // handle building lasso shape
@@ -131,6 +67,9 @@ export function init(scene, currentCamera) {
     selectionPoints.length = 0;
     dragging = true;
 
+    const yScale = Math.tan( THREE.MathUtils.DEG2RAD * camera.fov / 2 ) * selectionShape.position.z;
+    selectionShape.scale.set( - yScale * camera.aspect, - yScale, 1 );
+
   } );
 
   window.addEventListener( 'pointerup', () => {
@@ -143,7 +82,7 @@ export function init(scene, currentCamera) {
 
     }
 
-    update();
+    updateAll(meshes);
 
   } );
 
@@ -264,7 +203,7 @@ export function init(scene, currentCamera) {
 
   } );
 
-  update();
+  updateAll(meshes);
 
 }
 
@@ -301,30 +240,19 @@ function updateSelectionLasso() {
   }
 }
 
-function update() {
+function updateAll(meshes) {
+  meshes.forEach(mesh => {
+    update(mesh);
+  })
+}
 
-  // requestAnimationFrame( render );
-
-  mesh.material.wireframe = params.wireframe;
-
-  // Update the selection lasso lines
-
-
+function update(mesh) {
   if ( selectionNeedsUpdate ) {
-
     selectionNeedsUpdate = false;
-
     if ( selectionPoints.length > 0 ) {
-
-      updateSelection();
-
+      updateSelection(mesh);
     }
-
   }
-
-  const yScale = Math.tan( THREE.MathUtils.DEG2RAD * camera.fov / 2 ) * selectionShape.position.z;
-  selectionShape.scale.set( - yScale * camera.aspect, - yScale, 1 );
-
 }
 
 const toScreenSpaceMatrix = new THREE.Matrix4();
@@ -332,7 +260,8 @@ const boxPoints = new Array( 8 ).fill().map( () => new THREE.Vector3() );
 const boxLines = new Array( 12 ).fill().map( () => new THREE.Line3() );
 const lassoSegments = [];
 const perBoundsSegments = [];
-function updateSelection() {
+
+function updateSelection(mesh) {
 
   // TODO: Possible improvements
   // - Correctly handle the camera near clip
@@ -365,6 +294,12 @@ function updateSelection() {
   }
 
   const indices = [];
+  shapeCast(mesh, indices);
+  onSelected(mesh, indices);
+
+}
+
+function shapeCast(mesh, indices) {
   mesh.geometry.boundsTree.shapecast( {
     intersectsBounds: ( box, isLeaf, score, depth ) => {
 
@@ -596,38 +531,6 @@ function updateSelection() {
     }
 
   } );
-
-
-  const indexAttr = mesh.geometry.index;
-  const newIndexAttr = highlightMesh.geometry.index;
-  if ( indices.length && params.selectModel ) {
-
-    // if we found indices and we want to select the whole model
-    for ( let i = 0, l = indexAttr.count; i < l; i ++ ) {
-
-      const i2 = indexAttr.getX( i );
-      newIndexAttr.setX( i, i2 );
-
-    }
-
-    highlightMesh.geometry.drawRange.count = Infinity;
-    newIndexAttr.needsUpdate = true;
-
-  } else {
-
-    // update the highlight mesh
-    for ( let i = 0, l = indices.length; i < l; i ++ ) {
-
-      const i2 = indexAttr.getX( indices[ i ] );
-      newIndexAttr.setX( i, i2 );
-
-    }
-
-    highlightMesh.geometry.drawRange.count = indices.length;
-    newIndexAttr.needsUpdate = true;
-
-  }
-
 }
 
 // Math Functions

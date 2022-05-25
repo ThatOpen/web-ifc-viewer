@@ -39,6 +39,8 @@ const baseMaterial = new MeshBasicMaterial({ color: 0xffffff, side: 2 });
 let first = true;
 let model;
 
+const meshes = [];
+
 const loadIfc = async (event) => {
 
 
@@ -81,6 +83,8 @@ const loadIfc = async (event) => {
   model = await viewer.IFC.loadIfc(event.target.files[0], false);
   model.material.forEach(mat => mat.side = 2);
 
+  meshes.push(model);
+
   if(first) first = false
   else {
     ClippingEdges.forceStyleUpdate = true;
@@ -103,7 +107,23 @@ inputElement.addEventListener('change', loadIfc, false);
 const scene = viewer.context.getScene();
 const camera = viewer.context.getCamera();
 scene.add(camera);
-init(scene, camera);
+
+init(scene, camera, meshes, (mesh, indices) => {
+  console.log(mesh);
+  console.log(indices);
+
+  const expressIDs = new Set();
+  for(let index of indices) {
+    const geomIndex = mesh.geometry.index.array[index];
+    const id = mesh.geometry.attributes.expressID.array[geomIndex];
+    expressIDs.add(id);
+  }
+
+  const ids = Array.from(expressIDs);
+
+  viewer.IFC.selector.pickIfcItemsByID(0, ids);
+
+});
 
 viewer.context.ifcCamera.cameraControls.mouseButtons.left = 0;
 
