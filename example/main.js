@@ -64,6 +64,7 @@ const loadIfc = async (event) => {
   const overlay = document.getElementById('loading-overlay');
   const progressText = document.getElementById('loading-progress');
 
+  progressText.style.color = "black";
   overlay.classList.remove('hidden');
   progressText.innerText = `Loading`;
 
@@ -77,9 +78,22 @@ const loadIfc = async (event) => {
     [IFCOPENINGELEMENT]: false
   });
 
-  model = await viewer.IFC.loadIfc(event.target.files[0], false);
-  model.material.forEach(mat => mat.side = 2);
-
+  try {
+    model = await viewer.IFC.loadIfc(event.target.files[0], false);
+    if (model == null) {
+      progressText.innerText = 'Failed to load.';
+      progressText.style.color = "RED";
+      return;
+    }
+    else
+      model.material.forEach(mat => mat.side = 2);
+  }
+  catch(e) {
+    progressText.innerText = 'Failed to load.';
+    progressText.style.color = "RED";
+    console.error(e);
+    return;
+  }
   if(first) first = false
   else {
     ClippingEdges.forceStyleUpdate = true;
