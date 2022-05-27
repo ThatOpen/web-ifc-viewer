@@ -11,7 +11,7 @@ export class IfcClipper extends IfcComponent {
   intersection: Intersection | undefined;
   orthogonalY = true;
   toleranceOrthogonalY = 0.7;
-  planeSize = 5;
+  planeSize = 5000;
   private edgesEnabled: boolean;
   private enabled: boolean;
   private readonly context: IfcContext;

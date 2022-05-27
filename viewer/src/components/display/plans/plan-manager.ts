@@ -57,6 +57,7 @@ export class PlanManager {
 
   async create(config: PlanViewConfig) {
     const { modelID, name } = config;
+
     const ortho = config.ortho || true;
     if (this.planLists[modelID] === undefined) this.planLists[modelID] = {};
     const currentPlanlist = this.planLists[modelID];
@@ -104,26 +105,29 @@ export class PlanManager {
 
   async computeAllPlanViews(modelID: number) {
     await this.getCurrentStoreys(modelID);
+
     const unitsScale = await this.ifc.units.getUnits(modelID, UnitType.LENGTHUNIT);
     const siteCoords = await this.getSiteCoords(modelID);
     const transformHeight = await this.getTransformHeight(modelID);
     const storeys = this.storeys[modelID];
 
     for (let i = 0; i < storeys.length; i++) {
-      const baseHeight = storeys[i].Elevation.value;
-      const elevation = (baseHeight + siteCoords[2]) * unitsScale + transformHeight;
-      const expressID = storeys[i].expressID;
+      if (storeys[i]) {
+        const baseHeight = storeys[i].Elevation?.value || 1;
+        const elevation = (baseHeight + siteCoords[2]) * unitsScale + transformHeight;
+        const expressID = storeys[i].expressID;
 
-      // eslint-disable-next-line no-await-in-loop
-      await this.create({
-        modelID,
-        name: this.getFloorplanName(storeys[i]),
-        point: new Vector3(0, elevation + this.defaultSectionOffset, 0),
-        normal: new Vector3(0, -1, 0),
-        rotation: 0,
-        ortho: true,
-        expressID
-      });
+        // eslint-disable-next-line no-await-in-loop
+        await this.create({
+          modelID,
+          name: this.getFloorplanName(storeys[i]) + i,
+          point: new Vector3(0, elevation + this.defaultSectionOffset, 0),
+          normal: new Vector3(0, -1, 0),
+          rotation: 0,
+          ortho: true,
+          expressID
+        });
+      }
     }
   }
 

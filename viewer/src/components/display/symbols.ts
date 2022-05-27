@@ -1,3 +1,1 @@
-export class SymbolManager {
-
-}
+export class SymbolManager {}

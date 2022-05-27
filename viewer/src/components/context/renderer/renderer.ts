@@ -101,6 +101,9 @@ export class IfcRenderer extends IfcComponent {
       this.context.ifcCamera.updateAspect(dimensions);
     }
 
+    // todo add this later to have a centered screenshot
+    // await this.context.getIfcCamera().currentNavMode.fitModelToFrame();
+
     const scene = this.context.getScene();
     const cameraToRender = camera || this.context.getCamera();
     this.tempRenderer.render(scene, cameraToRender);
