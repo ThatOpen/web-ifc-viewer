@@ -89905,13 +89905,7 @@
                 await this.updateIfcStyles();
             }
             Object.keys(ClippingEdges.styles).forEach((styleName) => {
-                try {
-                    //this can trow error if there is an empty mesh, we still want to update other edges so we catch ere
-                    this.drawEdges(styleName);
-                }
-                catch (e) {
-                    console.error('error in drawing edges', e);
-                }
+                this.drawEdges(styleName);
             });
         }
         // Creates a new style that applies to all clipping edges for IFC models
@@ -89968,30 +89962,10 @@
             }
         }
         // Creates some basic styles so that users don't have to create it each time
-        // todo check all possible IFC classes are handled
         async createDefaultIfcStyles() {
             if (Object.keys(ClippingEdges.styles).length === 0) {
-                await ClippingEdges.newStyle('thick', [
-                    IFCWALLSTANDARDCASE,
-                    IFCWALL,
-                    IFCSLAB,
-                    IFCSTAIRFLIGHT,
-                    IFCCOLUMN,
-                    IFCBEAM,
-                    IFCROOF,
-                    IFCBUILDINGELEMENTPROXY,
-                    IFCPROXY
-                ], new LineMaterial({ color: 0x000000, linewidth: 0.0015 }));
-                await ClippingEdges.newStyle('thin', [
-                    IFCWINDOW,
-                    IFCPLATE,
-                    IFCMEMBER,
-                    IFCDOOR,
-                    IFCFURNISHINGELEMENT,
-                    IFCPROXY,
-                    IFCBUILDINGELEMENTPROXY,
-                    IFCFOOTING
-                ], new LineMaterial({ color: 0x333333, linewidth: 0.001 }));
+                await ClippingEdges.newStyle('thick', [IFCWALLSTANDARDCASE, IFCWALL, IFCSLAB, IFCSTAIRFLIGHT, IFCCOLUMN, IFCBEAM, IFCROOF], new LineMaterial({ color: 0x000000, linewidth: 0.0015 }));
+                await ClippingEdges.newStyle('thin', [IFCWINDOW, IFCPLATE, IFCMEMBER, IFCDOOR, IFCFURNISHINGELEMENT], new LineMaterial({ color: 0x333333, linewidth: 0.001 }));
                 this.stylesInitialized = true;
             }
         }
@@ -89999,7 +89973,6 @@
         static async newSubset(styleName, modelID, categories) {
             const ids = await this.getItemIDs(modelID, categories);
             const manager = this.ifc.loader.ifcManager;
-            // todo handle case with empty ids list
             if (ids.length > 0) {
                 return manager.createSubset({
                     modelID,
@@ -90011,16 +89984,10 @@
                     applyBVH: true
                 });
             }
-            try {
-                const subset = manager.getSubset(modelID, ClippingEdges.invisibleMaterial, styleName);
-                if (subset) {
-                    manager.clearSubset(modelID, styleName, ClippingEdges.invisibleMaterial);
-                    return subset;
-                }
-                // todo handling in case getSubset does not find one because above the creation was not successful
-            }
-            catch (e) {
-                console.error('unable to find a subset', e);
+            const subset = manager.getSubset(modelID, ClippingEdges.invisibleMaterial, styleName);
+            if (subset) {
+                manager.clearSubset(modelID, styleName, ClippingEdges.invisibleMaterial);
+                return subset;
             }
             return new Mesh();
         }
@@ -90293,7 +90260,7 @@
             super(context);
             this.orthogonalY = true;
             this.toleranceOrthogonalY = 0.7;
-            this.planeSize = 5000;
+            this.planeSize = 5;
             this.createPlane = () => {
                 if (!this.enabled)
                     return;
@@ -90659,28 +90626,25 @@
             await this.context.ifcCamera.cameraControls.setLookAt(this.previousCamera.x, this.previousCamera.y, this.previousCamera.z, this.previousTarget.x, this.previousTarget.y, this.previousTarget.z, animate);
         }
         async computeAllPlanViews(modelID) {
-            var _a;
             await this.getCurrentStoreys(modelID);
             const unitsScale = await this.ifc.units.getUnits(modelID, UnitType.LENGTHUNIT);
             const siteCoords = await this.getSiteCoords(modelID);
             const transformHeight = await this.getTransformHeight(modelID);
             const storeys = this.storeys[modelID];
             for (let i = 0; i < storeys.length; i++) {
-                if (storeys[i]) {
-                    const baseHeight = ((_a = storeys[i].Elevation) === null || _a === void 0 ? void 0 : _a.value) || 1;
-                    const elevation = (baseHeight + siteCoords[2]) * unitsScale + transformHeight;
-                    const expressID = storeys[i].expressID;
-                    // eslint-disable-next-line no-await-in-loop
-                    await this.create({
-                        modelID,
-                        name: this.getFloorplanName(storeys[i]) + i,
-                        point: new Vector3(0, elevation + this.defaultSectionOffset, 0),
-                        normal: new Vector3(0, -1, 0),
-                        rotation: 0,
-                        ortho: true,
-                        expressID
-                    });
-                }
+                const baseHeight = storeys[i].Elevation.value;
+                const elevation = (baseHeight + siteCoords[2]) * unitsScale + transformHeight;
+                const expressID = storeys[i].expressID;
+                // eslint-disable-next-line no-await-in-loop
+                await this.create({
+                    modelID,
+                    name: this.getFloorplanName(storeys[i]),
+                    point: new Vector3(0, elevation + this.defaultSectionOffset, 0),
+                    normal: new Vector3(0, -1, 0),
+                    rotation: 0,
+                    ortho: true,
+                    expressID
+                });
             }
         }
         storeCameraPosition() {
@@ -91200,6 +91164,8 @@
             this.dragging = false;
             this.snapDistance = 0.25;
             // Measures
+            this.arrowHeight = 0.2;
+            this.arrowRadius = 0.05;
             this.baseScale = new Vector3(1, 1, 1);
             // Materials
             this.lineMaterial = new LineDashedMaterial({
@@ -91214,7 +91180,7 @@
             this.startPoint = new Vector3();
             this.endPoint = new Vector3();
             this.context = context;
-            this.endpoint = IfcDimensions.getDefaultEndpointGeometry();
+            this.endpoint = this.getDefaultEndpointGeometry();
             const htmlPreview = document.createElement('div');
             htmlPreview.className = this.previewClassName;
             this.previewElement = new CSS2DObject(htmlPreview);
@@ -91247,12 +91213,6 @@
                     this.drawInProcess();
                 }
             }
-        }
-        setArrow(height, radius) {
-            this.endpoint = IfcDimensions.getDefaultEndpointGeometry(height, radius);
-        }
-        setPreviewElement(element) {
-            this.previewElement = new CSS2DObject(element);
         }
         get active() {
             return this.enabled;
@@ -91309,15 +91269,6 @@
             }
             this.drawEnd();
         }
-        createInPlane(plane) {
-            if (!this.enabled)
-                return;
-            if (!this.dragging) {
-                this.drawStartInPlane(plane);
-                return;
-            }
-            this.drawEnd();
-        }
         delete() {
             if (!this.enabled || this.dimensions.length === 0)
                 return;
@@ -91356,13 +91307,6 @@
                 return;
             this.startPoint = found;
         }
-        drawStartInPlane(plane) {
-            this.dragging = true;
-            const intersects = this.context.castRay([plane]);
-            if (!intersects || intersects.length < 1)
-                return;
-            this.startPoint = intersects[0].point;
-        }
         drawInProcess() {
             const intersects = this.context.castRayIfc();
             if (!intersects)
@@ -91383,9 +91327,6 @@
             this.currentDimension = undefined;
             this.dragging = false;
         }
-        get getDimensionsLines() {
-            return this.dimensions;
-        }
         drawDimension() {
             return new IfcDimensionLine(this.context, this.startPoint, this.endPoint, this.lineMaterial, this.endpointsMaterial, this.endpoint, this.labelClassName, this.baseScale);
         }
@@ -91394,9 +91335,9 @@
                 .map((dim) => dim.boundingBox)
                 .filter((box) => box !== undefined);
         }
-        static getDefaultEndpointGeometry(height = 0.02, radius = 0.05) {
-            const coneGeometry = new ConeGeometry(radius, height);
-            coneGeometry.translate(0, -height / 2, 0);
+        getDefaultEndpointGeometry() {
+            const coneGeometry = new ConeGeometry(this.arrowRadius, this.arrowHeight);
+            coneGeometry.translate(0, -this.arrowHeight / 2, 0);
             coneGeometry.rotateX(-Math.PI / 2);
             return coneGeometry;
         }
@@ -91467,15 +91408,12 @@
         get(name) {
             return this.edges[name];
         }
+        // TODO: Implement ids to create filtered edges / edges by floor plan
         create(name, modelID, lineMaterial, material) {
             const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
             if (!model)
                 return;
             this.createFromMesh(name, model, lineMaterial, material);
-        }
-        // use this to create edges of a subset this implements a todo of allowing subsets of edges
-        createFromSubset(name, subset, lineMaterial, material) {
-            this.createFromMesh(name, subset, lineMaterial, material);
         }
         createFromMesh(name, mesh, lineMaterial, material) {
             const planes = this.context.getClippingPlanes();
@@ -91527,10 +91465,6 @@
     const CENTER = 0;
     const AVERAGE = 1;
     const SAH = 2;
-
-    // Traversal constants
-    const NOT_INTERSECTED = 0;
-    const INTERSECTED = 1;
     const CONTAINED = 2;
 
     // SAH cost constants
@@ -101363,7 +101297,6 @@
             controls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
             controls.touches.two = CameraControls.ACTION.TOUCH_ZOOM_TRUCK;
         }
-        fitModelToFrame() { }
     }
 
     // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -101494,7 +101427,6 @@
     class PlanControl extends IfcComponent {
         constructor(context, ifcCamera) {
             super(context);
-            this.context = context;
             this.ifcCamera = ifcCamera;
             this.mode = NavigationModes.Plan;
             this.enabled = false;
@@ -101508,15 +101440,6 @@
             const controls = this.ifcCamera.cameraControls;
             controls.azimuthRotateSpeed = active ? 0 : this.defaultAzimuthSpeed;
             controls.polarRotateSpeed = active ? 0 : this.defaultPolarSpeed;
-            controls.mouseButtons.left = CameraControls.ACTION.ROTATE;
-        }
-        async fitModelToFrame() {
-            if (!this.enabled)
-                return;
-            const scene = this.context.getScene();
-            console.log(scene);
-            const box = new Box3().setFromObject(scene.children[0]);
-            await this.ifcCamera.cameraControls.fitToBox(box, false);
         }
     }
 
@@ -101630,7 +101553,6 @@
             await this.cameraControls.moveTo(center.x, center.y, center.z, true);
         }
         toggleUserInput(active) {
-            console.log(this.previousUserInput);
             if (active) {
                 if (Object.keys(this.previousUserInput).length === 0)
                     return;
@@ -101932,8 +101854,6 @@
                 this.tempRenderer.setSize(dimensions.x, dimensions.y);
                 this.context.ifcCamera.updateAspect(dimensions);
             }
-            // todo add this later to have a centered screenshot
-            // await this.context.getIfcCamera().currentNavMode.fitModelToFrame();
             const scene = this.context.getScene();
             const cameraToRender = camera || this.context.getCamera();
             this.tempRenderer.render(scene, cameraToRender);
@@ -115341,53 +115261,26 @@
         newDocument(id, jsPDFDocument, scale = 1) {
             this.documents[id] = { drawing: jsPDFDocument, scale };
         }
-        getScale(bbox, pageHeight, pageWidth) {
-            const height = bbox.max.x - bbox.min.x;
-            const width = bbox.max.z - bbox.min.z;
-            const minPagesize = Math.min(pageHeight, pageWidth);
-            const maxBoxDim = Math.max(height, width);
-            if (maxBoxDim === 0 || minPagesize === 0)
-                return 1;
-            return minPagesize / maxBoxDim;
-        }
-        drawNamedLayer(id, plan, layerName, dims) {
+        drawNamedLayer(id, plan, layerName, offsetX = 0, offsetY = 0) {
             if (!plan.plane)
                 return;
             const layer = plan.plane.edges.edges[layerName];
             if (!layer)
                 return;
-            layer.mesh.geometry.computeBoundingBox();
-            console.log(layer);
-            const bbox = new Box3().setFromObject(layer.mesh);
             const coordinates = layer.generatorGeometry.attributes.position.array;
-            this.draw(id, coordinates, bbox);
-            if (dims) {
-                this.addLabels(id, dims, bbox);
-            }
+            this.draw(id, coordinates, offsetX, offsetY);
         }
-        draw(id, coordinates, box) {
+        draw(id, coordinates, offsetX = 0, offsetY = 0) {
             const document = this.getDocument(id);
-            const scale = this.getScale(box, 210, 297);
-            const offsetX = Math.abs(box.min.x) + 1;
-            const offsetY = Math.abs(box.min.z) + 1;
+            const scale = document.scale;
             for (let i = 0; i < coordinates.length - 5; i += 6) {
-                const start = [(coordinates[i] + offsetX) * scale, (coordinates[i + 2] + offsetY) * scale];
-                const end = [(coordinates[i + 3] + offsetX) * scale, (coordinates[i + 5] + offsetY) * scale];
+                const start = [coordinates[i] * scale + offsetX, coordinates[i + 2] * scale + offsetY];
+                const end = [coordinates[i + 3] * scale + offsetX, coordinates[i + 5] * scale + offsetY];
                 // eslint-disable-next-line no-continue
                 if (start[0] === 0 && start[1] === 0 && end[0] === 0 && end[1] === 0)
                     continue;
                 document.drawing.line(start[0], start[1], end[0], end[1], 'S');
             }
-        }
-        addLabels(id, ifcDimensions, box) {
-            const document = this.getDocument(id);
-            const scale = this.getScale(box, 210, 297);
-            const offsetX = Math.abs(box.min.x) + 1;
-            const offsetY = Math.abs(box.min.z) + 1;
-            const dimLines = ifcDimensions.getDimensionsLines;
-            dimLines.forEach((dimLine) => {
-                document.drawing.text(dimLine.text.element.textContent, (dimLine.center.x + offsetX) * scale, (dimLine.center.z + offsetY) * scale);
-            });
         }
         exportPDF(id, exportName) {
             const document = this.getDocument(id);
@@ -115471,7 +115364,7 @@
             this.bucketMesh.position.copy(bucket.position);
             await controls.fitToBox(this.bucketMesh, false);
             controls.update(0);
-            this.htmlImage.src = await this.context.renderer.newScreenshot(this.cvCamera);
+            this.htmlImage.src = this.context.renderer.newScreenshot(this.cvCamera);
         }
         computeBucketsOrigin(size, center) {
             this.bucketsOffset.copy(center);
@@ -115591,497 +115484,6 @@
         }
     }
 
-    class SelectionBoxMath {
-        // https://www.geeksforgeeks.org/convex-hull-set-2-graham-scan/
-        getConvexHull(points) {
-            // find the lowest point in 2d
-            let lowestY = Infinity;
-            let lowestIndex = -1;
-            for (let i = 0, l = points.length; i < l; i++) {
-                const p = points[i];
-                if (p.y < lowestY) {
-                    lowestIndex = i;
-                    lowestY = p.y;
-                }
-            }
-            // sort the points
-            const p0 = points[lowestIndex];
-            points[lowestIndex] = points[0];
-            points[0] = p0;
-            function orientation(p, q, r) {
-                const val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
-                if (val === 0) {
-                    return 0; // colinear
-                }
-                // clock or counterclock wise
-                return val > 0 ? 1 : 2;
-            }
-            function distSq(p1, p2) {
-                return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
-            }
-            function compare(p1, p2) {
-                // Find orientation
-                const o = orientation(p0, p1, p2);
-                if (o === 0)
-                    return distSq(p0, p2) >= distSq(p0, p1) ? -1 : 1;
-                return o === 2 ? -1 : 1;
-            }
-            points = points.sort(compare);
-            // filter the points
-            let m = 1;
-            const n = points.length;
-            for (let i = 1; i < n; i++) {
-                while (i < n - 1 && orientation(p0, points[i], points[i + 1]) === 0) {
-                    i++;
-                }
-                points[m] = points[i];
-                m++;
-            }
-            // early out if we don't have enough points for a hull
-            if (m < 3)
-                return null;
-            // generate the hull
-            const hull = [points[0], points[1], points[2]];
-            for (let i = 3; i < m; i++) {
-                while (orientation(hull[hull.length - 2], hull[hull.length - 1], points[i]) !== 2) {
-                    hull.pop();
-                }
-                hull.push(points[i]);
-            }
-            return hull;
-        }
-        pointRayCrossesLine(point, line, prevDirection, thisDirection) {
-            const { start, end } = line;
-            const px = point.x;
-            const py = point.y;
-            const sy = start.y;
-            const ey = end.y;
-            if (sy === ey)
-                return false;
-            if (py > sy && py > ey)
-                return false; // above
-            if (py < sy && py < ey)
-                return false; // below
-            const sx = start.x;
-            const ex = end.x;
-            if (px > sx && px > ex)
-                return false; // right
-            if (px < sx && px < ex) {
-                // left
-                if (py === sy && prevDirection !== thisDirection) {
-                    return false;
-                }
-                return true;
-            }
-            // check the side
-            const dx = ex - sx;
-            const dy = ey - sy;
-            const perpx = dy;
-            const perpy = -dx;
-            const pdx = px - sx;
-            const pdy = py - sy;
-            const dot = perpx * pdx + perpy * pdy;
-            if (Math.sign(dot) !== Math.sign(perpx)) {
-                return true;
-            }
-            return false;
-        }
-        pointRayCrossesSegments(point, segments) {
-            let crossings = 0;
-            const firstSeg = segments[segments.length - 1];
-            let prevDirection = firstSeg.start.y > firstSeg.end.y;
-            for (let s = 0, l = segments.length; s < l; s++) {
-                const line = segments[s];
-                const thisDirection = line.start.y > line.end.y;
-                if (this.pointRayCrossesLine(point, line, prevDirection, thisDirection)) {
-                    crossings++;
-                }
-                prevDirection = thisDirection;
-            }
-            return crossings;
-        }
-        // https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
-        lineCrossesLine(l1, l2) {
-            function ccw(A, B, C) {
-                return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);
-            }
-            const A = l1.start;
-            const B = l1.end;
-            const C = l2.start;
-            const D = l2.end;
-            return ccw(A, C, D) !== ccw(B, C, D) && ccw(A, B, C) !== ccw(A, B, D);
-        }
-    }
-
-    class ShapeCaster {
-        constructor(toScreenSpaceMatrix, lassoSegments) {
-            this.toScreenSpaceMatrix = toScreenSpaceMatrix;
-            this.lassoSegments = lassoSegments;
-            this.boxPoints = new Array(8).fill(0).map(() => new Vector3());
-            this.boxLines = new Array(12).fill(0).map(() => new Line3());
-            this.perBoundsSegments = [];
-            this.math = new SelectionBoxMath();
-            this.selectModel = false;
-            this.useBoundsTree = true;
-            this.selectionMode = 'intersection';
-        }
-        shapeCast(mesh, indices) {
-            if (!mesh.geometry.boundsTree) {
-                throw new Error('Geometry must have BVH applied!');
-            }
-            mesh.geometry.boundsTree.shapecast({
-                intersectsBounds: (box, _isLeaf, _score, depth) => {
-                    // Get the bounding box points
-                    const { min, max } = box;
-                    let index = 0;
-                    let minY = Infinity;
-                    let maxY = -Infinity;
-                    let minX = Infinity;
-                    for (let x = 0; x <= 1; x++) {
-                        for (let y = 0; y <= 1; y++) {
-                            for (let z = 0; z <= 1; z++) {
-                                const v = this.boxPoints[index];
-                                v.x = x === 0 ? min.x : max.x;
-                                v.y = y === 0 ? min.y : max.y;
-                                v.z = z === 0 ? min.z : max.z;
-                                // @ts-ignore
-                                v.w = 1;
-                                v.applyMatrix4(this.toScreenSpaceMatrix);
-                                index++;
-                                if (v.y < minY)
-                                    minY = v.y;
-                                if (v.y > maxY)
-                                    maxY = v.y;
-                                if (v.x < minX)
-                                    minX = v.x;
-                            }
-                        }
-                    }
-                    // Find all the relevant segments here and cache them in the above array for
-                    // subsequent child checks to use.
-                    const parentSegments = this.perBoundsSegments[depth - 1] || this.lassoSegments;
-                    const segmentsToCheck = this.perBoundsSegments[depth] || [];
-                    segmentsToCheck.length = 0;
-                    this.perBoundsSegments[depth] = segmentsToCheck;
-                    for (let i = 0, l = parentSegments.length; i < l; i++) {
-                        const line = parentSegments[i];
-                        const sx = line.start.x;
-                        const sy = line.start.y;
-                        const ex = line.end.x;
-                        const ey = line.end.y;
-                        if (sx < minX && ex < minX)
-                            continue;
-                        const startAbove = sy > maxY;
-                        const endAbove = ey > maxY;
-                        if (startAbove && endAbove)
-                            continue;
-                        const startBelow = sy < minY;
-                        const endBelow = ey < minY;
-                        if (startBelow && endBelow)
-                            continue;
-                        segmentsToCheck.push(line);
-                    }
-                    if (segmentsToCheck.length === 0) {
-                        return NOT_INTERSECTED;
-                    }
-                    // Get the screen space hull lines
-                    const hull = this.math.getConvexHull(this.boxPoints);
-                    if (!hull)
-                        return NOT_INTERSECTED;
-                    const lines = hull.map((p, i) => {
-                        const nextP = hull[(i + 1) % hull.length];
-                        const line = this.boxLines[i];
-                        line.start.copy(p);
-                        line.end.copy(nextP);
-                        return line;
-                    });
-                    // If a lasso point is inside the hull then it's intersected and cannot be contained
-                    if (this.math.pointRayCrossesSegments(segmentsToCheck[0].start, lines) % 2 === 1) {
-                        return INTERSECTED;
-                    }
-                    // check if the screen space hull is in the lasso
-                    let crossings = 0;
-                    for (let i = 0, l = hull.length; i < l; i++) {
-                        const v = hull[i];
-                        const pCrossings = this.math.pointRayCrossesSegments(v, segmentsToCheck);
-                        if (i === 0) {
-                            crossings = pCrossings;
-                        }
-                        // if two points on the hull have different amounts of crossings then
-                        // it can only be intersected
-                        if (crossings !== pCrossings) {
-                            return INTERSECTED;
-                        }
-                    }
-                    // check if there are any intersections
-                    for (let i = 0, l = lines.length; i < l; i++) {
-                        const boxLine = lines[i];
-                        for (let s = 0, ls = segmentsToCheck.length; s < ls; s++) {
-                            if (this.math.lineCrossesLine(boxLine, segmentsToCheck[s])) {
-                                return INTERSECTED;
-                            }
-                        }
-                    }
-                    return crossings % 2 === 0 ? NOT_INTERSECTED : CONTAINED;
-                },
-                intersectsTriangle: (tri, index, contained, depth) => {
-                    const i3 = index * 3;
-                    const a = i3;
-                    const b = i3 + 1;
-                    const c = i3 + 2;
-                    // if the parent bounds were marked as contained
-                    if (contained) {
-                        indices.push(a, b, c);
-                        return this.selectModel;
-                    }
-                    // check all the segments if using no bounds tree
-                    const segmentsToCheck = this.useBoundsTree
-                        ? this.perBoundsSegments[depth]
-                        : this.lassoSegments;
-                    if (this.selectionMode === 'centroid') {
-                        // get the center of the triangle
-                        const centroid = tri.a
-                            .add(tri.b)
-                            .add(tri.c)
-                            .multiplyScalar(1 / 3);
-                        centroid.applyMatrix4(this.toScreenSpaceMatrix);
-                        // counting the crossings
-                        const crossings = this.math.pointRayCrossesSegments(centroid, segmentsToCheck);
-                        if (crossings % 2 === 1) {
-                            indices.push(a, b, c);
-                            return this.selectModel;
-                        }
-                    }
-                    else if (this.selectionMode === 'intersection') {
-                        // get the projected vertices
-                        const vertices = [tri.a, tri.b, tri.c];
-                        for (let j = 0; j < 3; j++) {
-                            const v = vertices[j];
-                            v.applyMatrix4(this.toScreenSpaceMatrix);
-                            const crossings = this.math.pointRayCrossesSegments(v, segmentsToCheck);
-                            if (crossings % 2 === 1) {
-                                indices.push(a, b, c);
-                                return this.selectModel;
-                            }
-                        }
-                        // get the lines for the triangle
-                        const lines = [this.boxLines[0], this.boxLines[1], this.boxLines[2]];
-                        lines[0].start.copy(tri.a);
-                        lines[0].end.copy(tri.b);
-                        lines[1].start.copy(tri.b);
-                        lines[1].end.copy(tri.c);
-                        lines[2].start.copy(tri.c);
-                        lines[2].end.copy(tri.a);
-                        for (let i = 0; i < 3; i++) {
-                            const l = lines[i];
-                            for (let s = 0, sl = segmentsToCheck.length; s < sl; s++) {
-                                if (this.math.lineCrossesLine(l, segmentsToCheck[s])) {
-                                    indices.push(a, b, c);
-                                    return this.selectModel;
-                                }
-                            }
-                        }
-                    }
-                    return false;
-                }
-            });
-        }
-    }
-
-    class SelectionWindow {
-        constructor(context) {
-            this.context = context;
-            this.toolMode = 'lasso';
-            this.liveUpdate = false;
-            this.wireframe = false;
-            this.displayHelper = false;
-            this.helperDepth = 10;
-            this.rotate = true;
-            this.selectionShape = new Line();
-            this.selectionPoints = [];
-            this.dragging = false;
-            this.selectionShapeNeedsUpdate = false;
-            this.selectionNeedsUpdate = false;
-            // handle building lasso shape
-            this.startX = -Infinity;
-            this.startY = -Infinity;
-            this.prevX = -Infinity;
-            this.prevY = -Infinity;
-            this.tempVec0 = new Vector2();
-            this.tempVec1 = new Vector2();
-            this.tempVec2 = new Vector2();
-            this.toScreenSpaceMatrix = new Matrix4();
-            this.lassoSegments = [];
-            this.caster = new ShapeCaster(this.toScreenSpaceMatrix, this.lassoSegments);
-            this.setupSelectionShape();
-            this.updateAll();
-        }
-        setupSelectionShape() {
-            this.selectionShape = new Line();
-            const mat = this.selectionShape.material;
-            mat.depthTest = false;
-            mat.color.set(0xff9800).convertSRGBToLinear();
-            this.selectionShape.renderOrder = 1;
-            this.selectionShape.position.z = -0.2;
-            this.selectionShape.scale.setScalar(1);
-            this.selectionShape.frustumCulled = false;
-            this.context.getCamera().add(this.selectionShape);
-        }
-        onDragStarted(event) {
-            this.prevX = event.clientX;
-            this.prevY = event.clientY;
-            this.startX = (event.clientX / window.innerWidth) * 2 - 1;
-            this.startY = -((event.clientY / window.innerHeight) * 2 - 1);
-            this.selectionPoints.length = 0;
-            this.dragging = true;
-            const camera = this.context.getCamera();
-            if (camera instanceof PerspectiveCamera) {
-                const tan = Math.tan((MathUtils.DEG2RAD * camera.fov) / 2);
-                const yScale = tan * this.selectionShape.position.z;
-                this.selectionShape.scale.set(-yScale * camera.aspect, -yScale, 1);
-            }
-        }
-        onDragFinished() {
-            this.selectionShape.visible = false;
-            this.dragging = false;
-            if (this.selectionPoints.length) {
-                this.selectionNeedsUpdate = true;
-            }
-            this.updateAll();
-        }
-        onDrag(event) {
-            // If the left mouse button is not pressed
-            // eslint-disable-next-line no-bitwise
-            if ((1 & event.buttons) === 0) {
-                return;
-            }
-            const ex = event.clientX;
-            const ey = event.clientY;
-            const nx = (event.clientX / window.innerWidth) * 2 - 1;
-            const ny = -((event.clientY / window.innerHeight) * 2 - 1);
-            if (this.toolMode === 'box') {
-                // set points for the corner of the box
-                this.selectionPoints.length = 3 * 5;
-                this.selectionPoints[0] = this.startX;
-                this.selectionPoints[1] = this.startY;
-                this.selectionPoints[2] = 0;
-                this.selectionPoints[3] = nx;
-                this.selectionPoints[4] = this.startY;
-                this.selectionPoints[5] = 0;
-                this.selectionPoints[6] = nx;
-                this.selectionPoints[7] = ny;
-                this.selectionPoints[8] = 0;
-                this.selectionPoints[9] = this.startX;
-                this.selectionPoints[10] = ny;
-                this.selectionPoints[11] = 0;
-                this.selectionPoints[12] = this.startX;
-                this.selectionPoints[13] = this.startY;
-                this.selectionPoints[14] = 0;
-                if (ex !== this.prevX || ey !== this.prevY) {
-                    this.selectionShapeNeedsUpdate = true;
-                }
-                this.prevX = ex;
-                this.prevY = ey;
-                this.selectionShape.visible = true;
-                if (this.liveUpdate) {
-                    this.selectionNeedsUpdate = true;
-                }
-            }
-            else {
-                // If the mouse hasn't moved a lot since the last point
-                const mouseDidntMuchMuch = Math.abs(ex - this.prevX) >= 3 || Math.abs(ey - this.prevY) >= 3;
-                if (mouseDidntMuchMuch) {
-                    // Check if the mouse moved in roughly the same direction as the previous point
-                    // and replace it if so.
-                    const i = this.selectionPoints.length / 3 - 1;
-                    const i3 = i * 3;
-                    let doReplace = false;
-                    if (this.selectionPoints.length > 3) {
-                        // prev segment direction
-                        this.tempVec0.set(this.selectionPoints[i3 - 3], this.selectionPoints[i3 - 3 + 1]);
-                        this.tempVec1.set(this.selectionPoints[i3], this.selectionPoints[i3 + 1]);
-                        this.tempVec1.sub(this.tempVec0).normalize();
-                        // this segment direction
-                        this.tempVec0.set(this.selectionPoints[i3], this.selectionPoints[i3 + 1]);
-                        this.tempVec2.set(nx, ny);
-                        this.tempVec2.sub(this.tempVec0).normalize();
-                        const dot = this.tempVec1.dot(this.tempVec2);
-                        doReplace = dot > 0.99;
-                    }
-                    if (doReplace) {
-                        this.selectionPoints[i3] = nx;
-                        this.selectionPoints[i3 + 1] = ny;
-                    }
-                    else {
-                        this.selectionPoints.push(nx, ny, 0);
-                    }
-                    this.selectionShapeNeedsUpdate = true;
-                    this.selectionShape.visible = true;
-                    this.prevX = ex;
-                    this.prevY = ey;
-                    if (this.liveUpdate) {
-                        this.selectionNeedsUpdate = true;
-                    }
-                }
-            }
-            this.updateSelectionLasso();
-        }
-        updateSelectionLasso() {
-            if (this.selectionShapeNeedsUpdate) {
-                if (this.toolMode === 'lasso') {
-                    const ogLength = this.selectionPoints.length;
-                    this.selectionPoints.push(this.selectionPoints[0], this.selectionPoints[1], this.selectionPoints[2]);
-                    this.selectionShape.geometry.setAttribute('position', new Float32BufferAttribute(this.selectionPoints, 3, false));
-                    this.selectionPoints.length = ogLength;
-                }
-                else {
-                    this.selectionShape.geometry.setAttribute('position', new Float32BufferAttribute(this.selectionPoints, 3, false));
-                }
-                this.selectionShapeNeedsUpdate = false;
-            }
-        }
-        updateAll() {
-            const models = this.context.items.pickableIfcModels;
-            models.forEach((model) => {
-                this.update(model);
-            });
-            this.selectionNeedsUpdate = false;
-        }
-        update(model) {
-            if (this.selectionNeedsUpdate && this.selectionPoints.length > 0) {
-                this.updateSelection(model);
-            }
-        }
-        updateSelection(model) {
-            // TODO: Possible improvements
-            // - Correctly handle the camera near clip
-            // - Improve line line intersect performance?
-            const camera = this.context.getCamera();
-            this.toScreenSpaceMatrix
-                .copy(model.matrixWorld)
-                .premultiply(camera.matrixWorldInverse)
-                .premultiply(camera.projectionMatrix);
-            // create scratch points and lines to use for selection
-            while (this.lassoSegments.length < this.selectionPoints.length) {
-                this.lassoSegments.push(new Line3());
-            }
-            this.lassoSegments.length = this.selectionPoints.length;
-            for (let s = 0, l = this.selectionPoints.length; s < l; s += 3) {
-                const line = this.lassoSegments[s];
-                const sNext = (s + 3) % l;
-                line.start.x = this.selectionPoints[s];
-                line.start.y = this.selectionPoints[s + 1];
-                line.end.x = this.selectionPoints[sNext];
-                line.end.y = this.selectionPoints[sNext + 1];
-            }
-            const indices = [];
-            this.caster.shapeCast(model, indices);
-            if (this.onSelected) {
-                this.onSelected(model, indices);
-            }
-        }
-    }
-
     class IfcViewerAPI {
         constructor(options) {
             /**
@@ -116145,7 +115547,6 @@
             this.pdf = new PDFWriter();
             this.GLTF = new GLTFManager(this.context, this.IFC);
             this.dropbox = new DropboxAPI(this.context, this.IFC);
-            this.selectionWindow = new SelectionWindow(this.context);
             ClippingEdges.ifc = this.IFC;
             ClippingEdges.context = this.context;
         }
@@ -116478,6 +115879,8 @@
     viewer.grid.setGrid();
     viewer.shadowDropper.darkness = 1.5;
 
+
+
     // Set up stats
     const stats = new Stats();
     stats.showPanel(2);
@@ -116503,7 +115906,7 @@
     let first = true;
     let model;
 
-    const loadIfc = async (event) => {
+    const loadIfc = async (ifcFile) => {
 
 
       // tests with glTF
@@ -116528,7 +115931,8 @@
 
       const overlay = document.getElementById('loading-overlay');
       const progressText = document.getElementById('loading-progress');
-
+      
+      progressText.style.color = "black";
       overlay.classList.remove('hidden');
       progressText.innerText = `Loading`;
 
@@ -116542,9 +115946,22 @@
         [IFCOPENINGELEMENT]: false
       });
 
-      model = await viewer.IFC.loadIfc(event.target.files[0], false);
-      model.material.forEach(mat => mat.side = 2);
-
+      try {
+        model = await viewer.IFC.loadIfc(ifcFile, false);
+        if (model == null) {
+          progressText.innerText = 'Failed to load.';
+          progressText.style.color = "RED";
+          return;
+        }
+        else
+          model.material.forEach(mat => mat.side = 2);
+      }
+      catch(e) {
+        progressText.innerText = 'Failed to load.';
+        progressText.style.color = "RED";
+        console.error(e);
+        return;
+      }
       if(first) first = false;
       else {
         ClippingEdges.forceStyleUpdate = true;
@@ -116562,7 +115979,9 @@
     const inputElement = document.createElement('input');
     inputElement.setAttribute('type', 'file');
     inputElement.classList.add('hidden');
-    inputElement.addEventListener('change', loadIfc, false);
+    inputElement.addEventListener('change', (event) => {
+      loadIfc(event.target.files[0]);
+    }, false);
 
     const handleKeyDown = async (event) => {
       if (event.code === 'Delete') {
@@ -116595,6 +116014,34 @@
       loadButton.blur();
       inputElement.click();
     });
+
+
+
+
+    window.ondragover = (event) => {
+      event.preventDefault();
+    };
+
+    window.ondrop = (ev) => {
+      event.preventDefault();
+      new FileReader();
+      if (ev.dataTransfer.items) {
+        for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+          if (ev.dataTransfer.items[i].kind === 'file') {
+            var file = ev.dataTransfer.items[i].getAsFile();
+            loadIfc(file);
+          }
+        }
+        ev.dataTransfer.items.clear();
+      } else {
+        for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+            var file = ev.dataTransfer.files[i].getAsFile();
+            loadIfc(file);
+        }
+        ev.dataTransfer.clearData();
+      } 
+    };
+
 
     const sectionButton = createSideMenuButton('./resources/section-plane-down.svg');
     sectionButton.addEventListener('click', () => {
