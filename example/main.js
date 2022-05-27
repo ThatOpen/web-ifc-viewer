@@ -13,6 +13,8 @@ viewer.axes.setAxes();
 viewer.grid.setGrid();
 viewer.shadowDropper.darkness = 1.5;
 
+
+
 // Set up stats
 const stats = new Stats();
 stats.showPanel(2);
@@ -38,7 +40,7 @@ const baseMaterial = new MeshBasicMaterial({ color: 0xffffff, side: 2 });
 let first = true;
 let model;
 
-const loadIfc = async (event) => {
+const loadIfc = async (ifcFile) => {
 
 
   // tests with glTF
@@ -79,7 +81,7 @@ const loadIfc = async (event) => {
   });
 
   try {
-    model = await viewer.IFC.loadIfc(event.target.files[0], false);
+    model = await viewer.IFC.loadIfc(ifcFile, false);
     if (model == null) {
       progressText.innerText = 'Failed to load.';
       progressText.style.color = "RED";
@@ -111,7 +113,9 @@ const loadIfc = async (event) => {
 const inputElement = document.createElement('input');
 inputElement.setAttribute('type', 'file');
 inputElement.classList.add('hidden');
-inputElement.addEventListener('change', loadIfc, false);
+inputElement.addEventListener('change', (event) => {
+  loadIfc(event.target.files[0]);
+}, false);
 
 const handleKeyDown = async (event) => {
   if (event.code === 'Delete') {
@@ -144,6 +148,34 @@ loadButton.addEventListener('click', () => {
   loadButton.blur();
   inputElement.click();
 });
+
+
+
+
+window.ondragover = (event) => {
+  event.preventDefault();
+}
+
+window.ondrop = (ev) => {
+  event.preventDefault();
+  var reader = new FileReader();
+  if (ev.dataTransfer.items) {
+    for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+      if (ev.dataTransfer.items[i].kind === 'file') {
+        var file = ev.dataTransfer.items[i].getAsFile();
+        loadIfc(file);
+      }
+    }
+    ev.dataTransfer.items.clear();
+  } else {
+    for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+        var file = ev.dataTransfer.files[i].getAsFile();
+        loadIfc(file);
+    }
+    ev.dataTransfer.clearData();
+  } 
+};
+
 
 const sectionButton = createSideMenuButton('./resources/section-plane-down.svg');
 sectionButton.addEventListener('click', () => {
