@@ -1,11 +1,29 @@
-// Math Functions
-// https://www.geeksforgeeks.org/convex-hull-set-2-graham-scan/
-import { Line3, Vector3 } from 'three';
+export class SelectionBoxMath {
+  // https://www.geeksforgeeks.org/convex-hull-set-2-graham-scan/
+  getConvexHull(points) {
+    function orientation(p, q, r) {
+      const val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
 
-export class SelectionWindowMath {
-  private p0 = new Vector3();
+      if (val === 0) {
+        return 0; // colinear
+      }
 
-  getConvexHull = (points: Vector3[]) => {
+      // clock or counterclock wise
+      return val > 0 ? 1 : 2;
+    }
+
+    function distSq(p1, p2) {
+      return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
+    }
+
+    function compare(p1, p2) {
+      // Find orientation
+      const o = orientation(p0, p1, p2);
+      if (o === 0) return distSq(p0, p2) >= distSq(p0, p1) ? -1 : 1;
+
+      return o === 2 ? -1 : 1;
+    }
+
     // find the lowest point in 2d
     let lowestY = Infinity;
     let lowestIndex = -1;
@@ -18,17 +36,17 @@ export class SelectionWindowMath {
     }
 
     // sort the points
-    this.p0 = points[lowestIndex];
+    const p0 = points[lowestIndex];
     points[lowestIndex] = points[0];
-    points[0] = this.p0;
+    points[0] = p0;
 
-    points = points.sort(this.compare);
+    points = points.sort(compare);
 
     // filter the points
     let m = 1;
     const n = points.length;
     for (let i = 1; i < n; i++) {
-      while (i < n - 1 && this.orientation(this.p0, points[i], points[i + 1]) === 0) {
+      while (i < n - 1 && orientation(p0, points[i], points[i + 1]) == 0) {
         i++;
       }
 
@@ -42,7 +60,7 @@ export class SelectionWindowMath {
     // generate the hull
     const hull = [points[0], points[1], points[2]];
     for (let i = 3; i < m; i++) {
-      while (this.orientation(hull[hull.length - 2], hull[hull.length - 1], points[i]) !== 2) {
+      while (orientation(hull[hull.length - 2], hull[hull.length - 1], points[i]) !== 2) {
         hull.pop();
       }
 
@@ -50,37 +68,9 @@ export class SelectionWindowMath {
     }
 
     return hull;
-  };
+  }
 
-  orientation = (p: Vector3, q: Vector3, r: Vector3) => {
-    const val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
-
-    if (val === 0) {
-      return 0; // colinear
-    }
-
-    // clock or counterclock wise
-    return val > 0 ? 1 : 2;
-  };
-
-  distSq = (p1: Vector3, p2: Vector3) => {
-    return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
-  };
-
-  compare = (p1: Vector3, p2: Vector3) => {
-    // Find orientation
-    const o = this.orientation(this.p0, p1, p2);
-    if (o === 0) return this.distSq(this.p0, p2) >= this.distSq(this.p0, p1) ? -1 : 1;
-
-    return o === 2 ? -1 : 1;
-  };
-
-  pointRayCrossesLine = (
-    point: Vector3,
-    line: Line3,
-    prevDirection: boolean,
-    thisDirection: boolean
-  ) => {
+  pointRayCrossesLine(point, line, prevDirection, thisDirection) {
     const { start, end } = line;
     const px = point.x;
     const py = point.y;
@@ -122,9 +112,9 @@ export class SelectionWindowMath {
     }
 
     return false;
-  };
+  }
 
-  pointRayCrossesSegments = (point: Vector3, segments: Line3[]) => {
+  pointRayCrossesSegments(point, segments) {
     let crossings = 0;
     const firstSeg = segments[segments.length - 1];
     let prevDirection = firstSeg.start.y > firstSeg.end.y;
@@ -139,20 +129,20 @@ export class SelectionWindowMath {
     }
 
     return crossings;
-  };
+  }
 
   // https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
-  lineCrossesLine = (l1: Line3, l2: Line3) => {
+  lineCrossesLine(l1, l2) {
+    function ccw(A, B, C) {
+      return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);
+    }
+
     const A = l1.start;
     const B = l1.end;
 
     const C = l2.start;
     const D = l2.end;
 
-    return this.ccw(A, C, D) !== this.ccw(B, C, D) && this.ccw(A, B, C) !== this.ccw(A, B, D);
-  };
-
-  ccw = (A: Vector3, B: Vector3, C: Vector3) => {
-    return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);
-  };
+    return ccw(A, C, D) !== ccw(B, C, D) && ccw(A, B, C) !== ccw(A, B, D);
+  }
 }

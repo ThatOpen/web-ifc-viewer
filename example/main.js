@@ -6,7 +6,7 @@ import {
 import { MeshBasicMaterial, LineBasicMaterial, Color } from 'three';
 import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
 import Stats from 'stats.js/src/Stats';
-import { init } from './box-selection';
+import { SelectionWindow } from './box-selection';
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255, 255) });
@@ -108,9 +108,8 @@ const scene = viewer.context.getScene();
 const camera = viewer.context.getCamera();
 scene.add(camera);
 
-init(scene, camera, meshes, (mesh, indices) => {
-  console.log(mesh);
-  console.log(indices);
+
+const callback = (mesh, indices) => {
 
   const expressIDs = new Set();
   for(let index of indices) {
@@ -123,8 +122,12 @@ init(scene, camera, meshes, (mesh, indices) => {
 
   viewer.IFC.selector.pickIfcItemsByID(0, ids);
 
-});
+}
 
+const selectionWindow = new SelectionWindow(scene, camera, meshes, callback);
+window.onmousedown = (e) => selectionWindow.onDragStarted(e);
+window.onmousemove = (e) => selectionWindow.onDrag(e);
+window.onmouseup = (e) => selectionWindow.onDragFinished(e);
 viewer.context.ifcCamera.cameraControls.mouseButtons.left = 0;
 
 // const handleKeyDown = async (event) => {
