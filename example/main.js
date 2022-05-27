@@ -49,6 +49,8 @@ let model;
 
 let drawingstate = false;
 
+const meshes = [];
+
 const loadIfc = async (event) => {
   // tests with glTF
   // const file = event.target.files[0];
@@ -122,6 +124,26 @@ inputElement.setAttribute('type', 'file');
 inputElement.classList.add('hidden');
 inputElement.addEventListener('change', loadIfc, false);
 
+const scene = viewer.context.getScene();
+const camera = viewer.context.getCamera();
+scene.add(camera);
+
+
+const callback = (mesh, indices) => {
+
+  const expressIDs = new Set();
+  for(let index of indices) {
+    const geomIndex = mesh.geometry.index.array[index];
+    const id = mesh.geometry.attributes.expressID.array[geomIndex];
+    expressIDs.add(id);
+  }
+
+  const ids = Array.from(expressIDs);
+
+  viewer.IFC.selector.pickIfcItemsByID(mesh.modelID, ids);
+
+}
+
 const handleKeyDown = async (event) => {
   if (event.code === 'Delete') {
     viewer.clipper.deletePlane();
@@ -131,8 +153,8 @@ const handleKeyDown = async (event) => {
     viewer.IFC.selector.unpickIfcItems();
   }
 };
-
 window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
+
 window.onkeydown = handleKeyDown;
 window.onclick = () => {
   if (drawingstate) {
@@ -157,6 +179,9 @@ window.ondblclick = async () => {
 
   }
 };
+
+const controls = viewer.context.ifcCamera.cameraControls;
+controls.mouseButtons.left = 0;
 
 //Setup UI
 const loadButton = createSideMenuButton('./resources/folder-icon.svg');

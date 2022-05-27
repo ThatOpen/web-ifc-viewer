@@ -18,6 +18,7 @@ import { DXFWriter } from './components/import-export/dxf';
 import { PDFWriter } from './components/import-export/pdf';
 import { EdgesVectorizer } from './components/import-export/edges-vectorizer';
 import { ClippingEdges } from './components/display/clipping-planes/clipping-edges';
+import { SelectionWindow } from './components/selection/selection-window';
 
 export class IfcViewerAPI {
   context: IfcContext;
@@ -35,6 +36,7 @@ export class IfcViewerAPI {
   grid: IfcGrid;
   axes: IfcAxes;
   dropbox: DropboxAPI;
+  selectionWindow: SelectionWindow;
 
   constructor(options: ViewerOptions) {
     if (!options.container) throw new Error('Could not get container element!');
@@ -53,6 +55,7 @@ export class IfcViewerAPI {
     this.pdf = new PDFWriter();
     this.GLTF = new GLTFManager(this.context, this.IFC);
     this.dropbox = new DropboxAPI(this.context, this.IFC);
+    this.selectionWindow = new SelectionWindow(this.context);
     ClippingEdges.ifc = this.IFC;
     ClippingEdges.context = this.context;
   }
