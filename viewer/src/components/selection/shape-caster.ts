@@ -1,22 +1,30 @@
 import { CONTAINED, INTERSECTED, NOT_INTERSECTED } from 'three-mesh-bvh';
+import { Box3, Line3, Matrix4, Mesh, Vector3 } from 'three';
+import { SelectionBoxMath } from './selection-window-math';
 
-class ShapeCaster {
-  boxPoints = new Array(8).fill(0).map(() => new THREE.Vector3());
-  boxLines = new Array(12).fill(0).map(() => new THREE.Line3());
-  perBoundsSegments = [];
+export class ShapeCaster {
+  boxPoints = new Array(8).fill(0).map(() => new Vector3());
+  boxLines = new Array(12).fill(0).map(() => new Line3());
+  perBoundsSegments: any[] = [];
   math = new SelectionBoxMath();
   selectModel = false;
   useBoundsTree = true;
   selectionMode = 'intersection';
 
-  constructor(toScreenSpaceMatrix, lassoSegments) {
-    this.toScreenSpaceMatrix = toScreenSpaceMatrix;
-    this.lassoSegments = lassoSegments;
-  }
+  constructor(private toScreenSpaceMatrix: Matrix4, private lassoSegments: any) {}
 
-  shapeCast(mesh, indices) {
+  shapeCast(mesh: Mesh, indices: number[]) {
+    if (!mesh.geometry.boundsTree) {
+      throw new Error('Geometry must have BVH applied!');
+    }
+
     mesh.geometry.boundsTree.shapecast({
-      intersectsBounds: (box, isLeaf, score, depth) => {
+      intersectsBounds: (
+        box: Box3,
+        _isLeaf: boolean,
+        _score: number | undefined,
+        depth: number
+      ) => {
         // Get the bounding box points
         const { min, max } = box;
         let index = 0;
@@ -31,6 +39,7 @@ class ShapeCaster {
               v.x = x === 0 ? min.x : max.x;
               v.y = y === 0 ? min.y : max.y;
               v.z = z === 0 ? min.z : max.z;
+              // @ts-ignore
               v.w = 1;
               v.applyMatrix4(this.toScreenSpaceMatrix);
               index++;
@@ -45,7 +54,7 @@ class ShapeCaster {
         // Find all the relevant segments here and cache them in the above array for
         // subsequent child checks to use.
         const parentSegments = this.perBoundsSegments[depth - 1] || this.lassoSegments;
-        const segmentsToCheck = this.perBoundsSegments[depth] || [];
+        const segmentsToCheck: any[] = this.perBoundsSegments[depth] || [];
         segmentsToCheck.length = 0;
         this.perBoundsSegments[depth] = segmentsToCheck;
         for (let i = 0, l = parentSegments.length; i < l; i++) {
@@ -73,7 +82,7 @@ class ShapeCaster {
 
         // Get the screen space hull lines
         const hull = this.math.getConvexHull(this.boxPoints);
-        if (!hull) return;
+        if (!hull) return NOT_INTERSECTED;
         const lines = hull.map((p, i) => {
           const nextP = hull[(i + 1) % hull.length];
           const line = this.boxLines[i];

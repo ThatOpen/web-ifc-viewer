@@ -6,7 +6,6 @@ import {
 import { MeshBasicMaterial, LineBasicMaterial, Color } from 'three';
 import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
 import Stats from 'stats.js/src/Stats';
-import { SelectionWindow } from './box-selection';
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255, 255) });
@@ -120,31 +119,20 @@ const callback = (mesh, indices) => {
 
   const ids = Array.from(expressIDs);
 
-  viewer.IFC.selector.pickIfcItemsByID(0, ids);
+  viewer.IFC.selector.pickIfcItemsByID(mesh.modelID, ids);
 
 }
 
-const selectionWindow = new SelectionWindow(scene, camera, meshes, callback);
-window.onmousedown = (e) => selectionWindow.onDragStarted(e);
-window.onmousemove = (e) => selectionWindow.onDrag(e);
-window.onmouseup = (e) => selectionWindow.onDragFinished(e);
-viewer.context.ifcCamera.cameraControls.mouseButtons.left = 0;
-
-// const handleKeyDown = async (event) => {
-  // if (event.code === 'Delete') {
-  //   viewer.clipper.deletePlane();
-  //   viewer.dimensions.delete();
-  // }
-  // if (event.code === 'Escape') {
-  //   viewer.IFC.selector.unpickIfcItems();
-  // }
-// };
-// window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
-
-
-// window.onmousedown = (e) => viewer.selectionWindow.startSelection(e);
-// window.onmousemove = (e) => viewer.selectionWindow.updateSelection(e);
-// window.onmouseup = (e) => viewer.selectionWindow.endSelection(e);
+const handleKeyDown = async (event) => {
+  if (event.code === 'Delete') {
+    viewer.clipper.deletePlane();
+    viewer.dimensions.delete();
+  }
+  if (event.code === 'Escape') {
+    viewer.IFC.selector.unpickIfcItems();
+  }
+};
+window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
 
 
 window.ondblclick = async () => {

@@ -1,29 +1,8 @@
+import { Line3, Vector3 } from 'three';
+
 export class SelectionBoxMath {
   // https://www.geeksforgeeks.org/convex-hull-set-2-graham-scan/
-  getConvexHull(points) {
-    function orientation(p, q, r) {
-      const val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
-
-      if (val === 0) {
-        return 0; // colinear
-      }
-
-      // clock or counterclock wise
-      return val > 0 ? 1 : 2;
-    }
-
-    function distSq(p1, p2) {
-      return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
-    }
-
-    function compare(p1, p2) {
-      // Find orientation
-      const o = orientation(p0, p1, p2);
-      if (o === 0) return distSq(p0, p2) >= distSq(p0, p1) ? -1 : 1;
-
-      return o === 2 ? -1 : 1;
-    }
-
+  getConvexHull(points: Vector3[]) {
     // find the lowest point in 2d
     let lowestY = Infinity;
     let lowestIndex = -1;
@@ -40,13 +19,36 @@ export class SelectionBoxMath {
     points[lowestIndex] = points[0];
     points[0] = p0;
 
+    function orientation(p: Vector3, q: Vector3, r: Vector3) {
+      const val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
+
+      if (val === 0) {
+        return 0; // colinear
+      }
+
+      // clock or counterclock wise
+      return val > 0 ? 1 : 2;
+    }
+
+    function distSq(p1: Vector3, p2: Vector3) {
+      return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
+    }
+
+    function compare(p1: Vector3, p2: Vector3) {
+      // Find orientation
+      const o = orientation(p0, p1, p2);
+      if (o === 0) return distSq(p0, p2) >= distSq(p0, p1) ? -1 : 1;
+
+      return o === 2 ? -1 : 1;
+    }
+
     points = points.sort(compare);
 
     // filter the points
     let m = 1;
     const n = points.length;
     for (let i = 1; i < n; i++) {
-      while (i < n - 1 && orientation(p0, points[i], points[i + 1]) == 0) {
+      while (i < n - 1 && orientation(p0, points[i], points[i + 1]) === 0) {
         i++;
       }
 
@@ -70,7 +72,7 @@ export class SelectionBoxMath {
     return hull;
   }
 
-  pointRayCrossesLine(point, line, prevDirection, thisDirection) {
+  pointRayCrossesLine(point: Vector3, line: Line3, prevDirection: boolean, thisDirection: boolean) {
     const { start, end } = line;
     const px = point.x;
     const py = point.y;
@@ -114,7 +116,7 @@ export class SelectionBoxMath {
     return false;
   }
 
-  pointRayCrossesSegments(point, segments) {
+  pointRayCrossesSegments(point: Vector3, segments: Line3[]) {
     let crossings = 0;
     const firstSeg = segments[segments.length - 1];
     let prevDirection = firstSeg.start.y > firstSeg.end.y;
@@ -132,8 +134,8 @@ export class SelectionBoxMath {
   }
 
   // https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
-  lineCrossesLine(l1, l2) {
-    function ccw(A, B, C) {
+  lineCrossesLine(l1: Line3, l2: Line3) {
+    function ccw(A: Vector3, B: Vector3, C: Vector3) {
       return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);
     }
 

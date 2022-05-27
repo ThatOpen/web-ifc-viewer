@@ -1,4 +1,16 @@
-import { CONTAINED, INTERSECTED, NOT_INTERSECTED } from 'three-mesh-bvh';
+import {
+  Float32BufferAttribute,
+  Line,
+  Line3,
+  MathUtils,
+  Matrix4,
+  MeshBasicMaterial,
+  PerspectiveCamera,
+  Vector2
+} from 'three';
+import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
+import { ShapeCaster } from './shape-caster';
+import { IfcContext } from '../context';
 
 export class SelectionWindow {
   toolMode = 'lasso';
@@ -8,9 +20,9 @@ export class SelectionWindow {
   helperDepth = 10;
   rotate = true;
 
-  selectionShape = new THREE.Line();
+  selectionShape = new Line();
 
-  selectionPoints = [];
+  selectionPoints: number[] = [];
   dragging = false;
   selectionShapeNeedsUpdate = false;
   selectionNeedsUpdate = false;
@@ -21,47 +33,48 @@ export class SelectionWindow {
   prevX = -Infinity;
   prevY = -Infinity;
 
-  tempVec0 = new THREE.Vector2();
-  tempVec1 = new THREE.Vector2();
-  tempVec2 = new THREE.Vector2();
+  tempVec0 = new Vector2();
+  tempVec1 = new Vector2();
+  tempVec2 = new Vector2();
 
-  toScreenSpaceMatrix = new THREE.Matrix4();
-  lassoSegments = [];
+  toScreenSpaceMatrix = new Matrix4();
+  lassoSegments: Line3[] = [];
 
   caster = new ShapeCaster(this.toScreenSpaceMatrix, this.lassoSegments);
 
-  constructor(scene, camera, meshes, onSelectedCallback) {
-    this.scene = scene;
-    this.camera = camera;
-    this.meshes = meshes;
-    this.onSelected = onSelectedCallback;
+  onSelected?: (model: IFCModel, indices: number[]) => void;
 
+  constructor(private context: IfcContext) {
     this.setupSelectionShape();
-    this.updateAll(meshes);
+    this.updateAll();
   }
 
   setupSelectionShape() {
-    this.selectionShape = new THREE.Line();
-    this.selectionShape.material.color.set(0xff9800).convertSRGBToLinear();
+    this.selectionShape = new Line();
+    const mat = this.selectionShape.material as MeshBasicMaterial;
+    mat.depthTest = false;
+    mat.color.set(0xff9800).convertSRGBToLinear();
     this.selectionShape.renderOrder = 1;
     this.selectionShape.position.z = -0.2;
-    this.selectionShape.depthTest = false;
     this.selectionShape.scale.setScalar(1);
     this.selectionShape.frustumCulled = false;
-    this.camera.add(this.selectionShape);
+    this.context.getCamera().add(this.selectionShape);
   }
 
-  onDragStarted(pointerEvent) {
-    this.prevX = pointerEvent.clientX;
-    this.prevY = pointerEvent.clientY;
-    this.startX = (pointerEvent.clientX / window.innerWidth) * 2 - 1;
-    this.startY = -((pointerEvent.clientY / window.innerHeight) * 2 - 1);
+  onDragStarted(event: MouseEvent) {
+    this.prevX = event.clientX;
+    this.prevY = event.clientY;
+    this.startX = (event.clientX / window.innerWidth) * 2 - 1;
+    this.startY = -((event.clientY / window.innerHeight) * 2 - 1);
     this.selectionPoints.length = 0;
     this.dragging = true;
 
-    const yScale =
-      Math.tan((THREE.MathUtils.DEG2RAD * this.camera.fov) / 2) * this.selectionShape.position.z;
-    this.selectionShape.scale.set(-yScale * this.camera.aspect, -yScale, 1);
+    const camera = this.context.getCamera();
+    if (camera instanceof PerspectiveCamera) {
+      const tan = Math.tan((MathUtils.DEG2RAD * camera.fov) / 2);
+      const yScale = tan * this.selectionShape.position.z;
+      this.selectionShape.scale.set(-yScale * camera.aspect, -yScale, 1);
+    }
   }
 
   onDragFinished() {
@@ -71,20 +84,21 @@ export class SelectionWindow {
       this.selectionNeedsUpdate = true;
     }
 
-    this.updateAll(this.meshes);
+    this.updateAll();
   }
 
-  onDrag(pointerEvent) {
+  onDrag(event: MouseEvent) {
     // If the left mouse button is not pressed
-    if ((1 & pointerEvent.buttons) === 0) {
+    // eslint-disable-next-line no-bitwise
+    if ((1 & event.buttons) === 0) {
       return;
     }
 
-    const ex = pointerEvent.clientX;
-    const ey = pointerEvent.clientY;
+    const ex = event.clientX;
+    const ey = event.clientY;
 
-    const nx = (pointerEvent.clientX / window.innerWidth) * 2 - 1;
-    const ny = -((pointerEvent.clientY / window.innerHeight) * 2 - 1);
+    const nx = (event.clientX / window.innerWidth) * 2 - 1;
+    const ny = -((event.clientY / window.innerHeight) * 2 - 1);
 
     if (this.toolMode === 'box') {
       // set points for the corner of the box
@@ -122,7 +136,8 @@ export class SelectionWindow {
       }
     } else {
       // If the mouse hasn't moved a lot since the last point
-      if (Math.abs(ex - this.prevX) >= 3 || Math.abs(ey - this.prevY) >= 3) {
+      const mouseDidntMuchMuch = Math.abs(ex - this.prevX) >= 3 || Math.abs(ey - this.prevY) >= 3;
+      if (mouseDidntMuchMuch) {
         // Check if the mouse moved in roughly the same direction as the previous point
         // and replace it if so.
         const i = this.selectionPoints.length / 3 - 1;
@@ -177,14 +192,14 @@ export class SelectionWindow {
 
         this.selectionShape.geometry.setAttribute(
           'position',
-          new THREE.Float32BufferAttribute(this.selectionPoints, 3, false)
+          new Float32BufferAttribute(this.selectionPoints, 3, false)
         );
 
         this.selectionPoints.length = ogLength;
       } else {
         this.selectionShape.geometry.setAttribute(
           'position',
-          new THREE.Float32BufferAttribute(this.selectionPoints, 3, false)
+          new Float32BufferAttribute(this.selectionPoints, 3, false)
         );
       }
 
@@ -192,34 +207,34 @@ export class SelectionWindow {
     }
   }
 
-  updateAll(meshes) {
-    meshes.forEach((mesh) => {
-      this.update(mesh);
+  updateAll() {
+    const models = this.context.items.pickableIfcModels;
+    models.forEach((model) => {
+      this.update(model);
     });
+    this.selectionNeedsUpdate = false;
   }
 
-  update(mesh) {
-    if (this.selectionNeedsUpdate) {
-      this.selectionNeedsUpdate = false;
-      if (this.selectionPoints.length > 0) {
-        this.updateSelection(mesh);
-      }
+  update(model: IFCModel) {
+    if (this.selectionNeedsUpdate && this.selectionPoints.length > 0) {
+      this.updateSelection(model);
     }
   }
 
-  updateSelection(mesh) {
+  updateSelection(model: IFCModel) {
     // TODO: Possible improvements
     // - Correctly handle the camera near clip
     // - Improve line line intersect performance?
 
+    const camera = this.context.getCamera();
     this.toScreenSpaceMatrix
-      .copy(mesh.matrixWorld)
-      .premultiply(this.camera.matrixWorldInverse)
-      .premultiply(this.camera.projectionMatrix);
+      .copy(model.matrixWorld)
+      .premultiply(camera.matrixWorldInverse)
+      .premultiply(camera.projectionMatrix);
 
     // create scratch points and lines to use for selection
     while (this.lassoSegments.length < this.selectionPoints.length) {
-      this.lassoSegments.push(new THREE.Line3());
+      this.lassoSegments.push(new Line3());
     }
 
     this.lassoSegments.length = this.selectionPoints.length;
@@ -234,8 +249,10 @@ export class SelectionWindow {
       line.end.y = this.selectionPoints[sNext + 1];
     }
 
-    const indices = [];
-    this.caster.shapeCast(mesh, indices);
-    this.onSelected(mesh, indices);
+    const indices: number[] = [];
+    this.caster.shapeCast(model, indices);
+    if (this.onSelected) {
+      this.onSelected(model, indices);
+    }
   }
 }
