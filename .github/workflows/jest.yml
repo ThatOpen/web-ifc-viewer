@@ -8,4 +8,4 @@ jobs:
       - name: Install modules
         run: cd viewer && yarn
       - name: Run tests
-        run: cd viewer && yarn test
+        run: cd viewer && yarn test --passWithNoTests
