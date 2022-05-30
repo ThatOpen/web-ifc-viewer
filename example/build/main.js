@@ -90293,7 +90293,7 @@
             super(context);
             this.orthogonalY = true;
             this.toleranceOrthogonalY = 0.7;
-            this.planeSize = 5000;
+            this.planeSize = 5;
             this.createPlane = () => {
                 if (!this.enabled)
                     return;
