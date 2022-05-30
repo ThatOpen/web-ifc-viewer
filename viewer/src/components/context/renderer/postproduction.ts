@@ -1,135 +1,77 @@
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 import { Camera, Scene, WebGLRenderer } from 'three';
-import { IfcEvent } from '../ifcEvent';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
+import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
+import { SAOPass } from 'three/examples/jsm/postprocessing/SAOPass';
+import { OutlineEffect } from 'three/examples/jsm/effects/OutlineEffect';
 import { IfcContext } from '../context';
 
-export class IfcPostproduction {
-  ssaoEffect: any;
-  renderer: WebGLRenderer;
+export class Postproduction {
+  composer: EffectComposer;
+  fxaaPass = new ShaderPass(FXAAShader);
+  renderPass?: RenderPass;
+  saoPass?: SAOPass;
+  outlineEffect: OutlineEffect;
+  scene?: Scene;
+  camera?: Camera;
 
-  composer: any;
-  initialized = false;
+  active = false;
+  activeLayers = {
+    ao: false,
+    outline: true
+  };
 
-  private BlendFunction: any;
-  private EffectComposer: any;
-  private EffectPass: any;
-  private NormalPass: any;
-  private RenderPass: any;
-  private SSAOEffect: any;
+  private aoInitialized = false;
 
-  private notInitializedError = 'You have not initialized the postproduction library';
-
-  constructor(private context: IfcContext, canvas: HTMLElement) {
-    this.renderer = new WebGLRenderer({
-      canvas,
-      powerPreference: 'high-performance',
-      antialias: false,
-      stencil: false,
-      depth: false
+  constructor(private context: IfcContext, renderer: WebGLRenderer) {
+    this.composer = new EffectComposer(renderer);
+    this.composer.renderer.autoClear = false;
+    this.outlineEffect = new OutlineEffect(renderer, {
+      defaultThickness: 0.003,
+      defaultColor: [0, 0, 0],
+      defaultAlpha: 1,
+      defaultKeepAlive: true
     });
-
-    this.renderer.localClippingEnabled = true;
+    this.outlineEffect.setPixelRatio(1);
   }
 
-  dispose() {
-    this.renderer.dispose();
-    if (this.initialized) {
-      (this.renderer as any) = null;
-      (this.BlendFunction as any) = null;
-      (this.EffectComposer as any) = null;
-      (this.EffectPass as any) = null;
-      (this.NormalPass as any) = null;
-      (this.RenderPass as any) = null;
-      (this.SSAOEffect as any) = null;
-      (this.composer as any) = null;
+  dispose() {}
+
+  render() {
+    if (!this.scene) this.scene = this.context.getScene();
+    if (!this.camera) this.camera = this.context.getCamera();
+    if (!this.scene || !this.camera) return;
+
+    if (this.activeLayers.outline) {
+      this.outlineEffect.render(this.scene, this.camera);
+    }
+
+    if (this.activeLayers.ao) {
+      if (!this.aoInitialized) this.initializeAmbientOclussionPasses();
+      this.composer.render();
     }
   }
 
-  get domElement() {
-    return this.renderer.domElement;
-  }
-
-  // Depending on this library has given some issues in the past
-  // It's better to avoid that dependency and allow users that want to use it to give us this objects instead
-  initializePostprocessing(postproduction: {
-    BlendFunction: any;
-    EffectComposer: any;
-    EffectPass: any;
-    NormalPass: any;
-    RenderPass: any;
-    SSAOEffect: any;
-  }) {
-    this.BlendFunction = postproduction.BlendFunction;
-    this.EffectComposer = postproduction.EffectComposer;
-    this.EffectPass = postproduction.EffectPass;
-    this.NormalPass = postproduction.NormalPass;
-    this.RenderPass = postproduction.RenderPass;
-    this.SSAOEffect = postproduction.SSAOEffect;
-    this.composer = new this.EffectComposer(this.renderer);
-    this.setupEvents();
-    this.initialized = true;
-  }
-
-  render() {
-    if (!this.initialized) throw new Error(this.notInitializedError);
-    this.composer.render();
-  }
-
   setSize(width: number, height: number) {
-    if (!this.initialized) return;
     this.composer.setSize(width, height);
+    this.outlineEffect.setSize(width, height);
   }
 
-  private setupEvents() {
-    const createPasses = (scene: Scene, camera: Camera) => {
-      const normalPass = new this.NormalPass(scene, camera, {
-        resolutionScale: 1.0
-      });
+  private initializeAmbientOclussionPasses() {
+    this.renderPass = new RenderPass(this.scene!, this.camera!);
+    this.saoPass = new SAOPass(this.scene!, this.camera!, false, true);
+    this.saoPass.enabled = true;
+    this.saoPass.params.saoIntensity = 0.02;
+    this.saoPass.params.saoBias = 0.5;
+    this.saoPass.params.saoBlurRadius = 8;
+    this.saoPass.params.saoBlurDepthCutoff = 0.0015;
+    this.saoPass.params.saoScale = 50;
+    this.saoPass.params.saoKernelRadius = 50;
+    this.aoInitialized = true;
 
-      this.ssaoEffect = new this.SSAOEffect(camera, normalPass.renderTarget.texture, {
-        blendFunction: this.BlendFunction.MULTIPLY,
-        // blendFunction: POSTPROCESSING.BlendFunction.ALPHA,
-        samples: 32,
-        rings: 5,
-        distanceThreshold: 0.0,
-        distanceFalloff: 1.0,
-        rangeThreshold: 0.0,
-        rangeFalloff: 1.0,
-        luminanceInfluence: 0.0,
-        scale: 0.6,
-        radius: 0.03,
-        bias: 0.03,
-        intensity: 10.0
-      });
-
-      this.ssaoEffect.ssaoMaterial.uniforms.fade.value = 1;
-      this.ssaoEffect.resolution.scale = 1.5;
-      this.ssaoEffect.blendMode.opacity.value = 1.2;
-
-      // Scale, Bias and Opacity influence intensity.
-      this.ssaoEffect.blendMode.opacity.value = 1.0;
-
-      const renderPass = new this.RenderPass(scene, camera);
-      const effectPass = new this.EffectPass(camera, this.ssaoEffect);
-      effectPass.renderToScreen = true;
-
-      return [renderPass, normalPass, effectPass];
-    };
-
-    const setupPasses = (scene: Scene, camera: Camera) => {
-      const passes = createPasses(scene, camera);
-      passes.forEach((pass) => this.composer.addPass(pass));
-    };
-
-    this.context.events.subscribe(IfcEvent.onCameraReady, () => {
-      const scene = this.context.getScene();
-      const camera = this.context.ifcCamera;
-
-      camera.onChangeProjection.on((camera) => {
-        this.composer.removeAllPasses();
-        setupPasses(this.context.getScene(), camera);
-      });
-
-      setupPasses(scene, camera.activeCamera);
-    });
+    this.composer.addPass(this.renderPass);
+    this.composer.addPass(this.fxaaPass);
+    this.composer.addPass(this.saoPass);
   }
 }

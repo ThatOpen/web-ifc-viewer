@@ -86,7 +86,7 @@ export class IfcContext {
   }
 
   getRenderer() {
-    return this.renderer.basicRenderer;
+    return this.renderer.renderer;
   }
 
   getRenderer2D() {
