@@ -6,7 +6,6 @@ import {
 import { MeshBasicMaterial, LineBasicMaterial, Color } from 'three';
 import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
 import Stats from 'stats.js/src/Stats';
-import { projectEdges } from './edge-projection';
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255, 255) });
@@ -73,27 +72,23 @@ const loadIfc = async (event) => {
     progressText.innerText = `Loaded ${percentage}%`;
   });
 
-  viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
-    [IFCSPACE]: false,
-    [IFCOPENINGELEMENT]: false
-  });
+  // viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
+  //   [IFCSPACE]: false,
+  //   [IFCOPENINGELEMENT]: false
+  // });
 
   model = await viewer.IFC.loadIfc(event.target.files[0], false);
   model.material.forEach(mat => mat.side = 2);
 
 
 
-
-
-
-
+  // model.visible = false;
   //
   // const scene = viewer.context.getScene();
   //
   // const ifcProject = await viewer.IFC.loader.ifcManager.getSpatialStructure(model.modelID);
   // console.log(ifcProject);
-  // const firstFloorIDs = ifcProject.children[0].children[0].children[3].children.map(child => child.expressID);
-  //
+  // const firstFloorIDs = ifcProject.children[0].children[0].children[0].children.map(child => child.expressID);
   //
   // // const furnitureIDs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCFURNISHINGELEMENT, false);
   // const subset = viewer.IFC.loader.ifcManager.createSubset({
@@ -107,7 +102,8 @@ const loadIfc = async (event) => {
   // subset.visible = false;
   //
   // const now = performance.now();
-  // await projectEdges(scene, subset);
+  // const projection = await viewer.edgesProjector.projectEdges(subset);
+  // scene.add(projection);
   // model.position.y += 20;
   //
   // const duration = performance.now() - now;

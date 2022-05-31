@@ -30,7 +30,7 @@
     "camera-controls": "^1.33.1",
     "dat.gui": "^0.7.7",
     "gsap": "^3.7.1",
-    "three-mesh-bvh": "^0.5.2",
+    "three-mesh-bvh": "^0.5.11",
     "web-ifc": "0.0.34",
     "web-ifc-three": "^0.0.116"
   },

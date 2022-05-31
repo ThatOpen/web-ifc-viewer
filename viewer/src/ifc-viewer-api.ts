@@ -16,7 +16,7 @@ import { GLTFManager } from './components/import-export/glTF';
 import { ShadowDropper } from './components/display/shadow-dropper';
 import { DXFWriter } from './components/import-export/dxf';
 import { PDFWriter } from './components/import-export/pdf';
-import { EdgesVectorizer } from './components/import-export/edges-vectorizer';
+import { EdgeProjector } from './components/import-export/edges-vectorizer/edge-projection';
 import { ClippingEdges } from './components/display/clipping-planes/clipping-edges';
 import { SelectionWindow } from './components/selection/selection-window';
 
@@ -32,7 +32,7 @@ export class IfcViewerAPI {
   shadowDropper: ShadowDropper;
   dxf: DXFWriter;
   pdf: PDFWriter;
-  edgesVectorizer: EdgesVectorizer;
+  edgesProjector: EdgeProjector;
   grid: IfcGrid;
   axes: IfcAxes;
   dropbox: DropboxAPI;
@@ -50,7 +50,7 @@ export class IfcViewerAPI {
     this.dimensions = new IfcDimensions(this.context);
     this.edges = new Edges(this.context);
     this.shadowDropper = new ShadowDropper(this.context, this.IFC);
-    this.edgesVectorizer = new EdgesVectorizer(this.context, this.clipper, this.grid, this.axes);
+    this.edgesProjector = new EdgeProjector(this.context);
     this.dxf = new DXFWriter();
     this.pdf = new PDFWriter();
     this.GLTF = new GLTFManager(this.context, this.IFC);
@@ -248,8 +248,8 @@ export class IfcViewerAPI {
     (this.dxf as any) = null;
     this.pdf.dispose();
     (this.pdf as any) = null;
-    this.edgesVectorizer.dispose();
-    (this.edgesVectorizer as any) = null;
+    this.edgesProjector.dispose();
+    (this.edgesProjector as any) = null;
     (this.dropbox as any) = null;
     this.GLTF.dispose();
     (this.GLTF as any) = null;
