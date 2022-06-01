@@ -23,6 +23,7 @@ export class IfcSelector {
     this.preselection.fastRemovePrevious = true;
     this.selection = new IfcSelection(context, this.ifc.loader, this.defSelectMat);
     this.highlight = new IfcSelection(context, this.ifc.loader);
+    this.highlight.renderOrder = -1;
   }
 
   dispose() {

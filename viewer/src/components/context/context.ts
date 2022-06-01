@@ -6,12 +6,14 @@ import { IfcScene } from './scene';
 import { Animator } from './animator';
 import { IfcEvent, IfcEvents } from './ifcEvent';
 import { IfcComponent, Items, NavigationModes, ViewerOptions } from '../../base-types';
+import { IfcMouse } from './mouse';
 
 export class IfcContext {
   options: ViewerOptions;
   items: Items;
   ifcCamera: IfcCamera;
   stats: any = null;
+  mouse: IfcMouse;
 
   readonly scene: IfcScene;
   readonly renderer: IfcRenderer;
@@ -30,6 +32,7 @@ export class IfcContext {
     this.items = this.newItems();
     this.scene = new IfcScene(this);
     this.renderer = new IfcRenderer(this);
+    this.mouse = new IfcMouse(this.renderer.renderer.domElement);
 
     this.ifcCamera = new IfcCamera(this);
     this.events.publish(IfcEvent.onCameraReady);
@@ -68,6 +71,7 @@ export class IfcContext {
     this.scene.dispose();
     (this.scene as any) = null;
     this.renderer.dispose();
+    (this.mouse as any) = null;
     (this.renderer as any) = null;
     this.events.dispose();
     (this.events as any) = null;

@@ -10,6 +10,7 @@ export class IfcSelection extends IfcComponent {
 
   // True only for prepick
   fastRemovePrevious = false;
+  renderOrder = 0;
 
   private modelIDs = new Set<number>();
   private selectedFaces: { [modelID: number]: Set<number> } = {};
@@ -61,6 +62,7 @@ export class IfcSelection extends IfcComponent {
     this.modelIDs.add(mesh.modelID);
     const selected = this.newSelection(mesh.modelID, [id], removePrevious);
     selected.visible = true;
+    selected.renderOrder = this.renderOrder;
 
     if (focusSelection) {
       await this.focusSelection(selected);

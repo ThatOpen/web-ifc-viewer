@@ -1,29 +1,25 @@
 import { Intersection, Object3D, Raycaster } from 'three';
-import { IfcMouse } from './mouse';
 import { IfcComponent } from '../../base-types';
 import { IfcContext } from './context';
 
 export class IfcRaycaster extends IfcComponent {
   private readonly raycaster: Raycaster;
-  private readonly mouse: IfcMouse;
   private readonly context: IfcContext;
 
   constructor(context: IfcContext) {
     super(context);
     this.context = context;
     this.raycaster = new Raycaster();
-    this.mouse = new IfcMouse(context);
   }
 
   dispose() {
     (this.raycaster as any) = null;
-    (this.mouse as any) = null;
     (this.context as any) = null;
   }
 
   castRay(items: Object3D[]) {
     const camera = this.context.getCamera();
-    this.raycaster.setFromCamera(this.mouse.position, camera);
+    this.raycaster.setFromCamera(this.context.mouse.position, camera);
     return this.raycaster.intersectObjects(items);
   }
 

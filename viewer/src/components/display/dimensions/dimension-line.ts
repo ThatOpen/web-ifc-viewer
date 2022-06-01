@@ -20,6 +20,9 @@ export class IfcDimensionLine {
   private readonly labelClassName: string;
   static scaleFactor = 0.1;
 
+  static scale = 1;
+  static units = 'm';
+
   // Elements
   private root = new Group();
   private readonly line: Line;
@@ -210,7 +213,7 @@ export class IfcDimensionLine {
   }
 
   private getTextContent() {
-    return `${this.length} m`;
+    return `${this.length / IfcDimensionLine.scale} ${IfcDimensionLine.units}`;
   }
 
   private newBoundingBox() {

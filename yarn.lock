@@ -4967,11 +4967,6 @@ three-mesh-bvh@^0.5.11:
   resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.5.11.tgz#6c64f80557c00d3d2bb85667444787449ae352cb"
   integrity sha512-blVHefpW+aRqB7XZcL8MEJrVwGoX9COqCgGccgzhLoPwLEdIWz4bs2FGdLECIpAEHHThL6nQodQ2S8WAs/H3CA==
 
-three-mesh-bvh@^0.5.2:
-  version "0.5.2"
-  resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.5.2.tgz#6d435330e4aa686dcdbf70330c8eb5dd42b12737"
-  integrity sha512-DAKWujkp8xpSBqGiIsZbZC1utxAbYBg0SShQk9LdOG/xWWl1/OLK76eXDGfov47trl3L7PUTHi0hhRvZdVro1Q==
-
 three@0.135, three@^0.135.0:
   version "0.135.0"
   resolved "https://registry.yarnpkg.com/three/-/three-0.135.0.tgz#cff4ec8edd3c51ce9bc7e88d13e8eafed4d0ddfc"
@@ -5268,24 +5263,19 @@ walker@^1.0.7:
   dependencies:
     makeerror "1.0.x"
 
-web-ifc-three@^0.0.116:
-  version "0.0.116"
-  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.116.tgz#f4a6cbd56620e2cee46b01cae8ddfc297f98b6a5"
-  integrity sha512-mgLsDoAmiS+UGsubBqG8XH2OYM+nXXFDVPHSowEqHFolh3GsfURr4JaETvdS5K8BW4djcx2+pt9itBWAIVqTgg==
+web-ifc-three@^0.0.117:
+  version "0.0.117"
+  resolved "https://registry.yarnpkg.com/web-ifc-three/-/web-ifc-three-0.0.117.tgz#c86cd37d33a84180b8778f58ef400bf02b6ba7db"
+  integrity sha512-gXSaKehOkAQw2Di7v6LOqazhquVqdoaueMjiuqNX2OBEFnHFCLUF+9KMlzx3tPUmmcS9fTDRim/dskcGXH/32g==
   dependencies:
     three "^0.135.0"
-    three-mesh-bvh "^0.5.2"
-    web-ifc "^0.0.33"
+    three-mesh-bvh "^0.5.11"
+    web-ifc "^0.0.35"
 
-web-ifc@0.0.33, web-ifc@^0.0.33:
-  version "0.0.33"
-  resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.33.tgz#a1eadc22dd2e683fa03064d71269850333e5c24f"
-  integrity sha512-9JeOia81u7GzGf/HHgtxm/USLVJATx8ZqNxtnbXTbQEiV2Utz7qdm8LpQyrcLucMQF/9tqUxkBgAYxJITf08Zw==
-
-web-ifc@0.0.34:
-  version "0.0.34"
-  resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.34.tgz#988cc9879e340320058bd1aefab9542705c3010c"
-  integrity sha512-crrrp9VXvxZQ7n4Uia7vqx4Dlp9FQy4Z4EwB5Ok9Hd7+dtcTMe8lPOFQYR1AxzNcqBzFxFzSiXX0v6VbRJzZKA==
+web-ifc@^0.0.35:
+  version "0.0.35"
+  resolved "https://registry.yarnpkg.com/web-ifc/-/web-ifc-0.0.35.tgz#60506779b82677a7b2977b7e784feddec494264b"
+  integrity sha512-if/L9RiJAD+jJ1oWtHj44+o2NG6K6azK0otE9Pbppr5hNBnouYfJQNmnHZ+Ya+wZeaByo9KeU64D60Y6lFnT4w==
 
 webidl-conversions@^5.0.0:
   version "5.0.0"

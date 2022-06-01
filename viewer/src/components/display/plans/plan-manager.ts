@@ -63,9 +63,9 @@ export class PlanManager {
     const currentPlanlist = this.planLists[modelID];
     const expressID = config.expressID;
 
-    if (currentPlanlist[name]) return;
-    currentPlanlist[name] = { modelID, name, ortho, expressID };
-    await this.createClippingPlane(config, currentPlanlist[name]);
+    if (currentPlanlist[expressID]) return;
+    currentPlanlist[expressID] = { modelID, name, ortho, expressID };
+    await this.createClippingPlane(config, currentPlanlist[expressID]);
   }
 
   async goTo(modelID: number, name: string, animate = false) {
@@ -113,14 +113,14 @@ export class PlanManager {
 
     for (let i = 0; i < storeys.length; i++) {
       if (storeys[i]) {
-        const baseHeight = storeys[i].Elevation?.value || 1;
+        const baseHeight = storeys[i].Elevation?.value || 0;
         const elevation = (baseHeight + siteCoords[2]) * unitsScale + transformHeight;
         const expressID = storeys[i].expressID;
 
         // eslint-disable-next-line no-await-in-loop
         await this.create({
           modelID,
-          name: this.getFloorplanName(storeys[i]) + i,
+          name: this.getFloorplanName(storeys[i]),
           point: new Vector3(0, elevation + this.defaultSectionOffset, 0),
           normal: new Vector3(0, -1, 0),
           rotation: 0,
@@ -213,10 +213,10 @@ export class PlanManager {
   }
 
   private getFloorplanName(floorplan: any) {
-    if (floorplan.Name && floorplan.Name.value) {
+    if (floorplan?.Name?.value?.length) {
       return floorplan.Name.value;
     }
-    if (floorplan.LongName && floorplan.LongName.value) {
+    if (floorplan?.LongName?.value?.length) {
       return floorplan.LongName.value;
     }
     return floorplan.GlobalId.value;

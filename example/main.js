@@ -3,7 +3,7 @@ import { createSideMenuButton } from './utils/gui-creator';
 import {
   IFCSPACE, IFCOPENINGELEMENT, IFCFURNISHINGELEMENT, IFCWALL, IFCWINDOW, IFCCURTAINWALL, IFCMEMBER, IFCPLATE
 } from 'web-ifc';
-import { MeshBasicMaterial, LineBasicMaterial, Color } from 'three';
+import { MeshBasicMaterial, LineBasicMaterial, Color, Mesh, BoxGeometry } from 'three';
 import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
 import Stats from 'stats.js/src/Stats';
 
@@ -72,44 +72,13 @@ const loadIfc = async (event) => {
     progressText.innerText = `Loaded ${percentage}%`;
   });
 
-  // viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
-  //   [IFCSPACE]: false,
-  //   [IFCOPENINGELEMENT]: false
-  // });
+  viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
+    [IFCSPACE]: false,
+    [IFCOPENINGELEMENT]: false
+  });
 
   model = await viewer.IFC.loadIfc(event.target.files[0], false);
   model.material.forEach(mat => mat.side = 2);
-
-
-
-  // model.visible = false;
-  //
-  // const scene = viewer.context.getScene();
-  //
-  // const ifcProject = await viewer.IFC.loader.ifcManager.getSpatialStructure(model.modelID);
-  // console.log(ifcProject);
-  // const firstFloorIDs = ifcProject.children[0].children[0].children[0].children.map(child => child.expressID);
-  //
-  // // const furnitureIDs = await viewer.IFC.loader.ifcManager.getAllItemsOfType(0, IFCFURNISHINGELEMENT, false);
-  // const subset = viewer.IFC.loader.ifcManager.createSubset({
-  //   modelID: model.modelID,
-  //   ids: firstFloorIDs,
-  //   scene,
-  //   removePrevious: true
-  // });
-  //
-  // model.visible = false;
-  // subset.visible = false;
-  //
-  // const now = performance.now();
-  // const projection = await viewer.edgesProjector.projectEdges(subset);
-  // scene.add(projection);
-  // model.position.y += 20;
-  //
-  // const duration = performance.now() - now;
-  // console.log("This took: " + duration + " ms!");
-
-
 
 
   if(first) first = false

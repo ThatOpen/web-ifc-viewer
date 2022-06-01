@@ -50,7 +50,7 @@ export class IfcUnits {
       if (foundUnit) {
         const prefix = foundUnit.Prefix as any;
         let scale;
-        if (prefix === null) scale = UnitScale.NONE;
+        if (prefix === null || prefix === undefined) scale = UnitScale.NONE;
         else scale = UnitScale[prefix.value];
         this.allUnits[modelID][value] = scale;
       }

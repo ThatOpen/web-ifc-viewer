@@ -12,37 +12,34 @@ import { IFCModel } from 'web-ifc-three/IFC/components/IFCModel';
 import { ShapeCaster } from './shape-caster';
 import { IfcContext } from '../context';
 
-export class SelectionWindow {
-  toolMode = 'lasso';
-  liveUpdate = false;
-  wireframe = false;
-  displayHelper = false;
-  helperDepth = 10;
-  rotate = true;
+export enum SelectionWindowMode {
+  lasso,
+  box
+}
 
+export class SelectionWindow {
+  toolMode: SelectionWindowMode = SelectionWindowMode.box;
+  onSelected?: (model: IFCModel, indices: number[]) => void;
   selectionShape = new Line();
 
-  selectionPoints: number[] = [];
-  dragging = false;
-  selectionShapeNeedsUpdate = false;
-  selectionNeedsUpdate = false;
+  private dragging = false;
 
-  // handle building lasso shape
-  startX = -Infinity;
-  startY = -Infinity;
-  prevX = -Infinity;
-  prevY = -Infinity;
+  private selectionPoints: number[] = [];
+  private selectionShapeNeedsUpdate = false;
+  private selectionNeedsUpdate = false;
 
-  tempVec0 = new Vector2();
-  tempVec1 = new Vector2();
-  tempVec2 = new Vector2();
+  private startX = -Infinity;
+  private startY = -Infinity;
+  private prevX = -Infinity;
+  private prevY = -Infinity;
 
-  toScreenSpaceMatrix = new Matrix4();
-  lassoSegments: Line3[] = [];
+  private tempVec0 = new Vector2();
+  private tempVec1 = new Vector2();
+  private tempVec2 = new Vector2();
+  private toScreenSpaceMatrix = new Matrix4();
+  private lassoSegments: Line3[] = [];
 
-  caster = new ShapeCaster(this.toScreenSpaceMatrix, this.lassoSegments);
-
-  onSelected?: (model: IFCModel, indices: number[]) => void;
+  private caster = new ShapeCaster(this.toScreenSpaceMatrix, this.lassoSegments);
 
   constructor(private context: IfcContext) {
     this.setupSelectionShape();
@@ -61,15 +58,19 @@ export class SelectionWindow {
     this.context.getCamera().add(this.selectionShape);
   }
 
-  onDragStarted(event: MouseEvent) {
-    this.prevX = event.clientX;
-    this.prevY = event.clientY;
-    this.startX = (event.clientX / window.innerWidth) * 2 - 1;
-    this.startY = -((event.clientY / window.innerHeight) * 2 - 1);
+  onDragStarted() {
+    this.prevX = this.context.mouse.rawPosition.x;
+    this.prevY = this.context.mouse.rawPosition.y;
+    this.startX = this.context.mouse.position.x;
+    this.startY = this.context.mouse.position.y;
     this.selectionPoints.length = 0;
     this.dragging = true;
 
     const camera = this.context.getCamera();
+    if (!camera.parent) {
+      this.context.getScene().add(camera);
+    }
+
     if (camera instanceof PerspectiveCamera) {
       const tan = Math.tan((MathUtils.DEG2RAD * camera.fov) / 2);
       const yScale = tan * this.selectionShape.position.z;
@@ -78,8 +79,8 @@ export class SelectionWindow {
   }
 
   onDragFinished() {
-    this.selectionShape.visible = false;
     this.dragging = false;
+    this.selectionShape.visible = false;
     if (this.selectionPoints.length) {
       this.selectionNeedsUpdate = true;
     }
@@ -87,20 +88,16 @@ export class SelectionWindow {
     this.updateAll();
   }
 
-  onDrag(event: MouseEvent) {
-    // If the left mouse button is not pressed
-    // eslint-disable-next-line no-bitwise
-    if ((1 & event.buttons) === 0) {
-      return;
-    }
+  onDrag() {
+    if (!this.dragging) return;
 
-    const ex = event.clientX;
-    const ey = event.clientY;
+    const ex = this.context.mouse.rawPosition.x;
+    const ey = this.context.mouse.rawPosition.y;
 
-    const nx = (event.clientX / window.innerWidth) * 2 - 1;
-    const ny = -((event.clientY / window.innerHeight) * 2 - 1);
+    const nx = this.context.mouse.position.x;
+    const ny = this.context.mouse.position.y;
 
-    if (this.toolMode === 'box') {
+    if (this.toolMode === SelectionWindowMode.box) {
       // set points for the corner of the box
       this.selectionPoints.length = 3 * 5;
 
@@ -131,9 +128,6 @@ export class SelectionWindow {
       this.prevX = ex;
       this.prevY = ey;
       this.selectionShape.visible = true;
-      if (this.liveUpdate) {
-        this.selectionNeedsUpdate = true;
-      }
     } else {
       // If the mouse hasn't moved a lot since the last point
       const mouseDidntMuchMuch = Math.abs(ex - this.prevX) >= 3 || Math.abs(ey - this.prevY) >= 3;
@@ -170,10 +164,6 @@ export class SelectionWindow {
 
         this.prevX = ex;
         this.prevY = ey;
-
-        if (this.liveUpdate) {
-          this.selectionNeedsUpdate = true;
-        }
       }
     }
 
@@ -182,7 +172,7 @@ export class SelectionWindow {
 
   updateSelectionLasso() {
     if (this.selectionShapeNeedsUpdate) {
-      if (this.toolMode === 'lasso') {
+      if (this.toolMode === SelectionWindowMode.lasso) {
         const ogLength = this.selectionPoints.length;
         this.selectionPoints.push(
           this.selectionPoints[0],
