@@ -111574,7 +111574,7 @@
                 zCoords += position.getZ(indices[i]);
                 counter++;
             }
-            return new Vector3(xCoords / counter, yCoords / counter, zCoords / counter);
+            return new Vector3(xCoords / counter + mesh.position.x, yCoords / counter + mesh.position.y, zCoords / counter + mesh.position.z);
         }
         // eslint-disable-next-line no-undef
         addComponent(component) {
@@ -121002,6 +121002,11 @@
 
       model = await viewer.IFC.loadIfc(event.target.files[0], false);
       model.material.forEach(mat => mat.side = 2);
+
+      addEventListener('keydown', () => {
+        ClippingEdges.forceStyleUpdate = true;
+        model.position.y += 1;
+      });
 
       if(first) first = false;
       else {

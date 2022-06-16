@@ -149,7 +149,11 @@ export class IfcContext {
       counter++;
     }
 
-    return new Vector3(xCoords / counter, yCoords / counter, zCoords / counter);
+    return new Vector3(
+      xCoords / counter + mesh.position.x,
+      yCoords / counter + mesh.position.y,
+      zCoords / counter + mesh.position.z
+    );
   }
 
   // eslint-disable-next-line no-undef
