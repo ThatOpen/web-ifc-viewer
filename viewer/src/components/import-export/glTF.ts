@@ -100,8 +100,8 @@ export class GLTFManager extends IfcComponent {
   }
 
   /**
-   * Load glTF and enable IFC.js tools over it. T
-   * his just works if the glTF was previously exported from an IFC model using `exportIfcAsGltf()`.
+   * Load glTF and enable IFC.js tools over it.
+   * This just works if the glTF was previously exported from an IFC model using `exportIfcAsGltf()`.
    * @url The URL of the GLTF file to load
    */
   async loadModel(url: string) {

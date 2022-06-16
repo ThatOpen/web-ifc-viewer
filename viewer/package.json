@@ -1,6 +1,6 @@
 {
   "name": "web-ifc-viewer",
-  "version": "1.0.195",
+  "version": "1.0.196",
   "description": "IFC viewer",
   "main": "dist/index.js",
   "scripts": {
@@ -23,9 +23,9 @@
   "author": "agviegas",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/agviegas/web-ifc-viewer/issues"
+    "url": "https://github.com/ifcjs/web-ifc-viewer/issues"
   },
-  "homepage": "https://github.com/agviegas/web-ifc-viewer",
+  "homepage": "https://github.com/ifcjs/web-ifc-viewer",
   "dependencies": {
     "camera-controls": "^1.33.1",
     "dat.gui": "^0.7.7",

@@ -90789,6 +90789,9 @@
             if (ClippingEdges.createDefaultIfcStyles) {
                 await this.updateIfcStyles();
             }
+            if (ClippingEdges.forceStyleUpdate) {
+                this.updateSubsetsTranformation();
+            }
             Object.keys(ClippingEdges.styles).forEach((styleName) => {
                 try {
                     // this can trow error if there is an empty mesh, we still want to update other edges so we catch ere
@@ -90802,17 +90805,17 @@
         // Creates a new style that applies to all clipping edges for IFC models
         static async newStyle(styleName, categories, material = ClippingEdges.defaultMaterial) {
             const subsets = [];
-            const ids = ClippingEdges.context.items.ifcModels.map((model) => model.modelID);
-            for (let i = 0; i < ids.length; i++) {
+            const models = ClippingEdges.context.items.ifcModels;
+            for (let i = 0; i < models.length; i++) {
                 // eslint-disable-next-line no-await-in-loop
-                const subset = await ClippingEdges.newSubset(styleName, ids[i], categories);
+                const subset = await ClippingEdges.newSubset(styleName, models[i], categories);
                 if (subset) {
                     subsets.push(subset);
                 }
             }
             material.clippingPlanes = ClippingEdges.context.getClippingPlanes();
             ClippingEdges.styles[styleName] = {
-                ids,
+                ids: models.map((model) => model.modelID),
                 categories,
                 material,
                 meshes: subsets
@@ -90838,16 +90841,32 @@
             for (let i = 0; i < styleNames.length; i++) {
                 const name = styleNames[i];
                 const style = ClippingEdges.styles[name];
-                const ids = ClippingEdges.context.items.ifcModels.map((model) => model.modelID);
+                const models = ClippingEdges.context.items.ifcModels;
                 style.meshes.length = 0;
-                for (let i = 0; i < ids.length; i++) {
+                for (let i = 0; i < models.length; i++) {
                     // eslint-disable-next-line no-await-in-loop
-                    const subset = await ClippingEdges.newSubset(name, ids[i], style.categories);
+                    const subset = await ClippingEdges.newSubset(name, models[i], style.categories);
                     if (subset) {
                         style.meshes.push(subset);
                     }
                 }
             }
+        }
+        updateSubsetsTranformation() {
+            const styleNames = Object.keys(ClippingEdges.styles);
+            for (let i = 0; i < styleNames.length; i++) {
+                const styleName = styleNames[i];
+                const style = ClippingEdges.styles[styleName];
+                style.meshes.forEach((mesh) => {
+                    const model = ClippingEdges.context.items.ifcModels.find((model) => model.modelID === mesh.modelID);
+                    if (model) {
+                        mesh.position.copy(model.position);
+                        mesh.rotation.copy(model.rotation);
+                        mesh.scale.copy(model.scale);
+                    }
+                });
+            }
+            ClippingEdges.forceStyleUpdate = false;
         }
         async updateIfcStyles() {
             if (!this.stylesInitialized) {
@@ -90859,7 +90878,6 @@
             }
         }
         // Creates some basic styles so that users don't have to create it each time
-        // todo check all possible IFC classes are handled
         async createDefaultIfcStyles() {
             if (Object.keys(ClippingEdges.styles).length === 0) {
                 await ClippingEdges.newStyle('thick', [
@@ -90887,14 +90905,16 @@
             }
         }
         // Creates a new subset. This allows to apply a style just to a specific set of items
-        static async newSubset(styleName, modelID, categories) {
+        static async newSubset(styleName, model, categories) {
+            const modelID = model.modelID;
             const ids = await this.getItemIDs(modelID, categories);
             // If no items were found, no geometry is created for this style
             if (!ids.length)
                 return null;
             const manager = this.ifc.loader.ifcManager;
+            let subset;
             if (ids.length > 0) {
-                return manager.createSubset({
+                subset = manager.createSubset({
                     modelID,
                     ids,
                     customID: styleName,
@@ -90904,7 +90924,13 @@
                     applyBVH: true
                 });
             }
-            return manager.getSubset(modelID, ClippingEdges.invisibleMaterial, styleName);
+            else {
+                subset = manager.getSubset(modelID, ClippingEdges.invisibleMaterial, styleName);
+            }
+            subset.position.copy(model.position);
+            subset.rotation.copy(model.rotation);
+            subset.scale.copy(model.scale);
+            return subset;
         }
         static async getItemIDs(modelID, categories) {
             const ids = [];
@@ -90957,8 +90983,9 @@
             posAttr.array.fill(0);
             const notEmptyMeshes = style.meshes.filter((subset) => subset.geometry);
             notEmptyMeshes.forEach((mesh) => {
-                if (!mesh.geometry.boundsTree)
+                if (!mesh.geometry.boundsTree) {
                     throw new Error('Boundstree not found for clipping edges subset.');
+                }
                 this.inverseMatrix.copy(mesh.matrixWorld).invert();
                 this.localPlane.copy(this.clippingPlane).applyMatrix4(this.inverseMatrix);
                 mesh.geometry.boundsTree.shapecast({
@@ -90973,21 +91000,24 @@
                         this.tempLine.start.copy(tri.a);
                         this.tempLine.end.copy(tri.b);
                         if (this.localPlane.intersectLine(this.tempLine, this.tempVector)) {
-                            posAttr.setXYZ(index, this.tempVector.x, this.tempVector.y, this.tempVector.z);
+                            const result = this.tempVector.applyMatrix4(mesh.matrixWorld);
+                            posAttr.setXYZ(index, result.x, result.y, result.z);
                             count++;
                             index++;
                         }
                         this.tempLine.start.copy(tri.b);
                         this.tempLine.end.copy(tri.c);
                         if (this.localPlane.intersectLine(this.tempLine, this.tempVector)) {
-                            posAttr.setXYZ(index, this.tempVector.x, this.tempVector.y, this.tempVector.z);
+                            const result = this.tempVector.applyMatrix4(mesh.matrixWorld);
+                            posAttr.setXYZ(index, result.x, result.y, result.z);
                             count++;
                             index++;
                         }
                         this.tempLine.start.copy(tri.c);
                         this.tempLine.end.copy(tri.a);
                         if (this.localPlane.intersectLine(this.tempLine, this.tempVector)) {
-                            posAttr.setXYZ(index, this.tempVector.x, this.tempVector.y, this.tempVector.z);
+                            const result = this.tempVector.applyMatrix4(mesh.matrixWorld);
+                            posAttr.setXYZ(index, result.x, result.y, result.z);
                             count++;
                             index++;
                         }
@@ -100260,7 +100290,7 @@
                 if (item.faceIndex === undefined || ((_a = this.selectedFaces[mesh.modelID]) === null || _a === void 0 ? void 0 : _a.has(item.faceIndex))) {
                     return null;
                 }
-                const id = await this.loader.ifcManager.getExpressId(mesh.geometry, item.faceIndex);
+                const id = this.loader.ifcManager.getExpressId(mesh.geometry, item.faceIndex);
                 if (id === undefined)
                     return null;
                 if (removePrevious) {
@@ -100278,6 +100308,9 @@
                 this.selectedFaces[mesh.modelID].add(item.faceIndex);
                 this.modelIDs.add(mesh.modelID);
                 const selected = this.newSelection(mesh.modelID, [id], removePrevious);
+                selected.position.copy(mesh.position);
+                selected.rotation.copy(mesh.rotation);
+                selected.scale.copy(mesh.scale);
                 selected.visible = true;
                 selected.renderOrder = this.renderOrder;
                 if (focusSelection) {
@@ -100291,6 +100324,7 @@
                 }
                 this.modelIDs.add(modelID);
                 const mesh = this.newSelection(modelID, ids, removePrevious);
+                mesh.renderOrder = this.renderOrder;
                 if (focusSelection)
                     await this.focusSelection(mesh);
             };
@@ -100474,7 +100508,11 @@
                     model.userData[this.userDataField] = new Mesh(model.geometry, this.defHighlightMat);
                 }
                 if (model.parent) {
-                    model.parent.add(model.userData[this.userDataField]);
+                    const fadedMesh = model.userData[this.userDataField];
+                    fadedMesh.position.copy(model.position);
+                    fadedMesh.rotation.copy(model.rotation);
+                    fadedMesh.scale.copy(model.scale);
+                    model.parent.add(fadedMesh);
                     model.removeFromParent();
                 }
             });
@@ -118579,8 +118617,8 @@
             return mesh;
         }
         /**
-         * Load glTF and enable IFC.js tools over it. T
-         * his just works if the glTF was previously exported from an IFC model using `exportIfcAsGltf()`.
+         * Load glTF and enable IFC.js tools over it.
+         * This just works if the glTF was previously exported from an IFC model using `exportIfcAsGltf()`.
          * @url The URL of the GLTF file to load
          */
         async loadModel(url) {
@@ -120964,7 +121002,12 @@
 
       model = await viewer.IFC.loadIfc(event.target.files[0], false);
       model.material.forEach(mat => mat.side = 2);
+      model.position.y += 3;
 
+      addEventListener('keydown', () => {
+        model.position.y += 1;
+        ClippingEdges.forceStyleUpdate = true;
+      });
 
       if(first) first = false;
       else {
@@ -121002,7 +121045,7 @@
       if (viewer.clipper.active) {
         viewer.clipper.createPlane();
       } else {
-        const result = await viewer.IFC.selector.pickIfcItem(true);
+        const result = await viewer.IFC.selector.highlightIfcItem(true);
         if (!result) return;
         const { modelID, id } = result;
         const props = await viewer.IFC.getProperties(modelID, id, true, false);

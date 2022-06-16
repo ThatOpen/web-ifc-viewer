@@ -79,7 +79,12 @@ const loadIfc = async (event) => {
 
   model = await viewer.IFC.loadIfc(event.target.files[0], false);
   model.material.forEach(mat => mat.side = 2);
+  model.position.y += 3;
 
+  addEventListener('keydown', () => {
+    model.position.y += 1;
+    ClippingEdges.forceStyleUpdate = true;
+  })
 
   if(first) first = false
   else {
@@ -117,7 +122,7 @@ window.ondblclick = async () => {
   if (viewer.clipper.active) {
     viewer.clipper.createPlane();
   } else {
-    const result = await viewer.IFC.selector.pickIfcItem(true);
+    const result = await viewer.IFC.selector.highlightIfcItem(true);
     if (!result) return;
     const { modelID, id } = result;
     const props = await viewer.IFC.getProperties(modelID, id, true, false);

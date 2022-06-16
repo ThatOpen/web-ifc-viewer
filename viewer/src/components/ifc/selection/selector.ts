@@ -171,7 +171,11 @@ export class IfcSelector {
       }
 
       if (model.parent) {
-        model.parent.add(model.userData[this.userDataField]);
+        const fadedMesh = model.userData[this.userDataField];
+        fadedMesh.position.copy(model.position);
+        fadedMesh.rotation.copy(model.rotation);
+        fadedMesh.scale.copy(model.scale);
+        model.parent.add(fadedMesh);
         model.removeFromParent();
       }
     });
