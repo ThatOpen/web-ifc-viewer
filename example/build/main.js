@@ -121003,11 +121003,6 @@
       model = await viewer.IFC.loadIfc(event.target.files[0], false);
       model.material.forEach(mat => mat.side = 2);
 
-      addEventListener('keydown', () => {
-        ClippingEdges.forceStyleUpdate = true;
-        model.position.y += 1;
-      });
-
       if(first) first = false;
       else {
         ClippingEdges.forceStyleUpdate = true;
