@@ -86,7 +86,7 @@ const loadIfc = async (event) => {
   }
 
   // await createFill(model.modelID);
-  viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
+  // viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
 
   await viewer.shadowDropper.renderShadow(model.modelID);
 

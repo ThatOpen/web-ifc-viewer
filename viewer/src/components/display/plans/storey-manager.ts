@@ -50,9 +50,13 @@ export class StoreyManager {
   }
 
   private async getSiteCoords(modelID: number) {
-    const building = await this.getBuilding(modelID);
-    const sitePlace = building.ObjectPlacement.PlacementRelTo.RelativePlacement.Location;
-    return sitePlace.Coordinates.map((coord: any) => coord.value);
+    try {
+      const building = await this.getBuilding(modelID);
+      const sitePlace = building.ObjectPlacement.PlacementRelTo.RelativePlacement.Location;
+      return sitePlace.Coordinates.map((coord: any) => coord.value);
+    } catch (e) {
+      return [0, 0, 0];
+    }
   }
 
   private async getBuilding(modelID: number) {
