@@ -16,7 +16,7 @@ export class IfcSelector {
 
   constructor(private context: IfcContext, private ifc: IfcManager) {
     this.defSelectMat = this.initializeDefMaterial(0xff33ff, 0.3);
-    this.defPreselectMat = this.initializeDefMaterial(0xffccff, 0.5);
+    this.defPreselectMat = this.initializeDefMaterial(0xff55ff, 0.5);
     this.defHighlightMat = this.initializeDefMaterial(0xeeeeee, 0.05);
 
     this.preselection = new IfcSelection(context, this.ifc.loader, this.defPreselectMat);
@@ -62,10 +62,15 @@ export class IfcSelector {
    * @removePrevious whether to remove the previous subset
    */
   async pickIfcItem(focusSelection = false, removePrevious = true) {
+    if (focusSelection) this.context.renderer.postProduction.visible = false;
+
     const found = this.context.castRayIfc();
     if (!found) return null;
     const result = await this.selection.pick(found, focusSelection, removePrevious);
     if (result == null || result.modelID == null || result.id == null) return null;
+
+    if (focusSelection) this.context.renderer.postProduction.visible = false;
+
     return result;
   }
 

@@ -26,5 +26,6 @@ export class IfcGrid extends IfcComponent {
     this.grid.renderOrder = 0;
     const scene = this.context.getScene();
     scene.add(this.grid);
+    this.context.renderer.postProduction.excludedItems.add(this.grid);
   }
 }

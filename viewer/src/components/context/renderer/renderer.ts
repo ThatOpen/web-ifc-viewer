@@ -20,7 +20,9 @@ export class IfcRenderer extends IfcComponent {
     super(context);
     this.context = context;
     this.container = context.options.container;
-    this.renderer = new WebGLRenderer({ antialias: true });
+    this.renderer = new WebGLRenderer();
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
     this.setupRenderers();
     this.postProduction = new Postproduction(this.context, this.renderer);
     this.adjustRendererSize();
@@ -30,9 +32,9 @@ export class IfcRenderer extends IfcComponent {
     this.renderer.domElement.remove();
     this.renderer.dispose();
     this.postProduction.dispose();
+    (this.postProduction as any) = null;
     (this.renderer as any) = null;
     (this.renderer2D as any) = null;
-    (this.postProduction as any) = null;
     (this.container as any) = null;
     (this.context as any) = null;
     this.tempRenderer?.dispose();
@@ -43,13 +45,7 @@ export class IfcRenderer extends IfcComponent {
     if (this.blocked) return;
     const scene = this.context.getScene();
     const camera = this.context.getCamera();
-
-    if (this.postProduction.active) {
-      this.postProduction.render();
-    } else {
-      this.renderer.render(scene, camera);
-    }
-
+    this.renderer.render(scene, camera);
     this.renderer2D.render(scene, camera);
   }
 

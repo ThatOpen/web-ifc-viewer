@@ -142,6 +142,7 @@ export class IfcPlane extends IfcComponent {
     this.initializeControls(controls);
     const scene = this.context.getScene();
     scene.add(controls);
+    this.context.renderer.postProduction.excludedItems.add(controls);
     return controls;
   }
 
@@ -189,6 +190,7 @@ export class IfcPlane extends IfcComponent {
     const scene = this.context.getScene();
     scene.add(helper);
     helper.add(this.planeMesh);
+    this.context.renderer.postProduction.excludedItems.add(helper);
     return helper;
   }
 

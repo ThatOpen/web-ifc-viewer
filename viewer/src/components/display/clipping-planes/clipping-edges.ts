@@ -460,6 +460,7 @@ export class ClippingEdges {
       edges.mesh.geometry.fromLineSegments(ClippingEdges.basicEdges);
       const parent = ClippingEdges.edgesParent || ClippingEdges.context.getScene();
       parent.add(edges.mesh);
+      ClippingEdges.context.renderer.postProduction.excludedItems.add(edges.mesh);
     }
   }
 }
