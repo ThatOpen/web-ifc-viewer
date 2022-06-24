@@ -3,15 +3,28 @@ import { createSideMenuButton } from './utils/gui-creator';
 import {
   IFCSPACE, IFCOPENINGELEMENT, IFCFURNISHINGELEMENT, IFCWALL, IFCWINDOW, IFCCURTAINWALL, IFCMEMBER, IFCPLATE
 } from 'web-ifc';
-import { MeshBasicMaterial, LineBasicMaterial, Color, Mesh, BoxGeometry } from 'three';
+import {
+  MeshBasicMaterial,
+  LineBasicMaterial,
+  Color,
+  Vector2,
+  DepthTexture,
+  WebGLRenderTarget } from 'three';
 import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
 import Stats from 'stats.js/src/Stats';
+
+import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader.js";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
+import {SAOPass} from "three/examples/jsm/postprocessing/SAOPass";
+import {CustomOutlinePass} from "./CustomOutlinePass";
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255, 255) });
 viewer.axes.setAxes();
 viewer.grid.setGrid();
-viewer.shadowDropper.darkness = 1.5;
+// viewer.shadowDropper.darkness = 1.5;
 
 // Set up stats
 const stats = new Stats();
@@ -29,11 +42,12 @@ viewer.IFC.loader.ifcManager.applyWebIfcConfig({
   COORDINATE_TO_ORIGIN: true
 });
 
+viewer.context.renderer.postProduction.active = true;
 
 // Setup loader
 
-const lineMaterial = new LineBasicMaterial({ color: 0x555555 });
-const baseMaterial = new MeshBasicMaterial({ color: 0xffffff, side: 2 });
+// const lineMaterial = new LineBasicMaterial({ color: 0x555555 });
+// const baseMaterial = new MeshBasicMaterial({ color: 0xffffff, side: 2 });
 
 let first = true;
 let model;
@@ -78,7 +92,7 @@ const loadIfc = async (event) => {
   });
 
   model = await viewer.IFC.loadIfc(event.target.files[0], false);
-  model.material.forEach(mat => mat.side = 2);
+  // model.material.forEach(mat => mat.side = 2);
 
   if(first) first = false
   else {
@@ -86,7 +100,7 @@ const loadIfc = async (event) => {
   }
 
   // await createFill(model.modelID);
-  viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
+  // viewer.edges.create(`${model.modelID}`, model.modelID, lineMaterial, baseMaterial);
 
   await viewer.shadowDropper.renderShadow(model.modelID);
 

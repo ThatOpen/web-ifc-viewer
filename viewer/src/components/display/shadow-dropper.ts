@@ -79,6 +79,7 @@ export class ShadowDropper {
     this.initializeShadow(model, shadow, scene, center);
     this.createPlanes(shadow, size);
     this.bakeShadow(model, shadow, scene);
+    this.context.renderer.postProduction.excludedItems.add(shadow.root);
   }
 
   deleteShadow(id: string) {

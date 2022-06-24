@@ -1,77 +1,276 @@
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
-import { Camera, Scene, WebGLRenderer } from 'three';
+import {
+  DepthTexture,
+  Object3D,
+  PerspectiveCamera,
+  Scene,
+  Vector2,
+  WebGLRenderer,
+  WebGLRenderTarget
+} from 'three';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
+import { SAOPass } from 'three/examples/jsm/postprocessing/SAOPass';
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
-import { SAOPass } from 'three/examples/jsm/postprocessing/SAOPass';
-import { OutlineEffect } from 'three/examples/jsm/effects/OutlineEffect';
 import { IfcContext } from '../context';
+import { CustomOutlinePass } from './custom-outline-pass';
+
+// source: https://discourse.threejs.org/t/how-to-render-full-outlines-as-a-post-process-tutorial/22674
 
 export class Postproduction {
-  composer: EffectComposer;
-  fxaaPass = new ShaderPass(FXAAShader);
-  renderPass?: RenderPass;
-  saoPass?: SAOPass;
-  outlineEffect: OutlineEffect;
-  scene?: Scene;
-  camera?: Camera;
+  htmlOverlay = document.createElement('img');
+  excludedItems = new Set<Object3D>();
 
-  active = false;
-  activeLayers = {
-    ao: false,
-    outline: true
+  private saoPass?: SAOPass;
+
+  private initialized = false;
+  private customOutline?: CustomOutlinePass;
+  private outlineUniforms: any;
+  private depthTexture?: DepthTexture;
+  private readonly composer: EffectComposer;
+  private readonly renderTarget: WebGLRenderTarget;
+  private readonly visibilityField = 'ifcjsPostproductionVisible';
+
+  private isUserControllingCamera = false;
+  private isControlSleeping = true;
+  private lastWheelUsed = 0;
+
+  private isActive = false;
+  private isVisible = false;
+
+  private outlineParams = {
+    mode: { Mode: 0 },
+    FXAA: true,
+    outlineColor: 0x777777,
+    depthBias: 16,
+    depthMult: 83,
+    normalBias: 5,
+    normalMult: 1.0
   };
 
-  private aoInitialized = false;
-
-  constructor(private context: IfcContext, renderer: WebGLRenderer) {
-    this.composer = new EffectComposer(renderer);
-    this.composer.renderer.autoClear = false;
-    this.outlineEffect = new OutlineEffect(renderer, {
-      defaultThickness: 0.003,
-      defaultColor: [0, 0, 0],
-      defaultAlpha: 1,
-      defaultKeepAlive: true
-    });
-    this.outlineEffect.setPixelRatio(1);
+  get active() {
+    return this.isActive;
   }
 
-  dispose() {}
+  set active(active: boolean) {
+    if (!this.initialized) this.tryToInitialize();
+    this.isActive = active;
+    this.visible = active;
+    this.setupEvents(active);
+    this.toggleGlobalClippingPlanes(active);
+  }
 
-  render() {
-    if (!this.scene) this.scene = this.context.getScene();
-    if (!this.camera) this.camera = this.context.getCamera();
-    if (!this.scene || !this.camera) return;
+  get visible() {
+    return this.isVisible;
+  }
 
-    if (this.activeLayers.outline) {
-      this.outlineEffect.render(this.scene, this.camera);
-    }
+  set visible(visible: boolean) {
+    if (!this.isActive && visible) return;
+    this.isVisible = visible;
+    if (visible) this.render();
+    this.htmlOverlay.style.visibility = visible ? 'visible' : 'collapse';
+  }
 
-    if (this.activeLayers.ao) {
-      if (!this.aoInitialized) this.initializeAmbientOclussionPasses();
-      this.composer.render();
-    }
+  get outlineColor() {
+    return this.outlineParams.outlineColor;
+  }
+
+  set outlineColor(color: number) {
+    this.outlineParams.outlineColor = color;
+    this.outlineUniforms.outlineColor.value.set(color);
+  }
+
+  get sao() {
+    return this.saoPass?.params;
+  }
+
+  constructor(private context: IfcContext, private renderer: WebGLRenderer) {
+    this.renderTarget = this.newRenderTarget();
+
+    this.composer = new EffectComposer(renderer, this.renderTarget);
+    this.composer.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  dispose() {
+    this.active = false;
+
+    this.renderTarget.dispose();
+    (this.renderTarget as any) = null;
+
+    this.depthTexture?.dispose();
+    (this.depthTexture as any) = null;
+
+    this.customOutline?.dispose();
+    (this.customOutline as any) = null;
+
+    (this.composer as any) = null;
+
+    this.excludedItems.clear();
+    (this.excludedItems as any) = null;
+
+    (this.composer as any) = null;
+
+    this.htmlOverlay.remove();
+    (this.htmlOverlay as any) = null;
+
+    (this.outlineParams as any) = null;
+
+    (this.context as any) = null;
+    (this.renderer as any) = null;
+
+    (this.saoPass as any) = null;
+    (this.outlineUniforms as any) = null;
   }
 
   setSize(width: number, height: number) {
     this.composer.setSize(width, height);
-    this.outlineEffect.setSize(width, height);
   }
 
-  private initializeAmbientOclussionPasses() {
-    this.renderPass = new RenderPass(this.scene!, this.camera!);
-    this.saoPass = new SAOPass(this.scene!, this.camera!, false, true);
+  private render() {
+    if (!this.initialized) return;
+
+    this.toggleVisibilityOfExcludedItems(false);
+    this.composer.render();
+    this.htmlOverlay.src = this.renderer.domElement.toDataURL();
+    this.toggleVisibilityOfExcludedItems(true);
+  }
+
+  private toggleVisibilityOfExcludedItems(visible: boolean) {
+    for (const object of this.excludedItems) {
+      if (!object.userData[this.visibilityField]) {
+        object.userData[this.visibilityField] = object.parent;
+      }
+
+      if (visible && object.userData[this.visibilityField]) {
+        object.userData[this.visibilityField].add(object);
+      } else {
+        object.removeFromParent();
+      }
+    }
+  }
+
+  private tryToInitialize() {
+    const scene = this.context.getScene();
+    const camera = this.context.getCamera() as PerspectiveCamera;
+    if (!scene || !camera) return;
+
+    this.addBasePass(scene, camera);
+    this.addSaoPass(scene, camera);
+    this.addOutlinePass(scene, camera);
+    this.addAntialiasPass();
+    this.setupHtmlOverlay();
+
+    this.initialized = true;
+  }
+
+  private setupEvents(active: boolean) {
+    const controls = this.context.ifcCamera.cameraControls;
+    const domElement = this.context.getDomElement();
+    const addOrRemoveEvent = active ? 'addEventListener' : 'removeEventListener';
+    controls[addOrRemoveEvent]('control', this.onControl);
+    controls[addOrRemoveEvent]('controlstart', this.onControlStart);
+    controls[addOrRemoveEvent]('wake', this.onWake);
+    controls[addOrRemoveEvent]('controlend', this.onControlEnd);
+    domElement[addOrRemoveEvent]('wheel', this.onWheel);
+    controls[addOrRemoveEvent]('sleep', this.onSleep);
+  }
+
+  private onControlStart = () => (this.isUserControllingCamera = true);
+  private onWake = () => (this.isControlSleeping = false);
+
+  private onControl = () => {
+    this.visible = false;
+  };
+
+  private onControlEnd = () => {
+    this.isUserControllingCamera = false;
+    if (!this.isUserControllingCamera && this.isControlSleeping) {
+      this.visible = true;
+    }
+  };
+
+  private onWheel = () => {
+    this.lastWheelUsed = performance.now();
+  };
+
+  private onSleep = () => {
+    // This prevents that this gets triggered a million times when zooming with the wheel
+    this.isControlSleeping = true;
+    const currentWheel = performance.now();
+    setTimeout(() => {
+      if (this.lastWheelUsed > currentWheel) return;
+      if (!this.isUserControllingCamera && this.isControlSleeping) {
+        this.visible = true;
+      }
+    }, 200);
+  };
+
+  private setupHtmlOverlay() {
+    this.context.getContainerElement().appendChild(this.htmlOverlay);
+    // @ts-ignore
+    this.htmlOverlay.style.mixBlendMode = 'darken';
+    this.htmlOverlay.style.position = 'absolute';
+    this.htmlOverlay.style.width = '100%';
+    this.htmlOverlay.style.height = '100%';
+    this.htmlOverlay.style.userSelect = 'none';
+    this.htmlOverlay.style.pointerEvents = 'none';
+    this.htmlOverlay.style.top = '0';
+  }
+
+  private addAntialiasPass() {
+    const effectFXAA = new ShaderPass(FXAAShader);
+    effectFXAA.uniforms.resolution.value.set(1 / window.innerWidth, 1 / window.innerHeight);
+    this.composer.addPass(effectFXAA);
+  }
+
+  private addOutlinePass(scene: Scene, camera: PerspectiveCamera) {
+    this.customOutline = new CustomOutlinePass(
+      new Vector2(window.innerWidth, window.innerHeight),
+      scene,
+      camera
+    );
+
+    // Initial values
+    // @ts-ignore
+    this.outlineUniforms = this.customOutline.fsQuad.material.uniforms;
+    this.outlineUniforms.outlineColor.value.set(this.outlineParams.outlineColor);
+    this.outlineUniforms.multiplierParameters.value.x = this.outlineParams.depthBias;
+    this.outlineUniforms.multiplierParameters.value.y = this.outlineParams.depthMult;
+    this.outlineUniforms.multiplierParameters.value.z = this.outlineParams.normalBias;
+    this.outlineUniforms.multiplierParameters.value.w = this.outlineParams.normalMult;
+
+    this.composer.addPass(this.customOutline);
+  }
+
+  private addSaoPass(scene: Scene, camera: PerspectiveCamera) {
+    this.saoPass = new SAOPass(scene, camera, false, true);
+    this.composer.addPass(this.saoPass);
+
     this.saoPass.enabled = true;
-    this.saoPass.params.saoIntensity = 0.02;
+    this.saoPass.params.saoIntensity = 0.01;
     this.saoPass.params.saoBias = 0.5;
     this.saoPass.params.saoBlurRadius = 8;
     this.saoPass.params.saoBlurDepthCutoff = 0.0015;
-    this.saoPass.params.saoScale = 50;
-    this.saoPass.params.saoKernelRadius = 50;
-    this.aoInitialized = true;
+    this.saoPass.params.saoScale = 30;
+    this.saoPass.params.saoKernelRadius = 30;
+  }
 
-    this.composer.addPass(this.renderPass);
-    this.composer.addPass(this.fxaaPass);
-    this.composer.addPass(this.saoPass);
+  private addBasePass(scene: Scene, camera: PerspectiveCamera) {
+    const pass = new RenderPass(scene, camera);
+    this.composer.addPass(pass);
+  }
+
+  private newRenderTarget() {
+    this.depthTexture = new DepthTexture(window.innerWidth, window.innerHeight);
+    return new WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+      depthTexture: this.depthTexture,
+      depthBuffer: true
+    });
+  }
+
+  // Local clipping planes don't work with postproduction
+  private toggleGlobalClippingPlanes(active: boolean) {
+    this.renderer.localClippingEnabled = active;
+    this.renderer.clippingPlanes = active ? this.context.getClippingPlanes() : [];
   }
 }

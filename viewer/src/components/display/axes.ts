@@ -27,5 +27,6 @@ export class IfcAxes extends IfcComponent {
     this.axes.renderOrder = 2;
     const scene = this.context.getScene();
     scene.add(this.axes);
+    this.context.renderer.postProduction.excludedItems.add(this.axes);
   }
 }

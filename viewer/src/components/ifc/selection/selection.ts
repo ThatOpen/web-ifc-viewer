@@ -110,6 +110,7 @@ export class IfcSelection extends IfcComponent {
     });
     if (mesh) {
       this.meshes.add(mesh);
+      this.context.renderer.postProduction.excludedItems.add(mesh);
     }
     return mesh;
   };

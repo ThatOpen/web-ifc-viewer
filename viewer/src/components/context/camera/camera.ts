@@ -71,7 +71,7 @@ export class IfcCamera extends IfcComponent {
 
     const dims = this.context.getDimensions();
     const aspect = dims.x / dims.y;
-    this.perspectiveCamera = new PerspectiveCamera(45, aspect, 0.1, 1000);
+    this.perspectiveCamera = new PerspectiveCamera(45, aspect, 1, 2000);
 
     this.orthographicCamera = new OrthographicCamera(
       (frustumSize * aspect) / -2,
@@ -226,7 +226,7 @@ export class IfcCamera extends IfcComponent {
   }
 
   private setupControls() {
-    this.cameraControls.dampingFactor = 0.1;
+    this.cameraControls.dampingFactor = 0.2;
     this.cameraControls.dollyToCursor = true;
     this.cameraControls.infinityDolly = true;
     this.cameraControls.setTarget(0, 0, 0);
