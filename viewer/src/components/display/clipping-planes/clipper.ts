@@ -103,6 +103,7 @@ export class IfcClipper extends IfcComponent {
     this.planes.splice(index, 1);
     this.context.removeClippingPlane(existingPlane.plane);
     this.updateMaterials();
+    this.context.renderer.postProduction.update();
   };
 
   deleteAllPlanes = () => {

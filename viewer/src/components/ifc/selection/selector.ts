@@ -62,14 +62,10 @@ export class IfcSelector {
    * @removePrevious whether to remove the previous subset
    */
   async pickIfcItem(focusSelection = false, removePrevious = true) {
-    if (focusSelection) this.context.renderer.postProduction.visible = false;
-
     const found = this.context.castRayIfc();
     if (!found) return null;
     const result = await this.selection.pick(found, focusSelection, removePrevious);
     if (result == null || result.modelID == null || result.id == null) return null;
-
-    if (focusSelection) this.context.renderer.postProduction.visible = false;
 
     return result;
   }
@@ -87,6 +83,7 @@ export class IfcSelector {
 
     const result = await this.highlight.pick(found, focusSelection, removePrevious);
     if (result == null || result.modelID == null || result.id == null) return null;
+
     return result;
   }
 
@@ -159,6 +156,9 @@ export class IfcSelector {
   unHighlightIfcItems() {
     this.context.items.ifcModels.forEach((model) => this.unHighlightItem(model));
     this.highlight.unpick();
+    if (this.context.renderer.postProduction.active) {
+      this.context.renderer.postProduction.visible = true;
+    }
   }
 
   private unHighlightItem(model: IFCModel) {
@@ -172,7 +172,9 @@ export class IfcSelector {
   private fadeAwayModels() {
     this.context.items.ifcModels.forEach((model) => {
       if (!model.userData[this.userDataField]) {
-        model.userData[this.userDataField] = new Mesh(model.geometry, this.defHighlightMat);
+        const mesh = new Mesh(model.geometry, this.defHighlightMat);
+        model.userData[this.userDataField] = mesh;
+        this.context.renderer.postProduction.excludedItems.add(mesh);
       }
 
       if (model.parent) {

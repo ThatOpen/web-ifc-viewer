@@ -91242,6 +91242,7 @@
                 this.planes.splice(index, 1);
                 this.context.removeClippingPlane(existingPlane.plane);
                 this.updateMaterials();
+                this.context.renderer.postProduction.update();
             };
             this.deleteAllPlanes = () => {
                 while (this.planes.length > 0) {
@@ -100380,7 +100381,10 @@
             this.meshes.forEach((mesh) => (mesh.visible = visible));
         }
         async focusSelection(mesh) {
+            const postproductionActive = this.context.renderer.postProduction.active;
+            this.context.renderer.postProduction.active = false;
             await this.context.ifcCamera.targetItem(mesh);
+            this.context.renderer.postProduction.active = postproductionActive;
         }
     }
 
@@ -100431,16 +100435,12 @@
          * @removePrevious whether to remove the previous subset
          */
         async pickIfcItem(focusSelection = false, removePrevious = true) {
-            if (focusSelection)
-                this.context.renderer.postProduction.visible = false;
             const found = this.context.castRayIfc();
             if (!found)
                 return null;
             const result = await this.selection.pick(found, focusSelection, removePrevious);
             if (result == null || result.modelID == null || result.id == null)
                 return null;
-            if (focusSelection)
-                this.context.renderer.postProduction.visible = false;
             return result;
         }
         /**
@@ -100507,6 +100507,9 @@
         unHighlightIfcItems() {
             this.context.items.ifcModels.forEach((model) => this.unHighlightItem(model));
             this.highlight.unpick();
+            if (this.context.renderer.postProduction.active) {
+                this.context.renderer.postProduction.visible = true;
+            }
         }
         unHighlightItem(model) {
             const fadedModel = model.userData[this.userDataField];
@@ -100518,7 +100521,9 @@
         fadeAwayModels() {
             this.context.items.ifcModels.forEach((model) => {
                 if (!model.userData[this.userDataField]) {
-                    model.userData[this.userDataField] = new Mesh(model.geometry, this.defHighlightMat);
+                    const mesh = new Mesh(model.geometry, this.defHighlightMat);
+                    model.userData[this.userDataField] = mesh;
+                    this.context.renderer.postProduction.excludedItems.add(mesh);
                 }
                 if (model.parent) {
                     const fadedMesh = model.userData[this.userDataField];
@@ -105588,22 +105593,22 @@
             return this.isActive;
         }
         set active(active) {
+            if (this.isActive === active)
+                return;
             if (!this.initialized)
                 this.tryToInitialize();
-            this.isActive = active;
             this.visible = active;
-            this.setupEvents(active);
-            this.toggleGlobalClippingPlanes(active);
+            this.isActive = active;
         }
         get visible() {
             return this.isVisible;
         }
         set visible(visible) {
-            if (!this.isActive && visible)
+            if (!this.isActive)
                 return;
             this.isVisible = visible;
             if (visible)
-                this.render();
+                this.update();
             this.htmlOverlay.style.visibility = visible ? 'visible' : 'collapse';
         }
         get outlineColor() {
@@ -105641,24 +105646,24 @@
         setSize(width, height) {
             this.composer.setSize(width, height);
         }
-        render() {
-            if (!this.initialized)
+        update() {
+            if (!this.initialized || !this.isActive)
                 return;
-            this.toggleVisibilityOfExcludedItems(false);
+            this.hideExcludedItems();
             this.composer.render();
             this.htmlOverlay.src = this.renderer.domElement.toDataURL();
-            this.toggleVisibilityOfExcludedItems(true);
+            this.showExcludedItems();
         }
-        toggleVisibilityOfExcludedItems(visible) {
+        hideExcludedItems() {
             for (const object of this.excludedItems) {
-                if (!object.userData[this.visibilityField]) {
-                    object.userData[this.visibilityField] = object.parent;
-                }
-                if (visible && object.userData[this.visibilityField]) {
-                    object.userData[this.visibilityField].add(object);
-                }
-                else {
-                    object.removeFromParent();
+                object.userData[this.visibilityField] = object.visible;
+                object.visible = false;
+            }
+        }
+        showExcludedItems() {
+            for (const object of this.excludedItems) {
+                if (object.userData[this.visibilityField] !== undefined) {
+                    object.visible = object.userData[this.visibilityField];
                 }
             }
         }
@@ -105667,6 +105672,8 @@
             const camera = this.context.getCamera();
             if (!scene || !camera)
                 return;
+            this.renderer.clippingPlanes = this.context.getClippingPlanes();
+            this.setupEvents();
             this.addBasePass(scene, camera);
             this.addSaoPass(scene, camera);
             this.addOutlinePass(scene, camera);
@@ -105674,16 +105681,15 @@
             this.setupHtmlOverlay();
             this.initialized = true;
         }
-        setupEvents(active) {
+        setupEvents() {
             const controls = this.context.ifcCamera.cameraControls;
             const domElement = this.context.getDomElement();
-            const addOrRemoveEvent = active ? 'addEventListener' : 'removeEventListener';
-            controls[addOrRemoveEvent]('control', this.onControl);
-            controls[addOrRemoveEvent]('controlstart', this.onControlStart);
-            controls[addOrRemoveEvent]('wake', this.onWake);
-            controls[addOrRemoveEvent]('controlend', this.onControlEnd);
-            domElement[addOrRemoveEvent]('wheel', this.onWheel);
-            controls[addOrRemoveEvent]('sleep', this.onSleep);
+            controls.addEventListener('control', this.onControl);
+            controls.addEventListener('controlstart', this.onControlStart);
+            controls.addEventListener('wake', this.onWake);
+            controls.addEventListener('controlend', this.onControlEnd);
+            domElement.addEventListener('wheel', this.onWheel);
+            controls.addEventListener('sleep', this.onSleep);
         }
         setupHtmlOverlay() {
             this.context.getContainerElement().appendChild(this.htmlOverlay);
@@ -105695,6 +105701,7 @@
             this.htmlOverlay.style.userSelect = 'none';
             this.htmlOverlay.style.pointerEvents = 'none';
             this.htmlOverlay.style.top = '0';
+            this.htmlOverlay.style.left = '0';
         }
         addAntialiasPass() {
             const effectFXAA = new ShaderPass(FXAAShader);
@@ -105734,11 +105741,6 @@
                 depthTexture: this.depthTexture,
                 depthBuffer: true
             });
-        }
-        // Local clipping planes don't work with postproduction
-        toggleGlobalClippingPlanes(active) {
-            this.renderer.localClippingEnabled = active;
-            this.renderer.clippingPlanes = active ? this.context.getClippingPlanes() : [];
         }
     }
 
@@ -120776,7 +120778,6 @@
 
     const loadIfc = async (event) => {
 
-
       // tests with glTF
       // const file = event.target.files[0];
       // const url = URL.createObjectURL(file);
@@ -120841,7 +120842,7 @@
         viewer.dimensions.delete();
       }
       if (event.code === 'Escape') {
-        viewer.IFC.selector.unpickIfcItems();
+        viewer.IFC.selector.unHighlightIfcItems();
       }
     };
 
@@ -120852,7 +120853,7 @@
       if (viewer.clipper.active) {
         viewer.clipper.createPlane();
       } else {
-        const result = await viewer.IFC.selector.pickIfcItem(true);
+        const result = await viewer.IFC.selector.highlightIfcItem(true);
         if (!result) return;
         const { modelID, id } = result;
         const props = await viewer.IFC.getProperties(modelID, id, true, false);

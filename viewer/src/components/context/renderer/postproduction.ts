@@ -21,9 +21,9 @@ export class Postproduction {
   htmlOverlay = document.createElement('img');
   excludedItems = new Set<Object3D>();
 
-  private saoPass?: SAOPass;
-
   private initialized = false;
+
+  private saoPass?: SAOPass;
   private customOutline?: CustomOutlinePass;
   private outlineUniforms: any;
   private depthTexture?: DepthTexture;
@@ -53,11 +53,10 @@ export class Postproduction {
   }
 
   set active(active: boolean) {
+    if (this.isActive === active) return;
     if (!this.initialized) this.tryToInitialize();
-    this.isActive = active;
     this.visible = active;
-    this.setupEvents(active);
-    this.toggleGlobalClippingPlanes(active);
+    this.isActive = active;
   }
 
   get visible() {
@@ -65,9 +64,9 @@ export class Postproduction {
   }
 
   set visible(visible: boolean) {
-    if (!this.isActive && visible) return;
+    if (!this.isActive) return;
     this.isVisible = visible;
-    if (visible) this.render();
+    if (visible) this.update();
     this.htmlOverlay.style.visibility = visible ? 'visible' : 'collapse';
   }
 
@@ -126,25 +125,26 @@ export class Postproduction {
     this.composer.setSize(width, height);
   }
 
-  private render() {
-    if (!this.initialized) return;
+  update() {
+    if (!this.initialized || !this.isActive) return;
 
-    this.toggleVisibilityOfExcludedItems(false);
+    this.hideExcludedItems();
     this.composer.render();
     this.htmlOverlay.src = this.renderer.domElement.toDataURL();
-    this.toggleVisibilityOfExcludedItems(true);
+    this.showExcludedItems();
   }
 
-  private toggleVisibilityOfExcludedItems(visible: boolean) {
+  private hideExcludedItems() {
     for (const object of this.excludedItems) {
-      if (!object.userData[this.visibilityField]) {
-        object.userData[this.visibilityField] = object.parent;
-      }
+      object.userData[this.visibilityField] = object.visible;
+      object.visible = false;
+    }
+  }
 
-      if (visible && object.userData[this.visibilityField]) {
-        object.userData[this.visibilityField].add(object);
-      } else {
-        object.removeFromParent();
+  private showExcludedItems() {
+    for (const object of this.excludedItems) {
+      if (object.userData[this.visibilityField] !== undefined) {
+        object.visible = object.userData[this.visibilityField];
       }
     }
   }
@@ -153,6 +153,9 @@ export class Postproduction {
     const scene = this.context.getScene();
     const camera = this.context.getCamera() as PerspectiveCamera;
     if (!scene || !camera) return;
+
+    this.renderer.clippingPlanes = this.context.getClippingPlanes();
+    this.setupEvents();
 
     this.addBasePass(scene, camera);
     this.addSaoPass(scene, camera);
@@ -163,16 +166,15 @@ export class Postproduction {
     this.initialized = true;
   }
 
-  private setupEvents(active: boolean) {
+  private setupEvents() {
     const controls = this.context.ifcCamera.cameraControls;
     const domElement = this.context.getDomElement();
-    const addOrRemoveEvent = active ? 'addEventListener' : 'removeEventListener';
-    controls[addOrRemoveEvent]('control', this.onControl);
-    controls[addOrRemoveEvent]('controlstart', this.onControlStart);
-    controls[addOrRemoveEvent]('wake', this.onWake);
-    controls[addOrRemoveEvent]('controlend', this.onControlEnd);
-    domElement[addOrRemoveEvent]('wheel', this.onWheel);
-    controls[addOrRemoveEvent]('sleep', this.onSleep);
+    controls.addEventListener('control', this.onControl);
+    controls.addEventListener('controlstart', this.onControlStart);
+    controls.addEventListener('wake', this.onWake);
+    controls.addEventListener('controlend', this.onControlEnd);
+    domElement.addEventListener('wheel', this.onWheel);
+    controls.addEventListener('sleep', this.onSleep);
   }
 
   private onControlStart = () => (this.isUserControllingCamera = true);
@@ -215,6 +217,7 @@ export class Postproduction {
     this.htmlOverlay.style.userSelect = 'none';
     this.htmlOverlay.style.pointerEvents = 'none';
     this.htmlOverlay.style.top = '0';
+    this.htmlOverlay.style.left = '0';
   }
 
   private addAntialiasPass() {
@@ -266,11 +269,5 @@ export class Postproduction {
       depthTexture: this.depthTexture,
       depthBuffer: true
     });
-  }
-
-  // Local clipping planes don't work with postproduction
-  private toggleGlobalClippingPlanes(active: boolean) {
-    this.renderer.localClippingEnabled = active;
-    this.renderer.clippingPlanes = active ? this.context.getClippingPlanes() : [];
   }
 }

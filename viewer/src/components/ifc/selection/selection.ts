@@ -120,6 +120,11 @@ export class IfcSelection extends IfcComponent {
   }
 
   private async focusSelection(mesh: Mesh) {
+    const postproductionActive = this.context.renderer.postProduction.active;
+    this.context.renderer.postProduction.active = false;
+
     await this.context.ifcCamera.targetItem(mesh);
+
+    this.context.renderer.postProduction.active = postproductionActive;
   }
 }

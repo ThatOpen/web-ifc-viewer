@@ -13,13 +13,6 @@ import {
 import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
 import Stats from 'stats.js/src/Stats';
 
-import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader.js";
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
-import {SAOPass} from "three/examples/jsm/postprocessing/SAOPass";
-import {CustomOutlinePass} from "./CustomOutlinePass";
-
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(255, 255, 255) });
 viewer.axes.setAxes();
@@ -53,7 +46,6 @@ let first = true;
 let model;
 
 const loadIfc = async (event) => {
-
 
   // tests with glTF
   // const file = event.target.files[0];
@@ -119,7 +111,7 @@ const handleKeyDown = async (event) => {
     viewer.dimensions.delete();
   }
   if (event.code === 'Escape') {
-    viewer.IFC.selector.unpickIfcItems();
+    viewer.IFC.selector.unHighlightIfcItems();
   }
 };
 
@@ -130,7 +122,7 @@ window.ondblclick = async () => {
   if (viewer.clipper.active) {
     viewer.clipper.createPlane();
   } else {
-    const result = await viewer.IFC.selector.pickIfcItem(true);
+    const result = await viewer.IFC.selector.highlightIfcItem(true);
     if (!result) return;
     const { modelID, id } = result;
     const props = await viewer.IFC.getProperties(modelID, id, true, false);
