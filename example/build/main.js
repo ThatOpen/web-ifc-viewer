@@ -94758,7 +94758,7 @@
 
     // converts the given BVH raycast intersection to align with the three.js raycast
     // structure (include object, world space distance and point).
-    function convertRaycastIntersect( hit, object, raycaster ) {
+    function convertRaycastIntersect$1( hit, object, raycaster ) {
 
     	if ( hit === null ) {
 
@@ -96424,7 +96424,7 @@
     		const results = originalRaycast.call( this, ray, mesh.material );
     		results.forEach( hit => {
 
-    			hit = convertRaycastIntersect( hit, mesh, raycaster );
+    			hit = convertRaycastIntersect$1( hit, mesh, raycaster );
     			if ( hit ) {
 
     				intersects.push( hit );
@@ -96453,7 +96453,7 @@
     			mesh, raycaster, ray,
     		] = args;
 
-    		return convertRaycastIntersect( originalRaycastFirst.call( this, ray, mesh.material ), mesh, raycaster );
+    		return convertRaycastIntersect$1( originalRaycastFirst.call( this, ray, mesh.material ), mesh, raycaster );
 
     	} else {
 
@@ -96583,6 +96583,32 @@
     	};
 
     } );
+
+    // converts the given BVH raycast intersection to align with the three.js raycast
+    // structure (include object, world space distance and point).
+    function convertRaycastIntersect( hit, object, raycaster ) {
+
+    	if ( hit === null ) {
+
+    		return null;
+
+    	}
+
+    	hit.point.applyMatrix4( object.matrixWorld );
+    	hit.distance = hit.point.distanceTo( raycaster.ray.origin );
+    	hit.object = object;
+
+    	if ( hit.distance < raycaster.near || hit.distance > raycaster.far ) {
+
+    		return null;
+
+    	} else {
+
+    		return hit;
+
+    	}
+
+    }
 
     const ray = /* @__PURE__ */ new Ray();
     const tmpInverseMatrix = /* @__PURE__ */ new Matrix4();
@@ -105550,6 +105576,11 @@
             this.lastWheelUsed = 0;
             this.isActive = false;
             this.isVisible = false;
+            this.tempMaterial = new MeshLambertMaterial({
+                colorWrite: false,
+                opacity: 0,
+                transparent: true
+            });
             this.outlineParams = {
                 mode: { Mode: 0 },
                 FXAA: true,
@@ -105650,7 +105681,15 @@
             if (!this.initialized || !this.isActive)
                 return;
             this.hideExcludedItems();
+            this.context.getScene().traverse((object) => {
+                object.userData.prevMaterial = object.material;
+                object.material = this.tempMaterial;
+            });
             this.composer.render();
+            this.context.getScene().traverse((object) => {
+                object.material = object.userData.prevMaterial;
+                delete object.userData.prevMaterial;
+            });
             this.htmlOverlay.src = this.renderer.domElement.toDataURL();
             this.showExcludedItems();
         }
@@ -105694,7 +105733,7 @@
         setupHtmlOverlay() {
             this.context.getContainerElement().appendChild(this.htmlOverlay);
             // @ts-ignore
-            this.htmlOverlay.style.mixBlendMode = 'darken';
+            this.htmlOverlay.style.mixBlendMode = 'multiply';
             this.htmlOverlay.style.position = 'absolute';
             this.htmlOverlay.style.width = '100%';
             this.htmlOverlay.style.height = '100%';
@@ -105705,7 +105744,7 @@
         }
         addAntialiasPass() {
             const effectFXAA = new ShaderPass(FXAAShader);
-            effectFXAA.uniforms.resolution.value.set(1 / window.innerWidth, 1 / window.innerHeight);
+            effectFXAA.uniforms.resolution.value.set((1 / this.renderer.domElement.offsetWidth) * this.renderer.getPixelRatio(), (1 / this.renderer.domElement.offsetHeight) * this.renderer.getPixelRatio());
             this.composer.addPass(effectFXAA);
         }
         addOutlinePass(scene, camera) {

@@ -1,6 +1,6 @@
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 import {
-  DepthTexture,
+  DepthTexture, Mesh, MeshLambertMaterial,
   Object3D,
   PerspectiveCamera,
   Scene,
@@ -37,6 +37,12 @@ export class Postproduction {
 
   private isActive = false;
   private isVisible = false;
+
+  private tempMaterial = new MeshLambertMaterial({
+    colorWrite: false,
+    opacity: 0,
+    transparent: true
+  });
 
   private outlineParams = {
     mode: { Mode: 0 },
@@ -129,7 +135,19 @@ export class Postproduction {
     if (!this.initialized || !this.isActive) return;
 
     this.hideExcludedItems();
+
+    this.context.getScene().traverse((object) => {
+      object.userData.prevMaterial = object.material;
+      object.material = this.tempMaterial;
+    });
+
     this.composer.render();
+
+    this.context.getScene().traverse((object) => {
+      object.material = object.userData.prevMaterial;
+      delete object.userData.prevMaterial;
+    });
+
     this.htmlOverlay.src = this.renderer.domElement.toDataURL();
     this.showExcludedItems();
   }
@@ -210,7 +228,7 @@ export class Postproduction {
   private setupHtmlOverlay() {
     this.context.getContainerElement().appendChild(this.htmlOverlay);
     // @ts-ignore
-    this.htmlOverlay.style.mixBlendMode = 'darken';
+    this.htmlOverlay.style.mixBlendMode = 'multiply';
     this.htmlOverlay.style.position = 'absolute';
     this.htmlOverlay.style.width = '100%';
     this.htmlOverlay.style.height = '100%';
@@ -222,7 +240,10 @@ export class Postproduction {
 
   private addAntialiasPass() {
     const effectFXAA = new ShaderPass(FXAAShader);
-    effectFXAA.uniforms.resolution.value.set(1 / window.innerWidth, 1 / window.innerHeight);
+    effectFXAA.uniforms.resolution.value.set(
+      (1 / this.renderer.domElement.offsetWidth) * this.renderer.getPixelRatio(),
+      (1 / this.renderer.domElement.offsetHeight) * this.renderer.getPixelRatio()
+    );
     this.composer.addPass(effectFXAA);
   }
 
