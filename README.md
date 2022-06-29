@@ -32,7 +32,7 @@ Check out [our official docs](https://github.com/IFCjs/web-ifc-viewer/blob/maste
 
 ## Install
 
-`npm install web-ifc-viewer`
+`npm install web-ifc-viewer` or `yarn add web-ifc-viewer`
 
 ## Quick setup
 
