@@ -19,7 +19,7 @@ import {
 // 		https://github.com/mrdoob/three.js/blob/master/examples/jsm/postprocessing/OutlinePass.js
 class CustomOutlinePass extends Pass {
   renderScene: Scene;
-  renderCamera: PerspectiveCamera;
+  camera: PerspectiveCamera;
   resolution: Vector2;
   fsQuad: FullScreenQuad;
   normalTarget: WebGLRenderTarget;
@@ -29,7 +29,7 @@ class CustomOutlinePass extends Pass {
     super();
 
     this.renderScene = scene;
-    this.renderCamera = camera;
+    this.camera = camera;
     this.resolution = new Vector2(resolution.x, resolution.y);
 
     // @ts-ignore
@@ -81,7 +81,7 @@ class CustomOutlinePass extends Pass {
 
     const overrideMaterialValue = this.renderScene.overrideMaterial;
     this.renderScene.overrideMaterial = this.normalOverrideMaterial;
-    renderer.render(this.renderScene, this.renderCamera);
+    renderer.render(this.renderScene, this.camera);
     this.renderScene.overrideMaterial = overrideMaterialValue;
 
     // @ts-ignore
@@ -237,8 +237,8 @@ class CustomOutlinePass extends Pass {
         outlineColor: { value: new Color(0xffffff) },
         // 4 scalar values packed in one uniform: depth multiplier, depth bias, and same for normals.
         multiplierParameters: { value: new Vector4(1, 1, 1, 1) },
-        cameraNear: { value: this.renderCamera.near },
-        cameraFar: { value: this.renderCamera.far },
+        cameraNear: { value: this.camera.near },
+        cameraFar: { value: this.camera.far },
         screenSize: {
           value: new Vector4(
             this.resolution.x,

@@ -105360,7 +105360,7 @@
         constructor(resolution, scene, camera) {
             super();
             this.renderScene = scene;
-            this.renderCamera = camera;
+            this.camera = camera;
             this.resolution = new Vector2(resolution.x, resolution.y);
             // @ts-ignore
             this.fsQuad = new FullScreenQuad(null);
@@ -105398,7 +105398,7 @@
             renderer.setRenderTarget(this.normalTarget);
             const overrideMaterialValue = this.renderScene.overrideMaterial;
             this.renderScene.overrideMaterial = this.normalOverrideMaterial;
-            renderer.render(this.renderScene, this.renderCamera);
+            renderer.render(this.renderScene, this.camera);
             this.renderScene.overrideMaterial = overrideMaterialValue;
             // @ts-ignore
             this.fsQuad.material.uniforms.depthBuffer.value = readBuffer.depthTexture;
@@ -105550,8 +105550,8 @@
                     outlineColor: { value: new Color(0xffffff) },
                     // 4 scalar values packed in one uniform: depth multiplier, depth bias, and same for normals.
                     multiplierParameters: { value: new Vector4(1, 1, 1, 1) },
-                    cameraNear: { value: this.renderCamera.near },
-                    cameraFar: { value: this.renderCamera.far },
+                    cameraNear: { value: this.camera.near },
+                    cameraFar: { value: this.camera.far },
                     screenSize: {
                         value: new Vector4(this.resolution.x, this.resolution.y, 1 / this.resolution.x, 1 / this.resolution.y)
                     }
@@ -105615,6 +105615,13 @@
                         this.visible = true;
                     }
                 }, 200);
+            };
+            this.onChangeProjection = (camera) => {
+                this.composer.passes.forEach((pass) => {
+                    // @ts-ignore
+                    pass.camera = camera;
+                });
+                this.update();
             };
             this.renderTarget = this.newRenderTarget();
             this.composer = new EffectComposer(renderer, this.renderTarget);
@@ -105682,11 +105689,14 @@
                 return;
             this.hideExcludedItems();
             this.context.getScene().traverse((object) => {
+                // @ts-ignore
                 object.userData.prevMaterial = object.material;
+                // @ts-ignore
                 object.material = this.tempMaterial;
             });
             this.composer.render();
             this.context.getScene().traverse((object) => {
+                // @ts-ignore
                 object.material = object.userData.prevMaterial;
                 delete object.userData.prevMaterial;
             });
@@ -105729,6 +105739,7 @@
             controls.addEventListener('controlend', this.onControlEnd);
             domElement.addEventListener('wheel', this.onWheel);
             controls.addEventListener('sleep', this.onSleep);
+            this.context.ifcCamera.onChangeProjection.on(this.onChangeProjection);
         }
         setupHtmlOverlay() {
             this.context.getContainerElement().appendChild(this.htmlOverlay);
@@ -105743,9 +105754,9 @@
             this.htmlOverlay.style.left = '0';
         }
         addAntialiasPass() {
-            const effectFXAA = new ShaderPass(FXAAShader);
-            effectFXAA.uniforms.resolution.value.set((1 / this.renderer.domElement.offsetWidth) * this.renderer.getPixelRatio(), (1 / this.renderer.domElement.offsetHeight) * this.renderer.getPixelRatio());
-            this.composer.addPass(effectFXAA);
+            this.fxaaPass = new ShaderPass(FXAAShader);
+            this.fxaaPass.uniforms.resolution.value.set((1 / this.renderer.domElement.offsetWidth) * this.renderer.getPixelRatio(), (1 / this.renderer.domElement.offsetHeight) * this.renderer.getPixelRatio());
+            this.composer.addPass(this.fxaaPass);
         }
         addOutlinePass(scene, camera) {
             this.customOutline = new CustomOutlinePass(new Vector2(window.innerWidth, window.innerHeight), scene, camera);
@@ -105771,8 +105782,8 @@
             this.saoPass.params.saoKernelRadius = 30;
         }
         addBasePass(scene, camera) {
-            const pass = new RenderPass(scene, camera);
-            this.composer.addPass(pass);
+            this.basePass = new RenderPass(scene, camera);
+            this.composer.addPass(this.basePass);
         }
         newRenderTarget() {
             this.depthTexture = new DepthTexture(window.innerWidth, window.innerHeight);
@@ -120882,6 +120893,9 @@
       }
       if (event.code === 'Escape') {
         viewer.IFC.selector.unHighlightIfcItems();
+      }
+      if (event.code === 'KeyC') {
+        viewer.context.ifcCamera.toggleProjection();
       }
     };
 

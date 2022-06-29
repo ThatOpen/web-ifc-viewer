@@ -1,6 +1,8 @@
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 import {
-  DepthTexture, Mesh, MeshLambertMaterial,
+  Camera,
+  DepthTexture,
+  MeshLambertMaterial,
   Object3D,
   PerspectiveCamera,
   Scene,
@@ -24,6 +26,8 @@ export class Postproduction {
   private initialized = false;
 
   private saoPass?: SAOPass;
+  private fxaaPass?: ShaderPass;
+  private basePass?: RenderPass;
   private customOutline?: CustomOutlinePass;
   private outlineUniforms: any;
   private depthTexture?: DepthTexture;
@@ -137,13 +141,16 @@ export class Postproduction {
     this.hideExcludedItems();
 
     this.context.getScene().traverse((object) => {
+      // @ts-ignore
       object.userData.prevMaterial = object.material;
+      // @ts-ignore
       object.material = this.tempMaterial;
     });
 
     this.composer.render();
 
     this.context.getScene().traverse((object) => {
+      // @ts-ignore
       object.material = object.userData.prevMaterial;
       delete object.userData.prevMaterial;
     });
@@ -193,6 +200,7 @@ export class Postproduction {
     controls.addEventListener('controlend', this.onControlEnd);
     domElement.addEventListener('wheel', this.onWheel);
     controls.addEventListener('sleep', this.onSleep);
+    this.context.ifcCamera.onChangeProjection.on(this.onChangeProjection);
   }
 
   private onControlStart = () => (this.isUserControllingCamera = true);
@@ -225,6 +233,14 @@ export class Postproduction {
     }, 200);
   };
 
+  private onChangeProjection = (camera: Camera) => {
+    this.composer.passes.forEach((pass) => {
+      // @ts-ignore
+      pass.camera = camera;
+    });
+    this.update();
+  };
+
   private setupHtmlOverlay() {
     this.context.getContainerElement().appendChild(this.htmlOverlay);
     // @ts-ignore
@@ -239,12 +255,12 @@ export class Postproduction {
   }
 
   private addAntialiasPass() {
-    const effectFXAA = new ShaderPass(FXAAShader);
-    effectFXAA.uniforms.resolution.value.set(
+    this.fxaaPass = new ShaderPass(FXAAShader);
+    this.fxaaPass.uniforms.resolution.value.set(
       (1 / this.renderer.domElement.offsetWidth) * this.renderer.getPixelRatio(),
       (1 / this.renderer.domElement.offsetHeight) * this.renderer.getPixelRatio()
     );
-    this.composer.addPass(effectFXAA);
+    this.composer.addPass(this.fxaaPass);
   }
 
   private addOutlinePass(scene: Scene, camera: PerspectiveCamera) {
@@ -280,8 +296,8 @@ export class Postproduction {
   }
 
   private addBasePass(scene: Scene, camera: PerspectiveCamera) {
-    const pass = new RenderPass(scene, camera);
-    this.composer.addPass(pass);
+    this.basePass = new RenderPass(scene, camera);
+    this.composer.addPass(this.basePass);
   }
 
   private newRenderTarget() {
