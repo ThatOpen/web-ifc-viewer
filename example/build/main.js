@@ -94758,7 +94758,7 @@
 
     // converts the given BVH raycast intersection to align with the three.js raycast
     // structure (include object, world space distance and point).
-    function convertRaycastIntersect$1( hit, object, raycaster ) {
+    function convertRaycastIntersect( hit, object, raycaster ) {
 
     	if ( hit === null ) {
 
@@ -96424,7 +96424,7 @@
     		const results = originalRaycast.call( this, ray, mesh.material );
     		results.forEach( hit => {
 
-    			hit = convertRaycastIntersect$1( hit, mesh, raycaster );
+    			hit = convertRaycastIntersect( hit, mesh, raycaster );
     			if ( hit ) {
 
     				intersects.push( hit );
@@ -96453,7 +96453,7 @@
     			mesh, raycaster, ray,
     		] = args;
 
-    		return convertRaycastIntersect$1( originalRaycastFirst.call( this, ray, mesh.material ), mesh, raycaster );
+    		return convertRaycastIntersect( originalRaycastFirst.call( this, ray, mesh.material ), mesh, raycaster );
 
     	} else {
 
@@ -96583,32 +96583,6 @@
     	};
 
     } );
-
-    // converts the given BVH raycast intersection to align with the three.js raycast
-    // structure (include object, world space distance and point).
-    function convertRaycastIntersect( hit, object, raycaster ) {
-
-    	if ( hit === null ) {
-
-    		return null;
-
-    	}
-
-    	hit.point.applyMatrix4( object.matrixWorld );
-    	hit.distance = hit.point.distanceTo( raycaster.ray.origin );
-    	hit.object = object;
-
-    	if ( hit.distance < raycaster.near || hit.distance > raycaster.far ) {
-
-    		return null;
-
-    	} else {
-
-    		return hit;
-
-    	}
-
-    }
 
     const ray = /* @__PURE__ */ new Ray();
     const tmpInverseMatrix = /* @__PURE__ */ new Matrix4();
@@ -105574,8 +105548,11 @@
             this.isUserControllingCamera = false;
             this.isControlSleeping = true;
             this.lastWheelUsed = 0;
+            this.lastResized = 0;
+            this.resizeDelay = 500;
             this.isActive = false;
             this.isVisible = false;
+            this.white = new Color(255, 255, 255);
             this.tempMaterial = new MeshLambertMaterial({
                 colorWrite: false,
                 opacity: 0,
@@ -105592,6 +105569,15 @@
             };
             this.onControlStart = () => (this.isUserControllingCamera = true);
             this.onWake = () => (this.isControlSleeping = false);
+            this.onResize = () => {
+                this.lastResized = performance.now();
+                this.visible = false;
+                setTimeout(() => {
+                    if (performance.now() - this.lastResized >= this.resizeDelay) {
+                        this.visible = true;
+                    }
+                }, this.resizeDelay);
+            };
             this.onControl = () => {
                 this.visible = false;
             };
@@ -105663,6 +105649,7 @@
         dispose() {
             var _a, _b;
             this.active = false;
+            window.removeEventListener('resize', this.onResize);
             this.renderTarget.dispose();
             this.renderTarget = null;
             (_a = this.depthTexture) === null || _a === void 0 ? void 0 : _a.dispose();
@@ -105680,11 +105667,13 @@
             this.renderer = null;
             this.saoPass = null;
             this.outlineUniforms = null;
+            this.scene = null;
         }
         setSize(width, height) {
             this.composer.setSize(width, height);
         }
         update() {
+            var _a, _b, _c;
             if (!this.initialized || !this.isActive)
                 return;
             this.hideExcludedItems();
@@ -105694,7 +105683,12 @@
                 // @ts-ignore
                 object.material = this.tempMaterial;
             });
+            const background = (_a = this.scene) === null || _a === void 0 ? void 0 : _a.background;
+            if (((_b = this.scene) === null || _b === void 0 ? void 0 : _b.background) && background)
+                this.scene.background = this.white;
             this.composer.render();
+            if (((_c = this.scene) === null || _c === void 0 ? void 0 : _c.background) && background)
+                this.scene.background = background;
             this.context.getScene().traverse((object) => {
                 // @ts-ignore
                 object.material = object.userData.prevMaterial;
@@ -105721,6 +105715,7 @@
             const camera = this.context.getCamera();
             if (!scene || !camera)
                 return;
+            this.scene = scene;
             this.renderer.clippingPlanes = this.context.getClippingPlanes();
             this.setupEvents();
             this.addBasePass(scene, camera);
@@ -105739,6 +105734,7 @@
             controls.addEventListener('controlend', this.onControlEnd);
             domElement.addEventListener('wheel', this.onWheel);
             controls.addEventListener('sleep', this.onSleep);
+            window.addEventListener('resize', this.onResize);
             this.context.ifcCamera.onChangeProjection.on(this.onChangeProjection);
         }
         setupHtmlOverlay() {
@@ -105801,7 +105797,7 @@
             this.blocked = false;
             this.context = context;
             this.container = context.options.container;
-            this.renderer = new WebGLRenderer();
+            this.renderer = new WebGLRenderer({ alpha: true });
             this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             this.setupRenderers();
             this.postProduction = new Postproduction(this.context, this.renderer);

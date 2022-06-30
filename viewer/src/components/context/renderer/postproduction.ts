@@ -1,6 +1,7 @@
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 import {
   Camera,
+  Color,
   DepthTexture,
   MeshLambertMaterial,
   Object3D,
@@ -38,9 +39,14 @@ export class Postproduction {
   private isUserControllingCamera = false;
   private isControlSleeping = true;
   private lastWheelUsed = 0;
+  private lastResized = 0;
+  private resizeDelay = 500;
 
   private isActive = false;
   private isVisible = false;
+
+  private scene?: Scene;
+  private white = new Color(255, 255, 255);
 
   private tempMaterial = new MeshLambertMaterial({
     colorWrite: false,
@@ -103,6 +109,8 @@ export class Postproduction {
   dispose() {
     this.active = false;
 
+    window.removeEventListener('resize', this.onResize);
+
     this.renderTarget.dispose();
     (this.renderTarget as any) = null;
 
@@ -129,6 +137,8 @@ export class Postproduction {
 
     (this.saoPass as any) = null;
     (this.outlineUniforms as any) = null;
+
+    (this.scene as any) = null;
   }
 
   setSize(width: number, height: number) {
@@ -147,7 +157,12 @@ export class Postproduction {
       object.material = this.tempMaterial;
     });
 
+    const background = this.scene?.background;
+    if (this.scene?.background && background) this.scene.background = this.white;
+
     this.composer.render();
+
+    if (this.scene?.background && background) this.scene.background = background;
 
     this.context.getScene().traverse((object) => {
       // @ts-ignore
@@ -179,6 +194,7 @@ export class Postproduction {
     const camera = this.context.getCamera() as PerspectiveCamera;
     if (!scene || !camera) return;
 
+    this.scene = scene;
     this.renderer.clippingPlanes = this.context.getClippingPlanes();
     this.setupEvents();
 
@@ -200,11 +216,23 @@ export class Postproduction {
     controls.addEventListener('controlend', this.onControlEnd);
     domElement.addEventListener('wheel', this.onWheel);
     controls.addEventListener('sleep', this.onSleep);
+    window.addEventListener('resize', this.onResize);
     this.context.ifcCamera.onChangeProjection.on(this.onChangeProjection);
   }
 
   private onControlStart = () => (this.isUserControllingCamera = true);
   private onWake = () => (this.isControlSleeping = false);
+
+  private onResize = () => {
+    this.lastResized = performance.now();
+    this.visible = false;
+
+    setTimeout(() => {
+      if (performance.now() - this.lastResized >= this.resizeDelay) {
+        this.visible = true;
+      }
+    }, this.resizeDelay);
+  };
 
   private onControl = () => {
     this.visible = false;
