@@ -274,7 +274,6 @@ export class Postproduction {
     // @ts-ignore
     this.htmlOverlay.style.mixBlendMode = 'multiply';
     this.htmlOverlay.style.position = 'absolute';
-    this.htmlOverlay.style.width = '100%';
     this.htmlOverlay.style.height = '100%';
     this.htmlOverlay.style.userSelect = 'none';
     this.htmlOverlay.style.pointerEvents = 'none';
