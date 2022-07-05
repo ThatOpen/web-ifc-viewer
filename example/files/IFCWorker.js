@@ -25375,7 +25375,7 @@ function WebGLRenderer( parameters = {} ) {
 
 		_currentDrawBuffers[ 0 ] = 1029;
 
-		info = new WebGLInfo( _gl );
+		info = new WebGLInfo();
 		properties = new WebGLProperties();
 		textures = new WebGLTextures( _gl, extensions, state, properties, capabilities, utils, info );
 		cubemaps = new WebGLCubeMaps( _this );
@@ -42745,7 +42745,7 @@ var require_web_ifc_mt = __commonJS({
         }
         moduleOverrides = null;
         if (Module["arguments"])
-          ;
+          Module["arguments"];
         if (Module["thisProgram"])
           thisProgram = Module["thisProgram"];
         if (Module["quit"])
@@ -48653,7 +48653,7 @@ var require_web_ifc = __commonJS({
         }
         moduleOverrides = null;
         if (Module["arguments"])
-          ;
+          Module["arguments"];
         if (Module["thisProgram"])
           thisProgram = Module["thisProgram"];
         if (Module["quit"])
