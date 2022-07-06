@@ -92,7 +92,7 @@ Now you display it in an HTML page like this:
     <title>IFC.js</title>
   </head>
   <body>
-    <input type="file" id="file-input">
+    <input type="file" id="file-input" accept=".ifc, .ifcXML, .ifcZIP">
     <div id="viewer-container"></div>
     <script src="./bundle.js"></script>
   </body>
