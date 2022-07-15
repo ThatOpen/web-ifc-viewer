@@ -1,94 +1,100 @@
-import {
-  Material,
-  Mesh,
-  LineSegments,
-  LineBasicMaterial,
-  DoubleSide,
-  MeshBasicMaterial,
-  EdgesGeometry
-} from 'three';
-import { IfcComponent, Context } from '../../base-types';
+import { LineSegments, EdgesGeometry, Material, Mesh } from 'three';
+import { Subset } from 'web-ifc-three/IFC/components/subsets/SubsetManager';
+import { IfcContext } from '../context';
+import { disposeMeshRecursively } from '../../utils/ThreeUtils';
 
-export interface EdgesIfcObject extends Mesh {
-  ifcMaterial: Material | Material[];
-  wireframe: LineSegments;
-}
+export class Edges {
+  threshold = 30;
+  private readonly edges: {
+    [name: string]: {
+      edges: LineSegments;
+      originalMaterials: Material | Material[];
+      baseMaterial: Material | undefined;
+      model: Mesh;
+      active: boolean;
+    };
+  };
 
-export class Edges extends IfcComponent {
-  context: Context;
-  active: boolean = false;
-  private lineMaterial: Material;
-  private whiteMaterial: Material;
-  private invisibleMaterial: Material;
-
-  constructor(context: Context) {
-    super(context);
-    this.context = context;
-
-    this.lineMaterial = new LineBasicMaterial({
-      color: 0x555555
-    });
-
-    this.whiteMaterial = new MeshBasicMaterial({
-      color: 0xffffff,
-      side: DoubleSide
-    });
-
-    this.invisibleMaterial = new MeshBasicMaterial({
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0
-    });
+  constructor(private context: IfcContext) {
+    this.edges = {};
   }
 
-  activateEdgeDisplay = () => {
-    this.active = true;
-    const ifcModels = this.context.items.ifcModels;
-    ifcModels.forEach((object) => {
-      object.traverse((item) => {
-        if (item.type === 'Mesh') {
-          const mesh = item as EdgesIfcObject;
+  private static setupModelMaterial(material: Material) {
+    material.polygonOffset = true;
+    material.polygonOffsetFactor = 1;
+    material.polygonOffsetUnits = 1;
+  }
 
-          if (!mesh.ifcMaterial) {
-            mesh.ifcMaterial = mesh.material;
-          }
-
-          if (mesh.wireframe) mesh.wireframe.visible = true;
-          else mesh.wireframe = this.getEdges(mesh);
-          mesh.add(mesh.wireframe);
-
-          // @ts-ignore
-          if (!mesh.isSelected) {
-            // @ts-ignore
-            mesh.material = mesh.material.transparent ? this.invisibleMaterial : this.whiteMaterial;
-          }
-        }
-      });
+  dispose() {
+    const allEdges = Object.values(this.edges);
+    allEdges.forEach((item) => {
+      disposeMeshRecursively(item.edges as any);
+      if (Array.isArray(item.originalMaterials)) {
+        item.originalMaterials.forEach((mat) => mat.dispose());
+      } else item.originalMaterials.dispose();
+      if (item.baseMaterial) item.baseMaterial.dispose();
     });
-  };
+    (this.edges as any) = null;
+  }
 
-  deactivateEdgeDisplay = () => {
-    this.active = false;
-    const ifcModels = this.context.items.ifcModels;
-    ifcModels.forEach((object) => {
-      object.traverse((item) => {
-        if (item.type === 'Mesh') {
-          const mesh = item as EdgesIfcObject;
-          // @ts-ignore
-          if (mesh.wireframe) {
-            mesh.wireframe.visible = false;
-          }
-          // @ts-ignore
-          if (!mesh.isSelected) {
-            mesh.material = mesh.ifcMaterial;
-          }
-        }
-      });
-    });
-  };
+  getAll() {
+    return Object.keys(this.edges);
+  }
 
-  getEdges = (item: Mesh) => {
-    const geometry = new EdgesGeometry(item.geometry);
-    return new LineSegments(geometry, this.lineMaterial);
-  };
+  get(name: string) {
+    return this.edges[name];
+  }
+
+  create(name: string, modelID: number, lineMaterial: Material, material?: Material) {
+    const model = this.context.items.ifcModels.find((model) => model.modelID === modelID);
+    if (!model) return;
+    this.createFromMesh(name, model, lineMaterial, material);
+  }
+
+  // use this to create edges of a subset this implements a todo of allowing subsets of edges
+  createFromSubset(name: string, subset: Subset, lineMaterial: Material, material?: Material) {
+    this.createFromMesh(name, subset, lineMaterial, material);
+  }
+
+  createFromMesh(name: string, mesh: Mesh, lineMaterial: Material, material?: Material) {
+    const planes = this.context.getClippingPlanes();
+    lineMaterial.clippingPlanes = planes;
+    if (material) material.clippingPlanes = planes;
+    this.setupModelMaterials(mesh);
+    const geo = new EdgesGeometry(mesh.geometry, this.threshold);
+    lineMaterial.clippingPlanes = this.context.getClippingPlanes();
+    this.edges[name] = {
+      edges: new LineSegments(geo, lineMaterial),
+      originalMaterials: mesh.material,
+      baseMaterial: material,
+      model: mesh,
+      active: false
+    };
+  }
+
+  toggle(name: string, active?: boolean) {
+    const selected = this.edges[name];
+    if (!selected) return;
+    if (active === undefined) active = !selected.active;
+    selected.active = active;
+    if (active) {
+      const pos = selected.model.position;
+      const rot = selected.model.rotation;
+      selected.edges.position.set(pos.x, pos.y, pos.z);
+      selected.edges.rotation.set(rot.x, rot.y, rot.z);
+      if (selected.baseMaterial) selected.model.material = selected.baseMaterial;
+      this.context.getScene().add(selected.edges);
+      return;
+    }
+    if (selected.baseMaterial) selected.model.material = selected.originalMaterials;
+    selected.edges.removeFromParent();
+  }
+
+  private setupModelMaterials(model: Mesh) {
+    if (Array.isArray(model.material)) {
+      model.material.forEach((mat) => Edges.setupModelMaterial(mat));
+      return;
+    }
+    Edges.setupModelMaterial(model.material);
+  }
 }

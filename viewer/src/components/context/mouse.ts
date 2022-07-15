@@ -1,18 +1,17 @@
 import { Vector2 } from 'three';
-import { IfcComponent, Context } from '../../base-types';
 
-export class IfcMouse extends IfcComponent {
-  position: Vector2;
+export class IfcMouse {
+  position = new Vector2();
+  rawPosition = new Vector2();
 
-  constructor(context: Context) {
-    super(context);
-    this.position = new Vector2();
-    this.setupMousePositionUpdate(context);
+  constructor(domElement: HTMLCanvasElement) {
+    this.setupMousePositionUpdate(domElement);
   }
 
-  private setupMousePositionUpdate(context: Context) {
-    const domElement = context.getRenderer().domElement;
+  private setupMousePositionUpdate(domElement: HTMLCanvasElement) {
     domElement.onmousemove = (event: MouseEvent) => {
+      this.rawPosition.x = event.clientX;
+      this.rawPosition.y = event.clientY;
       const bounds = domElement.getBoundingClientRect();
       this.position.x = ((event.clientX - bounds.left) / (bounds.right - bounds.left)) * 2 - 1;
       this.position.y = -((event.clientY - bounds.top) / (bounds.bottom - bounds.top)) * 2 + 1;

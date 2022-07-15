@@ -1,0 +1,34 @@
+{
+  "name": "web-ifc-viewer-basic-example",
+  "private": true,
+  "type": "module",
+  "version": "1.0.207",
+  "description": "A basic html example for web-ifc-viewer",
+  "main": "main.js",
+  "scripts": {
+    "build": "rollup -c && npm run copy-wasm && npm run copy-wasm-mt && npm run copy-worker",
+    "watch": "rollup -c -w",
+    "copy-wasm": "cpy ../node_modules/web-ifc/web-ifc.wasm files/",
+    "copy-wasm-mt": "cpy ../node_modules/web-ifc/web-ifc-mt.wasm files/",
+    "copy-worker": "cpy ../node_modules/web-ifc-three/IFCWorker.js files/",
+    "start": "serve"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "@types/three": "^0.134.0",
+    "rollup": "^2.47.0",
+    "serve": "^11.3.2"
+  },
+  "dependencies": {
+    "dxf-writer": "^1.15.1",
+    "jspdf": "^2.4.0",
+    "stats.js": "0.17.0",
+    "three": "0.135",
+    "three-mesh-bvh": "^0.5.11",
+    "web-ifc": "^0.0.35",
+    "web-ifc-viewer": "1.0.207"
+  }
+}

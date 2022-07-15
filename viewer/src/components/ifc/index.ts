@@ -1,2 +1,2 @@
 export * from './ifc-manager';
-export * from './selection';
+export * from './selection/selection';

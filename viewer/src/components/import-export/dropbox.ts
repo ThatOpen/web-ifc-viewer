@@ -1,5 +1,6 @@
-import { IfcComponent, Context } from '../../base-types';
+import { IfcComponent } from '../../base-types';
 import { IfcManager } from '../ifc';
+import { IfcContext } from '../context';
 
 type dbChooserResponse = {
   id: string;
@@ -18,11 +19,19 @@ export class DropboxAPI extends IfcComponent {
   private counter: number;
   private loader: IfcManager;
 
-  constructor(context: Context, loader: IfcManager) {
+  constructor(context: IfcContext, loader: IfcManager) {
     super(context);
     this.loader = loader;
     this.counter = 0;
-    this.initializeAPI();
+  }
+
+  initializeAPI() {
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://www.dropbox.com/static/api/2/dropins.js';
+    script.id = 'dropboxjs';
+    script.setAttribute('data-app-key', 'iej3z16hhyca35a');
+    document.getElementsByTagName('head')[0].appendChild(script);
   }
 
   loadDropboxIfc() {
@@ -68,14 +77,5 @@ export class DropboxAPI extends IfcComponent {
 
   private onDBChooserCancel(_files: dbChooserResponse[]) {
     console.log('Canceled!');
-  }
-
-  private initializeAPI() {
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = 'https://www.dropbox.com/static/api/2/dropins.js';
-    script.id = 'dropboxjs';
-    script.setAttribute('data-app-key', 'iej3z16hhyca35a');
-    document.getElementsByTagName('head')[0].appendChild(script);
   }
 }

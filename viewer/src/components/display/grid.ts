@@ -1,21 +1,31 @@
-import { Color, GridHelper, Material } from 'three';
-import { IfcComponent, Context } from '../../base-types';
+import { Color, GridHelper } from 'three';
+import { IfcComponent } from '../../base-types';
+import { IfcContext } from '../context';
+import { disposeMeshRecursively } from '../../utils/ThreeUtils';
 
 export class IfcGrid extends IfcComponent {
-  grid: GridHelper;
+  grid?: GridHelper;
 
-  constructor(
-    context: Context,
-    size?: number,
-    divisions?: number,
-    colorCenterLine?: Color,
-    colorGrid?: Color
-  ) {
+  constructor(private context: IfcContext) {
     super(context);
+  }
+
+  dispose() {
+    if (this.grid) {
+      disposeMeshRecursively(this.grid as any);
+    }
+    (this.grid as any) = null;
+  }
+
+  setGrid(size?: number, divisions?: number, colorCenterLine?: Color, colorGrid?: Color) {
+    if (this.grid) {
+      if (this.grid.parent) this.grid.removeFromParent();
+      this.grid.geometry.dispose();
+    }
     this.grid = new GridHelper(size, divisions, colorCenterLine, colorGrid);
-    (this.grid.material as Material).depthTest = false;
     this.grid.renderOrder = 0;
-    const scene = context.getScene();
+    const scene = this.context.getScene();
     scene.add(this.grid);
+    this.context.renderer.postProduction.excludedItems.add(this.grid);
   }
 }
