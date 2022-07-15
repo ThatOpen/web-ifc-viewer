@@ -28,7 +28,12 @@ export class IfcContext implements Context {
     this.ifcCaster = new IfcRaycaster(this);
     this.clock = new Clock(true);
     this.setupWindowRescale();
-    this.render();
+    const isWebXR = this.options.webXR || false;
+    if (isWebXR) {
+      this.renderForWebXR();
+    } else {
+      this.render();
+    }
   }
 
   getScene() {
@@ -88,6 +93,13 @@ export class IfcContext implements Context {
   private render = () => {
     requestAnimationFrame(this.render);
     this.updateAllComponents();
+  };
+
+  private renderForWebXR = () => {
+    const newAnimationLoop = () => {
+      this.getRenderer().render(this.getScene(), this.getCamera());
+    };
+    this.getRenderer().setAnimationLoop(newAnimationLoop);
   };
 
   private updateAllComponents() {

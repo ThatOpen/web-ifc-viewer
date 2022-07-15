@@ -16,6 +16,7 @@ export interface ViewerOptions {
   selectMaterial?: Material;
   backgroundColor?: Color;
   panWithMMB?: boolean;
+  webXR?: boolean;
 }
 
 interface Component {
