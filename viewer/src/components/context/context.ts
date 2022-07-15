@@ -42,12 +42,7 @@ export class IfcContext {
     this.clock = new Clock(true);
     this.ifcAnimator = new Animator();
     this.setupWindowRescale();
-    const isWebXR = this.options.webXR || false;
-    if (isWebXR) {
-      this.renderForWebXR();
-    } else {
-      this.render();
-    }
+    this.render();
   }
 
   dispose() {
@@ -199,7 +194,12 @@ export class IfcContext {
   private render = () => {
     if (this.isThisBeingDisposed) return;
     if (this.stats) this.stats.begin();
-    requestAnimationFrame(this.render);
+    const isWebXR = this.options.webXR || false;
+    if (isWebXR) {
+      this.renderForWebXR();
+    } else {
+      requestAnimationFrame(this.render);
+    }
     this.updateAllComponents();
     if (this.stats) this.stats.end();
   };
