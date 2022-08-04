@@ -29,6 +29,5 @@
   "workspaces": [
     "viewer",
     "example"
-  ],
-  "dependencies": {}
+  ]
 }

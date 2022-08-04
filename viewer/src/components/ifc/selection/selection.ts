@@ -91,13 +91,21 @@ export class IfcSelection extends IfcComponent {
     focusSelection = false,
     removePrevious = true
   ) => {
+    const mesh = this.context.items.ifcModels.find((model) => model.modelID === modelID);
+    if (!mesh) return;
+
     if (removePrevious) {
       this.modelIDs.clear();
     }
     this.modelIDs.add(modelID);
-    const mesh = this.newSelection(modelID, ids, removePrevious);
-    mesh.renderOrder = this.renderOrder;
-    if (focusSelection) await this.focusSelection(mesh);
+    const selected = this.newSelection(modelID, ids, removePrevious);
+
+    selected.position.copy(mesh.position);
+    selected.rotation.copy(mesh.rotation);
+    selected.scale.copy(mesh.scale);
+
+    selected.renderOrder = this.renderOrder;
+    if (focusSelection) await this.focusSelection(selected);
   };
 
   newSelection = (modelID: number, ids: number[], removePrevious: boolean) => {
