@@ -194,9 +194,21 @@ export class IfcContext {
   private render = () => {
     if (this.isThisBeingDisposed) return;
     if (this.stats) this.stats.begin();
-    requestAnimationFrame(this.render);
+    const isWebXR = this.options.webXR || false;
+    if (isWebXR) {
+      this.renderForWebXR();
+    } else {
+      requestAnimationFrame(this.render);
+    }
     this.updateAllComponents();
     if (this.stats) this.stats.end();
+  };
+  
+  private renderForWebXR = () => {
+    const newAnimationLoop = () => {
+      this.getRenderer().render(this.getScene(), this.getCamera());
+    };
+    this.getRenderer().setAnimationLoop(newAnimationLoop);
   };
 
   private updateAllComponents() {

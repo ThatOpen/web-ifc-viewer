@@ -43,6 +43,7 @@ export interface ViewerOptions {
   preselectMaterial?: Material;
   selectMaterial?: Material;
   backgroundColor?: Color;
+  webXR?: boolean;
 }
 
 interface Component {
