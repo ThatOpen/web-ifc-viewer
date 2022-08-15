@@ -19,6 +19,7 @@ import { PDFWriter } from './components/import-export/pdf';
 import { EdgeProjector } from './components/import-export/edges-vectorizer/edge-projection';
 import { ClippingEdges } from './components/display/clipping-planes/clipping-edges';
 import { SelectionWindow } from './components/selection/selection-window';
+import { IfcVrControllers } from './components/context/vrControllers';
 
 export class IfcViewerAPI {
   context: IfcContext;
@@ -37,6 +38,7 @@ export class IfcViewerAPI {
   axes: IfcAxes;
   dropbox: DropboxAPI;
   selectionWindow: SelectionWindow;
+  vrControllers: IfcVrControllers;
 
   constructor(options: ViewerOptions) {
     if (!options.container) throw new Error('Could not get container element!');
@@ -56,6 +58,7 @@ export class IfcViewerAPI {
     this.GLTF = new GLTFManager(this.context, this.IFC);
     this.dropbox = new DropboxAPI(this.context, this.IFC);
     this.selectionWindow = new SelectionWindow(this.context);
+    this.vrControllers = new IfcVrControllers(this.context, this.IFC);
     ClippingEdges.ifc = this.IFC;
     ClippingEdges.context = this.context;
   }
