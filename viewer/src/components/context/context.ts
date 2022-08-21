@@ -201,7 +201,7 @@ export class IfcContext {
     if (this.stats) this.stats.begin();
     const isWebXR = this.options.webXR || false;
     if (isWebXR) {
-      document.body.appendChild(VRButton.createButton(this.getRenderer()));
+      document.body.appendChild(VRButton.createButton(this.getRenderer())); // 3js module to append VR button to DOM
       this.getRenderer().xr.enabled = true;
       this.renderForWebXR();
     } else {
