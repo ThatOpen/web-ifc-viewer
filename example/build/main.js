@@ -100383,14 +100383,20 @@
                 return { modelID: mesh.modelID, id };
             };
             this.pickByID = async (modelID, ids, focusSelection = false, removePrevious = true) => {
+                const mesh = this.context.items.ifcModels.find((model) => model.modelID === modelID);
+                if (!mesh)
+                    return;
                 if (removePrevious) {
                     this.modelIDs.clear();
                 }
                 this.modelIDs.add(modelID);
-                const mesh = this.newSelection(modelID, ids, removePrevious);
-                mesh.renderOrder = this.renderOrder;
+                const selected = this.newSelection(modelID, ids, removePrevious);
+                selected.position.copy(mesh.position);
+                selected.rotation.copy(mesh.rotation);
+                selected.scale.copy(mesh.scale);
+                selected.renderOrder = this.renderOrder;
                 if (focusSelection)
-                    await this.focusSelection(mesh);
+                    await this.focusSelection(selected);
             };
             this.newSelection = (modelID, ids, removePrevious) => {
                 const mesh = this.loader.ifcManager.createSubset({

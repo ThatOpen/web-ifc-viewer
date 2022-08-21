@@ -1,7 +1,7 @@
 {
   "name": "web-ifc-viewer-root",
   "description": "IFC viewer",
-  "version": "1.0.207",
+  "version": "1.0.208",
   "private": true,
   "main": "viewer/src/ifc-viewer-api.ts",
   "author": "agviegas",
@@ -29,6 +29,5 @@
   "workspaces": [
     "viewer",
     "example"
-  ],
-  "dependencies": {}
+  ]
 }

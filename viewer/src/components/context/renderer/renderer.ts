@@ -20,7 +20,7 @@ export class IfcRenderer extends IfcComponent {
     super(context);
     this.context = context;
     this.container = context.options.container;
-    this.renderer = new WebGLRenderer({ alpha: true });
+    this.renderer = new WebGLRenderer({ alpha: true, antialias: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
     this.setupRenderers();
