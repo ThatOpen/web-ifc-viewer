@@ -219,7 +219,7 @@ export class IfcContext {
     this.getRenderer().setAnimationLoop(newAnimationLoop);
   };
 
-  webXrMoveTracking = () => {};
+  webXrMoveTracking = () => {}; // empty function called on  webXR render loop; which is replaced in VRControllers to handle VR movement
 
   private updateAllComponents() {
     const delta = this.clock.getDelta();
