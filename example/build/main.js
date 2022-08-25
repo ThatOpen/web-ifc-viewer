@@ -100391,6 +100391,7 @@
                 }
                 this.modelIDs.add(modelID);
                 const selected = this.newSelection(modelID, ids, removePrevious);
+                selected.visible = true;
                 selected.position.copy(mesh.position);
                 selected.rotation.copy(mesh.rotation);
                 selected.scale.copy(mesh.scale);
@@ -102866,7 +102867,6 @@
         //   return this.currentNavMode as OrbitControl;
         // }
         setupCameras() {
-            this.setCameraPositionAndTarget(this.perspectiveCamera);
             this.setCameraPositionAndTarget(this.perspectiveCamera);
         }
         setCameraPositionAndTarget(camera) {
@@ -105857,7 +105857,7 @@
             this.blocked = false;
             this.context = context;
             this.container = context.options.container;
-            this.renderer = new WebGLRenderer({ alpha: true });
+            this.renderer = new WebGLRenderer({ alpha: true, antialias: true });
             this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             this.setupRenderers();
             this.postProduction = new Postproduction(this.context, this.renderer);
@@ -120863,6 +120863,10 @@
     stats.dom.style.right = '0px';
     stats.dom.style.left = 'auto';
     viewer.context.stats = stats;
+
+    viewer.IFC.loader.ifcManager;
+
+
 
     // viewer.IFC.loader.ifcManager.useWebWorkers(true, 'files/IFCWorker.js');
     viewer.IFC.setWasmPath('files/');

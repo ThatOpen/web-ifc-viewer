@@ -215,7 +215,6 @@ export class IfcCamera extends IfcComponent {
 
   private setupCameras() {
     this.setCameraPositionAndTarget(this.perspectiveCamera);
-    this.setCameraPositionAndTarget(this.perspectiveCamera);
   }
 
   private setCameraPositionAndTarget(camera: Camera) {

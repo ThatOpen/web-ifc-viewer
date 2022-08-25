@@ -99,6 +99,7 @@ export class IfcSelection extends IfcComponent {
     }
     this.modelIDs.add(modelID);
     const selected = this.newSelection(modelID, ids, removePrevious);
+    selected.visible = true;
 
     selected.position.copy(mesh.position);
     selected.rotation.copy(mesh.rotation);
