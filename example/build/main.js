@@ -102786,6 +102786,7 @@
         }
         set projection(projection) {
             this.projectionManager.projection = projection;
+            this.onChangeProjection.trigger(this.activeCamera);
         }
         /**
          * @deprecated Use cameraControls instead.

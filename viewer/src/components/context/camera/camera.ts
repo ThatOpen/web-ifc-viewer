@@ -122,6 +122,7 @@ export class IfcCamera extends IfcComponent {
 
   set projection(projection: CameraProjections) {
     this.projectionManager.projection = projection;
+    this.onChangeProjection.trigger(this.activeCamera);
   }
 
   /**
