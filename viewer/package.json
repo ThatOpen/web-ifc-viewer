@@ -1,6 +1,6 @@
 {
   "name": "web-ifc-viewer",
-  "version": "1.0.209",
+  "version": "1.0.210",
   "description": "IFC viewer",
   "main": "dist/index.js",
   "scripts": {

@@ -100790,13 +100790,14 @@
                 const firstModel = Boolean(this.context.items.ifcModels.length === 0);
                 const settings = this.loader.ifcManager.state.webIfcSettings;
                 const fastBools = (settings === null || settings === void 0 ? void 0 : settings.USE_FAST_BOOLS) || true;
+                const coordsToOrigin = (settings === null || settings === void 0 ? void 0 : settings.COORDINATE_TO_ORIGIN) || false;
                 await this.loader.ifcManager.applyWebIfcConfig({
-                    COORDINATE_TO_ORIGIN: firstModel,
+                    COORDINATE_TO_ORIGIN: firstModel && coordsToOrigin,
                     USE_FAST_BOOLS: fastBools
                 });
                 const ifcModel = await this.loader.loadAsync(url, onProgress);
                 this.addIfcModel(ifcModel);
-                if (firstModel) {
+                if (firstModel && coordsToOrigin) {
                     const matrixArr = await this.loader.ifcManager.ifcAPI.GetCoordinationMatrix(ifcModel.modelID);
                     const matrix = new Matrix4().fromArray(matrixArr);
                     this.loader.ifcManager.setupCoordinationMatrix(matrix);
@@ -111374,10 +111375,22 @@
                     return;
                 if (this.stats)
                     this.stats.begin();
-                requestAnimationFrame(this.render);
+                const isWebXR = this.options.webXR || false;
+                if (isWebXR) {
+                    this.renderForWebXR();
+                }
+                else {
+                    requestAnimationFrame(this.render);
+                }
                 this.updateAllComponents();
                 if (this.stats)
                     this.stats.end();
+            };
+            this.renderForWebXR = () => {
+                const newAnimationLoop = () => {
+                    this.getRenderer().render(this.getScene(), this.getCamera());
+                };
+                this.getRenderer().setAnimationLoop(newAnimationLoop);
             };
             this.resize = () => {
                 this.updateAspect();
@@ -120863,6 +120876,8 @@
     stats.dom.style.right = '0px';
     stats.dom.style.left = 'auto';
     viewer.context.stats = stats;
+
+    viewer.context.ifcCamera.cameraControls;
 
     viewer.IFC.loader.ifcManager;
 

@@ -68,16 +68,17 @@ export class IfcManager extends IfcComponent {
 
       const settings = this.loader.ifcManager.state.webIfcSettings;
       const fastBools = settings?.USE_FAST_BOOLS || true;
+      const coordsToOrigin = settings?.COORDINATE_TO_ORIGIN || false;
 
       await this.loader.ifcManager.applyWebIfcConfig({
-        COORDINATE_TO_ORIGIN: firstModel,
+        COORDINATE_TO_ORIGIN: firstModel && coordsToOrigin,
         USE_FAST_BOOLS: fastBools
       });
 
       const ifcModel = await this.loader.loadAsync(url, onProgress);
       this.addIfcModel(ifcModel);
 
-      if (firstModel) {
+      if (firstModel && coordsToOrigin) {
         const matrixArr = await this.loader.ifcManager.ifcAPI.GetCoordinationMatrix(
           ifcModel.modelID
         );
