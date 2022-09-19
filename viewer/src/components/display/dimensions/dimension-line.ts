@@ -1,22 +1,11 @@
-import {
-  BoxGeometry,
-  BufferGeometry,
-  Color,
-  Group,
-  Line,
-  LineBasicMaterial,
-  MeshBasicMaterial,
-  Mesh,
-  Vector3,
-  Camera
-} from 'three';
+import { BoxGeometry, BufferGeometry, Color, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, Vector3 } from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
 import { IfcContext } from '../../context';
 import { disposeMeshRecursively } from '../../../utils/ThreeUtils';
+import { CameraProjections } from '../../../base-types';
 
 export class IfcDimensionLine {
   private readonly context: IfcContext;
-  private readonly camera: Camera;
   private readonly labelClassName: string;
   static scaleFactor = 0.1;
 
@@ -81,7 +70,6 @@ export class IfcDimensionLine {
     this.root.renderOrder = 2;
     this.context.getScene().add(this.root);
 
-    this.camera = this.context.getCamera();
     this.context.ifcCamera.onChange.on(() => this.rescaleObjectsToCameraPosition());
     this.rescaleObjectsToCameraPosition();
   }
@@ -180,7 +168,11 @@ export class IfcDimensionLine {
   }
 
   private rescaleMesh(mesh: Mesh, scalefactor = 1, x = true, y = true, z = true) {
-    let scale = new Vector3().subVectors(mesh.position, this.camera.position).length();
+    const camera = this.context.ifcCamera.activeCamera;
+    let scale = new Vector3().subVectors(mesh.position, camera.position).length();
+    if (this.context.ifcCamera.projection === CameraProjections.Orthographic) {
+      scale *= 0.1;
+    }
     scale *= scalefactor;
     const scaleX = x ? scale : 1;
     const scaleY = y ? scale : 1;

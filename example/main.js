@@ -1,4 +1,4 @@
-import { IfcViewerAPI } from 'web-ifc-viewer';
+import { CameraProjections, IfcViewerAPI } from 'web-ifc-viewer';
 import { createSideMenuButton } from './utils/gui-creator';
 import {
   IFCSPACE, IFCOPENINGELEMENT, IFCFURNISHINGELEMENT, IFCWALL, IFCWINDOW, IFCCURTAINWALL, IFCMEMBER, IFCPLATE

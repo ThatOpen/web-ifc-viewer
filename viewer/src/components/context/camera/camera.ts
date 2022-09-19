@@ -230,5 +230,8 @@ export class IfcCamera extends IfcComponent {
     this.cameraControls.dollyToCursor = true;
     this.cameraControls.infinityDolly = true;
     this.cameraControls.setTarget(0, 0, 0);
+
+    this.cameraControls.addEventListener('controlend', () => this.onChange.trigger(this));
+    this.cameraControls.addEventListener('rest', () => this.onChange.trigger(this));
   }
 }

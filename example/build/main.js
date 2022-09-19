@@ -91969,7 +91969,6 @@
             this.textLabel = this.newText();
             this.root.renderOrder = 2;
             this.context.getScene().add(this.root);
-            this.camera = this.context.getCamera();
             this.context.ifcCamera.onChange.on(() => this.rescaleObjectsToCameraPosition());
             this.rescaleObjectsToCameraPosition();
         }
@@ -92055,7 +92054,11 @@
             }
         }
         rescaleMesh(mesh, scalefactor = 1, x = true, y = true, z = true) {
-            let scale = new Vector3().subVectors(mesh.position, this.camera.position).length();
+            const camera = this.context.ifcCamera.activeCamera;
+            let scale = new Vector3().subVectors(mesh.position, camera.position).length();
+            if (this.context.ifcCamera.projection === CameraProjections.Orthographic) {
+                scale *= 0.1;
+            }
             scale *= scalefactor;
             const scaleX = x ? scale : 1;
             const scaleY = y ? scale : 1;
@@ -102882,6 +102885,8 @@
             this.cameraControls.dollyToCursor = true;
             this.cameraControls.infinityDolly = true;
             this.cameraControls.setTarget(0, 0, 0);
+            this.cameraControls.addEventListener('controlend', () => this.onChange.trigger(this));
+            this.cameraControls.addEventListener('rest', () => this.onChange.trigger(this));
         }
     }
 
