@@ -1,4 +1,14 @@
-import { BoxGeometry, BufferGeometry, Color, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, Vector3 } from 'three';
+import {
+  BoxGeometry,
+  BufferGeometry,
+  Color,
+  Group,
+  Line,
+  LineBasicMaterial,
+  Mesh,
+  MeshBasicMaterial,
+  Vector3
+} from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
 import { IfcContext } from '../../context';
 import { disposeMeshRecursively } from '../../../utils/ThreeUtils';

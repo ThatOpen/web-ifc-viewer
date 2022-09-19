@@ -89,6 +89,7 @@ export class IfcDimensions extends IfcComponent {
     }
   }
 
+  // TODO: This causes a memory leak, and it's a bit confusing
   setArrow(height: number, radius: number) {
     this.endpoint = IfcDimensions.getDefaultEndpointGeometry(height, radius);
   }
@@ -254,7 +255,7 @@ export class IfcDimensions extends IfcComponent {
       .filter((box) => box !== undefined) as Mesh[];
   }
 
-  private static getDefaultEndpointGeometry(height = 0.02, radius = 0.05) {
+  private static getDefaultEndpointGeometry(height = 0.1, radius = 0.03) {
     const coneGeometry = new ConeGeometry(radius, height);
     coneGeometry.translate(0, -height / 2, 0);
     coneGeometry.rotateX(-Math.PI / 2);
