@@ -26,6 +26,10 @@ This library is an extension of [web-ifc-three](https://github.com/IFCjs/web-ifc
 
 Check out their `README` files to better understand where the project currently is.
 
+## Demo 
+
+Test IFC.js with our IFC model in our [online Demo](https://ifcjs.github.io/web-ifc-viewer/example/index)
+
 ## Documentation
 
 Check out [our official docs](https://github.com/IFCjs/web-ifc-viewer/blob/master/CONTRIBUTING.md) for API reference, guides and tutorials.
