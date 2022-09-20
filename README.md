@@ -28,7 +28,7 @@ Check out their `README` files to better understand where the project currently 
 
 ## Demo 
 
-Test IFC.js with our IFC model in our [online Demo](https://ifcjs.github.io/web-ifc-viewer/example/index)
+Test IFC.js Web IFCviewer with your IFC models in our [online Demo](https://ifcjs.github.io/web-ifc-viewer/example/index)
 
 ## Documentation
 
