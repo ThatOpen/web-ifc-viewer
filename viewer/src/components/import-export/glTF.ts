@@ -28,6 +28,7 @@ export interface ExportConfig {
   maxJSONSize?: number;
   onProgress?: (progress: number, total: number, process: string) => void;
   coordinationMatrix?: Matrix4;
+  materials?: { [categoryName: string]: Material[] };
 }
 
 // If there are no geometry of a group of categories, it returns "null" as result
@@ -127,7 +128,8 @@ export class GLTFManager extends IfcComponent {
       splitByFloors,
       maxJSONSize,
       onProgress,
-      coordinationMatrix
+      coordinationMatrix,
+      materials
     } = config;
 
     const { loader, manager } = await this.setupIfcLoader(coordinationMatrix);
@@ -166,7 +168,8 @@ export class GLTFManager extends IfcComponent {
       floorNames,
       allIdsByFloor,
       model,
-      onProgress
+      onProgress,
+      materials
     );
 
     if (getProperties) {
@@ -207,7 +210,8 @@ export class GLTFManager extends IfcComponent {
     floorNames: string[],
     allIdsByFloor: IdsByFloorplan,
     model: any,
-    onProgress: ((progress: number, total: number, process: string) => void) | undefined
+    onProgress: ((progress: number, total: number, process: string) => void) | undefined,
+    materials: { [categoryName: string]: Material[] } | undefined
   ) {
     if (categories) {
       await this.getModelsByCategory(
@@ -218,7 +222,8 @@ export class GLTFManager extends IfcComponent {
         floorNames,
         allIdsByFloor,
         model,
-        onProgress
+        onProgress,
+        materials
       );
     } else {
       await this.getModelsWithoutCategories(
@@ -267,7 +272,8 @@ export class GLTFManager extends IfcComponent {
     floorNames: string[],
     allIdsByFloor: IdsByFloorplan,
     model: any,
-    onProgress: ((progress: number, total: number, process: string) => void) | undefined
+    onProgress: ((progress: number, total: number, process: string) => void) | undefined,
+    materials: { [p: string]: Material[] } | undefined
   ) {
     const items: number[] = [];
 
@@ -297,9 +303,14 @@ export class GLTFManager extends IfcComponent {
       for (let j = 0; j < foundFloorNames.length; j++) {
         const foundFloorName = foundFloorNames[j];
         const items = groupedIDs[foundFloorName];
-
+        let categoryMaterial: Material | undefined;
+        if (materials) {
+          categoryMaterial = materials[categoryName] as any as Material;
+        } else {
+          categoryMaterial = undefined;
+        }
         if (items.length) {
-          const gltf = await this.exportModelPartToGltf(model, items, true);
+          const gltf = await this.exportModelPartToGltf(model, items, true, categoryMaterial);
           const height = allIdsByFloor[foundFloorName]?.height || 0;
           result.gltf[categoryName][foundFloorName] = {
             file: this.glTFToFile(gltf, 'model-part.gltf'),
@@ -372,7 +383,12 @@ export class GLTFManager extends IfcComponent {
   }
 
   // TODO: Split up in smaller methods AND bring to new file
-  private exportModelPartToGltf(model: IFCModel, ids: number[], useTempLoader = false) {
+  private exportModelPartToGltf(
+    model: IFCModel,
+    ids: number[],
+    useTempLoader = false,
+    categoryMaterial?: Material
+  ) {
     const coordinates: number[] = [];
     const expressIDs: number[] = [];
     const newIndices: number[] = [];
@@ -399,10 +415,14 @@ export class GLTFManager extends IfcComponent {
     const newMaterials: Material[] = [];
     const prevMaterials = subset.material as Material[];
     let newMaterialIndex = 0;
-    newGroups.forEach((group) => {
-      newMaterials.push(prevMaterials[group.materialIndex]);
+    for (const group of newGroups) {
+      if (categoryMaterial !== undefined && subset.geometry != null) {
+        newMaterials.push(categoryMaterial);
+      } else {
+        newMaterials.push(prevMaterials[group.materialIndex]);
+      }
       group.materialIndex = newMaterialIndex++;
-    });
+    }
 
     let newIndex = 0;
     for (let i = 0; i < subset.geometry.index.count; i++) {
