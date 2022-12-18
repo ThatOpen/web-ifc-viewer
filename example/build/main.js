@@ -120929,6 +120929,8 @@
       // }
       //
       // link.remove();
+	  const selectedFile = event.target.files[0];
+	  if(!selectedFile) return;
 
       const overlay = document.getElementById('loading-overlay');
       const progressText = document.getElementById('loading-progress');
@@ -120946,7 +120948,7 @@
         [IFCOPENINGELEMENT]: false
       });
 
-      model = await viewer.IFC.loadIfc(event.target.files[0], false);
+      model = await viewer.IFC.loadIfc(selectedFile, false);
       // model.material.forEach(mat => mat.side = 2);
 
       if(first) first = false;
