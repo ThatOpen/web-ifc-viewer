@@ -31,9 +31,13 @@ export class PlanControl extends IfcComponent implements NavigationMode {
   async fitModelToFrame() {
     if (!this.enabled) return;
     const scene = this.context.getScene();
-    console.log(scene);
+    // console.log(scene);
+    // const box = new Box3().setFromObject(scene.children[0]);
+    const models = this.context.items.ifcModels;
     const box = new Box3().setFromObject(scene.children[0]);
-
+    for (let i = 0; i < models.length - 1; i++) {
+      box.expandByObject(models[i]);
+    }
     await this.ifcCamera.cameraControls.fitToBox(box, false);
   }
 }

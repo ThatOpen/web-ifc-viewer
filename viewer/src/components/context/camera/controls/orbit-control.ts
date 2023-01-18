@@ -37,7 +37,11 @@ export class OrbitControl extends IfcComponent implements NavigationMode {
   async fitModelToFrame() {
     if (!this.enabled) return;
     const scene = this.context.getScene();
-    const box = new Box3().setFromObject(scene.children[scene.children.length - 1]);
+    const models = this.context.items.ifcModels;
+    const box = new Box3().setFromObject(scene.children[0]);
+    for (let i = 0; i < models.length - 1; i++) {
+      box.expandByObject(models[i]);
+    }
     const sceneSize = new Vector3();
     box.getSize(sceneSize);
     const sceneCenter = new Vector3();
