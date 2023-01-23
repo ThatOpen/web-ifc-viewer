@@ -5,6 +5,8 @@ import { disposeMeshRecursively } from '../../utils/ThreeUtils';
 
 export class IfcAxes extends IfcComponent {
   axes?: AxesHelper;
+  
+  private enabled = false;
 
   constructor(private context: IfcContext) {
     super(context);
@@ -15,6 +17,21 @@ export class IfcAxes extends IfcComponent {
       disposeMeshRecursively(this.axes as any);
     }
     (this.axes as any) = null;
+  }
+  
+  get active() {
+    return this.enabled;
+  }
+  
+  set active(state: boolean) {
+    if(state && !this.axes) {
+      this.setAxes();
+      return;
+    }
+    
+    const scene = this.context.getScene();
+    state ? scene.add(this.axes) : this.axes?.removeFromParent();
+    this.enabled = state;
   }
 
   setAxes(size?: number) {
@@ -28,5 +45,6 @@ export class IfcAxes extends IfcComponent {
     const scene = this.context.getScene();
     scene.add(this.axes);
     this.context.renderer.postProduction.excludedItems.add(this.axes);
+    this.enabled = true;
   }
 }

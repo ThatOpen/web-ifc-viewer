@@ -5,6 +5,8 @@ import { disposeMeshRecursively } from '../../utils/ThreeUtils';
 
 export class IfcGrid extends IfcComponent {
   grid?: GridHelper;
+  
+  private enabled = false;
 
   constructor(private context: IfcContext) {
     super(context);
@@ -16,7 +18,22 @@ export class IfcGrid extends IfcComponent {
     }
     (this.grid as any) = null;
   }
-
+  
+  get active() {
+    return this.enabled;
+  }
+  
+  set active(state: boolean) {
+    if(state && !this.grid) {
+      this.setGrid();
+      return;
+    }
+    
+    const scene = this.context.getScene();
+    state ? scene.add(this.grid) : this.grid?.removeFromParent();
+    this.enabled = state;
+  }
+  
   setGrid(size?: number, divisions?: number, colorCenterLine?: Color, colorGrid?: Color) {
     if (this.grid) {
       if (this.grid.parent) this.grid.removeFromParent();
@@ -27,5 +44,6 @@ export class IfcGrid extends IfcComponent {
     const scene = this.context.getScene();
     scene.add(this.grid);
     this.context.renderer.postProduction.excludedItems.add(this.grid);
+    this.enabled = true;
   }
 }
