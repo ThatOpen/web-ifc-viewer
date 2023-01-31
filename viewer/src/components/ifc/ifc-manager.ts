@@ -231,6 +231,22 @@ export class IfcManager extends IfcComponent {
   unHighlightIfcItems() {
     this.selector.unHighlightIfcItems();
   }
+  
+  /**
+   * Remove & dispose ifcmodel
+   * @modelID ID of the IFC model.
+   */
+  removeIfcModel(modelID: number): void {
+    try {
+      this.context.items.ifcModels.splice(modelID, 1);
+      this.context.items.pickableIfcModels.splice(modelID, 1);
+      
+      const scene = this.context.getScene();
+      this.loader.ifcManager.close(modelID, scene);
+    } catch(e) {
+      console.log(`Removing IfcModel ${modelID} failed`);
+    }
+  }
 
   private addIfcModel(ifcMesh: IFCModel) {
     this.context.items.ifcModels.push(ifcMesh);
