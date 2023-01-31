@@ -113,6 +113,9 @@ export class IfcProperties {
 
   private async getBuildingHeight(modelID: number) {
     const building = await this.getBuilding(modelID);
+    if(!building)
+      return 0;
+    
     let placement: any;
     const siteReference = building.ObjectPlacement.PlacementRelTo;
     if (siteReference) placement = siteReference.RelativePlacement.Location;
@@ -123,9 +126,17 @@ export class IfcProperties {
 
   private async getBuilding(modelID: number) {
     const ifc = this.loader.ifcManager;
-    const allBuildingsIDs = await ifc.getAllItemsOfType(modelID, IFCBUILDING, false);
-    const buildingID = allBuildingsIDs[0];
-    return ifc.getItemProperties(modelID, buildingID, true);
+    try {
+      const allBuildingsIDs = await ifc.getAllItemsOfType(modelID, IFCBUILDING, false);
+      if(allBuildingsIDs && allBuildingsIDs.length > 0) {
+        const buildingID = allBuildingsIDs[0];
+        return ifc.getItemProperties(modelID, buildingID, true);
+      }
+    } catch(e) {
+      console.log('No IfcBuilding in Model'); 
+    }
+    
+    return null;
   }
 
   private async getAllGeometriesIDs(modelID: number) {
