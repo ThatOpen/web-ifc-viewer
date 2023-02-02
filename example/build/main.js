@@ -91697,12 +91697,26 @@
         constructor(context) {
             super(context);
             this.context = context;
+            this.enabled = false;
         }
         dispose() {
             if (this.grid) {
                 disposeMeshRecursively(this.grid);
             }
             this.grid = null;
+        }
+        get active() {
+            return this.enabled;
+        }
+        set active(state) {
+            var _a;
+            if (state && !this.grid) {
+                this.setGrid();
+                return;
+            }
+            const scene = this.context.getScene();
+            state ? scene.add(this.grid) : (_a = this.grid) === null || _a === void 0 ? void 0 : _a.removeFromParent();
+            this.enabled = state;
         }
         setGrid(size, divisions, colorCenterLine, colorGrid) {
             if (this.grid) {
@@ -91715,6 +91729,7 @@
             const scene = this.context.getScene();
             scene.add(this.grid);
             this.context.renderer.postProduction.excludedItems.add(this.grid);
+            this.enabled = true;
         }
     }
 
@@ -91722,12 +91737,26 @@
         constructor(context) {
             super(context);
             this.context = context;
+            this.enabled = false;
         }
         dispose() {
             if (this.axes) {
                 disposeMeshRecursively(this.axes);
             }
             this.axes = null;
+        }
+        get active() {
+            return this.enabled;
+        }
+        set active(state) {
+            var _a;
+            if (state && !this.axes) {
+                this.setAxes();
+                return;
+            }
+            const scene = this.context.getScene();
+            state ? scene.add(this.axes) : (_a = this.axes) === null || _a === void 0 ? void 0 : _a.removeFromParent();
+            this.enabled = state;
         }
         setAxes(size) {
             if (this.axes) {
@@ -91741,6 +91770,7 @@
             const scene = this.context.getScene();
             scene.add(this.axes);
             this.context.renderer.postProduction.excludedItems.add(this.axes);
+            this.enabled = true;
         }
     }
 
@@ -100940,6 +100970,21 @@
          */
         unHighlightIfcItems() {
             this.selector.unHighlightIfcItems();
+        }
+        /**
+         * Remove & dispose ifcmodel
+         * @modelID ID of the IFC model.
+         */
+        removeIfcModel(modelID) {
+            try {
+                this.context.items.ifcModels.splice(modelID, 1);
+                this.context.items.pickableIfcModels.splice(modelID, 1);
+                const scene = this.context.getScene();
+                this.loader.ifcManager.close(modelID, scene);
+            }
+            catch (e) {
+                console.log(`Removing IfcModel ${modelID} failed`);
+            }
         }
         addIfcModel(ifcMesh) {
             this.context.items.ifcModels.push(ifcMesh);
@@ -120929,8 +120974,8 @@
       // }
       //
       // link.remove();
-	  const selectedFile = event.target.files[0];
-	  if(!selectedFile) return;
+      const selectedFile = event.target.files[0];
+      if(!selectedFile) return;
 
       const overlay = document.getElementById('loading-overlay');
       const progressText = document.getElementById('loading-progress');
