@@ -1,4 +1,4 @@
-import { AxesHelper, Material } from 'three';
+import { AxesHelper, Material, Object3D } from 'three';
 import { IfcComponent } from '../../base-types';
 import { IfcContext } from '../context';
 import { disposeMeshRecursively } from '../../utils/ThreeUtils';
@@ -30,7 +30,7 @@ export class IfcAxes extends IfcComponent {
     }
     
     const scene = this.context.getScene();
-    state ? scene.add(this.axes) : this.axes?.removeFromParent();
+    state ? scene.add(<Object3D>this.axes) : this.axes?.removeFromParent();
     this.enabled = state;
   }
 

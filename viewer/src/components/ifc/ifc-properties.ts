@@ -31,14 +31,14 @@ export class IfcProperties {
    */
   async serializeAllProperties(
     model: IFCModel,
-    format = false,
     maxSize?: number,
-    event?: (progress: number, total: number) => void
+    event?: (progress: number, total: number) => void,
+	format = false
   ) {
     this.webIfc = this.loader.ifcManager.ifcAPI;
     if (!model) throw new Error('The requested model was not found.');
     const blobs: Blob[] = [];
-    await this.getPropertiesAsBlobs(model.modelID, blobs, maxSize, event);
+    await this.getPropertiesAsBlobs(model.modelID, blobs, maxSize, event, format);
     return blobs;
   }
 
