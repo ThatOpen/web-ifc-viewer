@@ -33,7 +33,7 @@ export class IfcProperties {
     model: IFCModel,
     maxSize?: number,
     event?: (progress: number, total: number) => void,
-	format = false
+    format = false
   ) {
     this.webIfc = this.loader.ifcManager.ifcAPI;
     if (!model) throw new Error('The requested model was not found.');
@@ -80,7 +80,7 @@ export class IfcProperties {
   private async getItemProperty(modelID: number, id: number, properties: any, format = false) {
     try {
       const props = await this.webIfc!.GetLine(modelID, id);
-      if(format) {
+      if (format) {
         if (props.type) {
           props.type = this.loader.ifcManager.typesMap[props.type];
         }
@@ -113,9 +113,8 @@ export class IfcProperties {
 
   private async getBuildingHeight(modelID: number) {
     const building = await this.getBuilding(modelID);
-    if(!building)
-      return 0;
-    
+    if (!building) return 0;
+
     let placement: any;
     const siteReference = building.ObjectPlacement.PlacementRelTo;
     if (siteReference) placement = siteReference.RelativePlacement.Location;
@@ -128,14 +127,14 @@ export class IfcProperties {
     const ifc = this.loader.ifcManager;
     try {
       const allBuildingsIDs = await ifc.getAllItemsOfType(modelID, IFCBUILDING, false);
-      if(allBuildingsIDs && allBuildingsIDs.length > 0) {
+      if (allBuildingsIDs && allBuildingsIDs.length > 0) {
         const buildingID = allBuildingsIDs[0];
         return ifc.getItemProperties(modelID, buildingID, true);
       }
-    } catch(e) {
-      console.log('No IfcBuilding in Model'); 
+    } catch (e) {
+      console.log('No IfcBuilding in Model');
     }
-    
+
     return null;
   }
 
