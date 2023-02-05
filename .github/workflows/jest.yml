@@ -1,5 +1,9 @@
 name: Jest Tests
-on: [pull_request]
+on: 
+  pull_request:
+    branches:
+      #- main
+      - ci-tests
 jobs:
   build:
     runs-on: ubuntu-latest
