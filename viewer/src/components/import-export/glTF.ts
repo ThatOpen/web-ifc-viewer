@@ -89,9 +89,10 @@ export class GLTFManager extends IfcComponent {
   /**
    * Loads any glTF file into the scene using [Three.js loader](https://threejs.org/docs/#examples/en/loaders/GLTFLoader).
    * @url The URL of the GLTF file to load
+   * @onProgress (optional) A callback function that is called when the file is loaded
    */
-  async load(url: string) {
-    const loaded = (await this.loader.loadAsync(url)) as GLTF;
+  async load(url: string, onProgress?: (event: ProgressEvent<EventTarget>) => void) {
+    const loaded = (await this.loader.loadAsync(url, onProgress)) as GLTF;
     const mesh = loaded.scene;
     const modelID = this.getModelID();
     this.GLTFModels[modelID] = mesh;
