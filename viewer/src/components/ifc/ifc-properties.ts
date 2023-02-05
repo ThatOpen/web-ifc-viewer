@@ -25,18 +25,20 @@ export class IfcProperties {
    * Serializes all the properties of an IFC (exluding the geometry) into an array of Blobs.
    * This is useful for populating databases with IFC data.
    * @modelID ID of the IFC model whose properties to extract.
+   * @format (optional) if true properties will be formatted, defaults to false.
    * @maxSize (optional) maximum number of entities for each Blob. If not defined, it's infinite (only one Blob will be created).
    * @event (optional) callback called every time a 10% of entities are serialized into Blobs.
    */
   async serializeAllProperties(
     model: IFCModel,
     maxSize?: number,
-    event?: (progress: number, total: number) => void
+    event?: (progress: number, total: number) => void,
+	format = false
   ) {
     this.webIfc = this.loader.ifcManager.ifcAPI;
     if (!model) throw new Error('The requested model was not found.');
     const blobs: Blob[] = [];
-    await this.getPropertiesAsBlobs(model.modelID, blobs, maxSize, event);
+    await this.getPropertiesAsBlobs(model.modelID, blobs, maxSize, event, format);
     return blobs;
   }
 
@@ -44,7 +46,8 @@ export class IfcProperties {
     modelID: number,
     blobs: Blob[],
     maxSize?: number,
-    event?: (progress: number, total: number) => void
+    event?: (progress: number, total: number) => void,
+    format = false
   ) {
     const geometriesIDs = await this.getAllGeometriesIDs(modelID);
     let properties = await this.initializePropertiesObject(modelID);
@@ -57,7 +60,7 @@ export class IfcProperties {
       const id = allLinesIDs.get(i);
       if (!geometriesIDs.has(id)) {
         // eslint-disable-next-line no-await-in-loop
-        await this.getItemProperty(modelID, id, properties);
+        await this.getItemProperty(modelID, id, properties, format);
         counter++;
       }
       if (maxSize && counter > maxSize) {
@@ -74,13 +77,15 @@ export class IfcProperties {
     blobs.push(new Blob([JSON.stringify(properties)], { type: 'application/json' }));
   }
 
-  private async getItemProperty(modelID: number, id: number, properties: any) {
+  private async getItemProperty(modelID: number, id: number, properties: any, format = false) {
     try {
       const props = await this.webIfc!.GetLine(modelID, id);
-      if (props.type) {
-        props.type = this.loader.ifcManager.typesMap[props.type];
+      if(format) {
+        if (props.type) {
+          props.type = this.loader.ifcManager.typesMap[props.type];
+        }
+        this.formatItemProperties(props);
       }
-      this.formatItemProperties(props);
       properties[id] = props;
     } catch (e) {
       console.log(`There was a problem getting the properties of the item with ID ${id}`);

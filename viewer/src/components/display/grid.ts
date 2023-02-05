@@ -1,4 +1,4 @@
-import { Color, GridHelper } from 'three';
+import { Color, GridHelper, Object3D } from 'three';
 import { IfcComponent } from '../../base-types';
 import { IfcContext } from '../context';
 import { disposeMeshRecursively } from '../../utils/ThreeUtils';
@@ -30,7 +30,7 @@ export class IfcGrid extends IfcComponent {
     }
     
     const scene = this.context.getScene();
-    state ? scene.add(this.grid) : this.grid?.removeFromParent();
+    state ? scene.add(<Object3D>this.grid) : this.grid?.removeFromParent();
     this.enabled = state;
   }
   
