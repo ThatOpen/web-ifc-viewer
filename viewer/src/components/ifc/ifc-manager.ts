@@ -9,12 +9,14 @@ import { IfcUnits } from './units';
 import { IfcSelector } from './selection/selector';
 import { IfcContext } from '../context';
 import { IfcProperties } from './ifc-properties';
+import { ShadowDropper } from '../display/shadow-dropper';
 
 export class IfcManager extends IfcComponent {
   loader: IFCLoader;
   selector: IfcSelector;
   units: IfcUnits;
   properties: IfcProperties;
+  shadowDropper: ShadowDropper;
   private readonly context: IfcContext;
 
   constructor(context: IfcContext) {
@@ -25,6 +27,7 @@ export class IfcManager extends IfcComponent {
     this.selector = new IfcSelector(context, this);
     this.units = new IfcUnits(this);
     this.properties = new IfcProperties(context, this.loader);
+    this.shadowDropper = new ShadowDropper(this.context, this);
   }
 
   async dispose() {
@@ -231,19 +234,23 @@ export class IfcManager extends IfcComponent {
   unHighlightIfcItems() {
     this.selector.unHighlightIfcItems();
   }
-  
+
   /**
    * Remove & dispose ifcmodel
    * @modelID ID of the IFC model.
    */
   removeIfcModel(modelID: number): void {
     try {
-      this.context.items.ifcModels.splice(modelID, 1);
+      const [model] = this.context.items.ifcModels.splice(modelID, 1);
       this.context.items.pickableIfcModels.splice(modelID, 1);
-      
+      if (model) {
+        const id = model.uuid;
+        this.shadowDropper.deleteShadow(id);
+      }
+
       const scene = this.context.getScene();
       this.loader.ifcManager.close(modelID, scene);
-    } catch(e) {
+    } catch (e) {
       console.log(`Removing IfcModel ${modelID} failed`);
     }
   }

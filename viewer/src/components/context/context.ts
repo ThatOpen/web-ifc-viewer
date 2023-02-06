@@ -203,7 +203,7 @@ export class IfcContext {
     this.updateAllComponents();
     if (this.stats) this.stats.end();
   };
-  
+
   private renderForWebXR = () => {
     const newAnimationLoop = () => {
       this.getRenderer().render(this.getScene(), this.getCamera());
