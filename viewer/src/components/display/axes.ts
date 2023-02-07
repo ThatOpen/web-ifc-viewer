@@ -5,7 +5,7 @@ import { disposeMeshRecursively } from '../../utils/ThreeUtils';
 
 export class IfcAxes extends IfcComponent {
   axes?: AxesHelper;
-  
+
   private enabled = false;
 
   constructor(private context: IfcContext) {
@@ -18,18 +18,19 @@ export class IfcAxes extends IfcComponent {
     }
     (this.axes as any) = null;
   }
-  
+
   get active() {
     return this.enabled;
   }
-  
+
   set active(state: boolean) {
-    if(state && !this.axes) {
+    if (state && !this.axes) {
       this.setAxes();
       return;
     }
-    
+
     const scene = this.context.getScene();
+    // eslint-disable-next-line
     state ? scene.add(<Object3D>this.axes) : this.axes?.removeFromParent();
     this.enabled = state;
   }

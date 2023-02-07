@@ -100752,6 +100752,8 @@
         }
         async getBuildingHeight(modelID) {
             const building = await this.getBuilding(modelID);
+            if (!building)
+                return 0;
             let placement;
             const siteReference = building.ObjectPlacement.PlacementRelTo;
             if (siteReference)
@@ -100763,9 +100765,17 @@
         }
         async getBuilding(modelID) {
             const ifc = this.loader.ifcManager;
-            const allBuildingsIDs = await ifc.getAllItemsOfType(modelID, IFCBUILDING, false);
-            const buildingID = allBuildingsIDs[0];
-            return ifc.getItemProperties(modelID, buildingID, true);
+            try {
+                const allBuildingsIDs = await ifc.getAllItemsOfType(modelID, IFCBUILDING, false);
+                if (allBuildingsIDs && allBuildingsIDs.length > 0) {
+                    const buildingID = allBuildingsIDs[0];
+                    return ifc.getItemProperties(modelID, buildingID, true);
+                }
+            }
+            catch (e) {
+                console.log('No IfcBuilding in Model');
+            }
+            return null;
         }
         async getAllGeometriesIDs(modelID) {
             const geometriesIDs = new Set();
