@@ -241,12 +241,9 @@ export class IfcManager extends IfcComponent {
    */
   removeIfcModel(modelID: number): void {
     try {
-      const [model] = this.context.items.ifcModels.splice(modelID, 1);
+      this.context.items.ifcModels.splice(modelID, 1);
       this.context.items.pickableIfcModels.splice(modelID, 1);
-      if (model) {
-        const id = model.uuid;
-        this.shadowDropper.deleteShadow(id);
-      }
+      this.shadowDropper.deleteShadow(modelID.toString());
 
       const scene = this.context.getScene();
       this.loader.ifcManager.close(modelID, scene);

@@ -100936,6 +100936,7 @@
                 throw new Error(`There is already a shadow with ID ${id}`);
             const { size, center } = this.getSizeAndCenter(model);
             const scene = this.context.getScene();
+            console.log(id);
             const shadow = this.createShadow(id, size);
             this.initializeShadow(model, shadow, scene, center);
             this.createPlanes(shadow, size);
@@ -101321,12 +101322,9 @@
          */
         removeIfcModel(modelID) {
             try {
-                const [model] = this.context.items.ifcModels.splice(modelID, 1);
+                this.context.items.ifcModels.splice(modelID, 1);
                 this.context.items.pickableIfcModels.splice(modelID, 1);
-                if (model) {
-                    const id = model.uuid;
-                    this.shadowDropper.deleteShadow(id);
-                }
+                this.shadowDropper.deleteShadow(modelID.toString());
                 const scene = this.context.getScene();
                 this.loader.ifcManager.close(modelID, scene);
             }
@@ -121033,6 +121031,9 @@
       }
       if (event.code === 'KeyC') {
         viewer.context.ifcCamera.toggleProjection();
+      }
+      if (event.code === 'KeyD') {
+        viewer.IFC.removeIfcModel(0);
       }
     };
 
