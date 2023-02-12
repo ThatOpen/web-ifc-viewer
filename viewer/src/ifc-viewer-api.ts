@@ -49,7 +49,7 @@ export class IfcViewerAPI {
     this.filler = new SectionFillManager(this.IFC, this.context);
     this.dimensions = new IfcDimensions(this.context);
     this.edges = new Edges(this.context);
-    this.shadowDropper = new ShadowDropper(this.context, this.IFC);
+    this.shadowDropper = this.IFC.shadowDropper;
     this.edgesProjector = new EdgeProjector(this.context);
     this.dxf = new DXFWriter();
     this.pdf = new PDFWriter();
