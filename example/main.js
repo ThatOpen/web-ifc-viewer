@@ -173,8 +173,6 @@ const loadIfc = async (event) => {
 
   overlay.classList.add('hidden');
 
-  await viewer.IFC.loadAlignments();
-
 };
 
 const inputElement = document.createElement('input');

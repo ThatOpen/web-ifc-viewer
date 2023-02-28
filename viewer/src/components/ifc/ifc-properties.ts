@@ -82,7 +82,7 @@ export class IfcProperties {
       const props = await this.webIfc!.GetLine(modelID, id);
       if (format) {
         if (props.type) {
-          props.type = this.webIfc!.wasmModule.IfcTypesMap[props.type];
+          props.type = this.loader.ifcManager.typesMap[props.type];
         }
         this.formatItemProperties(props);
       }
