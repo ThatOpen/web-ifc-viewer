@@ -173,7 +173,9 @@ const loadIfc = async (event) => {
 
   overlay.classList.add('hidden');
 
-  await viewer.IFC.loadAlignments();
+  await viewer.IFC.loadAlignments2D();
+
+  await viewer.IFC.loadAlignments3D();
 
 };
 
