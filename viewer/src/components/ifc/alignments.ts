@@ -8,6 +8,9 @@ export class IfcAlignmentsManager {
       const startH = { x: 0, y: 0, z: 0 };
       const startV = { x: 0, y: 0, z: 0 };
       let finish = false;
+
+      // Finding starting points for vertical and horizontal alignments
+
       for (let i = 0; i < alignment.horizontal.length; i++) {
         for (let j = 0; j < alignment.horizontal[i].points.length; j++) {
           startH.x = alignment.horizontal[i].points[j].x;
@@ -79,6 +82,9 @@ export class IfcAlignmentsManager {
       const startH = { x: 0, y: 0, z: 0 };
       const startV = { x: 0, y: 0, z: 0 };
       let finish = false;
+
+      // Finding starting points for vertical and horizontal alignments
+
       for (let i = 0; i < alignment.horizontal.length; i++) {
         for (let j = 0; j < alignment.horizontal[i].points.length; j++) {
           startH.x = alignment.horizontal[i].points[j].x;
@@ -104,7 +110,7 @@ export class IfcAlignmentsManager {
         }
       }
 
-      // Construct 3D polyline
+      // Construct 3D polyline from horizontal and vertical polylines
 
       let lastx = 0;
       let lasty = 0;
