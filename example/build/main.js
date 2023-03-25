@@ -91715,6 +91715,7 @@
                 return;
             }
             const scene = this.context.getScene();
+            // eslint-disable-next-line
             state ? scene.add(this.grid) : (_a = this.grid) === null || _a === void 0 ? void 0 : _a.removeFromParent();
             this.enabled = state;
         }
@@ -91755,6 +91756,7 @@
                 return;
             }
             const scene = this.context.getScene();
+            // eslint-disable-next-line
             state ? scene.add(this.axes) : (_a = this.axes) === null || _a === void 0 ? void 0 : _a.removeFromParent();
             this.enabled = state;
         }
@@ -100946,7 +100948,6 @@
                 throw new Error(`There is already a shadow with ID ${id}`);
             const { size, center } = this.getSizeAndCenter(model);
             const scene = this.context.getScene();
-            console.log(id);
             const shadow = this.createShadow(id, size);
             this.initializeShadow(model, shadow, scene, center);
             this.createPlanes(shadow, size);
@@ -118947,9 +118948,10 @@
         /**
          * Loads any glTF file into the scene using [Three.js loader](https://threejs.org/docs/#examples/en/loaders/GLTFLoader).
          * @url The URL of the GLTF file to load
+         * @onProgress (optional) A callback function that is called when the file is loaded
          */
-        async load(url) {
-            const loaded = (await this.loader.loadAsync(url));
+        async load(url, onProgress) {
+            const loaded = (await this.loader.loadAsync(url, onProgress));
             const mesh = loaded.scene;
             const modelID = this.getModelID();
             this.GLTFModels[modelID] = mesh;
