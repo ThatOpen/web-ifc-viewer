@@ -1,6 +1,6 @@
 {
   "name": "web-ifc-viewer",
-  "version": "1.0.213",
+  "version": "1.0.214",
   "description": "IFC viewer",
   "main": "dist/index.js",
   "scripts": {
@@ -31,8 +31,8 @@
     "dat.gui": "^0.7.7",
     "gsap": "^3.7.1",
     "three-mesh-bvh": "^0.5.11",
-    "web-ifc": "^0.0.35",
-    "web-ifc-three": "^0.0.118"
+    "web-ifc": "^0.0.39",
+    "web-ifc-three": "^0.0.124"
   },
   "devDependencies": {
     "@types/dat.gui": "^0.7.7",

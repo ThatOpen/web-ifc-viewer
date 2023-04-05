@@ -122,7 +122,7 @@ export class IfcManager extends IfcComponent {
    * Applies a configuration for [web-ifc](https://ifcjs.github.io/info/docs/Guide/web-ifc/Introduction).
    */
   async applyWebIfcConfig(settings: LoaderSettings) {
-    await this.loader.ifcManager.applyWebIfcConfig(settings);
+    await this.loader.ifcManager.applyWebIfcConfig(settings as any);
   }
 
   /**

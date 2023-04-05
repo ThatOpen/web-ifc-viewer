@@ -82,6 +82,7 @@ export class IfcProperties {
       const props = await this.webIfc!.GetLine(modelID, id);
       if (format) {
         if (props.type) {
+          // @ts-ignore
           props.type = this.loader.ifcManager.typesMap[props.type];
         }
         this.formatItemProperties(props);
