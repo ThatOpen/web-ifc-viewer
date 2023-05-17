@@ -11,6 +11,7 @@ import { IfcContext } from '../context';
 import { IfcProperties } from './ifc-properties';
 import { ShadowDropper } from '../display/shadow-dropper';
 import { IfcAlignmentsManager } from './alignments';
+import { IfcCrossSectionsManager } from './crossSections';
 
 export class IfcManager extends IfcComponent {
   loader: IFCLoader;
@@ -251,6 +252,13 @@ export class IfcManager extends IfcComponent {
     } catch (e) {
       console.log(`Removing IfcModel ${modelID} failed`);
     }
+  }
+
+  async loadCrossSections3D(modelID: number) {
+    await IfcCrossSectionsManager.drawSections(
+      await this.loader.ifcManager.ifcAPI.GetAllCrossSections(modelID),
+      this.context.getScene()
+    );
   }
 
   async loadAlignments2D(modelID: number) {

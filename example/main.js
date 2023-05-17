@@ -177,6 +177,7 @@ const loadIfc = async (event) => {
 
   await viewer.IFC.loadAlignments3D();
 
+  viewer.IFC.loadCrossSections3D();
 };
 
 const inputElement = document.createElement('input');
