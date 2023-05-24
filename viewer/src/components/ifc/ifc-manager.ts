@@ -256,7 +256,14 @@ export class IfcManager extends IfcComponent {
 
   async loadCrossSections3D(modelID: number) {
     await IfcCrossSectionsManager.drawSections(
-      await this.loader.ifcManager.ifcAPI.GetAllCrossSections(modelID),
+      await this.loader.ifcManager.ifcAPI.GetAllCrossSections3D(modelID),
+      this.context.getScene()
+    );
+  }
+
+  async loadCrossSections2D(modelID: number) {
+    await IfcCrossSectionsManager.drawSections(
+      await this.loader.ifcManager.ifcAPI.GetAllCrossSections2D(modelID),
       this.context.getScene()
     );
   }

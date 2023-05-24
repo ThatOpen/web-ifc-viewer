@@ -173,11 +173,13 @@ const loadIfc = async (event) => {
 
   overlay.classList.add('hidden');
 
-  // await viewer.IFC.loadAlignments2D();
+  await viewer.IFC.loadAlignments2D();
 
-  // await viewer.IFC.loadAlignments3D();
+  await viewer.IFC.loadAlignments3D();
 
   viewer.IFC.loadCrossSections3D();
+
+  viewer.IFC.loadCrossSections2D();
 };
 
 const inputElement = document.createElement('input');

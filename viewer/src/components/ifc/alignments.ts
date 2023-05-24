@@ -3,7 +3,7 @@ import { LineBasicMaterial, Vector3, BufferGeometry, Line } from 'three';
 export class IfcAlignmentsManager {
   static drawAlignments2D(modelAlignments: any, scene: any) {
     let material = new LineBasicMaterial({ color: 0x0000ff, linewidth: 5 });
-    if (modelAlignments.length > 0) {
+    if (modelAlignments && modelAlignments.length > 0) {
       const alignment = modelAlignments[0];
       const startH = { x: 0, y: 0, z: 0 };
       const startV = { x: 0, y: 0, z: 0 };
@@ -78,7 +78,7 @@ export class IfcAlignmentsManager {
 
   static drawAlignments3D(modelAlignments: any, scene: any) {
     let material = new LineBasicMaterial({ color: 0x0000ff, linewidth: 5 });
-    if (modelAlignments.length > 0) {
+    if (modelAlignments && modelAlignments.length > 0) {
       const alignment = modelAlignments[0];
       const startH = { x: 0, y: 0, z: 0 };
       const startV = { x: 0, y: 0, z: 0 };
