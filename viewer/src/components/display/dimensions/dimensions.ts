@@ -153,6 +153,17 @@ export class IfcDimensions extends IfcComponent {
     });
   }
 
+  set unitsTextContent(units: string) {
+    if (!units) return;
+    if (units === "mm") {
+      IfcDimensionLine.units = units;
+      IfcDimensionLine.scale = 1000;
+    } else if (units === "m") {
+      IfcDimensionLine.units = units;
+      IfcDimensionLine.scale = 1;
+    }
+  }
+
   create() {
     if (!this.enabled) return;
     if (!this.dragging) {
