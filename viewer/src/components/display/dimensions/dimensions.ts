@@ -197,7 +197,7 @@ export class IfcDimensions extends IfcComponent {
     this.currentDimension = undefined;
   }
 
-  unitsTextContent(units: string) {
+  setUnitsTextContent(units: string) {
     if (!units) return;
     if (units === "mm") {
       IfcDimensionLine.units = units;
