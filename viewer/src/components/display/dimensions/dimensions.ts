@@ -197,6 +197,17 @@ export class IfcDimensions extends IfcComponent {
     this.currentDimension = undefined;
   }
 
+  setDimensionUnit(units: string) {
+    if (!units) return;
+    if (units === "mm") {
+      IfcDimensionLine.units = units;
+      IfcDimensionLine.scale = 1000;
+    } else if (units === "m") {
+      IfcDimensionLine.units = units;
+      IfcDimensionLine.scale = 1;
+    }
+  }
+
   private drawStart() {
     this.dragging = true;
     const intersects = this.context.castRayIfc();

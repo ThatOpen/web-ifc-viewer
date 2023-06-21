@@ -215,7 +215,7 @@ export class IfcDimensionLine {
   }
 
   private getTextContent() {
-    return `${this.length / IfcDimensionLine.scale} ${IfcDimensionLine.units}`;
+    return `${this.length * IfcDimensionLine.scale} ${IfcDimensionLine.units}`;
   }
 
   private newBoundingBox() {
