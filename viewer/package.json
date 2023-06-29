@@ -3,6 +3,7 @@
   "version": "1.0.216",
   "description": "IFC viewer",
   "main": "dist/index.js",
+  "type": "module",
   "scripts": {
     "watch": "tsc -w",
     "build": "tsc",
