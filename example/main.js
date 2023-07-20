@@ -118,6 +118,17 @@ viewer.context.renderer.postProduction.active = true;
 let first = true;
 let model;
 
+async function loadIfc2() {
+  let params = new URL(document.location).searchParams;
+  const urlFile =  params.get("url");
+  console.log(urlFile)
+  if(!urlFile) return;
+  model = await viewer.IFC.loadIfcUrl(urlFile);
+  viewer.shadowDropper.renderShadow(model.modelID);
+}
+
+loadIfc2();
+
 const loadIfc = async (event) => {
 
   // tests with glTF
