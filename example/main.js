@@ -108,7 +108,7 @@ viewer.IFC.loader.ifcManager.applyWebIfcConfig({
   COORDINATE_TO_ORIGIN: true
 });
 
-viewer.context.renderer.postProduction.active = true;
+// viewer.context.renderer.postProduction.active = true;
 
 // Setup loader
 
@@ -196,19 +196,11 @@ const handleKeyDown = async (event) => {
   }
 };
 
-window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
+// window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
 window.onkeydown = handleKeyDown;
 window.ondblclick = async () => {
-
-  if (viewer.clipper.active) {
-    viewer.clipper.createPlane();
-  } else {
-    const result = await viewer.IFC.selector.highlightIfcItem(true);
-    if (!result) return;
-    const { modelID, id } = result;
-    const props = await viewer.IFC.getProperties(modelID, id, true, false);
-    console.log(props);
-  }
+  viewer.dimensions.create()
+  console.log(1)
 };
 
 //Setup UI
@@ -227,5 +219,6 @@ sectionButton.addEventListener('click', () => {
 const dropBoxButton = createSideMenuButton('./resources/dropbox-icon.svg');
 dropBoxButton.addEventListener('click', () => {
   dropBoxButton.blur();
-  viewer.dropbox.loadDropboxIfc();
+  viewer.dimensions.active = true;
+  viewer.dimensions.previewActive = true;
 });
