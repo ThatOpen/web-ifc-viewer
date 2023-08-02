@@ -14,6 +14,8 @@ import { IfcComponent } from '../../../base-types';
 import { IfcDimensionLine } from './dimension-line';
 import { IfcContext } from '../../context';
 
+type DimensionUnits = "m" | "mm";
+
 export class IfcDimensions extends IfcComponent {
   private readonly context: IfcContext;
   private dimensions: IfcDimensionLine[] = [];
@@ -202,7 +204,7 @@ export class IfcDimensions extends IfcComponent {
     this.currentDimensionIn2D = undefined;
   }
 
-  setDimensionUnit(units: string) {
+  setDimensionUnit(units: DimensionUnits) {
     if (!units) return;
     if (units === "mm") {
       IfcDimensionLine.units = units;
