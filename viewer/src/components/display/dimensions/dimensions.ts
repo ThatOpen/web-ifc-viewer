@@ -250,6 +250,7 @@ export class IfcDimensions extends IfcComponent {
     this.currentDimensionIn2D.createBoundingBox();
     this.dimensions.push(this.currentDimensionIn2D);
 
+    this.currentDimension?.removeFromScene();
     this.currentDimension = undefined;
     this.currentDimensionIn2D = undefined;
     this.dragging = false;
