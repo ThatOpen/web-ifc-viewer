@@ -237,16 +237,18 @@ export class IfcDimensions extends IfcComponent {
     if (!found) return;
     this.endPoint = found;
     if (!this.currentDimension) this.currentDimension = this.drawDimension();
-    if (!this.currentDimensionIn2D) this.currentDimensionIn2D = this.draw2DDimension();
+
     this.currentDimension.endPoint = this.endPoint;
-    this.currentDimensionIn2D.endPoint = this.endPoint.setY(this.startPoint.y);
+
   }
 
   private drawEnd() {
-    if (!this.currentDimension || !this.currentDimensionIn2D) return;
+    if (!this.currentDimension) return;
     this.currentDimension.createBoundingBox();
     this.dimensions.push(this.currentDimension);
 
+    if (!this.currentDimensionIn2D) this.currentDimensionIn2D = this.draw2DDimension();
+    this.currentDimensionIn2D.endPoint = this.endPoint.setY(this.startPoint.y);
     this.currentDimensionIn2D.createBoundingBox();
     this.dimensions.push(this.currentDimensionIn2D);
 
