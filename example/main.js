@@ -108,7 +108,7 @@ viewer.IFC.loader.ifcManager.applyWebIfcConfig({
   COORDINATE_TO_ORIGIN: true
 });
 
-// viewer.context.renderer.postProduction.active = true;
+viewer.context.renderer.postProduction.active = true;
 
 // Setup loader
 
@@ -196,11 +196,19 @@ const handleKeyDown = async (event) => {
   }
 };
 
-// window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
+window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
 window.onkeydown = handleKeyDown;
 window.ondblclick = async () => {
-  viewer.dimensions.create()
-  console.log(1)
+
+  if (viewer.clipper.active) {
+    viewer.clipper.createPlane();
+  } else {
+    const result = await viewer.IFC.selector.highlightIfcItem(true);
+    if (!result) return;
+    const { modelID, id } = result;
+    const props = await viewer.IFC.getProperties(modelID, id, true, false);
+    console.log(props);
+  }
 };
 
 //Setup UI
@@ -219,18 +227,5 @@ sectionButton.addEventListener('click', () => {
 const dropBoxButton = createSideMenuButton('./resources/dropbox-icon.svg');
 dropBoxButton.addEventListener('click', () => {
   dropBoxButton.blur();
-  viewer.dimensions.active = true;
-  viewer.dimensions.previewActive = true;
-});
-
-const d = createSideMenuButton('./resources/dropbox-icon.svg');
-d.addEventListener('click', () => {
-  d.blur();
-  viewer.dimensions.toggleDimensionIn2D()
-});
-
-const a = createSideMenuButton('./resources/dropbox-icon.svg');
-a.addEventListener('click', () => {
-  a.blur();
-  viewer.dimensions.deleteAll()
+  viewer.dropbox.loadDropboxIfc();
 });
