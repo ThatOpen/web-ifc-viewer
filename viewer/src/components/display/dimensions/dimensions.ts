@@ -18,6 +18,7 @@ export class IfcDimensions extends IfcComponent {
   private readonly context: IfcContext;
   private dimensions: IfcDimensionLine[] = [];
   private currentDimension?: IfcDimensionLine;
+  private currentDimensionIn2D?: IfcDimensionLine;
   readonly labelClassName = 'ifcjs-dimension-label';
   readonly previewClassName = 'ifcjs-dimension-preview';
 
@@ -65,6 +66,7 @@ export class IfcDimensions extends IfcComponent {
     this.dimensions.forEach((dim) => dim.dispose());
     (this.dimensions as any) = null;
     (this.currentDimension as any) = null;
+    (this.currentDimensionIn2D as any) = null;
     this.endpoint.dispose();
     (this.endpoint as any) = null;
 
@@ -191,10 +193,13 @@ export class IfcDimensions extends IfcComponent {
   }
 
   cancelDrawing() {
-    if (!this.currentDimension) return;
+    if (!this.currentDimension || !this.currentDimensionIn2D) return;
     this.dragging = false;
     this.currentDimension?.removeFromScene();
     this.currentDimension = undefined;
+
+    this.currentDimensionIn2D?.removeFromScene();
+    this.currentDimensionIn2D = undefined;
   }
 
   setDimensionUnit(units: string) {
@@ -232,14 +237,21 @@ export class IfcDimensions extends IfcComponent {
     if (!found) return;
     this.endPoint = found;
     if (!this.currentDimension) this.currentDimension = this.drawDimension();
+    if (!this.currentDimensionIn2D) this.currentDimensionIn2D = this.draw2DDimension();
     this.currentDimension.endPoint = this.endPoint;
+    this.currentDimensionIn2D.endPoint = this.endPoint.setY(this.startPoint.y);
   }
 
   private drawEnd() {
-    if (!this.currentDimension) return;
+    if (!this.currentDimension || !this.currentDimensionIn2D) return;
     this.currentDimension.createBoundingBox();
     this.dimensions.push(this.currentDimension);
+
+    this.currentDimensionIn2D.createBoundingBox();
+    this.dimensions.push(this.currentDimensionIn2D);
+
     this.currentDimension = undefined;
+    this.currentDimensionIn2D = undefined;
     this.dragging = false;
   }
 
@@ -248,6 +260,19 @@ export class IfcDimensions extends IfcComponent {
   }
 
   private drawDimension() {
+    return new IfcDimensionLine(
+      this.context,
+      this.startPoint,
+      this.endPoint,
+      this.lineMaterial,
+      this.endpointsMaterial,
+      this.endpoint,
+      this.labelClassName,
+      this.baseScale
+    );
+  }
+
+  private draw2DDimension() {
     return new IfcDimensionLine(
       this.context,
       this.startPoint,
