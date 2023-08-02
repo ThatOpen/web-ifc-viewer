@@ -222,3 +222,15 @@ dropBoxButton.addEventListener('click', () => {
   viewer.dimensions.active = true;
   viewer.dimensions.previewActive = true;
 });
+
+const d = createSideMenuButton('./resources/dropbox-icon.svg');
+d.addEventListener('click', () => {
+  d.blur();
+  viewer.dimensions.toggleDimensionIn2D()
+});
+
+const a = createSideMenuButton('./resources/dropbox-icon.svg');
+a.addEventListener('click', () => {
+  a.blur();
+  viewer.dimensions.deleteAll()
+});

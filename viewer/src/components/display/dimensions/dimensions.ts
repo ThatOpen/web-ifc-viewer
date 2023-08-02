@@ -33,6 +33,7 @@ export class IfcDimensions extends IfcComponent {
   // Measures
 
   private baseScale = new Vector3(1, 1, 1);
+  private dimensionIn2D = false;
 
   // Geometries
   private endpoint: BufferGeometry;
@@ -192,6 +193,7 @@ export class IfcDimensions extends IfcComponent {
       dim.removeFromScene();
     });
     this.dimensions = [];
+    this.toggleDimensionIn2D()
   }
 
   cancelDrawing() {
@@ -213,6 +215,10 @@ export class IfcDimensions extends IfcComponent {
       IfcDimensionLine.units = units;
       IfcDimensionLine.scale = 1;
     }
+  }
+
+  toggleDimensionIn2D() {
+    this.dimensionIn2D ? this.dimensionIn2D = false : this.dimensionIn2D = true
   }
 
   private drawStart() {
@@ -241,7 +247,6 @@ export class IfcDimensions extends IfcComponent {
     if (!this.currentDimension) this.currentDimension = this.drawDimension();
 
     this.currentDimension.endPoint = this.endPoint;
-
   }
 
   private drawEnd() {
@@ -249,14 +254,16 @@ export class IfcDimensions extends IfcComponent {
     this.currentDimension.createBoundingBox();
     this.dimensions.push(this.currentDimension);
 
-    if (!this.currentDimensionIn2D) this.currentDimensionIn2D = this.draw2DDimension();
-    this.currentDimensionIn2D.endPoint = this.endPoint.setY(this.startPoint.y);
-    this.currentDimensionIn2D.createBoundingBox();
-    this.dimensions.push(this.currentDimensionIn2D);
+    if (this.dimensionIn2D) {
+      if (!this.currentDimensionIn2D) this.currentDimensionIn2D = this.draw2DDimension();
+      this.currentDimensionIn2D.endPoint = this.endPoint.setY(this.startPoint.y);
+      this.currentDimensionIn2D.createBoundingBox();
+      this.dimensions.push(this.currentDimensionIn2D);
+      this.currentDimensionIn2D = undefined;
+      this.currentDimension?.removeFromScene();
+    }
 
-    this.currentDimension?.removeFromScene();
     this.currentDimension = undefined;
-    this.currentDimensionIn2D = undefined;
     this.dragging = false;
   }
 
