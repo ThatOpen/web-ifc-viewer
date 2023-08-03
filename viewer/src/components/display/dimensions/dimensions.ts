@@ -216,7 +216,7 @@ export class IfcDimensions extends IfcComponent {
     }
   }
 
-  setToggleDimensionIn2D(state: boolean) {
+  setDimensionIn2D(state: boolean) {
     this.dimensionIn2D = state
   }
 
