@@ -317,11 +317,13 @@ export class IfcDimensions extends IfcComponent {
     vertices?.forEach((vertex) => {
       if (!vertex) return;
       const distance = intersects.point.distanceTo(vertex);
+
       if (distance > closestDistance || distance > this.snapDistance) return;
       vertexFound = true;
       closestVertex = vertex;
       closestDistance = intersects.point.distanceTo(vertex);
     });
+
     return vertexFound ? closestVertex : intersects.point;
   }
 
