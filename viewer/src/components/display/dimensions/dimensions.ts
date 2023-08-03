@@ -216,8 +216,8 @@ export class IfcDimensions extends IfcComponent {
     }
   }
 
-  setDimensionIn2D(state: boolean) {
-    this.dimensionIn2D = state
+  set setDimensionIn2D(state: boolean) {
+    this.dimensionIn2D = state;
   }
 
   private drawStart() {
