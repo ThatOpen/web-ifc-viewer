@@ -217,11 +217,7 @@ export class IfcDimensions extends IfcComponent {
   }
 
   setToggleDimensionIn2D(state: boolean) {
-    if (state) {
-      this.dimensionIn2D = true
-    } else {
-      this.dimensionIn2D = false
-    }
+    this.dimensionIn2D = state
   }
 
   private drawStart() {
