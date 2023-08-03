@@ -193,7 +193,6 @@ export class IfcDimensions extends IfcComponent {
       dim.removeFromScene();
     });
     this.dimensions = [];
-    this.toggleDimensionIn2D()
   }
 
   cancelDrawing() {
@@ -217,8 +216,12 @@ export class IfcDimensions extends IfcComponent {
     }
   }
 
-  toggleDimensionIn2D() {
-    this.dimensionIn2D ? this.dimensionIn2D = false : this.dimensionIn2D = true
+  setToggleDimensionIn2D(state: boolean) {
+    if (state) {
+      this.dimensionIn2D = true
+    } else {
+      this.dimensionIn2D = false
+    }
   }
 
   private drawStart() {
