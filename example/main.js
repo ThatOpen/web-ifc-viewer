@@ -193,7 +193,7 @@ const handleKeyDown = async (event) => {
 
 window.onkeydown = handleKeyDown;
 window.ondblclick = async () => {
-  this.viewer.dimensions.create();
+  viewer.dimensions.create();
 };
 
 //Setup UI
