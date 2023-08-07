@@ -93,7 +93,7 @@ export class IfcContext {
     return this.renderer.renderer;
   }
 
-  getRenderer2D() {
+  getRenderer2D():any {
     return this.renderer.renderer2D;
   }
 
