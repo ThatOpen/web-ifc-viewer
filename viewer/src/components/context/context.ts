@@ -89,7 +89,7 @@ export class IfcContext {
     return this.scene.scene;
   }
 
-  getRenderer() {
+  getRenderer():any {
     return this.renderer.renderer;
   }
 

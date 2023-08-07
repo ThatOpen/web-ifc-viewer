@@ -109,7 +109,7 @@ export class IfcSelection extends IfcComponent {
     if (focusSelection) await this.focusSelection(selected);
   };
 
-  newSelection = (modelID: number, ids: number[], removePrevious: boolean) => {
+  newSelection = (modelID: number, ids: number[], removePrevious: boolean):any => {
     const mesh = this.loader.ifcManager.createSubset({
       scene: this.scene,
       modelID,
