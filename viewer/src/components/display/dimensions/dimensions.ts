@@ -257,7 +257,7 @@ export class IfcDimensions extends IfcComponent {
       if (!this.currentDimensionIn2D) this.currentDimensionIn2D = this.draw2DDimension();
       this.currentDimensionIn2D.endPoint = this.endPoint.setY(this.startPoint.y);
       //@ts-ignore
-      this.currentDimensionIn2D.endPoint = this.endPoint.setZ(this.currentDimension.axis.boundingSphere?.center.z || 0);
+      // this.currentDimensionIn2D.endPoint = this.endPoint.setZ(this.currentDimension.axis.boundingSphere?.center.z || 0);
       this.currentDimensionIn2D.createBoundingBox();
       console.log(this.currentDimensionIn2D)
       this.dimensions.push(this.currentDimensionIn2D);

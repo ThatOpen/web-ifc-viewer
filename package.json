@@ -1,7 +1,7 @@
 {
   "name": "mtn-ifc-viewer",
   "description": "IFC viewer",
-  "version": "1.0.218",
+  "version": "0.0.2",
   "private": false,
   "type": "module",
   "main": "viewer/src/ifc-viewer-api.ts",
@@ -20,13 +20,6 @@
   "bugs": {
     "url": "https://github.com/agviegas/web-ifc-viewer/issues"
   },
-  "keywords": [
-    "ifc",
-    "geometry",
-    "threejs",
-    "bim",
-    "3d"
-  ],
   "workspaces": [
     "viewer",
     "example"
