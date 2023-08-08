@@ -14,10 +14,13 @@ import { IfcComponent } from '../../../base-types';
 import { IfcDimensionLine } from './dimension-line';
 import { IfcContext } from '../../context';
 
+type DimensionUnits = "m" | "mm";
+
 export class IfcDimensions extends IfcComponent {
   private readonly context: IfcContext;
   private dimensions: IfcDimensionLine[] = [];
   private currentDimension?: IfcDimensionLine;
+  private currentDimensionIn2D?: IfcDimensionLine;
   readonly labelClassName = 'ifcjs-dimension-label';
   readonly previewClassName = 'ifcjs-dimension-preview';
 
@@ -30,6 +33,7 @@ export class IfcDimensions extends IfcComponent {
   // Measures
 
   private baseScale = new Vector3(1, 1, 1);
+  private dimensionIn2D = false;
 
   // Geometries
   private endpoint: BufferGeometry;
@@ -65,6 +69,7 @@ export class IfcDimensions extends IfcComponent {
     this.dimensions.forEach((dim) => dim.dispose());
     (this.dimensions as any) = null;
     (this.currentDimension as any) = null;
+    (this.currentDimensionIn2D as any) = null;
     this.endpoint.dispose();
     (this.endpoint as any) = null;
 
@@ -191,13 +196,16 @@ export class IfcDimensions extends IfcComponent {
   }
 
   cancelDrawing() {
-    if (!this.currentDimension) return;
+    if (!this.currentDimension || !this.currentDimensionIn2D) return;
     this.dragging = false;
     this.currentDimension?.removeFromScene();
     this.currentDimension = undefined;
+
+    this.currentDimensionIn2D?.removeFromScene();
+    this.currentDimensionIn2D = undefined;
   }
 
-  setDimensionUnit(units: string) {
+  setDimensionUnit(units: DimensionUnits) {
     if (!units) return;
     if (units === "mm") {
       IfcDimensionLine.units = units;
@@ -206,6 +214,10 @@ export class IfcDimensions extends IfcComponent {
       IfcDimensionLine.units = units;
       IfcDimensionLine.scale = 1;
     }
+  }
+
+  set setDimensionIn2D(state: boolean) {
+    this.dimensionIn2D = state;
   }
 
   private drawStart() {
@@ -232,6 +244,7 @@ export class IfcDimensions extends IfcComponent {
     if (!found) return;
     this.endPoint = found;
     if (!this.currentDimension) this.currentDimension = this.drawDimension();
+
     this.currentDimension.endPoint = this.endPoint;
   }
 
@@ -239,6 +252,19 @@ export class IfcDimensions extends IfcComponent {
     if (!this.currentDimension) return;
     this.currentDimension.createBoundingBox();
     this.dimensions.push(this.currentDimension);
+
+    if (this.dimensionIn2D) {
+      if (!this.currentDimensionIn2D) this.currentDimensionIn2D = this.draw2DDimension();
+      this.currentDimensionIn2D.endPoint = this.endPoint.setY(this.startPoint.y);
+      //@ts-ignore
+      this.currentDimensionIn2D.endPoint = this.endPoint.setZ(this.currentDimension.axis.boundingSphere?.center.z || 0);
+      this.currentDimensionIn2D.createBoundingBox();
+      console.log(this.currentDimensionIn2D)
+      this.dimensions.push(this.currentDimensionIn2D);
+      this.currentDimensionIn2D = undefined;
+      this.currentDimension?.removeFromScene();
+    }
+
     this.currentDimension = undefined;
     this.dragging = false;
   }
@@ -248,6 +274,19 @@ export class IfcDimensions extends IfcComponent {
   }
 
   private drawDimension() {
+    return new IfcDimensionLine(
+      this.context,
+      this.startPoint,
+      this.endPoint,
+      this.lineMaterial,
+      this.endpointsMaterial,
+      this.endpoint,
+      this.labelClassName,
+      this.baseScale
+    );
+  }
+
+  private draw2DDimension() {
     return new IfcDimensionLine(
       this.context,
       this.startPoint,
@@ -281,11 +320,13 @@ export class IfcDimensions extends IfcComponent {
     vertices?.forEach((vertex) => {
       if (!vertex) return;
       const distance = intersects.point.distanceTo(vertex);
+
       if (distance > closestDistance || distance > this.snapDistance) return;
       vertexFound = true;
       closestVertex = vertex;
       closestDistance = intersects.point.distanceTo(vertex);
     });
+
     return vertexFound ? closestVertex : intersects.point;
   }
 
