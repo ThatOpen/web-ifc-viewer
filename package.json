@@ -1,8 +1,8 @@
 {
-  "name": "mtn-ifc-viewer",
+  "name": "web-ifc-viewer-root",
   "description": "IFC viewer",
-  "version": "0.0.2",
-  "private": false,
+  "version": "1.0.218",
+  "private": true,
   "type": "module",
   "main": "viewer/src/ifc-viewer-api.ts",
   "author": "agviegas",
