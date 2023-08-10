@@ -150,4 +150,7 @@ dimBtn.addEventListener('click', () => {
   viewer.dimensions.setDimensionIn2D = true
   viewer.dimensions.active = true
   viewer.dimensions.previewActive = true;
+
+  viewer.context.ifcCamera.projection = 1;
+  viewer.context.ifcCamera.cameraControls.setLookAt(0, 100, 0, 0, 0, 0, true);
 });
