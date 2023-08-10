@@ -53,7 +53,12 @@ viewer.IFC.loader.ifcManager.applyWebIfcConfig({
 });
 
 
-viewer.IFC.loadIfcUrl('./test.ifc', true);
+// viewer.IFC.loadIfcUrl('./test.ifc', true);
+viewer.context.ifcCamera.projection = 1;
+viewer.context.ifcCamera.cameraControls.setLookAt(0, 100, 0, 0, 0, 0, true);
+viewer.dimensions.setDimensionIn2D = true
+viewer.dimensions.active = true
+viewer.dimensions.previewActive = true;
 // Setup loader
 
 // const lineMaterial = new LineBasicMaterial({ color: 0x555555 });
@@ -150,7 +155,4 @@ dimBtn.addEventListener('click', () => {
   viewer.dimensions.setDimensionIn2D = true
   viewer.dimensions.active = true
   viewer.dimensions.previewActive = true;
-
-  viewer.context.ifcCamera.projection = 1;
-  viewer.context.ifcCamera.cameraControls.setLookAt(0, 100, 0, 0, 0, 0, true);
 });
