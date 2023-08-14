@@ -53,7 +53,7 @@ viewer.IFC.loader.ifcManager.applyWebIfcConfig({
 });
 
 
-// viewer.IFC.loadIfcUrl('./test.ifc', true);
+viewer.IFC.loadIfcUrl('./test.ifc', true);
 viewer.context.ifcCamera.projection = 1;
 viewer.context.ifcCamera.cameraControls.setLookAt(0, 100, 0, 0, 0, 0, true);
 viewer.dimensions.setDimensionIn2D = true

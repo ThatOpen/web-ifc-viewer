@@ -226,7 +226,43 @@ export class IfcDimensions extends IfcComponent {
     if (!intersects) return;
     const found = this.getClosestVertex(intersects);
     if (!found) return;
-    this.startPoint = found;
+    const edgePoint = this.findEdges(intersects)
+    this.startPoint = edgePoint;
+  }
+
+  findEdges = (intersects: Intersection) => {
+    const v = this.getVertices(intersects);
+
+    const findNearbyEdge = (x:number) => {
+      const arrX = v?.map((el:any) => el.x)
+      if(!arrX?.length) return;
+
+      let diff = x - arrX[0];
+      let closestNumber = arrX[0];
+  
+      arrX?.forEach((el) => {
+        const difference = el - intersects.point.x;
+        if(diff > difference) {
+          diff = difference
+          closestNumber = el
+        }
+      })
+
+      return closestNumber
+    } 
+    console.log(intersects.point, v)
+
+    return new Vector3(findNearbyEdge(intersects.point.x), intersects.point.y, intersects.point.z)
+
+
+    // const htmlText = document.createElement('div');
+    // htmlText.className = this.labelClassName;
+    // htmlText.textContent = "AAAAA"
+    // const label = new CSS2DObject(htmlText);
+    // label.position.set(-0.30479997396469116, -1.2207030941624453e-8, -3);
+
+    // const scene = this.context.getScene();
+    // scene.add(label);
   }
 
   private drawStartInPlane(plane: Object3D) {
@@ -259,7 +295,7 @@ export class IfcDimensions extends IfcComponent {
       //@ts-ignore
       // this.currentDimensionIn2D.endPoint = this.endPoint.setZ(this.currentDimension.axis.boundingSphere?.center.z || 0);
       this.currentDimensionIn2D.createBoundingBox();
-      console.log(this.currentDimensionIn2D)
+
       this.dimensions.push(this.currentDimensionIn2D);
       this.currentDimensionIn2D = undefined;
       this.currentDimension?.removeFromScene();
@@ -344,6 +380,7 @@ export class IfcDimensions extends IfcComponent {
   private getVertex(index: number, geom: BufferGeometry) {
     if (index === undefined) return null;
     const vertices = geom.attributes.position;
+    
     return new Vector3(vertices.getX(index), vertices.getY(index), vertices.getZ(index));
   }
 }
