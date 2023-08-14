@@ -233,23 +233,12 @@ export class IfcDimensions extends IfcComponent {
   findEdges = (intersects: Intersection) => {
     const v = this.getVertices(intersects);
 
-    const findNearbyEdge = (x:number) => {
-      const arrX = v?.map((el:any) => el.x)
-      if(!arrX?.length) return;
-
-      let diff = x - arrX[0];
-      let closestNumber = arrX[0];
-  
-      arrX?.forEach((el) => {
-        const difference = el - intersects.point.x;
-        if(diff > difference) {
-          diff = difference
-          closestNumber = el
-        }
-      })
-
-      return closestNumber
-    } 
+    const findNearbyEdge = (goal:number) => {
+      const arrVerticesX = v?.map((el:any) => el.x)      
+      const output = arrVerticesX?.reduce((prev, curr) => Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
+      return output
+    }
+     
     console.log(intersects.point, v)
 
     return new Vector3(findNearbyEdge(intersects.point.x), intersects.point.y, intersects.point.z)
