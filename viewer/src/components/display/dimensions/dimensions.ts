@@ -231,17 +231,31 @@ export class IfcDimensions extends IfcComponent {
   }
 
   findEdges = (intersects: Intersection) => {
-    const v = this.getVertices(intersects);
+    const vertices = this.getVertices(intersects);
 
-    const findNearbyEdge = (goal:number) => {
-      const arrVerticesX = v?.map((el:any) => el.x)      
-      const output = arrVerticesX?.reduce((prev, curr) => Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
-      return output
+    const findNearbyEdge = (arr: number[], goal: number) => {
+      const closestDistance = 1;
+      let closestPoint = arr[0]
+      let minDiff = Math.abs(closestPoint - goal)
+
+      arr?.forEach((el) => {
+        const different = Math.abs(goal - el);
+        if (minDiff > different) {
+          closestPoint = el
+          minDiff = different
+        }
+      })
+
+      return minDiff > closestDistance ? goal : closestPoint
     }
-     
-    console.log(intersects.point, v)
 
-    return new Vector3(findNearbyEdge(intersects.point.x), intersects.point.y, intersects.point.z)
+    const arrZ = vertices?.map((el: any) => el.z) || []
+    const pointZ = findNearbyEdge(arrZ, intersects.point.z)
+
+    const arrX = vertices?.map((el: any) => el.x) || []
+    const pointX = findNearbyEdge(arrX, intersects.point.x)
+
+    return new Vector3(pointX, intersects.point.y, pointZ)
 
 
     // const htmlText = document.createElement('div');
@@ -352,7 +366,7 @@ export class IfcDimensions extends IfcComponent {
       closestDistance = intersects.point.distanceTo(vertex);
     });
 
-    return vertexFound ? closestVertex : intersects.point;
+    return intersects.point;
   }
 
   private getVertices(intersects: Intersection) {
@@ -369,7 +383,7 @@ export class IfcDimensions extends IfcComponent {
   private getVertex(index: number, geom: BufferGeometry) {
     if (index === undefined) return null;
     const vertices = geom.attributes.position;
-    
+
     return new Vector3(vertices.getX(index), vertices.getY(index), vertices.getZ(index));
   }
 }
