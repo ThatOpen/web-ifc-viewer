@@ -1,4 +1,5 @@
 import {
+  BufferAttribute,
   BufferGeometry,
   Color,
   ConeGeometry,
@@ -13,11 +14,13 @@ import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
 import { IfcComponent } from '../../../base-types';
 import { IfcDimensionLine } from './dimension-line';
 import { IfcContext } from '../../context';
+import { IfcManager } from '../../ifc';
 
 type DimensionUnits = "m" | "mm";
 
 export class IfcDimensions extends IfcComponent {
   private readonly context: IfcContext;
+  private readonly manager: IfcManager;
   private dimensions: IfcDimensionLine[] = [];
   private currentDimension?: IfcDimensionLine;
   private currentDimensionIn2D?: IfcDimensionLine;
@@ -54,9 +57,10 @@ export class IfcDimensions extends IfcComponent {
   private startPoint = new Vector3();
   private endPoint = new Vector3();
 
-  constructor(context: IfcContext) {
+  constructor(context: IfcContext, manager: IfcManager) {
     super(context);
     this.context = context;
+    this.manager = manager
     this.endpoint = IfcDimensions.getDefaultEndpointGeometry();
     const htmlPreview = document.createElement('div');
     htmlPreview.className = this.previewClassName;
@@ -220,18 +224,21 @@ export class IfcDimensions extends IfcComponent {
     this.dimensionIn2D = state;
   }
 
-  private drawStart() {
+  private async drawStart() {
+    this.manager.selector.unpickIfcItems()
+
     this.dragging = true;
     const intersects = this.context.castRayIfc();
     if (!intersects) return;
     const found = this.getClosestVertex(intersects);
     if (!found) return;
-    const edgePoint = this.findEdges(intersects)
+    const geometry = await this.getModelGeometry(intersects) as Vector3[]
+    const edgePoint = this.findEdges(intersects, geometry)
     this.startPoint = edgePoint;
   }
 
-  findEdges = (intersects: Intersection) => {
-    const vertices = this.getVertices(intersects);
+  private findEdges = (intersects: Intersection, geometry: Vector3[]) => {
+    const vertices = geometry;
 
     const findNearbyEdge = (arr: number[], goal: number) => {
       const closestDistance = 1;
@@ -255,17 +262,87 @@ export class IfcDimensions extends IfcComponent {
     const arrX = vertices?.map((el: any) => el.x) || []
     const pointX = findNearbyEdge(arrX, intersects.point.x)
 
+    console.log(intersects.point, vertices)
+    console.log("X", pointX, "??", "Z", pointZ)
+
     return new Vector3(pointX, intersects.point.y, pointZ)
 
+  }
 
-    // const htmlText = document.createElement('div');
-    // htmlText.className = this.labelClassName;
-    // htmlText.textContent = "AAAAA"
-    // const label = new CSS2DObject(htmlText);
-    // label.position.set(-0.30479997396469116, -1.2207030941624453e-8, -3);
+  private async getModelGeometry(intersects: Intersection) {
+    if (!intersects) return
 
-    // const scene = this.context.getScene();
-    // scene.add(label);
+    const item = await this.manager.selector.pickIfcItem(false, true)
+    if (!item) return
+
+    const geometry = await this.getGeometryFromSubset(item.id, item.modelID)
+    if (!geometry) return
+
+    const geometryNormal = geometry.getAttribute("normal")
+    const geometryPosition = geometry.getAttribute("position")
+
+    if (!intersects.face?.normal) return
+
+    const faceNormal = new Vector3(
+      parseFloat(intersects.face.normal.x.toFixed(3)),
+      parseFloat(intersects.face.normal.y.toFixed(3)),
+      parseFloat(intersects.face.normal.z.toFixed(3)),
+    )
+
+    const vertices: Vector3[] = []
+
+    for (let i = 0; i < geometryPosition.count; i++) {
+      const vertex = new Vector3(
+        parseFloat(geometryPosition.getX(i).toFixed(3)),
+        parseFloat(geometryPosition.getY(i).toFixed(3)),
+        parseFloat(geometryPosition.getZ(i).toFixed(3))
+      )
+
+      const normal = new Vector3(
+        parseFloat(geometryNormal.getX(i).toFixed(3)),
+        parseFloat(geometryNormal.getY(i).toFixed(3)),
+        parseFloat(geometryNormal.getZ(i).toFixed(3))
+      )
+
+      if (normal.equals(faceNormal)) {
+        vertices.push(vertex)
+      }
+    }
+
+    return vertices
+  }
+
+  private async getGeometryFromSubset(expressID: number, modelID: number) {
+    const customID = 'temp-subset';
+
+    const subset = this.manager.loader.ifcManager.createSubset({
+      ids: [expressID],
+      modelID,
+      removePrevious: true,
+      customID,
+    });
+
+    const position = subset.geometry.attributes.position;
+    const coordinates = [];
+
+    if (!subset.geometry.index) return;
+
+    for (let i = 0; i < subset.geometry.index.count; i++) {
+      const index = subset.geometry.index.array[i];
+
+      coordinates.push(position.array[3 * index]);
+      coordinates.push(position.array[3 * index + 1]);
+      coordinates.push(position.array[3 * index + 2]);
+    }
+
+    const geometry = new BufferGeometry();
+
+    geometry.setAttribute('position', new BufferAttribute(Float32Array.from(coordinates), 3));
+    geometry.computeVertexNormals();
+
+    this.manager.loader.ifcManager.removeSubset(modelID, undefined, customID);
+
+    return geometry;
   }
 
   private drawStartInPlane(plane: Object3D) {

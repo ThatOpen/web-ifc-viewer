@@ -47,7 +47,7 @@ export class IfcViewerAPI {
     this.clipper = new IfcClipper(this.context, this.IFC);
     this.plans = new PlanManager(this.IFC, this.context, this.clipper);
     this.filler = new SectionFillManager(this.IFC, this.context);
-    this.dimensions = new IfcDimensions(this.context);
+    this.dimensions = new IfcDimensions(this.context, this.IFC);
     this.edges = new Edges(this.context);
     this.shadowDropper = this.IFC.shadowDropper;
     this.edgesProjector = new EdgeProjector(this.context);
