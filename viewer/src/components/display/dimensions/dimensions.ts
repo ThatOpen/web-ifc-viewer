@@ -233,30 +233,36 @@ export class IfcDimensions extends IfcComponent {
     if (!intersects) return;
     const found = this.getClosestVertex(intersects);
     if (!found) return;
-    // const geometry = await this.getModelGeometry(intersects) as Vector3[]
-    // const edgePoint = this.findEdges(intersects, geometry)
-    this.startPoint = found;
-    this.grahamScan()
+    const geometry = await this.getModelGeometry(intersects) as Vector3[]
+    const filteredPoints = this.grahamScan(geometry)
+    const edgePoint = this.findEdges(intersects, filteredPoints)
+    this.startPoint = edgePoint;
   }
 
-  grahamScan = () => {
+  grahamScan = (geometry) => {
     const grahamScan = new GrahamScan();
-    grahamScan.setPoints([
-      [0.1, 0],
-      [-7.3, 16.9],
-      [0.1, 16.9],
-      [-7.3, 16.9],
-      [0.1, 0],
-      [-7.3, 0]
-    ]);
+    grahamScan.setPoints(geometry);
     const hull = grahamScan.getHull(); // [1,0], [2,1], [0,1]
 
-    console.log(hull);
+    console.log("GRAHAM", hull);
 
+
+    hull.forEach((el) => {
+      const htmlText = document.createElement('div');
+      htmlText.textContent = "1"
+      const label = new CSS2DObject(htmlText);
+      label.position.set(el[0], 0.30000001192091474, el[1]);
+      const scene = this.context.getScene()
+      scene.add(label);
+    })
+
+    return hull
   }
 
-  private findEdges = (intersects: Intersection, geometry: Vector3[]) => {
-    const vertices = geometry;
+  private findEdges = (intersects: Intersection, geometry: number[]) => {
+    const vertices = geometry.map((point) => {
+       return { x: point[0], y: point[1] }
+    });
 
     const findNearbyEdge = (arr: number[], goal: number) => {
       const closestDistance = 1;
@@ -274,12 +280,13 @@ export class IfcDimensions extends IfcComponent {
       return minDiff > closestDistance ? goal : closestPoint
     }
 
-    const arrZ = vertices?.map((el: any) => el.z) || []
-    const pointZ = findNearbyEdge(arrZ, intersects.point.z)
+    // const arrZ = vertices?.map((el: any) => el.z) || []
+    // const pointZ = findNearbyEdge(arrZ, intersects.point.z)
     const arrX = vertices?.map((el: any) => el.x) || []
     const pointX = findNearbyEdge(arrX, intersects.point.x)
+    console.log("POINT", pointX)
 
-    return new Vector3(pointX, intersects.point.y, pointZ)
+    return new Vector3(pointX, intersects.point.y, intersects.point.z)
   }
 
   private async getModelGeometry(intersects: Intersection) {
@@ -303,6 +310,7 @@ export class IfcDimensions extends IfcComponent {
     )
 
     const vertices: Vector3[] = []
+    const res: number[][] = []
 
     for (let i = 0; i < geometryPosition.count; i++) {
       const vertex = new Vector3(
@@ -319,10 +327,11 @@ export class IfcDimensions extends IfcComponent {
 
       if (normal.equals(faceNormal)) {
         vertices.push(vertex)
+        res.push([vertex.x, vertex.z])
       }
     }
 
-    return vertices
+    return res
   }
 
   private async getGeometryFromSubset(expressID: number, modelID: number) {
