@@ -234,7 +234,7 @@ export class IfcDimensions extends IfcComponent {
     if (!found) return;
     const geometry = await this.getModelGeometry(intersects) as Vector3[]
     const edgePoint = this.findEdges(intersects, geometry)
-    this.startPoint = edgePoint;
+    this.startPoint = found;
   }
 
   private findEdges = (intersects: Intersection, geometry: Vector3[]) => {
@@ -258,15 +258,10 @@ export class IfcDimensions extends IfcComponent {
 
     const arrZ = vertices?.map((el: any) => el.z) || []
     const pointZ = findNearbyEdge(arrZ, intersects.point.z)
-
     const arrX = vertices?.map((el: any) => el.x) || []
     const pointX = findNearbyEdge(arrX, intersects.point.x)
 
-    console.log(intersects.point, vertices)
-    console.log("X", pointX, "??", "Z", pointZ)
-
     return new Vector3(pointX, intersects.point.y, pointZ)
-
   }
 
   private async getModelGeometry(intersects: Intersection) {
