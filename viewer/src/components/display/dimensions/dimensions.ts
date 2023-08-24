@@ -15,6 +15,7 @@ import { IfcComponent } from '../../../base-types';
 import { IfcDimensionLine } from './dimension-line';
 import { IfcContext } from '../../context';
 import { IfcManager } from '../../ifc';
+import GrahamScan from './graham-scan';
 
 type DimensionUnits = "m" | "mm";
 
@@ -232,9 +233,26 @@ export class IfcDimensions extends IfcComponent {
     if (!intersects) return;
     const found = this.getClosestVertex(intersects);
     if (!found) return;
-    const geometry = await this.getModelGeometry(intersects) as Vector3[]
-    const edgePoint = this.findEdges(intersects, geometry)
+    // const geometry = await this.getModelGeometry(intersects) as Vector3[]
+    // const edgePoint = this.findEdges(intersects, geometry)
     this.startPoint = found;
+    this.grahamScan()
+  }
+
+  grahamScan = () => {
+    const grahamScan = new GrahamScan();
+    grahamScan.setPoints([
+      [0.1, 0],
+      [-7.3, 16.9],
+      [0.1, 16.9],
+      [-7.3, 16.9],
+      [0.1, 0],
+      [-7.3, 0]
+    ]);
+    const hull = grahamScan.getHull(); // [1,0], [2,1], [0,1]
+
+    console.log(hull);
+
   }
 
   private findEdges = (intersects: Intersection, geometry: Vector3[]) => {
