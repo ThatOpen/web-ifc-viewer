@@ -244,16 +244,6 @@ export class IfcDimensions extends IfcComponent {
     const grahamScan = new GrahamScan();
     grahamScan.setPoints(geometry);
     const hull = grahamScan.getHull();
-
-    hull.forEach((el) => {
-      const htmlText = document.createElement('div');
-      htmlText.textContent = "1"
-      const label = new CSS2DObject(htmlText);
-      label.position.set(el[0], 0.30000001192091474, el[1]);
-      const scene = this.context.getScene()
-      scene.add(label);
-    })
-
     return hull
   }
 
@@ -268,14 +258,19 @@ export class IfcDimensions extends IfcComponent {
 
     const points = [];
     const scene = this.context.getScene()
-    const material = new LineBasicMaterial( { color: 0x0000ff } );
+    const material = new LineBasicMaterial({ color: 0x0000ff });
     points.push(new Vector3(closest.x, intersects.point.y, closest.z));
     points.push(new Vector3(intersects.point.x, intersects.point.y, intersects.point.z));
     points.push(new Vector3(closest.x, intersects.point.y, intersects.point.z));
-    const g = new BufferGeometry().setFromPoints( points );
-    const line = new Line( g, material );
-    scene.add( line );
+    const g = new BufferGeometry().setFromPoints(points);
+    const line = new Line(g, material);
+    scene.add(line);
 
+    const htmlText = document.createElement('div');
+    htmlText.textContent = "V"
+    const label = new CSS2DObject(htmlText);
+    label.position.set(closest.x, intersects.point.y, closest.z);
+    scene.add(label);
 
     return new Vector3(closest.x, intersects.point.y, closest.z)
   }
