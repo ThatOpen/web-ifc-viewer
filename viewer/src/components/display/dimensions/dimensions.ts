@@ -227,7 +227,6 @@ export class IfcDimensions extends IfcComponent {
 
   private async drawStart() {
     this.manager.selector.unpickIfcItems()
-
     this.dragging = true;
     const intersects = this.context.castRayIfc();
     if (!intersects) return;
@@ -271,7 +270,8 @@ export class IfcDimensions extends IfcComponent {
   private async getModelGeometry(intersects: Intersection) {
     if (!intersects) return
 
-    const item = await this.manager.selector.pickIfcItem(false, true)
+    const item = await this.manager.selector.pickIfcItem(false, true);
+    this.manager.selector.unpickIfcItems()
     if (!item) return
 
     const geometry = await this.getGeometryFromSubset(item.id, item.modelID)
