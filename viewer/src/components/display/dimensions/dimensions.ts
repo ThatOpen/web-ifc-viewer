@@ -4,6 +4,8 @@ import {
   Color,
   ConeGeometry,
   Intersection,
+  Line,
+  LineBasicMaterial,
   LineDashedMaterial,
   Mesh,
   MeshBasicMaterial,
@@ -263,6 +265,17 @@ export class IfcDimensions extends IfcComponent {
     }
 
     let closest = vertices.reduce((a, b) => distance(a) < distance(b) ? a : b);
+
+    const points = [];
+    const scene = this.context.getScene()
+    const material = new LineBasicMaterial( { color: 0x0000ff } );
+    points.push(new Vector3(closest.x, intersects.point.y, closest.z));
+    points.push(new Vector3(intersects.point.x, intersects.point.y, intersects.point.z));
+    points.push(new Vector3(closest.x, intersects.point.y, intersects.point.z));
+    const g = new BufferGeometry().setFromPoints( points );
+    const line = new Line( g, material );
+    scene.add( line );
+
 
     return new Vector3(closest.x, intersects.point.y, closest.z)
   }
