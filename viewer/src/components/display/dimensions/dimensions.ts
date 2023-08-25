@@ -233,19 +233,16 @@ export class IfcDimensions extends IfcComponent {
     if (!intersects) return;
     const found = this.getClosestVertex(intersects);
     if (!found) return;
-    const geometry = await this.getModelGeometry(intersects) as Vector3[]
-    const filteredPoints = this.grahamScan(geometry)
-    const edgePoint = this.findEdges(intersects, filteredPoints)
+    const allVertices = await this.getModelGeometry(intersects) as number[][]
+    const surfaceVertices = this.grahamScan(allVertices)
+    const edgePoint = this.findEdges(intersects, surfaceVertices)
     this.startPoint = edgePoint;
   }
 
-  grahamScan = (geometry) => {
+  private grahamScan = (geometry: number[][]) => {
     const grahamScan = new GrahamScan();
     grahamScan.setPoints(geometry);
-    const hull = grahamScan.getHull(); // [1,0], [2,1], [0,1]
-
-    console.log("GRAHAM", hull);
-
+    const hull = grahamScan.getHull();
 
     hull.forEach((el) => {
       const htmlText = document.createElement('div');
@@ -259,34 +256,18 @@ export class IfcDimensions extends IfcComponent {
     return hull
   }
 
-  private findEdges = (intersects: Intersection, geometry: number[]) => {
+  private findEdges = (intersects: Intersection, geometry: number[][]): Vector3 => {
     const vertices = geometry.map((point) => {
-       return { x: point[0], y: point[1] }
+      return { x: point[0], z: point[1] }
     });
 
-    const findNearbyEdge = (arr: number[], goal: number) => {
-      const closestDistance = 1;
-      let closestPoint = arr[0]
-      let minDiff = Math.abs(closestPoint - goal)
-
-      arr?.forEach((el) => {
-        const different = Math.abs(goal - el);
-        if (minDiff > different) {
-          closestPoint = el
-          minDiff = different
-        }
-      })
-
-      return minDiff > closestDistance ? goal : closestPoint
+    function distance(p: any) {
+      return Math.sqrt(Math.pow(intersects.point.x - p.x, 2) + Math.pow(intersects.point.z - p.z, 2))
     }
 
-    // const arrZ = vertices?.map((el: any) => el.z) || []
-    // const pointZ = findNearbyEdge(arrZ, intersects.point.z)
-    const arrX = vertices?.map((el: any) => el.x) || []
-    const pointX = findNearbyEdge(arrX, intersects.point.x)
-    console.log("POINT", pointX)
+    let closest = vertices.reduce((a, b) => distance(a) < distance(b) ? a : b);
 
-    return new Vector3(pointX, intersects.point.y, intersects.point.z)
+    return new Vector3(closest.x, intersects.point.y, closest.z)
   }
 
   private async getModelGeometry(intersects: Intersection) {
