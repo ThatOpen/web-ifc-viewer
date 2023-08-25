@@ -257,9 +257,7 @@ export class IfcDimensions extends IfcComponent {
   }
 
   private findEdges = (intersects: Intersection, geometry: number[][]): Vector3 => {
-    const vertices = geometry.map((point) => {
-      return { x: point[0], z: point[1] }
-    });
+    const vertices = geometry.map((point) => ({ x: point[0], z: point[1] }))
 
     function distance(p: any) {
       return Math.sqrt(Math.pow(intersects.point.x - p.x, 2) + Math.pow(intersects.point.z - p.z, 2))
