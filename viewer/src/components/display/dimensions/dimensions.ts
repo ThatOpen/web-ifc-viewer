@@ -1,4 +1,5 @@
 import {
+  BufferAttribute,
   BufferGeometry,
   Color,
   ConeGeometry,
@@ -13,12 +14,16 @@ import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
 import { IfcComponent } from '../../../base-types';
 import { IfcDimensionLine } from './dimension-line';
 import { IfcContext } from '../../context';
+import { IfcManager } from '../../ifc';
+import GrahamScan from './graham-scan';
 
 type DimensionUnits = "m" | "mm";
 
 export class IfcDimensions extends IfcComponent {
   private readonly context: IfcContext;
+  private readonly manager: IfcManager;
   private dimensions: IfcDimensionLine[] = [];
+  private interEnd?: Intersection;
   private currentDimension?: IfcDimensionLine;
   private currentDimensionIn2D?: IfcDimensionLine;
   readonly labelClassName = 'ifcjs-dimension-label';
@@ -54,9 +59,10 @@ export class IfcDimensions extends IfcComponent {
   private startPoint = new Vector3();
   private endPoint = new Vector3();
 
-  constructor(context: IfcContext) {
+  constructor(context: IfcContext, manager: IfcManager) {
     super(context);
     this.context = context;
+    this.manager = manager
     this.endpoint = IfcDimensions.getDefaultEndpointGeometry();
     const htmlPreview = document.createElement('div');
     htmlPreview.className = this.previewClassName;
@@ -220,13 +226,139 @@ export class IfcDimensions extends IfcComponent {
     this.dimensionIn2D = state;
   }
 
-  private drawStart() {
+  private async drawStart() {
+    this.manager.selector.unpickIfcItems()
     this.dragging = true;
     const intersects = this.context.castRayIfc();
     if (!intersects) return;
     const found = this.getClosestVertex(intersects);
     if (!found) return;
-    this.startPoint = found;
+    const allVertices = await this.getModelGeometry(intersects) as number[][]
+    const surfaceVertices = this.grahamScan(allVertices)
+    const edgePoint = this.findPoint(intersects, surfaceVertices)
+
+    this.startPoint = this.dimensionIn2D ? edgePoint : found;
+  }
+
+  private grahamScan = (geometry: number[][]) => {
+    const grahamScan = new GrahamScan();
+    grahamScan.setPoints(geometry);
+    const hull = grahamScan.getHull();
+    return hull
+  }
+
+  private findPoint = (intersects: Intersection, geometry: number[][]): Vector3 => {
+    const vertices = geometry.map((point) => ({ x: point[0], z: point[1] }))
+    const arr = [...vertices, vertices[0]]
+
+    let closest = 10000;
+    let point = { x: 0, z: 0 }
+
+    arr.forEach((_, i) => {
+      const segment = arr.slice(i, i + 2);
+
+      if (segment.length === 2) {
+        const A = segment[0]
+        const B = segment[1]
+        const C = intersects.point
+
+        const abx = B.x - A.x
+        const abz = B.z - A.z
+        const dacab = (C.x - A.x) * abx + (C.z - A.z) * abz
+        const dab = abx * abx + abz * abz
+        const t = dacab / dab
+        const D = { x: A.x + abx * t, z: A.z + abz * t }
+
+        const vertex = new Vector3(D.x, intersects.point.y, D.z);
+        const distance = intersects.point.distanceTo(vertex);
+
+        if (distance < closest) {
+          closest = distance
+          point = D
+        }
+      }
+    })
+
+    return new Vector3(point.x, intersects.point.y, point.z)
+  }
+
+  private async getModelGeometry(intersects: Intersection) {
+    if (!intersects) return
+
+    const item = await this.manager.selector.pickIfcItem(false, true);
+    this.manager.selector.unpickIfcItems()
+    if (!item) return
+
+    const geometry = await this.getGeometryFromSubset(item.id, item.modelID)
+    if (!geometry) return
+
+    const geometryNormal = geometry.getAttribute("normal")
+    const geometryPosition = geometry.getAttribute("position")
+
+    if (!intersects.face?.normal) return
+
+    const faceNormal = new Vector3(
+      parseFloat(intersects.face.normal.x.toFixed(3)),
+      parseFloat(intersects.face.normal.y.toFixed(3)),
+      parseFloat(intersects.face.normal.z.toFixed(3)),
+    )
+
+    const vertices: Vector3[] = []
+    const res: number[][] = []
+
+    for (let i = 0; i < geometryPosition.count; i++) {
+      const vertex = new Vector3(
+        parseFloat(geometryPosition.getX(i).toFixed(3)),
+        parseFloat(geometryPosition.getY(i).toFixed(3)),
+        parseFloat(geometryPosition.getZ(i).toFixed(3))
+      )
+
+      const normal = new Vector3(
+        parseFloat(geometryNormal.getX(i).toFixed(3)),
+        parseFloat(geometryNormal.getY(i).toFixed(3)),
+        parseFloat(geometryNormal.getZ(i).toFixed(3))
+      )
+
+      if (normal.equals(faceNormal)) {
+        vertices.push(vertex)
+        res.push([vertex.x, vertex.z])
+      }
+    }
+
+    return res
+  }
+
+  private async getGeometryFromSubset(expressID: number, modelID: number) {
+    const customID = 'temp-subset';
+
+    const subset = this.manager.loader.ifcManager.createSubset({
+      ids: [expressID],
+      modelID,
+      removePrevious: true,
+      customID,
+    });
+
+    const position = subset.geometry.attributes.position;
+    const coordinates = [];
+
+    if (!subset.geometry.index) return;
+
+    for (let i = 0; i < subset.geometry.index.count; i++) {
+      const index = subset.geometry.index.array[i];
+
+      coordinates.push(position.array[3 * index]);
+      coordinates.push(position.array[3 * index + 1]);
+      coordinates.push(position.array[3 * index + 2]);
+    }
+
+    const geometry = new BufferGeometry();
+
+    geometry.setAttribute('position', new BufferAttribute(Float32Array.from(coordinates), 3));
+    geometry.computeVertexNormals();
+
+    this.manager.loader.ifcManager.removeSubset(modelID, undefined, customID);
+
+    return geometry;
   }
 
   private drawStartInPlane(plane: Object3D) {
@@ -244,22 +376,72 @@ export class IfcDimensions extends IfcComponent {
     if (!found) return;
     this.endPoint = found;
     if (!this.currentDimension) this.currentDimension = this.drawDimension();
-
+    this.interEnd = intersects;
     this.currentDimension.endPoint = this.endPoint;
   }
 
-  private drawEnd() {
+  private findEndPoint = (intersects: Intersection, geometry: number[][], startPoint: Vector3) => {
+    const vertices = geometry.map((point) => ({ x: point[0], z: point[1] }))
+    const arr = [...vertices, vertices[0]]
+
+    interface Point { x: 0, z: 0 }
+
+    let closest = 10000;
+    let point: Point[] = [{ x: 0, z: 0 }]
+
+    arr.forEach((_, i) => {
+      const segment = arr.slice(i, i + 2);
+
+      if (segment.length === 2) {
+        const A = segment[0]
+        const B = segment[1]
+        const C = intersects.point
+
+        const abx = B.x - A.x
+        const abz = B.z - A.z
+        const dacab = (C.x - A.x) * abx + (C.z - A.z) * abz
+        const dab = abx * abx + abz * abz
+        const t = dacab / dab
+        const D = { x: A.x + abx * t, z: A.z + abz * t }
+
+        const vertex = new Vector3(D.x, intersects.point.y, D.z);
+        const distance = intersects.point.distanceTo(vertex);
+
+        if (distance < closest) {
+          closest = distance
+          //@ts-ignore
+          point = segment
+        }
+      }
+    })
+
+    const getSpPoint = (A: Point, B: Point, C: Vector3) => {
+      const x1 = A.x, y1 = A.z, x2 = B.x, y2 = B.z, x3 = C.x, y3 = C.z;
+      const px = x2 - x1, py = y2 - y1, dAB = px * px + py * py;
+      const u = ((x3 - x1) * px + (y3 - y1) * py) / dAB;
+      const x = x1 + u * px, z = y1 + u * py;
+      return { x, z };
+    }
+
+    return getSpPoint(point[0], point[1], startPoint)
+  }
+
+  private async drawEnd() {
     if (!this.currentDimension) return;
     this.currentDimension.createBoundingBox();
     this.dimensions.push(this.currentDimension);
 
-    if (this.dimensionIn2D) {
+    if (this.dimensionIn2D && this.interEnd) {
       if (!this.currentDimensionIn2D) this.currentDimensionIn2D = this.draw2DDimension();
+      const allVertices = await this.getModelGeometry(this.interEnd) as number[][];
+      const surfaceVertices = this.grahamScan(allVertices);
+      const point = this.findEndPoint(this.interEnd, surfaceVertices, this.startPoint);
+
+      this.currentDimensionIn2D.endPoint = this.endPoint.setX(point.x);
+      this.currentDimensionIn2D.endPoint = this.endPoint.setZ(point.z);
       this.currentDimensionIn2D.endPoint = this.endPoint.setY(this.startPoint.y);
-      //@ts-ignore
-      // this.currentDimensionIn2D.endPoint = this.endPoint.setZ(this.currentDimension.axis.boundingSphere?.center.z || 0);
       this.currentDimensionIn2D.createBoundingBox();
-      console.log(this.currentDimensionIn2D)
+
       this.dimensions.push(this.currentDimensionIn2D);
       this.currentDimensionIn2D = undefined;
       this.currentDimension?.removeFromScene();
@@ -313,8 +495,6 @@ export class IfcDimensions extends IfcComponent {
   }
 
   private getClosestVertex(intersects: Intersection) {
-    let closestVertex = new Vector3();
-    let vertexFound = false;
     let closestDistance = Number.MAX_SAFE_INTEGER;
     const vertices = this.getVertices(intersects);
     vertices?.forEach((vertex) => {
@@ -322,12 +502,10 @@ export class IfcDimensions extends IfcComponent {
       const distance = intersects.point.distanceTo(vertex);
 
       if (distance > closestDistance || distance > this.snapDistance) return;
-      vertexFound = true;
-      closestVertex = vertex;
       closestDistance = intersects.point.distanceTo(vertex);
     });
 
-    return vertexFound ? closestVertex : intersects.point;
+    return intersects.point;
   }
 
   private getVertices(intersects: Intersection) {
@@ -344,6 +522,7 @@ export class IfcDimensions extends IfcComponent {
   private getVertex(index: number, geom: BufferGeometry) {
     if (index === undefined) return null;
     const vertices = geom.attributes.position;
+
     return new Vector3(vertices.getX(index), vertices.getY(index), vertices.getZ(index));
   }
 }
