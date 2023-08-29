@@ -249,30 +249,49 @@ export class IfcDimensions extends IfcComponent {
 
   private findEdges = (intersects: Intersection, geometry: number[][]): Vector3 => {
     const vertices = geometry.map((point) => ({ x: point[0], z: point[1] }))
-
-    function distance(p: any) {
+    const distance = (p: any) => {
       return Math.sqrt(Math.pow(intersects.point.x - p.x, 2) + Math.pow(intersects.point.z - p.z, 2))
     }
 
-    let closest = vertices.reduce((a, b) => distance(a) < distance(b) ? a : b);
+    const closest = vertices.reduce((a, b) => distance(a) < distance(b) ? a : b);
+    const arr = [...vertices, vertices[0]]
+    
 
-    const points = [];
-    const scene = this.context.getScene()
-    const material = new LineBasicMaterial({ color: 0x0000ff });
-    points.push(new Vector3(closest.x, intersects.point.y, closest.z));
-    points.push(new Vector3(intersects.point.x, intersects.point.y, intersects.point.z));
-    points.push(new Vector3(closest.x, intersects.point.y, intersects.point.z));
-    const g = new BufferGeometry().setFromPoints(points);
-    const line = new Line(g, material);
-    scene.add(line);
+    let minClosest = 100;
+    let currentPoint = 0
 
-    const htmlText = document.createElement('div');
-    htmlText.textContent = "V"
-    const label = new CSS2DObject(htmlText);
-    label.position.set(closest.x, intersects.point.y, closest.z);
-    scene.add(label);
+     arr.forEach((e, i) => {
+      const el = arr.slice(i, i+2);
 
-    return new Vector3(closest.x, intersects.point.y, closest.z)
+      if(el.length === 2) {
+        const A = el[0]
+        const B = el[1]
+        const C = intersects.point
+    
+        const abx = B.x - A.x
+        const aby = B.z - A.z
+        const dacab = (C.x - A.x) * abx + (C.z - A.z) * aby
+        const dab = abx * abx + aby * aby
+        const t = dacab / dab
+    
+        const D = {
+          x: A.x + abx * t,
+          z: A.z + aby * t
+        }
+
+        const vertex = new Vector3(D.x, intersects.point.y, D.z);
+        const distance = intersects.point.distanceTo(vertex);
+
+        if(distance < minClosest) {
+          minClosest = distance
+          currentPoint = D
+        }
+      }
+
+    })
+    console.log(minClosest, currentPoint)
+
+    return new Vector3(currentPoint.x, intersects.point.y, currentPoint.z)
   }
 
   private async getModelGeometry(intersects: Intersection) {
