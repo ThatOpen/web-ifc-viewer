@@ -25,6 +25,7 @@ export class IfcDimensions extends IfcComponent {
   private readonly context: IfcContext;
   private readonly manager: IfcManager;
   private dimensions: IfcDimensionLine[] = [];
+  private interEnd?: Intersection;
   private currentDimension?: IfcDimensionLine;
   private currentDimensionIn2D?: IfcDimensionLine;
   readonly labelClassName = 'ifcjs-dimension-label';
@@ -376,20 +377,31 @@ export class IfcDimensions extends IfcComponent {
     if (!found) return;
     this.endPoint = found;
     if (!this.currentDimension) this.currentDimension = this.drawDimension();
-
+    this.interEnd = intersects;
     this.currentDimension.endPoint = this.endPoint;
   }
 
-  private drawEnd() {
+  private async drawEnd() {
     if (!this.currentDimension) return;
     this.currentDimension.createBoundingBox();
     this.dimensions.push(this.currentDimension);
 
-    if (this.dimensionIn2D) {
+    if (this.dimensionIn2D && this.interEnd) {
       if (!this.currentDimensionIn2D) this.currentDimensionIn2D = this.draw2DDimension();
+      const allVertices = await this.getModelGeometry(this.interEnd) as number[][]
+      const surfaceVertices = this.grahamScan(allVertices)
+      const edgePoint = this.findPoint(this.interEnd, surfaceVertices)
+
+      console.log(edgePoint)
+
+
+
+
+
+
+      this.currentDimensionIn2D.endPoint = this.endPoint.setX(edgePoint.x);
+      this.currentDimensionIn2D.endPoint = this.endPoint.setZ(edgePoint.z);
       this.currentDimensionIn2D.endPoint = this.endPoint.setY(this.startPoint.y);
-      //@ts-ignore
-      // this.currentDimensionIn2D.endPoint = this.endPoint.setZ(this.currentDimension.axis.boundingSphere?.center.z || 0);
       this.currentDimensionIn2D.createBoundingBox();
 
       this.dimensions.push(this.currentDimensionIn2D);
