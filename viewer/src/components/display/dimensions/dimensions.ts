@@ -4,8 +4,6 @@ import {
   Color,
   ConeGeometry,
   Intersection,
-  Line,
-  LineBasicMaterial,
   LineDashedMaterial,
   Mesh,
   MeshBasicMaterial,
@@ -256,7 +254,7 @@ export class IfcDimensions extends IfcComponent {
     let closest = 10000;
     let point = { x: 0, z: 0 }
 
-    arr.forEach((e, i) => {
+    arr.forEach((_, i) => {
       const segment = arr.slice(i, i + 2);
 
       if (segment.length === 2) {
@@ -391,7 +389,7 @@ export class IfcDimensions extends IfcComponent {
     let closest = 10000;
     let point: Point[] = [{ x: 0, z: 0 }]
 
-    arr.forEach((e, i) => {
+    arr.forEach((_, i) => {
       const segment = arr.slice(i, i + 2);
 
       if (segment.length === 2) {
@@ -497,8 +495,6 @@ export class IfcDimensions extends IfcComponent {
   }
 
   private getClosestVertex(intersects: Intersection) {
-    let closestVertex = new Vector3();
-    let vertexFound = false;
     let closestDistance = Number.MAX_SAFE_INTEGER;
     const vertices = this.getVertices(intersects);
     vertices?.forEach((vertex) => {
@@ -506,8 +502,6 @@ export class IfcDimensions extends IfcComponent {
       const distance = intersects.point.distanceTo(vertex);
 
       if (distance > closestDistance || distance > this.snapDistance) return;
-      vertexFound = true;
-      closestVertex = vertex;
       closestDistance = intersects.point.distanceTo(vertex);
     });
 
