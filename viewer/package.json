@@ -1,7 +1,7 @@
 {
   "name": "mtn-ifc-viewer",
-  "version": "0.0.2",
-  "description": "IFC viewer",
+  "version": "0.0.3",
+  "description": "vie",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
@@ -14,13 +14,6 @@
     "type": "git",
     "url": "git+https://github.com/ifcjs/web-ifc-viewer.git"
   },
-  "keywords": [
-    "ifc",
-    "geometry",
-    "threejs",
-    "bim",
-    "3d"
-  ],
   "author": "agviegas",
   "license": "MIT",
   "bugs": {
