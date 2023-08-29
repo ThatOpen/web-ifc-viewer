@@ -236,7 +236,7 @@ export class IfcDimensions extends IfcComponent {
     if (!found) return;
     const allVertices = await this.getModelGeometry(intersects) as number[][]
     const surfaceVertices = this.grahamScan(allVertices)
-    const edgePoint = this.findEdges(intersects, surfaceVertices)
+    const edgePoint = this.findPoint(intersects, surfaceVertices)
     this.startPoint = edgePoint;
   }
 
@@ -247,7 +247,7 @@ export class IfcDimensions extends IfcComponent {
     return hull
   }
 
-  private findEdges = (intersects: Intersection, geometry: number[][]): Vector3 => {
+  private findPoint = (intersects: Intersection, geometry: number[][]): Vector3 => {
     const vertices = geometry.map((point) => ({ x: point[0], z: point[1] }))
     const arr = [...vertices, vertices[0]]
 
@@ -255,19 +255,19 @@ export class IfcDimensions extends IfcComponent {
     let point = { x: 0, z: 0 }
 
     arr.forEach((e, i) => {
-      const el = arr.slice(i, i + 2);
+      const segment = arr.slice(i, i + 2);
 
-      if (el.length === 2) {
-        const A = el[0]
-        const B = el[1]
+      if (segment.length === 2) {
+        const A = segment[0]
+        const B = segment[1]
         const C = intersects.point
 
         const abx = B.x - A.x
-        const aby = B.z - A.z
-        const dacab = (C.x - A.x) * abx + (C.z - A.z) * aby
-        const dab = abx * abx + aby * aby
+        const abz = B.z - A.z
+        const dacab = (C.x - A.x) * abx + (C.z - A.z) * abz
+        const dab = abx * abx + abz * abz
         const t = dacab / dab
-        const D = { x: A.x + abx * t, z: A.z + aby * t }
+        const D = { x: A.x + abx * t, z: A.z + abz * t }
 
         const vertex = new Vector3(D.x, intersects.point.y, D.z);
         const distance = intersects.point.distanceTo(vertex);
