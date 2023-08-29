@@ -381,6 +381,41 @@ export class IfcDimensions extends IfcComponent {
     this.currentDimension.endPoint = this.endPoint;
   }
 
+  private findEndPoint = (intersects: Intersection, geometry: number[][]) => {
+    const vertices = geometry.map((point) => ({ x: point[0], z: point[1] }))
+    const arr = [...vertices, vertices[0]]
+
+    let closest = 10000;
+    let point = { x: 0, z: 0 }
+
+    arr.forEach((e, i) => {
+      const segment = arr.slice(i, i + 2);
+
+      if (segment.length === 2) {
+        const A = segment[0]
+        const B = segment[1]
+        const C = intersects.point
+
+        const abx = B.x - A.x
+        const abz = B.z - A.z
+        const dacab = (C.x - A.x) * abx + (C.z - A.z) * abz
+        const dab = abx * abx + abz * abz
+        const t = dacab / dab
+        const D = { x: A.x + abx * t, z: A.z + abz * t }
+
+        const vertex = new Vector3(D.x, intersects.point.y, D.z);
+        const distance = intersects.point.distanceTo(vertex);
+
+        if (distance < closest) {
+          closest = distance
+          point = segment
+        }
+      }
+    })
+
+    return point
+  }
+
   private async drawEnd() {
     if (!this.currentDimension) return;
     this.currentDimension.createBoundingBox();
@@ -389,18 +424,33 @@ export class IfcDimensions extends IfcComponent {
     if (this.dimensionIn2D && this.interEnd) {
       if (!this.currentDimensionIn2D) this.currentDimensionIn2D = this.draw2DDimension();
       const allVertices = await this.getModelGeometry(this.interEnd) as number[][]
-      const surfaceVertices = this.grahamScan(allVertices)
-      const edgePoint = this.findPoint(this.interEnd, surfaceVertices)
+      const surfaceVertices = this.grahamScan(allVertices);
+      const edgePoint = this.findPoint(this.interEnd, surfaceVertices);
+      const end = this.findEndPoint(this.interEnd, surfaceVertices)
 
       console.log(edgePoint)
+      console.log(end)
+
+
+      27
+
+      function getSpPoint(A,B,C){
+          var x1=A.x, y1=A.z, x2=B.x, y2=B.z, x3=C.x, y3=C.z;
+          var px = x2-x1, py = y2-y1, dAB = px*px + py*py;
+          var u = ((x3 - x1) * px + (y3 - y1) * py) / dAB;
+          var x = x1 + u * px, y = y1 + u * py;
+          return {x:x, z:y}; //this is D
+      }
+      const p = getSpPoint(end[0], end[1], this.startPoint)
+
+      console.log(getSpPoint(end[0], end[1], this.startPoint))
 
 
 
 
 
-
-      this.currentDimensionIn2D.endPoint = this.endPoint.setX(edgePoint.x);
-      this.currentDimensionIn2D.endPoint = this.endPoint.setZ(edgePoint.z);
+      this.currentDimensionIn2D.endPoint = this.endPoint.setX(p.x);
+      this.currentDimensionIn2D.endPoint = this.endPoint.setZ(p.z);
       this.currentDimensionIn2D.endPoint = this.endPoint.setY(this.startPoint.y);
       this.currentDimensionIn2D.createBoundingBox();
 
