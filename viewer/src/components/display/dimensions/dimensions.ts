@@ -249,49 +249,37 @@ export class IfcDimensions extends IfcComponent {
 
   private findEdges = (intersects: Intersection, geometry: number[][]): Vector3 => {
     const vertices = geometry.map((point) => ({ x: point[0], z: point[1] }))
-    const distance = (p: any) => {
-      return Math.sqrt(Math.pow(intersects.point.x - p.x, 2) + Math.pow(intersects.point.z - p.z, 2))
-    }
-
-    const closest = vertices.reduce((a, b) => distance(a) < distance(b) ? a : b);
     const arr = [...vertices, vertices[0]]
-    
 
-    let minClosest = 100;
-    let currentPoint = 0
+    let closest = 10000;
+    let point = { x: 0, z: 0 }
 
-     arr.forEach((e, i) => {
-      const el = arr.slice(i, i+2);
+    arr.forEach((e, i) => {
+      const el = arr.slice(i, i + 2);
 
-      if(el.length === 2) {
+      if (el.length === 2) {
         const A = el[0]
         const B = el[1]
         const C = intersects.point
-    
+
         const abx = B.x - A.x
         const aby = B.z - A.z
         const dacab = (C.x - A.x) * abx + (C.z - A.z) * aby
         const dab = abx * abx + aby * aby
         const t = dacab / dab
-    
-        const D = {
-          x: A.x + abx * t,
-          z: A.z + aby * t
-        }
+        const D = { x: A.x + abx * t, z: A.z + aby * t }
 
         const vertex = new Vector3(D.x, intersects.point.y, D.z);
         const distance = intersects.point.distanceTo(vertex);
 
-        if(distance < minClosest) {
-          minClosest = distance
-          currentPoint = D
+        if (distance < closest) {
+          closest = distance
+          point = D
         }
       }
-
     })
-    console.log(minClosest, currentPoint)
 
-    return new Vector3(currentPoint.x, intersects.point.y, currentPoint.z)
+    return new Vector3(point.x, intersects.point.y, point.z)
   }
 
   private async getModelGeometry(intersects: Intersection) {
