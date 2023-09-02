@@ -11,7 +11,7 @@ import {
   DepthTexture,
   WebGLRenderTarget, Material, BufferGeometry, BufferAttribute, Mesh
 } from 'three';
-import { ClippingEdges } from 'web-ifc-viewer/dist/components/display/clipping-planes/clipping-edges';
+import { ClippingEdges } from 'web-ifc-viewer/dist';
 import Stats from 'stats.js/src/Stats';
 
 const container = document.getElementById('viewer-container');

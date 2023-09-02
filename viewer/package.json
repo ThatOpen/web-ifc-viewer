@@ -2,11 +2,13 @@
   "name": "web-ifc-viewer",
   "version": "1.0.218",
   "description": "IFC viewer",
-  "main": "dist/index.js",
   "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "watch": "tsc -w",
-    "build": "tsc",
+    "build": "tsc --noEmit && tsup",
     "test": "jest",
     "test:watch": "jest --watch"
   },
@@ -52,6 +54,7 @@
     "prettier": "^2.3.1",
     "ts-jest": "^27.0.3",
     "ts-node": "^10.0.0",
+    "tsup": "^7.2.0",
     "typescript": "^4.3.2"
   },
   "browser": {

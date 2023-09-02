@@ -2,7 +2,6 @@ import { Color } from 'three';
 import {
   IfcContext,
   IfcManager,
-  ViewerOptions,
   IfcGrid,
   IfcAxes,
   IfcClipper,
@@ -19,6 +18,7 @@ import { PDFWriter } from './components/import-export/pdf';
 import { EdgeProjector } from './components/import-export/edges-vectorizer/edge-projection';
 import { ClippingEdges } from './components/display/clipping-planes/clipping-edges';
 import { SelectionWindow } from './components/selection/selection-window';
+import { ViewerOptions } from './base-types';
 
 export class IfcViewerAPI {
   context: IfcContext;
