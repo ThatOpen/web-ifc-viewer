@@ -7,34 +7,34 @@ export class IfcAlignmentsManager {
       const alignment = modelAlignments[0];
       const startH = { x: 0, y: 0, z: 0 };
       const startV = { x: 0, y: 0, z: 0 };
-      let finish = false;
+      // let finish = false;
 
-      // Finding starting points for vertical and horizontal alignments
+      // // Finding starting points for vertical and horizontal alignments
 
-      for (let i = 0; i < alignment.horizontal.length; i++) {
-        for (let j = 0; j < alignment.horizontal[i].points.length; j++) {
-          startH.x = alignment.horizontal[i].points[j].x;
-          startH.y = alignment.horizontal[i].points[j].y;
-          startH.z = 0;
-          finish = true;
-          break;
-        }
-        if (finish) {
-          break;
-        }
-      }
-      for (let i = 0; i < alignment.vertical.length; i++) {
-        for (let j = 0; j < alignment.vertical[i].points.length; j++) {
-          startV.x = alignment.vertical[i].points[j].x;
-          startV.y = alignment.vertical[i].points[j].y;
-          startV.z = 0;
-          finish = true;
-          break;
-        }
-        if (finish) {
-          break;
-        }
-      }
+      // for (let i = 0; i < alignment.horizontal.length; i++) {
+      //   for (let j = 0; j < alignment.horizontal[i].points.length; j++) {
+      //     startH.x = alignment.horizontal[i].points[j].x;
+      //     startH.y = alignment.horizontal[i].points[j].y;
+      //     startH.z = 0;
+      //     finish = true;
+      //     break;
+      //   }
+      //   if (finish) {
+      //     break;
+      //   }
+      // }
+      // for (let i = 0; i < alignment.vertical.length; i++) {
+      //   for (let j = 0; j < alignment.vertical[i].points.length; j++) {
+      //     startV.x = alignment.vertical[i].points[j].x;
+      //     startV.y = alignment.vertical[i].points[j].y;
+      //     startV.z = 0;
+      //     finish = true;
+      //     break;
+      //   }
+      //   if (finish) {
+      //     break;
+      //   }
+      // }
 
       // Construct Horizontal alignment
 
@@ -88,8 +88,8 @@ export class IfcAlignmentsManager {
 
       for (let i = 0; i < alignment.horizontal.length; i++) {
         for (let j = 0; j < alignment.horizontal[i].points.length; j++) {
-          startH.x = alignment.horizontal[i].points[j].x;
-          startH.y = alignment.horizontal[i].points[j].y;
+          startH.x = alignment.horizontal[i].points[j].x * 0;
+          startH.y = alignment.horizontal[i].points[j].y * 0;
           startH.z = 0;
           finish = true;
           break;
@@ -98,10 +98,11 @@ export class IfcAlignmentsManager {
           break;
         }
       }
+
       for (let i = 0; i < alignment.vertical.length; i++) {
         for (let j = 0; j < alignment.vertical[i].points.length; j++) {
-          startV.x = alignment.vertical[i].points[j].x;
-          startV.y = alignment.vertical[i].points[j].y;
+          startV.x = alignment.vertical[i].points[j].x * 0;
+          startV.y = alignment.vertical[i].points[j].y * 0;
           startV.z = 0;
           finish = true;
           break;

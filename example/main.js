@@ -105,7 +105,7 @@ viewer.IFC.setWasmPath('files/');
 
 viewer.IFC.loader.ifcManager.applyWebIfcConfig({
   USE_FAST_BOOLS: true,
-  COORDINATE_TO_ORIGIN: true
+  COORDINATE_TO_ORIGIN: false
 });
 
 viewer.context.renderer.postProduction.active = true;
