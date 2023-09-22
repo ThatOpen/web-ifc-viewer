@@ -13,6 +13,9 @@
 </p>
 
 <img src="banner.png">
+
+<h1>THIS LIBRARY IS DEPRECATED. USE <a href="https://github.com/ifcjs/components">COMPONENTS</a> INSTEAD</h1>
+
 <h1>web-ifc-viewer <img src="https://ifcjs.github.io/info/img/logo.svg" width="32"></h1>
 
 ![npm](https://img.shields.io/npm/dw/web-ifc-viewer)
