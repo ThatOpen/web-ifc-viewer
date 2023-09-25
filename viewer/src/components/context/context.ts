@@ -1,4 +1,5 @@
-import { Clock, Mesh, Object3D, Plane, Vector2, Vector3 } from 'three';
+import { Clock, Matrix4, Mesh, Object3D, Plane, Vector2, Vector3 } from 'three';
+import { VRButton } from 'three/examples/jsm/webxr/VRButton';
 import { IfcCamera } from './camera/camera';
 import { IfcRaycaster } from './raycaster';
 import { IfcRenderer } from './renderer/renderer';
@@ -178,6 +179,10 @@ export class IfcContext {
     return this.ifcCaster.castRayIfc();
   }
 
+  castVrRay(from: Matrix4, to: Matrix4) {
+    return this.ifcCaster.castVrRay(from, to);
+  }
+
   fitToFrame() {
     this.ifcCamera.navMode[NavigationModes.Orbit].fitModelToFrame();
   }
@@ -196,6 +201,8 @@ export class IfcContext {
     if (this.stats) this.stats.begin();
     const isWebXR = this.options.webXR || false;
     if (isWebXR) {
+      document.body.appendChild(VRButton.createButton(this.getRenderer()));
+      this.getRenderer().xr.enabled = true;
       this.renderForWebXR();
     } else {
       requestAnimationFrame(this.render);
@@ -206,10 +213,13 @@ export class IfcContext {
 
   private renderForWebXR = () => {
     const newAnimationLoop = () => {
+      this.webXrMoveTracking();
       this.getRenderer().render(this.getScene(), this.getCamera());
     };
     this.getRenderer().setAnimationLoop(newAnimationLoop);
   };
+
+  webXrMoveTracking = () => {}; // empty function called on  webXR render loop; which is replaced in VRControllers to handle VR movement
 
   private updateAllComponents() {
     const delta = this.clock.getDelta();

@@ -1,4 +1,4 @@
-import { Intersection, Object3D, Raycaster } from 'three';
+import { Intersection, Matrix4, Object3D, Raycaster } from 'three';
 import { IfcComponent } from '../../base-types';
 import { IfcContext } from './context';
 
@@ -27,6 +27,12 @@ export class IfcRaycaster extends IfcComponent {
     const items = this.castRay(this.context.items.pickableIfcModels);
     const filtered = this.filterClippingPlanes(items);
     return filtered.length > 0 ? filtered[0] : null;
+  }
+
+  castVrRay(from: Matrix4, to: Matrix4) {
+    this.raycaster.ray.origin.setFromMatrixPosition(from);
+    this.raycaster.ray.direction.set(0, 0, -1).applyMatrix4(to);
+    return this.raycaster.intersectObjects(this.context.items.pickableIfcModels)[0];
   }
 
   private filterClippingPlanes(objs: Intersection[]) {
