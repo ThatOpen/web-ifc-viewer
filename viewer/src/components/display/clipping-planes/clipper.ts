@@ -65,12 +65,13 @@ export class IfcClipper extends IfcComponent {
     (this.ifc as any) = null;
   }
 
-  createPlane = () => {
+  createPlane = (): IfcPlane | undefined => {
     if (!this.enabled) return;
     const intersects = this.context.castRayIfc();
     if (!intersects) return;
-    this.createPlaneFromIntersection(intersects);
+    const plane = this.createPlaneFromIntersection(intersects);
     this.intersection = undefined;
+    return plane
   };
 
   createFromNormalAndCoplanarPoint = (normal: Vector3, point: Vector3, isPlan = false) => {
@@ -90,7 +91,7 @@ export class IfcClipper extends IfcComponent {
     return plane;
   };
 
-  deletePlane = (plane?: IfcPlane) => {
+  deletePlane = (plane?: IfcPlane): IfcPlane | undefined => {
     let existingPlane: IfcPlane | undefined | null = plane;
     if (!existingPlane) {
       if (!this.enabled) return;
@@ -104,6 +105,7 @@ export class IfcClipper extends IfcComponent {
     this.context.removeClippingPlane(existingPlane.plane);
     this.updateMaterials();
     this.context.renderer.postProduction.update();
+    return existingPlane
   };
 
   deleteAllPlanes = () => {
@@ -127,7 +129,7 @@ export class IfcClipper extends IfcComponent {
     return null;
   };
 
-  private createPlaneFromIntersection = (intersection: Intersection) => {
+  private createPlaneFromIntersection = (intersection: Intersection): IfcPlane | undefined => {
     const constant = intersection.point.distanceTo(new Vector3(0, 0, 0));
     const normal = intersection.face?.normal;
     if (!constant || !normal) return;
@@ -138,6 +140,7 @@ export class IfcClipper extends IfcComponent {
     this.planes.push(plane);
     this.context.addClippingPlane(plane.plane);
     this.updateMaterials();
+    return plane
   };
 
   private normalizePlaneDirectionY(normal: Vector3) {
