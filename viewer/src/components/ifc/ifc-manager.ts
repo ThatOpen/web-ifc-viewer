@@ -17,6 +17,7 @@ export class IfcManager extends IfcComponent {
   units: IfcUnits;
   properties: IfcProperties;
   shadowDropper: ShadowDropper;
+  coordinationMatrices: { [modelID: number]: Matrix4 } = {};
   private readonly context: IfcContext;
 
   constructor(context: IfcContext) {
@@ -72,6 +73,7 @@ export class IfcManager extends IfcComponent {
       const settings = this.loader.ifcManager.state.webIfcSettings;
       const fastBools = settings?.USE_FAST_BOOLS || true;
       const coordsToOrigin = settings?.COORDINATE_TO_ORIGIN || false;
+      const currentCoordinationMatrix = this.loader.ifcManager.state.coordinationMatrix?.clone();
 
       await this.loader.ifcManager.applyWebIfcConfig({
         COORDINATE_TO_ORIGIN: firstModel && coordsToOrigin,
@@ -87,6 +89,9 @@ export class IfcManager extends IfcComponent {
         );
         const matrix = new Matrix4().fromArray(matrixArr);
         this.loader.ifcManager.setupCoordinationMatrix(matrix);
+        this.coordinationMatrices[ifcModel.modelID] = matrix;
+      } else if (currentCoordinationMatrix) {
+        this.coordinationMatrices[ifcModel.modelID] = currentCoordinationMatrix;
       }
 
       if (fitToFrame) this.context.fitToFrame();
@@ -173,6 +178,19 @@ export class IfcManager extends IfcComponent {
   }
 
   /**
+   * Gets the coordination matrix used to transform the specified model geometry.
+   */
+  async getCoordinationMatrix(modelID: number) {
+    if (this.coordinationMatrices[modelID]) {
+      return this.coordinationMatrices[modelID];
+    }
+    const matrixArr = await this.loader.ifcManager.ifcAPI.GetCoordinationMatrix(modelID);
+    const matrix = new Matrix4().fromArray(matrixArr);
+    this.coordinationMatrices[modelID] = matrix;
+    return matrix;
+  }
+
+  /**
    * @deprecated: use IFC.selector.prePickIfcItem() instead.
    */
   async prePickIfcItem() {
@@ -244,6 +262,7 @@ export class IfcManager extends IfcComponent {
       this.context.items.ifcModels.splice(modelID, 1);
       this.context.items.pickableIfcModels.splice(modelID, 1);
       this.shadowDropper.deleteShadow(modelID.toString());
+      delete this.coordinationMatrices[modelID];
 
       const scene = this.context.getScene();
       this.loader.ifcManager.close(modelID, scene);

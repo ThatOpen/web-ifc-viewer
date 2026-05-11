@@ -152,8 +152,8 @@ export class PlanManager {
   }
 
   private async getTransformHeight(modelID: number) {
-    const transformMatrix = await this.ifc.loader.ifcManager.ifcAPI.GetCoordinationMatrix(modelID);
-    return transformMatrix[13];
+    const transformMatrix = await this.ifc.getCoordinationMatrix(modelID);
+    return transformMatrix.elements[13];
   }
 
   private async getCurrentStoreys(modelID: number) {
