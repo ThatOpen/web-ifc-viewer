@@ -1,4 +1,4 @@
-import { Mesh, Vector3 } from 'three';
+import { Box3, Mesh, Vector3 } from 'three';
 import { IFCBUILDINGSTOREY, IFCBUILDING } from 'web-ifc';
 import { IfcPlane } from '../clipping-planes/planes';
 import { IfcClipper } from '../clipping-planes/clipper';
@@ -37,6 +37,7 @@ export class PlanManager {
   private previousCamera = new Vector3();
   private previousTarget = new Vector3();
   private previousProjection = CameraProjections.Perspective;
+  private modelBox = new Box3();
 
   constructor(private ifc: IfcManager, private context: IfcContext, private clipper: IfcClipper) {
     this.sectionFill = new Mesh();
@@ -56,7 +57,7 @@ export class PlanManager {
   }
 
   async create(config: PlanViewConfig) {
-    const { modelID, name } = config;
+    const { modelID } = config;
 
     const ortho = config.ortho || true;
     if (this.planLists[modelID] === undefined) this.planLists[modelID] = {};
@@ -64,7 +65,7 @@ export class PlanManager {
     const expressID = config.expressID;
 
     if (currentPlanlist[expressID]) return;
-    currentPlanlist[expressID] = { modelID, name, ortho, expressID };
+    currentPlanlist[expressID] = { ...config, ortho };
     await this.createClippingPlane(config, currentPlanlist[expressID]);
   }
 
@@ -181,7 +182,26 @@ export class PlanManager {
 
   private async moveCameraTo2DPlanPosition(animate: boolean) {
     if (this.floorPlanViewCached) await this.context.ifcCamera.cameraControls.reset(animate);
-    else await this.context.ifcCamera.cameraControls.setLookAt(0, 100, 0, 0, 0, 0, animate);
+    else {
+      const target = this.getCurrentPlanTarget();
+      await this.context.ifcCamera.cameraControls.setLookAt(
+        target.x,
+        target.y + this.defaultCameraOffset,
+        target.z,
+        target.x,
+        target.y,
+        target.z,
+        animate
+      );
+    }
+  }
+
+  private getCurrentPlanTarget() {
+    const target = new Vector3();
+    const model = this.context.items.ifcModels.find((item) => item.modelID === this.currentPlan?.modelID);
+    if (model) this.modelBox.setFromObject(model).getCenter(target);
+    if (this.currentPlan?.point) target.y = this.currentPlan.point.y;
+    return target;
   }
 
   private activateCurrentPlan() {
