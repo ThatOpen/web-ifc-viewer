@@ -71,6 +71,9 @@ export class StoreyManager {
   }
 
   private async getTransformHeight(modelID: number) {
+    const appliedMatrix = this.loader!.ifcManager.state.coordinationMatrix;
+    if (appliedMatrix) return appliedMatrix.elements[13];
+
     const transformMatrix = await this.loader!.ifcManager.ifcAPI.GetCoordinationMatrix(modelID);
     return transformMatrix[13];
   }

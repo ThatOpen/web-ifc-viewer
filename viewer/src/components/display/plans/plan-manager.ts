@@ -1,4 +1,4 @@
-import { Mesh, Vector3 } from 'three';
+import { Box3, Mesh, Vector3 } from 'three';
 import { IFCBUILDINGSTOREY, IFCBUILDING } from 'web-ifc';
 import { IfcPlane } from '../clipping-planes/planes';
 import { IfcClipper } from '../clipping-planes/clipper';
@@ -70,12 +70,13 @@ export class PlanManager {
 
   async goTo(modelID: number, name: string, animate = false) {
     if (this.currentPlan?.modelID === modelID && this.currentPlan.name === name) return;
+    const isChangingModel = this.active && this.currentPlan?.modelID !== modelID;
     this.storeCameraPosition();
     this.hidePreviousClippingPlane();
     this.getCurrentPlan(modelID, name);
     this.activateCurrentPlan();
-    if (!this.active) {
-      await this.moveCameraTo2DPlanPosition(animate);
+    if (!this.active || isChangingModel) {
+      await this.moveCameraTo2DPlanPosition(animate, isChangingModel);
       this.active = true;
     }
   }
@@ -152,6 +153,9 @@ export class PlanManager {
   }
 
   private async getTransformHeight(modelID: number) {
+    const appliedMatrix = this.ifc.loader.ifcManager.state.coordinationMatrix;
+    if (appliedMatrix) return appliedMatrix.elements[13];
+
     const transformMatrix = await this.ifc.loader.ifcManager.ifcAPI.GetCoordinationMatrix(modelID);
     return transformMatrix[13];
   }
@@ -179,9 +183,36 @@ export class PlanManager {
     this.context.ifcCamera.cameraControls.saveState();
   }
 
-  private async moveCameraTo2DPlanPosition(animate: boolean) {
-    if (this.floorPlanViewCached) await this.context.ifcCamera.cameraControls.reset(animate);
-    else await this.context.ifcCamera.cameraControls.setLookAt(0, 100, 0, 0, 0, 0, animate);
+  private async moveCameraTo2DPlanPosition(animate: boolean, ignoreCache = false) {
+    if (this.floorPlanViewCached && !ignoreCache) {
+      await this.context.ifcCamera.cameraControls.reset(animate);
+      return;
+    }
+
+    const center = this.getCurrentPlanCenter();
+    const targetHeight = this.currentPlan?.plane?.origin.y || 0;
+    await this.context.ifcCamera.cameraControls.setLookAt(
+      center.x,
+      targetHeight + this.defaultCameraOffset,
+      center.z,
+      center.x,
+      targetHeight,
+      center.z,
+      animate
+    );
+  }
+
+  private getCurrentPlanCenter() {
+    const currentPlan = this.currentPlan;
+    if (!currentPlan) return new Vector3();
+    const model = this.context.items.ifcModels.find(
+      (model) => model.modelID === currentPlan.modelID
+    );
+    if (!model) return new Vector3();
+    const box = new Box3().setFromObject(model);
+    const center = new Vector3();
+    box.getCenter(center);
+    return center;
   }
 
   private activateCurrentPlan() {
