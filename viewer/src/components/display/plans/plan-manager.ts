@@ -33,7 +33,7 @@ export class PlanManager {
   defaultCameraOffset = 30;
   storeys: { [modelID: number]: any[] } = [];
 
-  private floorPlanViewCached = false;
+  private cachedFloorPlanModelID?: number;
   private previousCamera = new Vector3();
   private previousTarget = new Vector3();
   private previousProjection = CameraProjections.Perspective;
@@ -179,12 +179,12 @@ export class PlanManager {
   }
 
   private cacheFloorplanView() {
-    this.floorPlanViewCached = true;
+    this.cachedFloorPlanModelID = this.currentPlan?.modelID;
     this.context.ifcCamera.cameraControls.saveState();
   }
 
   private async moveCameraTo2DPlanPosition(animate: boolean, ignoreCache = false) {
-    if (this.floorPlanViewCached && !ignoreCache) {
+    if (this.currentPlan && this.cachedFloorPlanModelID === this.currentPlan.modelID && !ignoreCache) {
       await this.context.ifcCamera.cameraControls.reset(animate);
       return;
     }
