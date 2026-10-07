@@ -50,7 +50,11 @@ export class IfcManager extends IfcComponent {
    */
   async loadIfc(file: File, fitToFrame = false, onError?: (err: any) => any) {
     const url = URL.createObjectURL(file);
-    return this.loadIfcUrl(url, fitToFrame, undefined, onError);
+    try {
+      return await this.loadIfcUrl(url, fitToFrame, undefined, onError);
+    } finally {
+      URL.revokeObjectURL(url);
+    }
   }
 
   /**
